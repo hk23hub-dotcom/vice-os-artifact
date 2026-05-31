@@ -519,39 +519,44 @@
   /* ─── FRACTAL NODE PANEL ─── */
   #fractal-node-panel {
     position: absolute;
-    bottom: 80px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%) translateY(24px);
-    width: min(420px, 90vw);
-    background: #080808;
+    transform: translate(-50%, -50%) translateY(20px);
+    width: min(560px, 92vw);
+    max-height: 82vh;
+    overflow-y: auto;
+    background: #060608;
     border: 1px solid #1E1E1E;
     border-radius: 2px;
-    padding: 28px 28px 24px;
+    padding: 26px 28px 22px;
     z-index: 20;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    transition: opacity 0.28s ease, transform 0.28s ease;
+    scrollbar-width: thin;
+    scrollbar-color: #1a1a1a #050505;
   }
   #fractal-node-panel.visible {
     opacity: 1;
     pointer-events: all;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, -50%) translateY(0);
   }
   .fnp-eyebrow {
     font-family: 'Space Mono', monospace;
     font-size: 8px;
     letter-spacing: 4px;
-    color: #333;
+    color: #2E2E2E;
     margin-bottom: 6px;
+    text-transform: uppercase;
   }
   .fnp-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
   }
   .fnp-title {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: -0.3px;
     line-height: 1.1;
@@ -565,66 +570,171 @@
     flex-shrink: 0;
     margin-left: 12px;
   }
-  .fnp-status.live    { background: rgba(170,255,0,0.12); color: #AAFF00; border: 1px solid rgba(170,255,0,0.25); }
-  .fnp-status.build   { background: rgba(255,210,0,0.10); color: #FFD200; border: 1px solid rgba(255,210,0,0.25); }
-  .fnp-status.soon    { background: rgba(0,240,255,0.08); color: #00F0FF; border: 1px solid rgba(0,240,255,0.20); }
-  .fnp-divider {
-    height: 1px;
-    background: #1A1A1A;
-    margin-bottom: 14px;
+  .fnp-status.live    { background: rgba(170,255,0,0.12);  color: #AAFF00; border: 1px solid rgba(170,255,0,0.25); }
+  .fnp-status.build   { background: rgba(255,210,0,0.10);  color: #FFD200; border: 1px solid rgba(255,210,0,0.25); }
+  .fnp-status.soon    { background: rgba(0,240,255,0.08);  color: #00F0FF; border: 1px solid rgba(0,240,255,0.20); }
+  .fnp-divider        { height: 1px; background: #181818; margin-bottom: 16px; }
+  .fnp-section-label  {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 4px;
+    color: #252525;
+    margin-bottom: 7px;
+    text-transform: uppercase;
   }
   .fnp-desc {
     font-size: 12px;
     color: #666;
-    line-height: 1.6;
+    line-height: 1.75;
+    margin-bottom: 16px;
+  }
+  .fnp-howto {
+    font-size: 11px;
+    color: #555;
+    line-height: 1.75;
     margin-bottom: 18px;
+    padding-left: 12px;
+    border-left: 2px solid #181818;
   }
-  .fnp-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+  .fnp-benefits {
+    list-style: none;
     margin-bottom: 20px;
-  }
-  .fnp-stat {
-    background: #0D0D0D;
-    border: 1px solid #161616;
-    border-radius: 2px;
-    padding: 10px 12px;
-  }
-  .fnp-stat-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 7px;
-    letter-spacing: 3px;
-    color: #333;
-    margin-bottom: 4px;
-  }
-  .fnp-stat-value {
-    font-size: 15px;
-    font-weight: 700;
-    color: #F0EDE8;
-  }
-  .fnp-footer {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    gap: 7px;
   }
+  .fnp-benefits li {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.55;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+  .fnp-ben-dot { flex-shrink: 0; font-size: 8px; margin-top: 2px; }
+  /* CTA live */
+  #fnp-cta-live { margin-bottom: 20px; }
   .fnp-action {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     letter-spacing: 3px;
-    padding: 9px 18px;
+    padding: 10px 22px;
     border-radius: 2px;
     cursor: pointer;
     border: none;
     font-weight: 700;
     transition: opacity 0.15s;
   }
-  .fnp-action:hover { opacity: 0.8; }
+  .fnp-action:hover { opacity: 0.82; }
+  /* CTA not-live */
+  #fnp-cta-soon { margin-bottom: 20px; }
+  .fnp-notify-title { font-size: 11px; color: #555; margin-bottom: 10px; line-height: 1.6; }
+  .fnp-email-row { display: flex; gap: 8px; margin-bottom: 8px; }
+  .fnp-email-input {
+    flex: 1;
+    background: #0C0C0E;
+    border: 1px solid #1A1A1A;
+    border-radius: 2px;
+    color: #ccc;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    padding: 8px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .fnp-email-input:focus { border-color: #333; }
+  .fnp-notify-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    padding: 8px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+  }
+  .fnp-notify-btn:hover { opacity: 0.78; }
+  .fnp-suggest-toggle-row { margin-bottom: 8px; }
+  .fnp-suggest-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: #2E2E2E;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+    padding: 0;
+  }
+  .fnp-suggest-btn:hover { color: #666; }
+  .fnp-suggest-area { margin-bottom: 10px; }
+  .fnp-textarea {
+    width: 100%;
+    background: #0C0C0E;
+    border: 1px solid #1A1A1A;
+    border-radius: 2px;
+    color: #999;
+    font-family: 'Space Grotesk', system-ui;
+    font-size: 11px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 78px;
+    outline: none;
+    margin-bottom: 8px;
+    line-height: 1.55;
+    transition: border-color 0.2s;
+  }
+  .fnp-textarea:focus { border-color: #333; }
+  .fnp-submit-suggest {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    padding: 7px 14px;
+    border-radius: 2px;
+    cursor: pointer;
+    background: transparent;
+    border: 1px solid;
+    transition: opacity 0.15s;
+  }
+  .fnp-submit-suggest:hover { opacity: 0.78; }
+  .fnp-reward-copy {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 1px;
+    color: #FFD200;
+    opacity: 0.40;
+    margin-top: 10px;
+    line-height: 1.55;
+  }
+  /* Stats (secondary) */
+  .fnp-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  .fnp-stat {
+    background: #0C0C0E;
+    border: 1px solid #141414;
+    border-radius: 2px;
+    padding: 8px 10px;
+  }
+  .fnp-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 3px;
+    color: #282828;
+    margin-bottom: 4px;
+  }
+  .fnp-stat-value { font-size: 13px; font-weight: 700; }
+  .fnp-footer { display: flex; justify-content: flex-end; padding-top: 4px; }
   .fnp-close {
     font-family: 'Space Mono', monospace;
     font-size: 9px;
     letter-spacing: 2px;
-    color: #333;
+    color: #2A2A2A;
     background: none;
     border: none;
     cursor: pointer;
@@ -802,10 +912,42 @@
       <div class="fnp-status" id="fnp-status">LIVE</div>
     </div>
     <div class="fnp-divider"></div>
+
+    <div class="fnp-section-label">PARA QUÉ SIRVE</div>
     <div class="fnp-desc" id="fnp-desc">—</div>
+
+    <div id="fnp-howto-wrap">
+      <div class="fnp-section-label">CÓMO SE USA</div>
+      <div class="fnp-howto" id="fnp-howto">—</div>
+    </div>
+
+    <div id="fnp-benefits-wrap">
+      <div class="fnp-section-label">BENEFICIOS</div>
+      <ul class="fnp-benefits" id="fnp-benefits"></ul>
+    </div>
+
+    <div id="fnp-cta-live">
+      <button class="fnp-action" id="fnp-action">—</button>
+    </div>
+
+    <div id="fnp-cta-soon">
+      <div class="fnp-notify-title">¿Querés ser el primero en probarlo?</div>
+      <div class="fnp-email-row">
+        <input type="email" class="fnp-email-input" id="fnp-email" placeholder="tu@email.com" />
+        <button class="fnp-notify-btn" id="fnp-notify-btn">AVISAR →</button>
+      </div>
+      <div class="fnp-suggest-toggle-row">
+        <button class="fnp-suggest-btn" id="fnp-suggest-toggle">+ DEJAR UNA RECOMENDACIÓN</button>
+      </div>
+      <div class="fnp-suggest-area" id="fnp-suggest-area" style="display:none">
+        <textarea class="fnp-textarea" id="fnp-suggestion" placeholder="¿Qué te gustaría ver? ¿Cómo querés que funcione? Tu input puede llegar directo al producto."></textarea>
+        <button class="fnp-submit-suggest" id="fnp-submit-suggest">ENVIAR RECOMENDACIÓN →</button>
+      </div>
+      <div class="fnp-reward-copy">✦ Los aportes son premiados con descuentos y membresías de socio.</div>
+    </div>
+
     <div class="fnp-stats" id="fnp-stats"></div>
     <div class="fnp-footer">
-      <button class="fnp-action" id="fnp-action">—</button>
       <button class="fnp-close" id="fnp-close">✕ CERRAR</button>
     </div>
   </div>
@@ -1460,16 +1602,34 @@ const PROJECTS = [
         { label: 'PERFORMANCE\nDNA',   x: 0.50, y: 0.16, color: '#AAFF00', size: 16,
           detail: { title: 'PERFORMANCE DNA', status: 'live', eyebrow: 'MÓDULO CORE',
             desc: 'Tu radar de golf personalizado. 5 ejes construidos desde tus rondas reales: Driver, Hierros, Juego Corto, Putting y Mental.',
+            howTo: 'Registra rondas y sesiones de entrenamiento. El sistema calcula automáticamente tus 5 ejes y actualiza el radar en tiempo real con cada entrada.',
+            benefits: [
+              'Identifica exactamente qué parte del juego te cuesta más strokes',
+              'Compara tu perfil contra el ranking global de ViceGolfer',
+              'El radar evoluciona con cada sesión — ves el progreso en tiempo real',
+            ],
             stats: [{ l:'DRIVER', v:'78' },{ l:'HIERROS', v:'65' },{ l:'JUEGO CORTO', v:'82' },{ l:'PUTTING', v:'71' },{ l:'MENTAL', v:'59' },{ l:'RONDAS', v:'23' }],
-            action: 'VER MI DNA →', actionColor: '#AAFF00' }},
+            action: 'VER MI DNA →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
         { label: 'PUTTING\nPROTOCOL', x: 0.82, y: 0.38, color: '#AAFF00', size: 13,
           detail: { title: 'PUTTING PROTOCOL', status: 'live', eyebrow: 'ENTRENAMIENTO',
             desc: 'Protocolo diario de 100 putts dividido en 3 zonas. Cada sesión actualiza tu DNA de putting en tiempo real.',
+            howTo: 'Abre la sesión de putting, selecciona la zona y registra cada putt. 100 putts divididos en 3 zonas de distancia: corta, media y larga.',
+            benefits: [
+              'Protocolo de 15 minutos que actualiza tu DNA de putting al instante',
+              'Tasa de conversión por zona para saber exactamente dónde entrenar más',
+              'Racha de días activos para mantener consistencia y hábito',
+            ],
             stats: [{ l:'SESIÓN HOY', v:'67/100' },{ l:'MAKE RATE', v:'74%' },{ l:'DIST. MEDIA', v:'2.3m' },{ l:'RACHA', v:'5 días' }],
-            action: 'INICIAR SESIÓN →', actionColor: '#AAFF00' }},
+            action: 'INICIAR SESIÓN →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
         { label: 'ANALYTICS',          x: 0.82, y: 0.64, color: '#B84DFF', size: 12,
           detail: { title: 'ANALYTICS', status: 'build', eyebrow: 'DATOS Y TENDENCIAS',
             desc: 'Tendencias de tu juego en el tiempo. Identifica qué parte de tu juego te está costando strokes reales.',
+            howTo: 'Se conecta automáticamente con tus rondas registradas. El sistema calcula tendencias, compara períodos y genera insights sin necesidad de input manual.',
+            benefits: [
+              'Detecta cuántos strokes te cuesta cada parte del juego en términos reales',
+              'Compara tu evolución período a período — mejoras y retrocesos objetivos',
+              'Insights automáticos para priorizar qué parte del juego trabajar primero',
+            ],
             stats: [{ l:'RONDAS', v:'23' },{ l:'MEJOR GHI', v:'71' },{ l:'TENDENCIA', v:'↑ +2.1' },{ l:'HANDICAP', v:'8.3' }],
             action: 'VER ANÁLISIS →', actionColor: '#B84DFF' }},
         { label: 'RANKINGS',           x: 0.50, y: 0.84, color: '#00F0FF', size: 11,
@@ -1500,11 +1660,23 @@ const PROJECTS = [
         { label: 'KICK\nTRACKER 2D',  x: 0.50, y: 0.16, color: '#00F0FF', size: 16,
           detail: { title: 'KICK TRACKER 2D', status: 'live', eyebrow: 'MÓDULO CORE',
             desc: 'Registra cada patada en un campo 2D interactivo. Zonas, ángulos, distancias y tasa de conversión en tiempo real.',
+            howTo: 'Abre el campo 2D, toca la posición de cada patada y marca si fue conversión o no. El sistema calcula ángulos, distancias y zonas automáticamente.',
+            benefits: [
+              'Mapa visual de tus zonas fuertes y débiles en el campo',
+              'Tasa de conversión por zona — sabés exactamente dónde entrenar más',
+              'Historial completo para comparar progresión entre sesiones',
+            ],
             stats: [{ l:'SESIONES', v:'41' },{ l:'PATADAS', v:'1,240' },{ l:'CONVERSIÓN', v:'68%' },{ l:'MEJOR', v:'94%' }],
-            action: 'INICIAR TRACKING →', actionColor: '#00F0FF' }},
+            action: 'INICIAR TRACKING →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
         { label: 'DNA 7\nEJES',       x: 0.82, y: 0.38, color: '#00F0FF', size: 13,
           detail: { title: 'PERFORMANCE DNA', status: 'build', eyebrow: 'RUGBY ESPECÍFICO',
             desc: '7 ejes de rendimiento rugby: Patada, Tackle, Velocidad, Resistencia, Potencia, Mental y Posicionamiento.',
+            howTo: 'Se construye automáticamente desde tus sesiones de tracking. Registra entrenamientos y partidos — el DNA se actualiza solo con cada entrada.',
+            benefits: [
+              '7 ejes específicos de rugby para una foto completa de tu perfil atlético',
+              'Compara con jugadores de tu posición a nivel regional y global',
+              'Identifica exactamente qué atributo limita tu próximo nivel',
+            ],
             stats: [{ l:'PATADA', v:'81' },{ l:'TACKLE', v:'74' },{ l:'VELOCIDAD', v:'68' },{ l:'MENTAL', v:'77' }],
             action: 'VER DNA →', actionColor: '#00F0FF' }},
         { label: 'RUGBY CV',          x: 0.82, y: 0.64, color: '#B84DFF', size: 11,
@@ -2893,7 +3065,6 @@ function closeFractalUniverse() {
 }
 
 let fractalHoveredNode = -1;
-let fractalMouseX = 0.5, fractalMouseY = 0.5; // normalized, for parallax
 
 function startFractalAnimation(project) {
   if (fractalAnimId) cancelAnimationFrame(fractalAnimId);
@@ -2904,262 +3075,188 @@ function startFractalAnimation(project) {
   const ctx = canvas.getContext('2d');
   const uni = project.universe;
   const color = project.color;
-  const nodePositions = [];
 
-  // ── 3D node positions: distribute around a sphere ──
-  const node3D = uni.nodes.map((n, i) => {
-    const phi   = (i / uni.nodes.length) * Math.PI * 2;
-    const theta = Math.PI * 0.35 + (i % 2 === 0 ? 0.3 : -0.3);
-    const radius = 0.30 + (i % 3) * 0.06;
-    return {
-      x0: Math.sin(theta) * Math.cos(phi) * radius,
-      y0: Math.cos(theta)                 * radius * 0.55,
-      z0: Math.sin(theta) * Math.sin(phi) * radius,
-    };
-  });
+  // ── 2D orbital system — same visual language as main universe ──
+  const EY = 0.60; // ellipse y-compression
+  const BASE_R     = [148, 192, 138, 200, 158, 182]; // alternating radii for visual depth
+  const BASE_SPD   = [0.00038,-0.00030, 0.00046,-0.00027, 0.00042,-0.00034];
+  const nodeOrbits = uni.nodes.map((n, i) => ({
+    r: BASE_R[i % BASE_R.length],
+    a: (i / uni.nodes.length) * Math.PI * 2,
+    spd: BASE_SPD[i % BASE_SPD.length],
+    px: 0, py: 0,
+  }));
+  const nodeHitPos = []; // updated per frame for hover
 
-  // 3D star field with depth
-  const stars3D = Array.from({length: 320}, () => {
-    const theta = Math.random() * Math.PI * 2;
-    const phi   = Math.acos(2 * Math.random() - 1);
-    const r = 0.55 + Math.random() * 0.45;
-    return {
-      x: Math.sin(phi) * Math.cos(theta) * r,
-      y: Math.cos(phi)                   * r,
-      z: Math.sin(phi) * Math.sin(theta) * r,
-      sz: 0.4 + Math.random() * 1.4,
-      a:  0.08 + Math.random() * 0.55,
-    };
-  });
-
-  // Floating nebula wisps
-  const wisps = Array.from({length: 6}, () => ({
-    x: (Math.random() - 0.5) * 0.8, y: (Math.random() - 0.5) * 0.5, z: (Math.random() - 0.5) * 0.6,
-    r: 0.10 + Math.random() * 0.14,
-    phase: Math.random() * Math.PI * 2,
+  // Static star field
+  const stars = Array.from({length: 200}, () => ({
+    x: Math.random(), y: Math.random(),
+    sz: 0.4 + Math.random() * 1.2,
+    a: 0.04 + Math.random() * 0.32,
+    tw: Math.random() * Math.PI * 2,
   }));
 
-  // Camera rotation state
-  let rotY = 0, rotX = 0;
-  let targetRotX = 0, targetRotY = 0;
-
-  // ── Perspective projection ──
-  function project3D(x3, y3, z3, W, H) {
-    // rotate around Y
-    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
-    const rx = x3 * cosY - z3 * sinY;
-    const rz = x3 * sinY + z3 * cosY;
-    // rotate around X
-    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
-    const ry = y3 * cosX - rz * sinX;
-    const fz = y3 * sinX + rz * cosX;
-    // perspective
-    const fov = 1.1;
-    const sc  = fov / (fov + fz + 0.001);
-    return { sx: W/2 + rx * sc * W * 0.46, sy: H/2 + ry * sc * H * 0.46, sc, fz };
-  }
-
-  // ── Event listeners ──
-  function onFractalMove(e) {
-    const rect = canvas.getBoundingClientRect();
-    fractalMouseX = (e.clientX - rect.left) / canvas.width;
-    fractalMouseY = (e.clientY - rect.top)  / canvas.height;
-    targetRotY =  (fractalMouseX - 0.5) * 0.55;
-    targetRotX = -(fractalMouseY - 0.5) * 0.38;
-    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  // ── Event handlers ──
+  function onMove(e) {
+    const mx = e.clientX, my = e.clientY;
     let found = -1;
-    nodePositions.forEach((np, i) => {
-      if (Math.hypot(mx - np.x, my - np.y) < np.r + 16) found = i;
+    nodeHitPos.forEach((sp, i) => {
+      if (Math.hypot(mx - sp.x, my - sp.y) < sp.r + 18) found = i;
     });
     fractalHoveredNode = found;
     canvas.style.cursor = found >= 0 ? 'pointer' : 'default';
   }
-  function onFractalClick(e) {
-    if (fractalHoveredNode >= 0) openFractalNodePanel(uni.nodes[fractalHoveredNode], color, project.label);
+  function onClick() {
+    if (fractalHoveredNode >= 0)
+      openFractalNodePanel(uni.nodes[fractalHoveredNode], color, project.label);
   }
-  canvas.addEventListener('mousemove', onFractalMove);
-  canvas.addEventListener('click', onFractalClick);
+  canvas.addEventListener('mousemove', onMove);
+  canvas.addEventListener('click', onClick);
   document.getElementById('fractal-back').onclick = () => {
-    canvas.removeEventListener('mousemove', onFractalMove);
-    canvas.removeEventListener('click', onFractalClick);
+    canvas.removeEventListener('mousemove', onMove);
+    canvas.removeEventListener('click', onClick);
     document.getElementById('fractal-node-panel').classList.remove('visible');
     closeFractalUniverse();
   };
 
   function loop() {
-    fractalT += 0.003;
+    fractalT += 0.004;
     const W = canvas.width, H = canvas.height;
-
-    // Smooth camera
-    rotY += (targetRotY + fractalT * 0.18 - rotY) * 0.04;
-    rotX += (targetRotX - rotX) * 0.04;
+    const cx = W * 0.50, cy = H * 0.47;
 
     ctx.clearRect(0, 0, W, H);
-    ctx.fillStyle = '#010103';
+    ctx.fillStyle = '#020204';
     ctx.fillRect(0, 0, W, H);
 
-    // ── Depth-sorted render list ──
-    const renderItems = [];
-
-    // Stars
-    stars3D.forEach(s => {
-      const p = project3D(s.x, s.y, s.z, W, H);
-      renderItems.push({ type: 'star', p, s });
+    // ── Stars ──
+    stars.forEach(s => {
+      const tw = Math.sin(fractalT * 0.35 + s.tw) * 0.08;
+      ctx.beginPath();
+      ctx.arc(s.x * W, s.y * H, s.sz, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${s.a + tw})`;
+      ctx.fill();
     });
 
-    // Wisps
-    wisps.forEach(w => {
-      const pulse = 0.88 + Math.sin(fractalT * 0.5 + w.phase) * 0.12;
-      const p = project3D(w.x, w.y, w.z, W, H);
-      renderItems.push({ type: 'wisp', p, w, pulse });
+    // ── Update node positions ──
+    nodeOrbits.forEach(o => {
+      o.a += o.spd;
+      o.px = cx + Math.cos(o.a) * o.r;
+      o.py = cy + Math.sin(o.a) * o.r * EY;
     });
+    nodeHitPos.length = 0;
 
-    // Nodes
-    node3D.forEach((n3, i) => {
-      const p = project3D(n3.x0, n3.y0, n3.z0, W, H);
-      renderItems.push({ type: 'node', p, i });
-    });
-
-    // Sort back-to-front by fz
-    renderItems.sort((a, b) => b.p.fz - a.p.fz);
-
-    // ── Center core glow (always behind) ──
-    const coreP = project3D(0, 0, 0, W, H);
-    const cr = (34 + Math.sin(fractalT * 0.7) * 3) * coreP.sc;
-    const cGlow = ctx.createRadialGradient(coreP.sx, coreP.sy, 0, coreP.sx, coreP.sy, cr * 6);
-    cGlow.addColorStop(0, color + '28'); cGlow.addColorStop(0.5, color + '0C'); cGlow.addColorStop(1, 'transparent');
-    ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, cr * 6, 0, Math.PI * 2);
-    ctx.fillStyle = cGlow; ctx.fill();
-
-    // ── Connection lines (depth-aware) ──
-    uni.connections.forEach(([a, b]) => {
-      const pa = project3D(node3D[a].x0, node3D[a].y0, node3D[a].z0, W, H);
-      const pb = project3D(node3D[b].x0, node3D[b].y0, node3D[b].z0, W, H);
-      const avgSc  = (pa.sc + pb.sc) * 0.5;
-      const isAct  = fractalHoveredNode === a || fractalHoveredNode === b;
-      ctx.setLineDash([3, 9]);
-      ctx.lineDashOffset = -fractalT * 14;
-      ctx.beginPath(); ctx.moveTo(pa.sx, pa.sy); ctx.lineTo(pb.sx, pb.sy);
-      ctx.strokeStyle = isAct ? color + '55' : color + '18';
-      ctx.lineWidth = avgSc * (isAct ? 1.0 : 0.45);
+    // ── Orbital rings (unique radii, faint) ──
+    const drawnR = new Set();
+    nodeOrbits.forEach(o => {
+      if (drawnR.has(o.r)) return;
+      drawnR.add(o.r);
+      ctx.save();
+      ctx.setLineDash([2, 14]);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, o.r, o.r * EY, 0, 0, Math.PI * 2);
+      ctx.strokeStyle = color + '12';
+      ctx.lineWidth = 0.5;
       ctx.stroke();
-    });
-    ctx.setLineDash([]); ctx.lineDashOffset = 0;
-
-    // ── Depth-sorted draw ──
-    nodePositions.length = 0;
-    renderItems.forEach(item => {
-      const { p } = item;
-
-      if (item.type === 'star') {
-        const depthAlpha = Math.max(0, Math.min(1, item.s.a * p.sc * 2.5));
-        ctx.beginPath();
-        ctx.arc(p.sx, p.sy, item.s.sz * p.sc, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${depthAlpha})`;
-        ctx.fill();
-
-      } else if (item.type === 'wisp') {
-        const wr = item.w.r * p.sc * W * item.pulse;
-        const g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, wr);
-        g.addColorStop(0, color + '09'); g.addColorStop(1, 'transparent');
-        ctx.beginPath(); ctx.arc(p.sx, p.sy, wr, 0, Math.PI * 2);
-        ctx.fillStyle = g; ctx.fill();
-
-      } else if (item.type === 'node') {
-        const i    = item.i;
-        const n    = uni.nodes[i];
-        const isHov = fractalHoveredNode === i;
-        const depthFade = 0.5 + p.sc * 0.8;
-        const pulse = Math.sin(fractalT * 1.6 + i * 1.1) * 1.5;
-        const nr = (n.size + pulse * 0.4 + (isHov ? 7 : 0)) * p.sc;
-        nodePositions.push({ x: p.sx, y: p.sy, r: nr });
-
-        // Spoke to center
-        ctx.beginPath(); ctx.moveTo(coreP.sx, coreP.sy); ctx.lineTo(p.sx, p.sy);
-        ctx.strokeStyle = `rgba(255,255,255,${isHov ? 0.06 : 0.025})`;
-        ctx.lineWidth = 0.3; ctx.stroke();
-
-        // Depth-scaled outer glow
-        const ng = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, nr * 5);
-        ng.addColorStop(0, n.color + (isHov ? '55' : '25'));
-        ng.addColorStop(1, 'transparent');
-        ctx.beginPath(); ctx.arc(p.sx, p.sy, nr * 5, 0, Math.PI * 2);
-        ctx.fillStyle = ng; ctx.fill();
-
-        // Rings
-        if (isHov) {
-          [nr + 9*p.sc, nr + 15*p.sc].forEach((r, ri) => {
-            ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
-            ctx.strokeStyle = n.color + (ri === 0 ? '55' : '30');
-            ctx.lineWidth = 0.6; ctx.stroke();
-          });
-          // Spinning arc
-          ctx.save(); ctx.translate(p.sx, p.sy); ctx.rotate(fractalT * 2.5);
-          ctx.beginPath(); ctx.arc(0, 0, nr + 12*p.sc, 0, Math.PI * 1.4);
-          ctx.strokeStyle = n.color + '80'; ctx.lineWidth = 1.0; ctx.stroke();
-          ctx.restore();
-        } else {
-          ctx.beginPath(); ctx.arc(p.sx, p.sy, nr + 4*p.sc, 0, Math.PI * 2);
-          ctx.strokeStyle = n.color + '30'; ctx.lineWidth = 0.4; ctx.stroke();
-        }
-
-        // Core sphere — gradient for 3D feel
-        const sg = ctx.createRadialGradient(
-          p.sx - nr * 0.3, p.sy - nr * 0.3, nr * 0.05,
-          p.sx, p.sy, nr
-        );
-        sg.addColorStop(0, 'rgba(255,255,255,' + (isHov ? '0.55' : '0.30') + ')');
-        sg.addColorStop(0.4, n.color + (isHov ? 'EE' : 'BB'));
-        sg.addColorStop(1, n.color + '55');
-        ctx.beginPath(); ctx.arc(p.sx, p.sy, nr, 0, Math.PI * 2);
-        ctx.fillStyle = sg; ctx.fill();
-
-        // Specular highlight dot
-        ctx.beginPath(); ctx.arc(p.sx - nr * 0.3, p.sy - nr * 0.3, nr * 0.22, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255,255,255,${isHov ? 0.45 : 0.20})`; ctx.fill();
-
-        // Label (depth-faded)
-        const labelAlpha = Math.max(0.25, depthFade) * (isHov ? 1 : 0.65);
-        const lines = n.label.split('\n');
-        ctx.font = `${isHov ? 700 : 600} ${Math.round((isHov ? 10 : 9) * p.sc + 7)}px Space Grotesk,system-ui`;
-        ctx.textAlign = 'center';
-        lines.forEach((line, li) => {
-          ctx.fillStyle = `rgba(255,255,255,${labelAlpha})`;
-          ctx.fillText(line, p.sx, p.sy + nr + (14 + li * 13) * p.sc);
-        });
-        if (isHov) {
-          ctx.font = `400 ${Math.round(7 * p.sc + 6)}px Space Mono,monospace`;
-          ctx.fillStyle = n.color + 'CC';
-          ctx.fillText('▶ PRESS', p.sx, p.sy + nr + (14 + lines.length * 13 + 3) * p.sc);
-        }
-      }
-    });
-
-    // ── Center core (always on top) ──
-    [cr*5.5, cr*3.5, cr*2].forEach((gr, gi) => {
-      const g = ctx.createRadialGradient(coreP.sx, coreP.sy, 0, coreP.sx, coreP.sy, gr);
-      g.addColorStop(0, color + ['20','18','12'][gi]);
-      g.addColorStop(1, 'transparent');
-      ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, gr, 0, Math.PI * 2);
-      ctx.fillStyle = g; ctx.fill();
-    });
-    [cr+10, cr+20, cr+32].forEach((or, i) => {
-      const oa = fractalT * (0.3 - i * 0.08) * (i % 2 ? -1 : 1);
-      ctx.save(); ctx.translate(coreP.sx, coreP.sy); ctx.rotate(oa);
-      ctx.beginPath(); ctx.ellipse(0, 0, or, or * (0.18 + i * 0.05), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = color + ['30','18','0C'][i]; ctx.lineWidth = 0.6 - i*0.15; ctx.stroke();
+      ctx.setLineDash([]);
       ctx.restore();
     });
-    // Core sphere gradient
-    const csg = ctx.createRadialGradient(coreP.sx - cr*0.3, coreP.sy - cr*0.3, cr*0.05, coreP.sx, coreP.sy, cr);
-    csg.addColorStop(0, 'rgba(255,255,255,0.4)');
-    csg.addColorStop(0.35, color + 'DD');
-    csg.addColorStop(1, color + '44');
-    ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, cr, 0, Math.PI * 2); ctx.fillStyle = csg; ctx.fill();
-    ctx.strokeStyle = color + 'AA'; ctx.lineWidth = 1.5; ctx.stroke();
-    ctx.font = `800 ${Math.round(12 * coreP.sc + 4)}px Space Grotesk,system-ui`;
+
+    // ── Spoke lines from sun to each node ──
+    nodeOrbits.forEach((o, i) => {
+      const isHov = fractalHoveredNode === i;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(o.px, o.py);
+      ctx.strokeStyle = isHov ? uni.nodes[i].color + '28' : color + '08';
+      ctx.lineWidth = isHov ? 0.8 : 0.3;
+      ctx.stroke();
+    });
+
+    // ── Center sun ──
+    const sunR = 28 + Math.sin(fractalT * 0.7) * 2;
+    // Outer corona
+    [sunR * 5.2, sunR * 3.4, sunR * 2.1].forEach((gr, gi) => {
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
+      g.addColorStop(0, color + ['32','22','14'][gi]);
+      g.addColorStop(1, 'transparent');
+      ctx.beginPath(); ctx.arc(cx, cy, gr, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+    });
+    // Tilted orbit rings around sun
+    [sunR+9, sunR+16, sunR+24].forEach((or, i) => {
+      ctx.save(); ctx.translate(cx, cy);
+      ctx.rotate(fractalT * (i % 2 ? -0.22 : 0.17) * (1 + i * 0.35));
+      ctx.beginPath();
+      ctx.ellipse(0, 0, or, or * (0.22 + i * 0.06), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = color + ['28','1A','0E'][i];
+      ctx.lineWidth = 0.8 - i * 0.2; ctx.stroke();
+      ctx.restore();
+    });
+    // Sun core sphere
+    const sg = ctx.createRadialGradient(cx - sunR*0.3, cy - sunR*0.3, sunR*0.05, cx, cy, sunR);
+    sg.addColorStop(0, 'rgba(255,255,255,0.50)');
+    sg.addColorStop(0.35, color + 'EE');
+    sg.addColorStop(1, color + '55');
+    ctx.beginPath(); ctx.arc(cx, cy, sunR, 0, Math.PI * 2);
+    ctx.fillStyle = sg; ctx.fill();
+    ctx.strokeStyle = color + 'BB'; ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.font = `800 11px 'Space Grotesk',system-ui`;
     ctx.fillStyle = '#080808'; ctx.textAlign = 'center';
-    ctx.fillText(project.label, coreP.sx, coreP.sy + 5);
+    ctx.fillText(project.label, cx, cy + 4);
+
+    // ── Nodes (orbiting planets) ──
+    nodeOrbits.forEach((o, i) => {
+      const n = uni.nodes[i];
+      const isHov = fractalHoveredNode === i;
+      const pulse = Math.sin(fractalT * 1.4 + i * 1.1) * 1.2;
+      const nr = n.size + pulse * 0.5 + (isHov ? 5 : 0);
+      nodeHitPos.push({ x: o.px, y: o.py, r: nr });
+
+      // Glow
+      const grd = ctx.createRadialGradient(o.px, o.py, 0, o.px, o.py, nr * 4.5);
+      grd.addColorStop(0, n.color + (isHov ? '45' : '20'));
+      grd.addColorStop(1, 'transparent');
+      ctx.beginPath(); ctx.arc(o.px, o.py, nr * 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = grd; ctx.fill();
+
+      // Orbit ring
+      if (isHov) {
+        ctx.save(); ctx.translate(o.px, o.py); ctx.rotate(fractalT * 2.2);
+        ctx.beginPath(); ctx.arc(0, 0, nr + 8, 0, Math.PI * 1.5);
+        ctx.strokeStyle = n.color + '88'; ctx.lineWidth = 0.9; ctx.stroke();
+        ctx.restore();
+        ctx.beginPath(); ctx.arc(o.px, o.py, nr + 14, 0, Math.PI * 2);
+        ctx.strokeStyle = n.color + '28'; ctx.lineWidth = 0.4; ctx.stroke();
+      } else {
+        ctx.beginPath(); ctx.arc(o.px, o.py, nr + 4, 0, Math.PI * 2);
+        ctx.strokeStyle = n.color + '22'; ctx.lineWidth = 0.4; ctx.stroke();
+      }
+
+      // Core sphere
+      const nsg = ctx.createRadialGradient(o.px - nr*0.3, o.py - nr*0.3, nr*0.05, o.px, o.py, nr);
+      nsg.addColorStop(0, `rgba(255,255,255,${isHov ? 0.52 : 0.28})`);
+      nsg.addColorStop(0.4, n.color + (isHov ? 'EE' : 'BB'));
+      nsg.addColorStop(1, n.color + '55');
+      ctx.beginPath(); ctx.arc(o.px, o.py, nr, 0, Math.PI * 2);
+      ctx.fillStyle = nsg; ctx.fill();
+      // Specular
+      ctx.beginPath(); ctx.arc(o.px - nr*0.3, o.py - nr*0.3, nr*0.2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${isHov ? 0.42 : 0.18})`; ctx.fill();
+
+      // Label
+      const lines = n.label.split('\n');
+      ctx.font = `${isHov ? 700 : 600} ${isHov ? 10 : 9}px 'Space Grotesk',system-ui`;
+      ctx.textAlign = 'center';
+      lines.forEach((line, li) => {
+        ctx.fillStyle = isHov ? '#FFFFFF' : '#777';
+        ctx.fillText(line, o.px, o.py + nr + 13 + li * 12);
+      });
+      if (isHov) {
+        ctx.font = `400 8px 'Space Mono',monospace`;
+        ctx.fillStyle = n.color + 'AA';
+        ctx.fillText('▶ ABRIR', o.px, o.py + nr + 14 + lines.length * 12);
+      }
+    });
 
     fractalAnimId = requestAnimationFrame(loop);
   }
@@ -3169,23 +3266,91 @@ function startFractalAnimation(project) {
 function openFractalNodePanel(node, projectColor, projectLabel) {
   const d = node.detail;
   const panel = document.getElementById('fractal-node-panel');
+
+  // ── Header ──
   document.getElementById('fnp-eyebrow').textContent = d.eyebrow || 'MÓDULO';
   document.getElementById('fnp-title').textContent = d.title;
   document.getElementById('fnp-title').style.color = node.color;
   const statusEl = document.getElementById('fnp-status');
   statusEl.textContent = d.status === 'live' ? 'LIVE' : d.status === 'build' ? 'EN BUILD' : 'PRÓXIMO';
   statusEl.className = 'fnp-status ' + (d.status === 'live' ? 'live' : d.status === 'build' ? 'build' : 'soon');
+
+  // ── Para qué sirve ──
   document.getElementById('fnp-desc').textContent = d.desc;
-  const statsEl = document.getElementById('fnp-stats');
-  statsEl.innerHTML = d.stats.map(s =>
+
+  // ── Cómo se usa ──
+  const howtoWrap = document.getElementById('fnp-howto-wrap');
+  document.getElementById('fnp-howto').textContent = d.howTo || '';
+  howtoWrap.style.display = d.howTo ? '' : 'none';
+
+  // ── Beneficios ──
+  const benWrap = document.getElementById('fnp-benefits-wrap');
+  if (d.benefits && d.benefits.length) {
+    benWrap.style.display = '';
+    document.getElementById('fnp-benefits').innerHTML = d.benefits.map(b =>
+      `<li><span class="fnp-ben-dot" style="color:${node.color}">▸</span>${b}</li>`
+    ).join('');
+  } else {
+    benWrap.style.display = 'none';
+  }
+
+  // ── CTA ──
+  const ctaLive = document.getElementById('fnp-cta-live');
+  const ctaSoon = document.getElementById('fnp-cta-soon');
+
+  if (d.status === 'live') {
+    ctaLive.style.display = '';
+    ctaSoon.style.display = 'none';
+    const btn = document.getElementById('fnp-action');
+    btn.textContent = d.action || 'ABRIR EN APP →';
+    btn.style.background = node.color;
+    btn.style.color = '#080808';
+    btn.onclick = () => { if (d.link) window.open(d.link, '_blank'); };
+  } else {
+    ctaLive.style.display = 'none';
+    ctaSoon.style.display = '';
+    // Reset state
+    const notifyBtn   = document.getElementById('fnp-notify-btn');
+    const suggestArea = document.getElementById('fnp-suggest-area');
+    const submitBtn   = document.getElementById('fnp-submit-suggest');
+    document.getElementById('fnp-email').value = '';
+    document.getElementById('fnp-suggestion').value = '';
+    suggestArea.style.display = 'none';
+    notifyBtn.textContent = 'AVISAR →';
+    notifyBtn.style.opacity = '1';
+    notifyBtn.style.borderColor = node.color;
+    notifyBtn.style.color = node.color;
+    submitBtn.textContent = 'ENVIAR RECOMENDACIÓN →';
+    submitBtn.style.opacity = '1';
+    submitBtn.style.borderColor = node.color;
+    submitBtn.style.color = node.color;
+
+    document.getElementById('fnp-suggest-toggle').onclick = () => {
+      suggestArea.style.display = suggestArea.style.display === 'none' ? '' : 'none';
+    };
+    notifyBtn.onclick = () => {
+      const email = document.getElementById('fnp-email').value.trim();
+      if (!email) { document.getElementById('fnp-email').focus(); return; }
+      notifyBtn.textContent = '✓ TE AVISAMOS';
+      notifyBtn.style.opacity = '0.45';
+    };
+    submitBtn.onclick = () => {
+      const s = document.getElementById('fnp-suggestion').value.trim();
+      if (!s) return;
+      submitBtn.textContent = '✓ ENVIADO — GRACIAS';
+      submitBtn.style.opacity = '0.45';
+    };
+  }
+
+  // ── Stats (secondary) ──
+  document.getElementById('fnp-stats').innerHTML = (d.stats || []).map(s =>
     `<div class="fnp-stat"><div class="fnp-stat-label">${s.l}</div><div class="fnp-stat-value" style="color:${node.color}">${s.v}</div></div>`
   ).join('');
-  const btn = document.getElementById('fnp-action');
-  btn.textContent = d.action;
-  btn.style.background = node.color;
-  btn.style.color = '#080808';
-  document.getElementById('fnp-close').onclick = () => panel.classList.remove('visible');
+
+  // ── Show ──
   panel.style.borderColor = node.color + '30';
+  document.getElementById('fnp-close').onclick = () => panel.classList.remove('visible');
+  panel.scrollTop = 0;
   panel.classList.add('visible');
 }
 
