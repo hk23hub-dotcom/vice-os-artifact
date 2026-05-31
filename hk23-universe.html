@@ -883,6 +883,123 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* ─── CMD TOAST ─── */
+  #cmd-toast {
+    position: fixed;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-14px);
+    z-index: 600;
+    background: #080810;
+    border: 1px solid #FF6600;
+    padding: 9px 22px;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: #FF6600;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+  }
+  #cmd-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ─── AGENT BASE PANEL ─── */
+  #agent-base-panel {
+    position: fixed;
+    top: 50%;
+    right: 48px;
+    transform: translateY(-50%) translateX(20px);
+    width: 280px;
+    background: #060610;
+    border: 1px solid #00F0FF30;
+    border-top: 2px solid #00F0FF;
+    padding: 22px 20px 18px;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  #agent-base-panel.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(-50%) translateX(0);
+  }
+  .abp-title { font-size: 9px; letter-spacing: 5px; color: #00F0FF; margin-bottom: 16px; }
+  .abp-agent {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid #0f1520;
+    cursor: pointer;
+  }
+  .abp-agent:last-child { border-bottom: none; }
+  .abp-agent:hover .abp-name { color: #fff; }
+  .abp-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .abp-info { flex: 1; }
+  .abp-name { font-size: 10px; font-weight: 700; color: #aaa; letter-spacing: 1px; }
+  .abp-status { font-size: 8px; color: #444; letter-spacing: 2px; margin-top: 2px; }
+  .abp-assign { font-size: 7px; letter-spacing: 2px; color: #00F0FF50; }
+  .abp-close {
+    margin-top: 14px; background: none; border: 1px solid #1a2030;
+    color: #444; font-family: 'Space Mono', monospace; font-size: 8px;
+    letter-spacing: 3px; padding: 7px 14px; cursor: pointer; width: 100%;
+  }
+  .abp-close:hover { color: #888; border-color: #333; }
+
+  /* ─── IDEAS PANEL ─── */
+  #ideas-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) translateY(20px);
+    width: min(480px, 90vw);
+    background: #060608;
+    border: 1px solid #FFD20025;
+    border-top: 2px solid #FFD200;
+    padding: 24px 24px 20px;
+    z-index: 30;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  #ideas-panel.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translate(-50%, -50%) translateY(0);
+  }
+  .ip-eyebrow { font-size: 8px; letter-spacing: 5px; color: #FFD200; margin-bottom: 6px; }
+  .ip-title { font-size: 22px; font-weight: 900; color: #FFD200; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .ip-divider { height: 1px; background: #1a1a1a; margin: 14px 0 16px; }
+  .ip-desc { font-size: 11px; color: #888; line-height: 1.7; margin-bottom: 18px; }
+  .ip-status-badge {
+    display: inline-block; font-size: 7px; letter-spacing: 3px;
+    border: 1px solid #FFD20040; color: #FFD200; padding: 3px 9px; margin-bottom: 16px;
+  }
+  .ip-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
+  .ip-btn {
+    font-family: 'Space Mono', monospace; font-size: 8px; letter-spacing: 2px;
+    padding: 8px 16px; border: 1px solid; cursor: pointer;
+    background: none; transition: background 0.15s;
+  }
+  .ip-btn-develop {
+    border-color: #FFD200; color: #FFD200;
+  }
+  .ip-btn-develop:hover { background: #FFD20015; }
+  .ip-btn-vault {
+    border-color: #333; color: #555;
+  }
+  .ip-btn-vault:hover { color: #888; border-color: #555; }
+  .ip-reward { font-size: 8px; color: #444; letter-spacing: 1px; margin-top: 6px; }
+  .ip-close {
+    display: block; margin-top: 16px; background: none; border: 1px solid #1a1a1a;
+    color: #444; font-family: 'Space Mono', monospace; font-size: 8px;
+    letter-spacing: 3px; padding: 7px 14px; cursor: pointer; width: 100%;
+  }
+  .ip-close:hover { color: #888; border-color: #333; }
+
   @media (max-width: 768px) {
     .grid-2, .grid-3 { grid-template-columns: 1fr; }
     .zone-body { padding: 20px; }
@@ -992,6 +1109,29 @@
   </div>
 </div>
 <div id="collect-toast">✦ NUEVO COLECCIONABLE DESBLOQUEADO</div>
+<div id="cmd-toast">⌘ CMD</div>
+
+<!-- AGENT BASE PANEL -->
+<div id="agent-base-panel">
+  <div class="abp-title">AGENT BASE</div>
+  <div id="abp-agents-list"></div>
+  <button class="abp-close" id="abp-close">✕ CERRAR</button>
+</div>
+
+<!-- IDEAS PANEL -->
+<div id="ideas-panel">
+  <div class="ip-eyebrow">IDEA — UNIVERSO HK23</div>
+  <div class="ip-title" id="ip-title">—</div>
+  <div class="ip-status-badge">IDEA EN ÓRBITA</div>
+  <div class="ip-divider"></div>
+  <div class="ip-desc" id="ip-desc">—</div>
+  <div class="ip-actions">
+    <button class="ip-btn ip-btn-develop" id="ip-develop-btn">DESARROLLAR ESTA IDEA →</button>
+    <button class="ip-btn ip-btn-vault">+ GUARDAR EN VAULT</button>
+  </div>
+  <div class="ip-reward">✦ Las ideas desarrolladas se vuelven proyectos en el universo.</div>
+  <button class="ip-close" id="ip-close">✕ CERRAR</button>
+</div>
 
 <!-- ═══════════ SCREEN: ARTE ═══════════ -->
 <div id="screen-arte" class="screen zone-screen">
@@ -2044,6 +2184,50 @@ const ORBITAL_MOONS = {
   ],
 };
 
+// ═══════════ FASE 2 — SPECIAL PLANETS ═══════════
+
+const IDEAS_PLANET = {
+  id: 'ideas_pl', label: 'IDEAS', sub: 'Todo lo que aún no tiene hogar',
+  color: '#FFD200', r: 330, a: Math.PI * 0.55, speed: 0.000038, size: 18,
+  px: 0, py: 0,
+  ideas: [
+    { label: 'VICE OS\nMOBILE',  mr: 58, ma: 0.50, ms:  0.0019, sz: 6, col: '#FFD200', px:0, py:0,
+      detail: { title: 'VICE OS MOBILE', desc: 'App nativa para tracking en campo — Golfer + Rugby desde el bolsillo. Sin fricción entre el momento y el registro.' } },
+    { label: 'NEURAL\nBRAIN',    mr: 72, ma: 2.00, ms: -0.0014, sz: 7, col: '#B84DFF', px:0, py:0,
+      detail: { title: 'NEURAL BRAIN', desc: 'Visualización 3D del segundo cerebro — grafo causal vivo de todas las decisiones, commits, sesiones e ideas. Diferente a Obsidian: el grafo respira.' } },
+    { label: 'AI COACH',         mr: 48, ma: 3.60, ms:  0.0022, sz: 5, col: '#AAFF00', px:0, py:0,
+      detail: { title: 'AI COACH', desc: 'Coach de IA que analiza tu historial completo y diseña planes de entrenamiento personalizados semana a semana. Aprende con cada sesión registrada.' } },
+    { label: 'LIVE\nTOURNEY',    mr: 62, ma: 5.10, ms: -0.0017, sz: 5, col: '#FF6600', px:0, py:0,
+      detail: { title: 'LIVE TOURNAMENT', desc: 'Torneos en vivo con scoring compartido, leaderboard en tiempo real y transmisión integrada al universo. Compite desde cualquier cancha.' } },
+    { label: 'VAULT\nSEARCH',    mr: 42, ma: 1.30, ms:  0.0025, sz: 4, col: '#00F0FF', px:0, py:0,
+      detail: { title: 'VAULT SEARCH', desc: 'Búsqueda semántica en todo el vault: notas, sesiones, ideas, decisiones. Encuentra cualquier cosa que hayas pensado o hecho — como buscar en tu propia mente.' } },
+  ],
+};
+
+const CMDS_PLANET = {
+  id: 'cmds_pl', label: 'CMDS', sub: 'Command Center',
+  color: '#FF6600', r: 145, a: Math.PI * 0.72, speed: 0.000110, size: 7,
+  px: 0, py: 0,
+  cmds: [
+    { label: 'BLACK\nHOLE',  mr: 44, ma: 0.50, ms:  0.0028, sz: 5, col: '#FF3A1F', px:0, py:0, action: 'blackhole', hovered: false },
+    { label: 'WHITE\nHOLE',  mr: 54, ma: 2.20, ms: -0.0020, sz: 5, col: '#ffffff', px:0, py:0, action: 'whitehole', hovered: false },
+    { label: 'AGENTS',       mr: 40, ma: 3.80, ms:  0.0032, sz: 4, col: '#00F0FF', px:0, py:0, action: 'agentbase', hovered: false },
+    { label: 'SWARM\nART',   mr: 60, ma: 5.00, ms: -0.0016, sz: 4, col: '#B84DFF', px:0, py:0, action: 'swarmart', hovered: false },
+  ],
+};
+
+const AGENT_BASE = {
+  label: 'AGENT\nBASE', color: '#00F0FF',
+  relX: 0.88, relY: 0.14,  // fixed position (top-right area)
+  px: 0, py: 0,
+  hovered: false,
+  agents: [
+    { label: 'VAULT AGENT',   id: 'vault-agent',   col: '#B84DFF', orbAngle: 0,       status: 'idle', px:0, py:0 },
+    { label: 'CONTENT AGENT', id: 'content-agent', col: '#00F0FF', orbAngle: 2.10,    status: 'idle', px:0, py:0 },
+    { label: 'DNA AGENT',     id: 'dna-agent',     col: '#AAFF00', orbAngle: 4.20,    status: 'idle', px:0, py:0 },
+  ],
+};
+
 function updateOrbitalPositions() {
   const W = _orW, H = _orH;
   const cx = W * 0.50, cy = H * 0.47;
@@ -2070,6 +2254,35 @@ function updateOrbitalPositions() {
       m.py = py + Math.sin(m.ma) * m.mr * 0.65;
     });
   });
+
+  // IDEAS planet orbit
+  IDEAS_PLANET.a += IDEAS_PLANET.speed;
+  IDEAS_PLANET.px = cx + Math.cos(IDEAS_PLANET.a) * IDEAS_PLANET.r;
+  IDEAS_PLANET.py = cy + Math.sin(IDEAS_PLANET.a) * IDEAS_PLANET.r * EY;
+  IDEAS_PLANET.ideas.forEach(m => {
+    m.ma += m.ms;
+    m.px = IDEAS_PLANET.px + Math.cos(m.ma) * m.mr;
+    m.py = IDEAS_PLANET.py + Math.sin(m.ma) * m.mr * 0.65;
+  });
+
+  // CMDS planet orbit
+  CMDS_PLANET.a += CMDS_PLANET.speed;
+  CMDS_PLANET.px = cx + Math.cos(CMDS_PLANET.a) * CMDS_PLANET.r;
+  CMDS_PLANET.py = cy + Math.sin(CMDS_PLANET.a) * CMDS_PLANET.r * EY;
+  CMDS_PLANET.cmds.forEach(m => {
+    m.ma += m.ms;
+    m.px = CMDS_PLANET.px + Math.cos(m.ma) * m.mr;
+    m.py = CMDS_PLANET.py + Math.sin(m.ma) * m.mr * 0.65;
+  });
+
+  // Agent Base — fixed position, agents orbit it slowly
+  AGENT_BASE.px = W * AGENT_BASE.relX;
+  AGENT_BASE.py = H * AGENT_BASE.relY;
+  AGENT_BASE.agents.forEach((a, i) => {
+    a.orbAngle += 0.0008 + i * 0.0002;
+    a.px = AGENT_BASE.px + Math.cos(a.orbAngle) * 30;
+    a.py = AGENT_BASE.py + Math.sin(a.orbAngle) * 14;
+  });
 }
 
 function drawOrbitalRings(ctx) {
@@ -2078,6 +2291,7 @@ function drawOrbitalRings(ctx) {
     { r: 145, col: '#AAFF00' },
     { r: 208, col: '#FF6600' },
     { r: 272, col: '#B84DFF' },
+    { r: 330, col: '#FFD200' },
   ];
   rings.forEach(ring => {
     ctx.save();
@@ -2189,6 +2403,264 @@ function drawMoons(ctx) {
   });
 }
 
+function drawIdeasPlanet(ctx, t) {
+  const { px, py, size, color, label, sub, ideas } = IDEAS_PLANET;
+  const isHov = IDEAS_PLANET.hovered;
+  const pulse = Math.sin(t * 0.7) * 2.5;
+  const r = size + (isHov ? 6 : pulse * 0.5);
+
+  // ── Saturn rings (back half — drawn BEFORE planet body) ──
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.25, r * 2.5, r * 0.55, 0, Math.PI, Math.PI * 2);
+  ctx.strokeStyle = color + '30';
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.15, r * 1.9, r * 0.40, 0, Math.PI, Math.PI * 2);
+  ctx.strokeStyle = color + '50';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Far glow ──
+  const farGrd = ctx.createRadialGradient(px, py, 0, px, py, r * 6);
+  farGrd.addColorStop(0, color + '18');
+  farGrd.addColorStop(0.5, color + '06');
+  farGrd.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.arc(px, py, r * 6, 0, Math.PI * 2);
+  ctx.fillStyle = farGrd;
+  ctx.fill();
+
+  // ── Planet body ──
+  const coreGrd = ctx.createRadialGradient(px - r * 0.25, py - r * 0.3, 0, px, py, r);
+  coreGrd.addColorStop(0, color + 'FF');
+  coreGrd.addColorStop(0.5, color + 'CC');
+  coreGrd.addColorStop(1, color + '44');
+  ctx.beginPath();
+  ctx.arc(px, py, r, 0, Math.PI * 2);
+  ctx.fillStyle = coreGrd;
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px, py, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  ctx.font = `900 ${isHov ? 10 : 8}px 'Space Grotesk', system-ui`;
+  ctx.fillStyle = 'rgba(0,0,0,0.9)';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, px, py + 3);
+
+  // ── Saturn rings (front half) ──
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.25, r * 2.5, r * 0.55, 0, 0, Math.PI);
+  ctx.strokeStyle = color + '55';
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.15, r * 1.9, r * 0.40, 0, 0, Math.PI);
+  ctx.strokeStyle = color + '80';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.restore();
+
+  // ── Sub label ──
+  ctx.font = `400 7px 'Space Mono', monospace`;
+  ctx.fillStyle = isHov ? color : color + '60';
+  ctx.textAlign = 'center';
+  ctx.fillText(sub, px, py + r + 16);
+  if (isHov) {
+    ctx.font = `700 7px 'Space Mono', monospace`;
+    ctx.fillStyle = color;
+    ctx.fillText('▶ CLICK TO EXPLORE', px, py + r + 28);
+  }
+
+  // ── Idea moons ──
+  ideas.forEach((m, idx) => {
+    const isMHov = IDEAS_PLANET.hoveredIdeaIdx === idx;
+    const mGrd = ctx.createRadialGradient(m.px, m.py, 0, m.px, m.py, m.sz * 4);
+    mGrd.addColorStop(0, m.col + '35');
+    mGrd.addColorStop(1, m.col + '00');
+    ctx.beginPath();
+    ctx.arc(m.px, m.py, m.sz * 4, 0, Math.PI * 2);
+    ctx.fillStyle = mGrd;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(m.px, m.py, m.sz + (isMHov ? 3 : 0), 0, Math.PI * 2);
+    ctx.fillStyle = isMHov ? m.col : m.col + 'CC';
+    ctx.fill();
+    const mLines = m.label.split('\n');
+    ctx.font = `400 5.5px 'Space Mono', monospace`;
+    ctx.fillStyle = isMHov ? m.col : m.col + '88';
+    ctx.textAlign = 'center';
+    mLines.forEach((line, i) => ctx.fillText(line, m.px, m.py + m.sz + 8 + i * 7));
+  });
+}
+
+function drawCmdsPlanet(ctx, t) {
+  const { px, py, size, color, label, cmds } = CMDS_PLANET;
+  const isHov = CMDS_PLANET.hovered;
+  const pulse = Math.sin(t * 2.2) * 1.5;
+  const r = size + (isHov ? 3 : pulse * 0.4);
+
+  // Glow
+  const grd = ctx.createRadialGradient(px, py, 0, px, py, r * 5);
+  grd.addColorStop(0, color + '20');
+  grd.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.arc(px, py, r * 5, 0, Math.PI * 2);
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  // Orbit rings
+  ctx.beginPath();
+  ctx.arc(px, py, r + 9, 0, Math.PI * 2);
+  ctx.strokeStyle = color + (isHov ? '40' : '18');
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+
+  // Body
+  const cGrd = ctx.createRadialGradient(px - r * 0.3, py - r * 0.3, 0, px, py, r);
+  cGrd.addColorStop(0, color + 'FF');
+  cGrd.addColorStop(0.6, color + 'AA');
+  cGrd.addColorStop(1, color + '44');
+  ctx.beginPath();
+  ctx.arc(px, py, r, 0, Math.PI * 2);
+  ctx.fillStyle = cGrd;
+  ctx.fill();
+
+  ctx.font = `700 6px 'Space Mono', monospace`;
+  ctx.fillStyle = 'rgba(0,0,0,0.85)';
+  ctx.textAlign = 'center';
+  ctx.fillText('⌘', px, py + 2);
+
+  ctx.font = `700 ${isHov ? 7 : 6}px 'Space Mono', monospace`;
+  ctx.fillStyle = isHov ? color : color + '80';
+  ctx.textAlign = 'center';
+  ctx.fillText(label, px, py + r + 13);
+
+  // Command moons
+  cmds.forEach(m => {
+    const isMHov = m.hovered;
+    const mGrd = ctx.createRadialGradient(m.px, m.py, 0, m.px, m.py, m.sz * 3.5);
+    mGrd.addColorStop(0, m.col + '30');
+    mGrd.addColorStop(1, m.col + '00');
+    ctx.beginPath();
+    ctx.arc(m.px, m.py, m.sz * 3.5, 0, Math.PI * 2);
+    ctx.fillStyle = mGrd;
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(m.px, m.py, m.sz + (isMHov ? 2 : 0), 0, Math.PI * 2);
+    ctx.fillStyle = isMHov ? m.col : m.col + 'BB';
+    ctx.fill();
+    const lines = m.label.split('\n');
+    ctx.font = `${isMHov ? '700' : '400'} 5px 'Space Mono', monospace`;
+    ctx.fillStyle = isMHov ? m.col : m.col + '80';
+    ctx.textAlign = 'center';
+    lines.forEach((line, i) => ctx.fillText(line, m.px, m.py + m.sz + 8 + i * 6));
+  });
+}
+
+function drawAgentBase(ctx, t) {
+  const { px, py, color, label, agents } = AGENT_BASE;
+  const isHov = AGENT_BASE.hovered;
+  const pulse = Math.sin(t * 1.1) * 1.2;
+
+  // Station glow
+  const grd = ctx.createRadialGradient(px, py, 0, px, py, 42);
+  grd.addColorStop(0, color + '18');
+  grd.addColorStop(1, color + '00');
+  ctx.beginPath();
+  ctx.arc(px, py, 42, 0, Math.PI * 2);
+  ctx.fillStyle = grd;
+  ctx.fill();
+
+  // Hexagonal station body
+  const hex = 14 + pulse;
+  ctx.save();
+  ctx.translate(px, py);
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (Math.PI / 3) * i - Math.PI / 6;
+    i === 0 ? ctx.moveTo(Math.cos(a) * hex, Math.sin(a) * hex)
+             : ctx.lineTo(Math.cos(a) * hex, Math.sin(a) * hex);
+  }
+  ctx.closePath();
+  ctx.fillStyle = '#060612';
+  ctx.fill();
+  ctx.strokeStyle = isHov ? color + 'CC' : color + '50';
+  ctx.lineWidth = isHov ? 1.2 : 0.8;
+  ctx.stroke();
+  const hex2 = hex - 4;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const a = (Math.PI / 3) * i - Math.PI / 6;
+    i === 0 ? ctx.moveTo(Math.cos(a) * hex2, Math.sin(a) * hex2)
+             : ctx.lineTo(Math.cos(a) * hex2, Math.sin(a) * hex2);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = color + '20';
+  ctx.lineWidth = 0.5;
+  ctx.stroke();
+  ctx.restore();
+
+  // Label
+  const labelLines = label.split('\n');
+  ctx.font = `700 7px 'Space Mono', monospace`;
+  ctx.fillStyle = isHov ? color : color + '70';
+  ctx.textAlign = 'center';
+  labelLines.forEach((line, i) => ctx.fillText(line, px, py + hex + 14 + i * 9));
+  if (isHov) {
+    ctx.font = `400 6px 'Space Mono', monospace`;
+    ctx.fillStyle = color + '60';
+    ctx.fillText('▶ VER AGENTES', px, py + hex + 14 + labelLines.length * 9 + 4);
+  }
+
+  // UFO agents
+  agents.forEach(a => {
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(a.px, a.py);
+    ctx.strokeStyle = a.col + '18';
+    ctx.lineWidth = 0.4;
+    ctx.setLineDash([2, 5]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.save();
+    ctx.translate(a.px, a.py);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 6, 2.5, 0, 0, Math.PI * 2);
+    ctx.fillStyle = a.col + 'AA';
+    ctx.fill();
+    ctx.strokeStyle = a.col + '60';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(0, -1.5, 3, 2.8, 0, Math.PI, Math.PI * 2);
+    ctx.fillStyle = a.col + '55';
+    ctx.fill();
+    const uGrd = ctx.createRadialGradient(0, 0, 0, 0, 0, 10);
+    uGrd.addColorStop(0, a.col + '20');
+    uGrd.addColorStop(1, a.col + '00');
+    ctx.beginPath();
+    ctx.arc(0, 0, 10, 0, Math.PI * 2);
+    ctx.fillStyle = uGrd;
+    ctx.fill();
+    ctx.restore();
+
+    ctx.font = `400 5px 'Space Mono', monospace`;
+    ctx.fillStyle = a.col + '60';
+    ctx.textAlign = 'center';
+    ctx.fillText(a.label, a.px, a.py + 11);
+  });
+}
+
 // ─── MALIGNANT ENTITIES ───
 let malignants = [];
 let lastMalignantTime = 0;
@@ -2271,6 +2743,10 @@ let hoveredBlackHole = null;
 let hoveredCenter = false;
 let hoveredKey = null;
 let hoveredQuote = null;
+let hoveredIdeasPlanet = false;
+let hoveredIdeaMoonIdx = -1;
+let hoveredCmdsMoonIdx = -1;
+let hoveredAgentBase = false;
 
 function startMapCanvas() {
   if (mapAnimId) cancelAnimationFrame(mapAnimId);
@@ -2436,6 +2912,11 @@ function animateMap() {
 
   // ─── Draw moons orbiting each planet ───
   drawMoons(mapCtx);
+
+  // ─── Fase 2: IDEAS planet, CMDS planet, Agent Base ───
+  drawIdeasPlanet(mapCtx, mapT);
+  drawCmdsPlanet(mapCtx, mapT);
+  drawAgentBase(mapCtx, mapT);
 
   // ─── CENTER: HK23 ecosystem node ───
   const cx = W * 0.50, cy = H * 0.47;
@@ -2870,7 +3351,36 @@ mapCanvas.addEventListener('mousemove', e => {
   hoveredKey = foundKey;
   hoveredQuote = foundQuote;
 
-  const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote;
+  // ─── Fase 2 hit-tests ───
+  // IDEAS planet
+  const ipDx = e.clientX - IDEAS_PLANET.px, ipDy = e.clientY - IDEAS_PLANET.py;
+  hoveredIdeasPlanet = Math.sqrt(ipDx*ipDx + ipDy*ipDy) < IDEAS_PLANET.size + 16;
+  IDEAS_PLANET.hovered = hoveredIdeasPlanet;
+  hoveredIdeaMoonIdx = -1;
+  IDEAS_PLANET.hoveredIdeaIdx = undefined;
+  IDEAS_PLANET.ideas.forEach((m, idx) => {
+    const dx = e.clientX - m.px, dy = e.clientY - m.py;
+    if (Math.sqrt(dx*dx + dy*dy) < m.sz + 16) {
+      hoveredIdeaMoonIdx = idx;
+      IDEAS_PLANET.hoveredIdeaIdx = idx;
+    }
+  });
+  // CMDS planet
+  const cpDx = e.clientX - CMDS_PLANET.px, cpDy = e.clientY - CMDS_PLANET.py;
+  CMDS_PLANET.hovered = Math.sqrt(cpDx*cpDx + cpDy*cpDy) < CMDS_PLANET.size + 14;
+  hoveredCmdsMoonIdx = -1;
+  CMDS_PLANET.cmds.forEach((m, idx) => {
+    const dx = e.clientX - m.px, dy = e.clientY - m.py;
+    m.hovered = Math.sqrt(dx*dx + dy*dy) < m.sz + 16;
+    if (m.hovered) hoveredCmdsMoonIdx = idx;
+  });
+  // Agent Base
+  const abDx = e.clientX - AGENT_BASE.px, abDy = e.clientY - AGENT_BASE.py;
+  hoveredAgentBase = Math.sqrt(abDx*abDx + abDy*abDy) < 22;
+  AGENT_BASE.hovered = hoveredAgentBase;
+
+  const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote
+    || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase;
   mapCanvas.style.cursor = anyHovered ? 'pointer' : 'crosshair';
 
   if (foundProj) {
@@ -2919,6 +3429,36 @@ mapCanvas.addEventListener('mousemove', e => {
     tooltip.style.top = (e.clientY - 20) + 'px';
     tooltip.style.color = '#F0EDE8';
     tooltip.style.borderColor = 'rgba(240,237,232,0.2)';
+  } else if (hoveredIdeaMoonIdx >= 0) {
+    const idea = IDEAS_PLANET.ideas[hoveredIdeaMoonIdx];
+    tooltip.style.display = 'block';
+    tooltip.textContent = '✦ ' + idea.detail.title;
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = idea.col;
+    tooltip.style.borderColor = idea.col + '40';
+  } else if (hoveredIdeasPlanet) {
+    tooltip.style.display = 'block';
+    tooltip.textContent = '✦ IDEAS PLANET';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = '#FFD200';
+    tooltip.style.borderColor = '#FFD20040';
+  } else if (hoveredCmdsMoonIdx >= 0) {
+    const cmd = CMDS_PLANET.cmds[hoveredCmdsMoonIdx];
+    tooltip.style.display = 'block';
+    tooltip.textContent = '⌘ ' + cmd.label.replace('\n', ' ');
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = cmd.col;
+    tooltip.style.borderColor = cmd.col + '40';
+  } else if (hoveredAgentBase) {
+    tooltip.style.display = 'block';
+    tooltip.textContent = '◈ AGENT BASE';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = '#00F0FF';
+    tooltip.style.borderColor = '#00F0FF40';
   } else {
     tooltip.style.display = 'none';
   }
@@ -3025,12 +3565,81 @@ mapCanvas.addEventListener('click', e => {
     } else {
       goTo(q.target);
     }
+  } else if (hoveredIdeaMoonIdx >= 0) {
+    openIdeaPanel(IDEAS_PLANET.ideas[hoveredIdeaMoonIdx]);
+  } else if (hoveredIdeasPlanet) {
+    // Click planet body → open first idea or cycle
+    openIdeaPanel(IDEAS_PLANET.ideas[0]);
+  } else if (hoveredCmdsMoonIdx >= 0) {
+    executeCmdAction(CMDS_PLANET.cmds[hoveredCmdsMoonIdx].action);
+  } else if (hoveredAgentBase) {
+    openAgentBasePanel();
   } else if (hoveredNode) {
     goTo(hoveredNode);
   } else if (hoveredCenter) {
     goTo('ecosystem');
   }
 });
+
+// ─── IDEA PANEL ───
+function openIdeaPanel(idea) {
+  document.getElementById('ip-title').textContent = idea.detail.title;
+  document.getElementById('ip-desc').textContent = idea.detail.desc;
+  const panel = document.getElementById('ideas-panel');
+  panel.style.borderTopColor = idea.col;
+  panel.style.borderColor = idea.col + '25';
+  document.getElementById('ip-develop-btn').style.borderColor = idea.col;
+  document.getElementById('ip-develop-btn').style.color = idea.col;
+  document.getElementById('ip-close').onclick = () => panel.classList.remove('visible');
+  document.getElementById('ip-develop-btn').onclick = () => {
+    showCmdToast('IDEA MARCADA PARA DESARROLLO ✦', idea.col);
+    panel.classList.remove('visible');
+  };
+  panel.classList.add('visible');
+}
+
+// ─── CMD ACTION ───
+function showCmdToast(msg, col) {
+  const toast = document.getElementById('cmd-toast');
+  toast.textContent = msg;
+  toast.style.color = col || '#FF6600';
+  toast.style.borderColor = (col || '#FF6600') + '80';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function executeCmdAction(action) {
+  if (action === 'blackhole') {
+    // Trigger the nearest black hole
+    const bh = BLACK_HOLES[0];
+    if (bh) showAffirmation(bh, true);
+    showCmdToast('⌘ BLACK HOLE ACTIVADO', '#FF3A1F');
+  } else if (action === 'agentbase') {
+    openAgentBasePanel();
+  } else if (action === 'whitehole') {
+    showCmdToast('⌘ WHITE HOLE — EN BUILD', '#ffffff');
+  } else if (action === 'swarmart') {
+    showCmdToast('⌘ SWARM ART — EN BUILD', '#B84DFF');
+  }
+}
+
+// ─── AGENT BASE PANEL ───
+function openAgentBasePanel() {
+  const list = document.getElementById('abp-agents-list');
+  list.innerHTML = AGENT_BASE.agents.map(a => `
+    <div class="abp-agent">
+      <div class="abp-dot" style="background:${a.col}"></div>
+      <div class="abp-info">
+        <div class="abp-name">${a.label}</div>
+        <div class="abp-status">● IDLE — BASE</div>
+      </div>
+      <div class="abp-assign">ASIGNAR →</div>
+    </div>
+  `).join('');
+  const panel = document.getElementById('agent-base-panel');
+  document.getElementById('abp-close').onclick = () => panel.classList.remove('visible');
+  panel.classList.add('visible');
+}
 
 // ═══════════ FRACTAL UNIVERSE ═══════════
 let fractalAnimId = null;
