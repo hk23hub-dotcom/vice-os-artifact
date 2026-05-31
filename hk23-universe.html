@@ -908,6 +908,107 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* ─── SHORTCUT LEGEND ─── */
+  #shortcut-legend {
+    position: fixed;
+    bottom: 40px;
+    left: 24px;
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    pointer-events: none;
+  }
+  #shortcut-legend.visible { opacity: 1; }
+  .sc-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sc-key {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #1E1E1E;
+    background: #0C0C0E;
+    border: 1px solid #1A1A1A;
+    padding: 3px 6px;
+    min-width: 18px;
+    text-align: center;
+  }
+  .sc-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 2px;
+    color: #1E1E1E;
+    text-transform: uppercase;
+  }
+
+  /* ─── GALAXY MODE ─── */
+  #galaxy-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 4;  /* sits behind screen-map (z:5) so shrunken canvas shows on top */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #010104;
+  }
+  #galaxy-overlay.active { opacity: 1; pointer-events: all; }
+  #galaxy-canvas-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* In galaxy mode, the map screen goes transparent so galaxy canvas shows through */
+  #screen-map.galaxy-mode { background: transparent !important; }
+  /* Shrink the map canvas into a tiny galaxy node */
+  #screen-map.galaxy-mode #map-canvas {
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease, opacity 1.2s ease;
+    transform: scale(0.22) translateY(-10%);
+    filter: blur(0.4px) brightness(0.85);
+    opacity: 1;
+  }
+  /* Also hide the map UI chrome in galaxy mode */
+  #screen-map.galaxy-mode .map-ui,
+  #screen-map.galaxy-mode #collectibles-counter { opacity: 0; transition: opacity 0.4s; }
+  #galaxy-mode-label {
+    position: fixed;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 600;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 6px;
+    color: #B84DFF;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  #galaxy-mode-label.show { opacity: 0.6; }
+  #galaxy-exit-hint {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 600;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 4px;
+    color: #222;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  #galaxy-exit-hint.show { opacity: 1; }
+
   /* ─── I NEED MY GALAXY CTA ─── */
   #galaxy-cta {
     position: fixed;
@@ -1166,6 +1267,23 @@
 </div>
 <div id="collect-toast">✦ NEW COLLECTIBLE UNLOCKED</div>
 <div id="cmd-toast">⌘ CMD</div>
+
+<!-- ═══════════ SHORTCUT LEGEND ═══════════ -->
+<div id="shortcut-legend">
+  <div class="sc-row"><div class="sc-key">G</div><div class="sc-label">Galaxy mode</div></div>
+  <div class="sc-row"><div class="sc-key">B</div><div class="sc-label">Black hole</div></div>
+  <div class="sc-row"><div class="sc-key">A</div><div class="sc-label">Agents</div></div>
+  <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
+  <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
+  <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
+</div>
+
+<!-- ═══════════ GALAXY MODE ═══════════ -->
+<div id="galaxy-overlay">
+  <canvas id="galaxy-canvas-bg"></canvas>
+</div>
+<div id="galaxy-mode-label">MULTIVERSE VIEW — G TO EXIT</div>
+<div id="galaxy-exit-hint">[ G ] exit galaxy mode</div>
 
 <!-- ═══════════ I NEED MY GALAXY CTA ═══════════ -->
 <div id="galaxy-cta">
@@ -1724,14 +1842,15 @@ function goTo(id) {
     currentScreen = id;
     if (id === 'map') startMapCanvas();
   }
-  // Show galaxy CTA only on the map screen
+  // Show galaxy CTA and shortcut legend only on the map screen
   const galaxyCta = document.getElementById('galaxy-cta');
-  if (galaxyCta) {
-    if (id === 'map') {
-      setTimeout(() => galaxyCta.classList.add('visible'), 1800);
-    } else {
-      galaxyCta.classList.remove('visible');
-    }
+  const scLegend = document.getElementById('shortcut-legend');
+  if (id === 'map') {
+    if (galaxyCta) setTimeout(() => galaxyCta.classList.add('visible'), 1800);
+    if (scLegend) setTimeout(() => scLegend.classList.add('visible'), 2400);
+  } else {
+    if (galaxyCta) galaxyCta.classList.remove('visible');
+    if (scLegend) scLegend.classList.remove('visible');
   }
 }
 
@@ -4103,14 +4222,270 @@ window.addEventListener('resize', () => {
 });
 
 // ═══════════ KEYBOARD ═══════════
+// ═══════════ GALAXY MODE ═══════════
+let galaxyModeActive = false;
+let galaxyAnimId = null;
+
+function activateGalaxyMode() {
+  galaxyModeActive = true;
+  const overlay  = document.getElementById('galaxy-overlay');
+  const mapScreen = document.getElementById('screen-map');
+  const label    = document.getElementById('galaxy-mode-label');
+  const hint     = document.getElementById('galaxy-exit-hint');
+  const legend   = document.getElementById('shortcut-legend');
+  const cta      = document.getElementById('galaxy-cta');
+
+  // Hide map chrome instantly
+  if (legend) { legend.classList.remove('visible'); legend.style.opacity = '0'; }
+  if (cta) { cta.classList.remove('visible'); cta.style.opacity = '0'; }
+
+  // Show overlay
+  overlay.classList.add('active');
+  mapScreen.classList.add('galaxy-mode');
+  setTimeout(() => { label.classList.add('show'); hint.classList.add('show'); }, 700);
+
+  drawGalaxyBg();
+}
+
+function deactivateGalaxyMode() {
+  galaxyModeActive = false;
+  const overlay  = document.getElementById('galaxy-overlay');
+  const mapScreen = document.getElementById('screen-map');
+  const label    = document.getElementById('galaxy-mode-label');
+  const hint     = document.getElementById('galaxy-exit-hint');
+  const legend   = document.getElementById('shortcut-legend');
+  const cta      = document.getElementById('galaxy-cta');
+
+  overlay.classList.remove('active');
+  mapScreen.classList.remove('galaxy-mode');
+  label.classList.remove('show');
+  hint.classList.remove('show');
+
+  if (galaxyAnimId) { cancelAnimationFrame(galaxyAnimId); galaxyAnimId = null; }
+
+  // Restore map chrome
+  setTimeout(() => {
+    if (currentScreen === 'map') {
+      if (legend) { legend.style.opacity = ''; legend.classList.add('visible'); }
+      if (cta) { cta.style.opacity = ''; cta.classList.add('visible'); }
+    }
+  }, 900);
+}
+
+function drawGalaxyBg() {
+  const canvas = document.getElementById('galaxy-canvas-bg');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width * 0.5;
+  const cy = canvas.height * 0.42;
+
+  // Background star field
+  const bgStars = Array.from({ length: 320 }, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    r: Math.random() * 1.1 + 0.1,
+    a: Math.random() * 0.4 + 0.05,
+    tw: Math.random() * Math.PI * 2,
+    ts: (Math.random() * 0.3 + 0.1) * 0.001,
+  }));
+
+  // Distant galaxies (not HK23 — other players)
+  const distantGalaxies = [
+    { x: cx * 0.18, y: cy * 0.42, r: 28, col: '#FFD200', label: 'UNKNOWN', angle: 0.3 },
+    { x: cx * 1.82, y: cy * 0.55, r: 22, col: '#00F0FF', label: '???', angle: -0.8 },
+    { x: cx * 0.28, y: cy * 1.55, r: 18, col: '#AAFF00', label: '???', angle: 1.1 },
+    { x: cx * 1.75, y: cy * 1.48, r: 20, col: '#FF6600', label: '???', angle: 0.6 },
+    { x: cx * 1.0,  y: cy * 0.14, r: 14, col: '#B84DFF', label: '???', angle: -0.4 },
+  ];
+
+  let t = 0;
+
+  function frame() {
+    if (!galaxyModeActive) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Void bg gradient
+    const grad = ctx.createRadialGradient(cx, cy * 0.9, 0, cx, cy * 0.9, canvas.width * 0.7);
+    grad.addColorStop(0, 'rgba(10,5,22,0.9)');
+    grad.addColorStop(1, 'rgba(1,1,4,1)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Background stars
+    bgStars.forEach(s => {
+      s.tw += s.ts;
+      const alpha = s.a * (0.4 + 0.6 * Math.sin(s.tw));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(240,237,232,${alpha})`;
+      ctx.fill();
+    });
+
+    // HK23 galaxy glow halo (soft glow around shrunken canvas position)
+    ctx.save();
+    ctx.translate(cx, cy * 0.76);
+    const haloGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 90);
+    haloGrad.addColorStop(0, `rgba(184,77,255,${0.06 + 0.03 * Math.sin(t * 0.7)})`);
+    haloGrad.addColorStop(1, 'rgba(184,77,255,0)');
+    ctx.fillStyle = haloGrad;
+    ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI * 2); ctx.fill();
+    // HK23 label below the shrunken canvas
+    ctx.font = '700 7px Space Mono, monospace';
+    ctx.fillStyle = `rgba(184,77,255,${0.35 + 0.1 * Math.sin(t * 0.5)})`;
+    ctx.textAlign = 'center';
+    ctx.fillText('HK23', 0, 82);
+    ctx.restore();
+
+    // Distant galaxies
+    distantGalaxies.forEach(g => {
+      ctx.save();
+      ctx.translate(g.x, g.y);
+      ctx.rotate(g.angle + t * 0.00015);
+      // Glow
+      const gGlow = ctx.createRadialGradient(0, 0, 0, 0, 0, g.r * 2.5);
+      gGlow.addColorStop(0, g.col + '30');
+      gGlow.addColorStop(1, 'transparent');
+      ctx.fillStyle = gGlow;
+      ctx.beginPath(); ctx.arc(0, 0, g.r * 2.5, 0, Math.PI * 2); ctx.fill();
+      // Core
+      const gCore = ctx.createRadialGradient(0, 0, 0, 0, 0, g.r * 0.6);
+      gCore.addColorStop(0, g.col + 'CC');
+      gCore.addColorStop(1, g.col + '22');
+      ctx.fillStyle = gCore;
+      ctx.beginPath(); ctx.ellipse(0, 0, g.r * 0.6, g.r * 0.25, 0, 0, Math.PI * 2); ctx.fill();
+      // Spiral arms (two simple arcs)
+      for (let arm = 0; arm < 2; arm++) {
+        ctx.beginPath();
+        for (let i = 0; i <= 60; i++) {
+          const frac = i / 60;
+          const spiralAngle = frac * Math.PI * 1.5 + (arm * Math.PI);
+          const spiralR = frac * g.r * 1.2;
+          const sx = Math.cos(spiralAngle) * spiralR;
+          const sy = Math.sin(spiralAngle) * spiralR * 0.35;
+          if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+        }
+        ctx.strokeStyle = g.col + '40';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      }
+      // Label
+      ctx.font = '700 6px Space Mono, monospace';
+      ctx.fillStyle = g.col + '55';
+      ctx.textAlign = 'center';
+      ctx.fillText(g.label, 0, g.r * 1.6);
+      ctx.restore();
+    });
+
+    // Subtle connecting filaments between galaxies
+    const fil = [
+      [{ x: cx * 0.18, y: cy * 0.42 }, { x: cx, y: cy * 0.78 }],
+      [{ x: cx * 1.82, y: cy * 0.55 }, { x: cx, y: cy * 0.78 }],
+    ];
+    fil.forEach(([a, b]) => {
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.quadraticCurveTo(cx, cy * 0.3, b.x, b.y);
+      ctx.strokeStyle = `rgba(184,77,255,${0.04 + 0.02 * Math.sin(t * 0.5)})`;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    t++;
+    galaxyAnimId = requestAnimationFrame(frame);
+  }
+
+  frame();
+}
+
+// ═══════════ SHORTCUTS ═══════════
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
+  // Ignore when typing in an input
+  if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+
+  const key = e.key;
+
+  // ── ESC ──
+  if (key === 'Escape') {
+    if (galaxyModeActive) { deactivateGalaxyMode(); return; }
     const fractal = document.getElementById('fractal-overlay');
     const affirmation = document.getElementById('affirmation-overlay');
-    if (fractal.style.opacity === '1') { closeFractalUniverse(); return; }
-    if (affirmation.style.opacity === '1') { closeAffirmation(); return; }
-    if (currentScreen !== 'portal' && currentScreen !== 'map') goTo('map');
-    else if (currentScreen === 'map') goTo('portal');
+    if (fractal && fractal.style.opacity === '1') { closeFractalUniverse(); return; }
+    if (affirmation && affirmation.style.opacity === '1') { closeAffirmation(); return; }
+    // Close any open panels
+    const abp = document.getElementById('agent-base-panel');
+    const ip  = document.getElementById('ideas-panel');
+    if (abp && abp.classList.contains('visible')) { abp.classList.remove('visible'); return; }
+    if (ip  && ip.classList.contains('visible'))  { ip.classList.remove('visible');  return; }
+    if (currentScreen !== 'portal' && currentScreen !== 'map') { goTo('map'); return; }
+    if (currentScreen === 'map') goTo('portal');
+    return;
+  }
+
+  // Only fire map shortcuts when on the map
+  if (currentScreen !== 'map') return;
+
+  // ── G — Galaxy mode ──
+  if (key === 'g' || key === 'G') {
+    if (galaxyModeActive) deactivateGalaxyMode();
+    else activateGalaxyMode();
+    return;
+  }
+
+  // Galaxy mode active — block other shortcuts
+  if (galaxyModeActive) return;
+
+  // ── B — Black Hole ──
+  if (key === 'b' || key === 'B') {
+    executeCmdAction('blackhole');
+    return;
+  }
+
+  // ── W — White Hole ──
+  if (key === 'w' || key === 'W') {
+    executeCmdAction('whitehole');
+    return;
+  }
+
+  // ── A — Agents ──
+  if (key === 'a' || key === 'A') {
+    executeCmdAction('agentbase');
+    return;
+  }
+
+  // ── I — Ideas ──
+  if (key === 'i' || key === 'I') {
+    // Open ideas panel with a random idea
+    const ideas = IDEAS_PLANET.ideas;
+    if (ideas && ideas.length) {
+      const idea = ideas[Math.floor(Math.random() * ideas.length)];
+      openIdeaPanel(idea);
+    }
+    return;
+  }
+
+  // ── S — Swarm Art ──
+  if (key === 's' || key === 'S') {
+    executeCmdAction('swarmart');
+    return;
+  }
+
+  // ── ? — Show shortcut legend briefly ──
+  if (key === '?') {
+    const legend = document.getElementById('shortcut-legend');
+    if (legend) {
+      legend.style.opacity = '1';
+      legend.querySelectorAll('.sc-key, .sc-label').forEach(el => {
+        el.style.color = '#888';
+        el.style.borderColor = '#333';
+      });
+      setTimeout(() => {
+        legend.querySelectorAll('.sc-key').forEach(el => { el.style.color = ''; el.style.borderColor = ''; });
+        legend.querySelectorAll('.sc-label').forEach(el => { el.style.color = ''; });
+        if (!legend.classList.contains('visible')) legend.style.opacity = '';
+      }, 2000);
+    }
+    return;
   }
 });
 
