@@ -514,6 +514,68 @@
     white-space: nowrap;
     text-align: center;
     animation: flicker 5s infinite;
+    transition: opacity 0.3s;
+  }
+  #fractal-hint.hidden { opacity: 0; }
+
+  /* ─── FRACTAL BREADCRUMB ─── */
+  #fractal-breadcrumb {
+    position: absolute;
+    top: 68px;
+    left: 0; right: 0;
+    text-align: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 4px;
+    color: #2A2A2A;
+    text-transform: uppercase;
+    z-index: 10;
+    pointer-events: none;
+  }
+  #fractal-breadcrumb .bc-sep { color: #1A1A1A; margin: 0 8px; }
+  #fractal-breadcrumb .bc-active { color: #555; }
+
+  /* ─── FRACTAL APP CTA ─── */
+  #fractal-app-cta {
+    position: absolute;
+    bottom: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+  }
+  #fractal-app-cta.show {
+    opacity: 1;
+    pointer-events: all;
+  }
+  #fractal-app-cta-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    padding: 16px 52px;
+    border: none;
+    cursor: pointer;
+    color: #000;
+    transition: opacity 0.2s, box-shadow 0.3s, transform 0.2s;
+  }
+  #fractal-app-cta-btn:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+  }
+  #fractal-app-cta-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 3px;
+    color: #333;
+    text-transform: uppercase;
   }
 
   /* ─── FRACTAL NODE PANEL ─── */
@@ -1178,7 +1240,12 @@
     <div id="fractal-title"></div>
     <div id="fractal-status"></div>
   </div>
-  <div id="fractal-hint">CLICK ANY NODE TO EXPAND — ESC TO EXIT</div>
+  <div id="fractal-breadcrumb"></div>
+  <div id="fractal-hint">CLICK A PLANET TO ENTER — ESC TO EXIT</div>
+  <div id="fractal-app-cta">
+    <button id="fractal-app-cta-btn">OPEN IN APP →</button>
+    <div id="fractal-app-cta-sub">live now</div>
+  </div>
   <div id="fractal-node-panel">
     <div class="fnp-eyebrow" id="fnp-eyebrow">MODULE</div>
     <div class="fnp-header">
@@ -1321,26 +1388,26 @@
     <div class="tag live">ACTIVO</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">IDENTIDAD VISUAL</div>
+    <div class="section-label">VISUAL IDENTITY</div>
     <div class="mega-text" style="color:#FF3A1F">HK23<br>HEYOKA</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      Arte crudo. Sin filtros. La imagen es la filosofía. HK23 no es un estilo — es una manera de procesar el mundo y devolverlo transformado. Owls. Mythology. Chaos controlled.
+      Raw art. No filters. The image is the philosophy. HK23 is not a style — it's a way of processing the world and returning it transformed. Owls. Mythology. Chaos controlled.
     </p>
     <div class="grid-3" style="--accent:#FF3A1F">
       <div class="raw-card" style="--accent:#FF3A1F">
-        <div class="card-label">IDENTIDAD</div>
+        <div class="card-label">IDENTITY</div>
         <div class="card-title">HK23 Visual System</div>
-        <div class="card-desc">La imagen completa. Logo, palette, símbología.</div>
+        <div class="card-desc">The complete image. Logo, palette, symbology.</div>
       </div>
       <div class="raw-card" style="--accent:#FF3A1F">
         <div class="card-label">COLLAGE</div>
         <div class="card-title">Mixed Media Universe</div>
-        <div class="card-desc">Graffiti + digital + mitología. Todo mezclado.</div>
+        <div class="card-desc">Graffiti + digital + mythology. All mixed.</div>
       </div>
       <div class="raw-card" style="--accent:#FF3A1F">
         <div class="card-label">PRINTS</div>
         <div class="card-title">Limited Editions</div>
-        <div class="card-desc">Cada pieza única. Todo numerado. Todo real.</div>
+        <div class="card-desc">Each piece unique. All numbered. All real.</div>
         <div style="margin-top:12px"><span class="tag gold">MONETIZABLE</span></div>
       </div>
     </div>
@@ -1348,15 +1415,15 @@
       <div class="raw-card" style="--accent:#FF3A1F;min-height:160px;display:flex;align-items:flex-end">
         <div>
           <div class="big-number" style="color:#FF3A1F;opacity:0.15">🦉</div>
-          <div class="card-label">SÍMBOLO</div>
+          <div class="card-label">SYMBOL</div>
           <div class="card-title">The Owl</div>
-          <div class="card-desc">Ve en la oscuridad. Sabe lo que no se dice.</div>
+          <div class="card-desc">Sees in the dark. Knows what goes unsaid.</div>
         </div>
       </div>
       <div class="raw-card" style="--accent:#FF3A1F">
-        <div class="card-label">ARCHIVO</div>
-        <div class="card-title">Todo está documentado</div>
-        <div class="card-desc">Cada proceso, cada sketch, cada idea. El making-of es parte del arte.</div>
+        <div class="card-label">ARCHIVE</div>
+        <div class="card-title">Everything is documented</div>
+        <div class="card-desc">Every process, every sketch, every idea. The making-of is part of the art.</div>
         <div style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap">
           <span class="tag">2020 →</span>
           <span class="tag">2021 →</span>
@@ -1378,49 +1445,49 @@
     <div class="tag gold">RAW</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">FILOSOFÍA PROPIA</div>
-    <div class="mega-text" style="color:#FFD200">EL<br>HEYOKA</div>
+    <div class="section-label">PERSONAL PHILOSOPHY</div>
+    <div class="mega-text" style="color:#FFD200">THE<br>HEYOKA</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      El Heyoka es el sagrado contrario. El que ve diferente. El que dice lo que nadie quiere escuchar. Esto no es un persona — es lo que realmente eres cuando dejas de pretender.
+      The Heyoka is the sacred contrary. The one who sees differently. The one who says what no one wants to hear. This is not a persona — it's what you really are when you stop pretending.
     </p>
     <div class="grid-2" style="--accent:#FFD200">
       <div class="raw-card" style="--accent:#FFD200">
-        <div class="card-label">MANIFIESTO</div>
-        <div class="card-title">"Un vicio no es un hobby."</div>
-        <div class="card-desc">Es lo que la obsesión parece desde afuera. La filosofía central detrás de todo lo que construyo.</div>
+        <div class="card-label">MANIFESTO</div>
+        <div class="card-title">"A vice is not a hobby."</div>
+        <div class="card-desc">It's what obsession looks like from the outside. The central philosophy behind everything I build.</div>
         <div style="margin-top:16px"><span class="tag locked">MEMBERSHIP ONLY</span></div>
       </div>
       <div class="raw-card" style="--accent:#FFD200">
-        <div class="card-label">NOTAS CRUDAS</div>
+        <div class="card-label">RAW NOTES</div>
         <div class="card-title">Stream of Consciousness</div>
-        <div class="card-desc">Lo que pienso sin editar. Pensamientos del día. Ideas a las 3am. Lo real.</div>
+        <div class="card-desc">What I think unedited. Daily thoughts. Ideas at 3am. The real stuff.</div>
         <div style="margin-top:16px"><span class="tag locked">OBSESIONADO+</span></div>
       </div>
     </div>
     <div class="grid-3">
       <div class="raw-card" style="--accent:#FFD200">
-        <div class="card-label">CREENCIA 01</div>
-        <div class="card-title">Todo tiene precio</div>
-        <div class="card-desc">El tiempo, el conocimiento, el acceso. Nada es gratis. Todo tiene valor.</div>
+        <div class="card-label">BELIEF 01</div>
+        <div class="card-title">Everything has a price</div>
+        <div class="card-desc">Time, knowledge, access. Nothing is free. Everything has value.</div>
       </div>
       <div class="raw-card" style="--accent:#FFD200">
-        <div class="card-label">CREENCIA 02</div>
-        <div class="card-title">Documenta todo</div>
-        <div class="card-desc">El proceso es el producto. La vida documentada es la vida vivida dos veces.</div>
+        <div class="card-label">BELIEF 02</div>
+        <div class="card-title">Document everything</div>
+        <div class="card-desc">The process is the product. A documented life is a life lived twice.</div>
       </div>
       <div class="raw-card" style="--accent:#FFD200">
-        <div class="card-label">CREENCIA 03</div>
-        <div class="card-title">Sé el contrario</div>
-        <div class="card-desc">Cuando todos hacen lo mismo, hacer lo opuesto es ventaja. Siempre.</div>
+        <div class="card-label">BELIEF 03</div>
+        <div class="card-title">Be the contrary</div>
+        <div class="card-desc">When everyone does the same thing, doing the opposite is an advantage. Always.</div>
       </div>
     </div>
     <div class="raw-card" style="--accent:#FFD200;margin-top:0">
-      <div class="card-label">LOS CUATRO ACUERDOS</div>
+      <div class="card-label">THE FOUR AGREEMENTS</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
-        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Sé impecable con tus palabras</div>
-        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">No tomes nada personal</div>
-        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">No hagas suposiciones</div>
-        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Da siempre lo mejor de ti</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Be impeccable with your words</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Don't take anything personally</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Don't make assumptions</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Always do your best</div>
       </div>
     </div>
   </div>
@@ -1434,23 +1501,23 @@
     <div class="tag live">BUILDING</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">EL SISTEMA DEPORTIVO</div>
+    <div class="section-label">THE SPORTS SYSTEM</div>
     <div class="mega-text" style="color:#AAFF00">VICE<br>OS</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      El sistema operativo del rendimiento deportivo. Golf + Rugby. Una identidad. Datos sin filtro. Esto no es una app — es una manera de vivir el deporte.
+      The sports performance operating system. Golf + Rugby. One identity. Unfiltered data. This is not an app — it's a way of living sport.
     </p>
     <div class="grid-2" style="--accent:#AAFF00">
       <div class="raw-card" style="--accent:#AAFF00">
         <div class="card-label">APP 01</div>
         <div class="card-title">⛳ ViceGolfer</div>
-        <div class="card-desc">Performance DNA. Putting Protocol. Caddie Booking. Datos reales del campo.</div>
-        <div style="margin-top:12px"><span class="tag live">ACTIVO</span></div>
+        <div class="card-desc">Performance DNA. Putting Protocol. Caddie Booking. Real data from the course.</div>
+        <div style="margin-top:12px"><span class="tag live">ACTIVE</span></div>
       </div>
       <div class="raw-card" style="--accent:#00F0FF">
         <div class="card-label">APP 02</div>
         <div class="card-title">🏉 Rugby Vice</div>
-        <div class="card-desc">Kick Tracker 2D. Rugby CV. Mental exercises. Performance DNA 7 ejes.</div>
-        <div style="margin-top:12px"><span class="tag" style="border-color:#00F0FF;color:#00F0FF">NUEVO</span></div>
+        <div class="card-desc">Kick Tracker 2D. Rugby CV. Mental exercises. Performance DNA 7 axes.</div>
+        <div style="margin-top:12px"><span class="tag" style="border-color:#00F0FF;color:#00F0FF">NEW</span></div>
       </div>
     </div>
     <div class="raw-card" style="--accent:#AAFF00;margin-bottom:16px">
@@ -1458,11 +1525,11 @@
       <div style="display:flex;gap:32px;align-items:center">
         <div>
           <div class="card-title">One Identity. All Sports.</div>
-          <div class="card-desc" style="max-width:400px">Un login unificado. Rankings cross-sport. Content engine. Community privada. Membership tiers.</div>
+          <div class="card-desc" style="max-width:400px">Unified login. Cross-sport rankings. Content engine. Private community. Membership tiers.</div>
         </div>
         <div style="text-align:right;flex-shrink:0">
           <div class="big-number" style="color:#AAFF00;opacity:0.3;font-size:48px">2</div>
-          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:#444">VERTICALES</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:#444">VERTICALS</div>
         </div>
       </div>
     </div>
@@ -1474,41 +1541,41 @@
   <div class="zone-header">
     <button class="zone-back" onclick="goTo('map')">← MAP</button>
     <div class="zone-title" style="color:#B84DFF">SYSTEMS</div>
-    <div class="tag locked">GATEADO</div>
+    <div class="tag locked">GATED</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">CÓMO PIENSO Y CONSTRUYO</div>
+    <div class="section-label">HOW I THINK AND BUILD</div>
     <div class="mega-text" style="color:#B84DFF">HOW<br>I BUILD</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      Mis frameworks. Mis procesos. Cómo paso de idea a producto. Esto es lo más valioso que tengo — y lo más gateado.
+      My frameworks. My processes. How I go from idea to product. This is the most valuable thing I have — and the most gated.
     </p>
     <div class="grid-3">
       <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
         <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
         <div class="card-label">FRAMEWORK 01</div>
-        <div class="card-title">El Sistema de Ideas</div>
-        <div class="card-desc">Cómo capturo, proceso y ejecuto ideas...</div>
+        <div class="card-title">The Idea System</div>
+        <div class="card-desc">How I capture, process, and execute ideas...</div>
         <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
       </div>
       <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
         <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
         <div class="card-label">FRAMEWORK 02</div>
         <div class="card-title">Build Fast, Ship Real</div>
-        <div class="card-desc">Mi proceso de desarrollo y lanzamiento...</div>
+        <div class="card-desc">My development and launch process...</div>
         <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
       </div>
       <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
         <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
         <div class="card-label">FRAMEWORK 03</div>
-        <div class="card-title">Todo es Monetizable</div>
-        <div class="card-desc">Cómo convierto ideas en flujo de dinero...</div>
+        <div class="card-title">Everything is Monetizable</div>
+        <div class="card-desc">How I convert ideas into cash flow...</div>
         <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
       </div>
     </div>
     <div style="border:1px solid #B84DFF;padding:32px;text-align:center;margin-top:16px">
-      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#B84DFF;margin-bottom:16px">ACCESO COMPLETO</div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#B84DFF;margin-bottom:16px">FULL ACCESS</div>
       <div style="font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:8px">OBSESIONADO</div>
-      <div style="font-size:13px;color:#555;margin-bottom:24px">$29/mes o $290/año</div>
+      <div style="font-size:13px;color:#555;margin-bottom:24px">$29/mo or $290/year</div>
       <button onclick="goTo('gates')" style="background:#B84DFF;color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">VER MEMBERSHIP</button>
     </div>
   </div>
@@ -1522,10 +1589,10 @@
     <div class="tag gold">MONETIZABLE</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">TODO TIENE VALOR</div>
-    <div class="mega-text" style="color:#FFD200">TODO<br>VALE.</div>
+    <div class="section-label">EVERYTHING HAS VALUE</div>
+    <div class="mega-text" style="color:#FFD200">IT ALL<br>COUNTS.</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      Arte. Conocimiento. Acceso. Tiempo. Ideas. Sistemas. Nada es gratis. Todo tiene un precio justo. El que quiere, paga. El que no, está afuera — y eso también tiene valor.
+      Art. Knowledge. Access. Time. Ideas. Systems. Nothing is free. Everything has a fair price. Those who want it, pay. Those who don't, stay outside — and that too has value.
     </p>
     <div class="grid-3">
       <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 01</div><div class="card-title">Arte & Prints</div></div>
@@ -1536,8 +1603,8 @@
       <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 06</div><div class="card-title">Content Premium</div></div>
     </div>
     <div class="raw-card" style="--accent:#FFD200;margin-top:0">
-      <div class="card-label">FILOSOFÍA</div>
-      <div class="card-title" style="font-size:22px;line-height:1.3">"No cobro porque necesito. Cobro porque lo que tengo tiene valor — y las personas que pagan son las que realmente lo van a usar."</div>
+      <div class="card-label">PHILOSOPHY</div>
+      <div class="card-title" style="font-size:22px;line-height:1.3">"I don't charge because I need to. I charge because what I have has value — and the people who pay are the ones who will actually use it."</div>
     </div>
   </div>
 </div>
@@ -1550,10 +1617,10 @@
     <div class="tag live">24/7 RUNNING</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">AI TRABAJANDO POR TI</div>
+    <div class="section-label">AI WORKING FOR YOU</div>
     <div class="mega-text" style="color:#00F0FF">NEVER<br>OFFLINE.</div>
     <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      Agentes de IA creando contenido, documentando tu universo, generando clips, posts, threads — mientras tú vives. Tu ecosistema trabaja 24/7.
+      AI agents creating content, documenting your universe, generating clips, posts, threads — while you live. Your ecosystem works 24/7.
     </p>
 
     <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px">
@@ -1561,7 +1628,7 @@
         <div class="agent-dot" style="background:#FF3A1F"></div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">🎥 YouTube Agent</div>
-          <div style="font-size:11px;color:#555">Toma tus ideas, builds the script, edits the narrative. Sube a tu canal. Tu voz, su trabajo.</div>
+          <div style="font-size:11px;color:#555">Takes your ideas, builds the script, edits the narrative. Uploads to your channel. Your voice, its work.</div>
           <div style="margin-top:8px;display:flex;gap:6px">
             <span class="tag live">RUNNING</span>
             <span class="tag">HK23 Channel</span>
@@ -1573,7 +1640,7 @@
         <div class="agent-dot" style="background:#B84DFF"></div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">📱 TikTok Agent</div>
-          <div style="font-size:11px;color:#555">Clips cortos de tu entrenamiento, arte, ideas. 3-5 videos por día. Algoritmo fed. Audience growing.</div>
+          <div style="font-size:11px;color:#555">Short clips from your training, art, ideas. 3-5 videos per day. Algorithm fed. Audience growing.</div>
           <div style="margin-top:8px;display:flex;gap:6px">
             <span class="tag live">RUNNING</span>
             <span class="tag">@hk23neo</span>
@@ -1584,7 +1651,7 @@
         <div class="agent-dot" style="background:#AAFF00"></div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">📊 Data Agent</div>
-          <div style="font-size:11px;color:#555">Documenta sesiones de Vice OS. Genera reports automáticos. Sube al content engine del dashboard.</div>
+          <div style="font-size:11px;color:#555">Documents Vice OS sessions. Generates automatic reports. Feeds the dashboard content engine.</div>
           <div style="margin-top:8px"><span class="tag live">RUNNING</span></div>
         </div>
       </div>
@@ -1592,7 +1659,7 @@
         <div class="agent-dot" style="background:#FFD200"></div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">💬 ChatGPT Extractor</div>
-          <div style="font-size:11px;color:#555">Extrae conversaciones diarias de ChatGPT y las transforma en contenido — threads, ideas, afirmaciones, lore crudo.</div>
+          <div style="font-size:11px;color:#555">Extracts daily ChatGPT conversations and transforms them into content — threads, ideas, affirmations, raw lore.</div>
           <div style="margin-top:8px"><span class="tag" style="border-color:#FFD200;color:#FFD200">COMING SOON</span></div>
         </div>
       </div>
@@ -1600,7 +1667,7 @@
         <div class="agent-dot" style="background:#00F0FF;animation:none;opacity:0.3"></div>
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">🔮 Mindmap Agent</div>
-          <div style="font-size:11px;color:#444">Actualiza el universo map en tiempo real con tus nuevas ideas y conexiones.</div>
+          <div style="font-size:11px;color:#444">Updates the universe map in real time with your new ideas and connections.</div>
           <div style="margin-top:8px"><span class="tag">COMING SOON</span></div>
         </div>
       </div>
@@ -1608,7 +1675,7 @@
 
     <div style="border:1px solid #00F0FF;padding:24px;background:rgba(0,240,255,0.02)">
       <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#00F0FF;margin-bottom:12px">SETUP AGENTS</div>
-      <div style="font-size:13px;color:#555;line-height:1.7">Conecta tus plataformas, define tu voz, y los agentes hacen el resto. Tu universo crece mientras duermes.</div>
+      <div style="font-size:13px;color:#555;line-height:1.7">Connect your platforms, define your voice, and the agents do the rest. Your universe grows while you sleep.</div>
     </div>
   </div>
 </div>
@@ -1617,14 +1684,14 @@
 <div id="screen-gates" class="screen zone-screen">
   <div class="zone-header">
     <button class="zone-back" onclick="goTo('map')">← MAP</button>
-    <div class="zone-title">LAS PUERTAS</div>
+    <div class="zone-title">THE GATES</div>
     <div class="tag">MEMBERSHIP</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">ACCESO AL UNIVERSO</div>
-    <div class="mega-text">PAGA<br>O FUERA.</div>
+    <div class="section-label">UNIVERSE ACCESS</div>
+    <div class="mega-text">PAY<br>OR LEAVE.</div>
     <p style="color:#555;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      No todo es para todos. La puerta abierta te deja ver. La puerta de adentro te deja participar. La puerta final te hace parte de esto.
+      Not everything is for everyone. The open gate lets you see. The inner gate lets you participate. The final gate makes you part of this.
     </p>
 
     <div style="display:flex;flex-direction:column;gap:16px">
@@ -1632,39 +1699,39 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#555;margin-bottom:8px">TIER 01</div>
-            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">CURIOSO</div>
-            <div style="font-size:13px;color:#444;margin-bottom:16px">Puedes ver la superficie. Arte, identidad, Vice OS public.</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">CURIOUS</div>
+            <div style="font-size:13px;color:#444;margin-bottom:16px">You can see the surface. Art, identity, Vice OS public.</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:36px;font-weight:700">FREE</div>
-            <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:2px">SIEMPRE</div>
+            <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:2px">ALWAYS</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="tag">Arte público</span>
+          <span class="tag">Public art</span>
           <span class="tag">Vice OS landing</span>
-          <span class="tag">Lore básico</span>
-          <span class="tag">Agentes preview</span>
+          <span class="tag">Basic lore</span>
+          <span class="tag">Agents preview</span>
         </div>
       </div>
 
       <div class="gate-tier featured" style="--accent:#B84DFF;border-color:#B84DFF;background:rgba(184,77,255,0.03)">
-        <div class="tier-badge" style="background:#B84DFF">MÁS POPULAR</div>
+        <div class="tier-badge" style="background:#B84DFF">MOST POPULAR</div>
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#B84DFF;margin-bottom:8px">TIER 02</div>
             <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">OBSESIONADO</div>
-            <div style="font-size:13px;color:#555;margin-bottom:16px">Mis sistemas, procesos, frameworks. Notes crudas. Lore completo.</div>
+            <div style="font-size:13px;color:#555;margin-bottom:16px">My systems, processes, frameworks. Raw notes. Full lore.</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:36px;font-weight:700;color:#B84DFF">$29</div>
-            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MES</div>
+            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MO</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Todo de CURIOSO</span>
-          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Sistemas & frameworks</span>
-          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Notes sin filtro</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">All of CURIOUS</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Systems & frameworks</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Raw notes</span>
           <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Vice OS Pro</span>
           <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Agent reports</span>
         </div>
@@ -1674,16 +1741,16 @@
         <div style="display:flex;justify-content:space-between;align-items:flex-start">
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#FFD200;margin-bottom:8px">TIER 03</div>
-            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">SOCIO</div>
-            <div style="font-size:13px;color:#555;margin-bottom:16px">Acceso directo. Part of the build. Influencia real.</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">PARTNER</div>
+            <div style="font-size:13px;color:#555;margin-bottom:16px">Direct access. Part of the build. Real influence.</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:36px;font-weight:700;color:#FFD200">$99</div>
-            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MES</div>
+            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MO</div>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="tag gold">Todo de OBSESIONADO</span>
+          <span class="tag gold">All of OBSESIONADO</span>
           <span class="tag gold">Direct access</span>
           <span class="tag gold">Vice OS Elite</span>
           <span class="tag gold">Co-create</span>
@@ -1693,9 +1760,9 @@
     </div>
 
     <div style="margin-top:32px;border:1px solid #1A1A1A;padding:24px;text-align:center;cursor:pointer" onclick="goTo('trap')">
-      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#2A2A2A;margin-bottom:8px">PUERTA ESPECIAL</div>
-      <div style="font-size:18px;font-weight:700;color:#2A2A2A">Para los que miran pero no entran.</div>
-      <div style="font-size:11px;color:#1A1A1A;margin-top:8px">Sé quién eres. → Click aquí.</div>
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#2A2A2A;margin-bottom:8px">SPECIAL GATE</div>
+      <div style="font-size:18px;font-weight:700;color:#2A2A2A">For those who keep looking but never enter.</div>
+      <div style="font-size:11px;color:#1A1A1A;margin-top:8px">You know who you are. → Click here.</div>
     </div>
   </div>
 </div>
@@ -1706,25 +1773,25 @@
     <div style="font-size:80px;margin-bottom:32px">🦉</div>
     <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:6px;color:#333;margin-bottom:24px">THE OWL SEES YOU</div>
     <div style="font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:20px">
-      Llevas tiempo<br>mirando.
+      You've been<br>watching.
     </div>
     <p style="font-size:13px;color:#555;line-height:1.8;margin-bottom:32px">
-      Volviste. De nuevo. Tercera vez esta semana.<br>
-      Sabes lo que quieres. Solo no has pagado por ello.<br><br>
-      Está bien. Lo entiendo. Yo también fui curioso.<br>
-      Pero los curiosos que no actúan se quedan afuera.
+      You came back. Again. Third time this week.<br>
+      You know what you want. You just haven't paid for it.<br><br>
+      That's fine. I get it. I was curious once too.<br>
+      But the curious ones who don't act stay outside.
     </p>
     <div style="border:1px solid var(--red);padding:24px;margin-bottom:24px">
-      <div style="font-size:11px;color:#555;margin-bottom:4px;font-family:'Space Mono',monospace;letter-spacing:2px">LA OFERTA DEL OWL</div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:8px">Un mes de OBSESIONADO</div>
+      <div style="font-size:11px;color:#555;margin-bottom:4px;font-family:'Space Mono',monospace;letter-spacing:2px">THE OWL OFFER</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:8px">One month of OBSESIONADO</div>
       <div style="font-size:32px;font-weight:700;color:var(--red)">$29</div>
-      <div style="font-size:11px;color:#444;margin-top:4px">Sin excusas. Sin más vueltas.</div>
+      <div style="font-size:11px;color:#444;margin-top:4px">No excuses. No more loops.</div>
     </div>
     <div style="display:flex;gap:12px;justify-content:center">
-      <button onclick="goTo('gates')" style="background:var(--red);color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">ENTRAR AHORA</button>
-      <button onclick="goTo('map')" style="background:none;color:#333;border:1px solid #1C1C1C;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer">VOLVER A MIRAR</button>
+      <button onclick="goTo('gates')" style="background:var(--red);color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">ENTER NOW</button>
+      <button onclick="goTo('map')" style="background:none;color:#333;border:1px solid #1C1C1C;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer">KEEP WATCHING</button>
     </div>
-    <div style="margin-top:32px;font-size:10px;color:#1A1A1A;font-family:'Space Mono',monospace">"El que paga respeta. El que no paga, consume."</div>
+    <div style="margin-top:32px;font-size:10px;color:#1A1A1A;font-family:'Space Mono',monospace">"Those who pay, respect. Those who don't, consume."</div>
   </div>
 </div>
 
@@ -1779,7 +1846,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <div style="width:6px;height:6px;border-radius:50%;background:#FFD200;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Lore & Filosofía</div>
+            <div style="font-size:12px;color:#666">Lore & Philosophy</div>
           </div>
           <div style="display:flex;align-items:center;gap:10px">
             <div style="width:6px;height:6px;border-radius:50%;background:#AAFF00;flex-shrink:0"></div>
@@ -1930,53 +1997,53 @@ const PROJECTS = [
       title: 'VICEGOLFER', color: '#AAFF00',
       nodes: [
         { label: 'PERFORMANCE\nDNA',   x: 0.50, y: 0.16, color: '#AAFF00', size: 16,
-          detail: { title: 'PERFORMANCE DNA', status: 'live', eyebrow: 'MÓDULO CORE',
-            desc: 'Tu radar de golf personalizado. 5 ejes construidos desde tus rondas reales: Driver, Hierros, Juego Corto, Putting y Mental.',
-            howTo: 'Registra rondas y sesiones de entrenamiento. El sistema calcula automáticamente tus 5 ejes y actualiza el radar en tiempo real con cada entrada.',
+          detail: { title: 'PERFORMANCE DNA', status: 'live', eyebrow: 'CORE MODULE',
+            desc: 'Your personalized golf radar. 5 axes built from your real rounds: Driver, Irons, Short Game, Putting, and Mental.',
+            howTo: 'Log rounds and training sessions. The system automatically calculates your 5 axes and updates the radar in real time with every entry.',
             benefits: [
-              'Identifica exactamente qué parte del juego te cuesta más strokes',
-              'Compara tu perfil contra el ranking global de ViceGolfer',
-              'El radar evoluciona con cada sesión — ves el progreso en tiempo real',
+              'Identify exactly which part of your game costs you the most strokes',
+              'Compare your profile against the global ViceGolfer ranking',
+              'The radar evolves with every session — see progress in real time',
             ],
-            stats: [{ l:'DRIVER', v:'78' },{ l:'HIERROS', v:'65' },{ l:'JUEGO CORTO', v:'82' },{ l:'PUTTING', v:'71' },{ l:'MENTAL', v:'59' },{ l:'RONDAS', v:'23' }],
-            action: 'VER MI DNA →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+            stats: [{ l:'DRIVER', v:'78' },{ l:'IRONS', v:'65' },{ l:'SHORT GAME', v:'82' },{ l:'PUTTING', v:'71' },{ l:'MENTAL', v:'59' },{ l:'ROUNDS', v:'23' }],
+            action: 'VIEW MY DNA →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
         { label: 'PUTTING\nPROTOCOL', x: 0.82, y: 0.38, color: '#AAFF00', size: 13,
-          detail: { title: 'PUTTING PROTOCOL', status: 'live', eyebrow: 'ENTRENAMIENTO',
-            desc: 'Protocolo diario de 100 putts dividido en 3 zonas. Cada sesión actualiza tu DNA de putting en tiempo real.',
-            howTo: 'Abre la sesión de putting, selecciona la zona y registra cada putt. 100 putts divididos en 3 zonas de distancia: corta, media y larga.',
+          detail: { title: 'PUTTING PROTOCOL', status: 'live', eyebrow: 'TRAINING',
+            desc: 'Daily 100-putt protocol split into 3 zones. Every session updates your putting DNA in real time.',
+            howTo: 'Open a putting session, select the zone, and log each putt. 100 putts across 3 distance zones: short, medium, and long.',
             benefits: [
-              'Protocolo de 15 minutos que actualiza tu DNA de putting al instante',
-              'Tasa de conversión por zona para saber exactamente dónde entrenar más',
-              'Racha de días activos para mantener consistencia y hábito',
+              '15-minute protocol that updates your putting DNA instantly',
+              'Conversion rate by zone — know exactly where to train more',
+              'Active day streak to build consistency and habit',
             ],
-            stats: [{ l:'SESIÓN HOY', v:'67/100' },{ l:'MAKE RATE', v:'74%' },{ l:'DIST. MEDIA', v:'2.3m' },{ l:'RACHA', v:'5 días' }],
-            action: 'INICIAR SESIÓN →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+            stats: [{ l:'TODAY', v:'67/100' },{ l:'MAKE RATE', v:'74%' },{ l:'AVG DIST', v:'2.3m' },{ l:'STREAK', v:'5 days' }],
+            action: 'START SESSION →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
         { label: 'ANALYTICS',          x: 0.82, y: 0.64, color: '#B84DFF', size: 12,
-          detail: { title: 'ANALYTICS', status: 'build', eyebrow: 'DATOS Y TENDENCIAS',
-            desc: 'Tendencias de tu juego en el tiempo. Identifica qué parte de tu juego te está costando strokes reales.',
-            howTo: 'Se conecta automáticamente con tus rondas registradas. El sistema calcula tendencias, compara períodos y genera insights sin necesidad de input manual.',
+          detail: { title: 'ANALYTICS', status: 'build', eyebrow: 'DATA & TRENDS',
+            desc: 'Your game trends over time. Identify which part of your game is actually costing you real strokes.',
+            howTo: 'Connects automatically with your logged rounds. The system calculates trends, compares periods, and generates insights without manual input.',
             benefits: [
-              'Detecta cuántos strokes te cuesta cada parte del juego en términos reales',
-              'Compara tu evolución período a período — mejoras y retrocesos objetivos',
-              'Insights automáticos para priorizar qué parte del juego trabajar primero',
+              'See exactly how many strokes each part of your game costs in real terms',
+              'Compare your evolution period by period — objective improvements and regressions',
+              'Auto insights to prioritize which part of your game to work on first',
             ],
-            stats: [{ l:'RONDAS', v:'23' },{ l:'MEJOR GHI', v:'71' },{ l:'TENDENCIA', v:'↑ +2.1' },{ l:'HANDICAP', v:'8.3' }],
-            action: 'VER ANÁLISIS →', actionColor: '#B84DFF' }},
+            stats: [{ l:'ROUNDS', v:'23' },{ l:'BEST GHI', v:'71' },{ l:'TREND', v:'↑ +2.1' },{ l:'HANDICAP', v:'8.3' }],
+            action: 'VIEW ANALYTICS →', actionColor: '#B84DFF' }},
         { label: 'RANKINGS',           x: 0.50, y: 0.84, color: '#00F0FF', size: 11,
-          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'COMPETENCIA',
-            desc: 'Leaderboard global de ViceGolfer. Sube de nivel, compite con tu handicap real y defiende tu posición.',
-            stats: [{ l:'TU POSICIÓN', v:'#12' },{ l:'JUGADORES', v:'847' },{ l:'VICE LEVEL', v:'14' },{ l:'PUNTOS', v:'2,340' }],
-            action: 'VER RANKING →', actionColor: '#00F0FF' }},
+          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'COMPETITION',
+            desc: 'ViceGolfer global leaderboard. Level up, compete with your real handicap, and defend your position.',
+            stats: [{ l:'YOUR POS.', v:'#12' },{ l:'PLAYERS', v:'847' },{ l:'VICE LEVEL', v:'14' },{ l:'POINTS', v:'2,340' }],
+            action: 'VIEW RANKING →', actionColor: '#00F0FF' }},
         { label: 'CADDIE\nBOOKING',   x: 0.18, y: 0.64, color: '#FFD200', size: 11,
           detail: { title: 'CADDIE BOOKING', status: 'soon', eyebrow: 'AI + HUMAN',
-            desc: 'Activa el AI Caddie para estrategia en tiempo real, o reserva un caddie humano verificado para tu próxima ronda.',
-            stats: [{ l:'AI MODEL', v:'GPT-4o' },{ l:'CADDIES', v:'12' },{ l:'CANCHAS', v:'8' },{ l:'HOY', v:'DISPONIBLE' }],
-            action: 'RESERVAR →', actionColor: '#FFD200' }},
+            desc: 'Activate the AI Caddie for real-time strategy, or book a verified human caddie for your next round.',
+            stats: [{ l:'AI MODEL', v:'GPT-4o' },{ l:'CADDIES', v:'12' },{ l:'COURSES', v:'8' },{ l:'TODAY', v:'AVAILABLE' }],
+            action: 'BOOK NOW →', actionColor: '#FFD200' }},
         { label: 'PODCASTS',          x: 0.18, y: 0.38, color: '#FF3A1F', size: 11,
           detail: { title: 'VICE GOLF PODCAST', status: 'soon', eyebrow: 'CONTENT ENGINE',
-            desc: 'Tu rendimiento convertido en audio. El sistema genera episodios desde tus sesiones, tu DNA y tus mejores rondas.',
-            stats: [{ l:'EPISODIOS', v:'0' },{ l:'DURACIÓN', v:'~12 min' },{ l:'AI VOICE', v:'SÍ' },{ l:'PLATAFORMAS', v:'SPO/APC' }],
-            action: 'PRÓXIMAMENTE →', actionColor: '#FF3A1F' }},
+            desc: 'Your performance converted to audio. The system generates episodes from your sessions, your DNA, and your best rounds.',
+            stats: [{ l:'EPISODES', v:'0' },{ l:'LENGTH', v:'~12 min' },{ l:'AI VOICE', v:'YES' },{ l:'PLATFORMS', v:'SPO/APC' }],
+            action: 'COMING SOON →', actionColor: '#FF3A1F' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,5]]
     }
@@ -1988,87 +2055,87 @@ const PROJECTS = [
       title: 'RUGBY VICE', color: '#00F0FF',
       nodes: [
         { label: 'KICK\nTRACKER 2D',  x: 0.50, y: 0.16, color: '#00F0FF', size: 16,
-          detail: { title: 'KICK TRACKER 2D', status: 'live', eyebrow: 'MÓDULO CORE',
-            desc: 'Registra cada patada en un campo 2D interactivo. Zonas, ángulos, distancias y tasa de conversión en tiempo real.',
-            howTo: 'Abre el campo 2D, toca la posición de cada patada y marca si fue conversión o no. El sistema calcula ángulos, distancias y zonas automáticamente.',
+          detail: { title: 'KICK TRACKER 2D', status: 'live', eyebrow: 'CORE MODULE',
+            desc: 'Log every kick on an interactive 2D field. Zones, angles, distances, and conversion rate in real time.',
+            howTo: 'Open the 2D field, tap the position of each kick, and mark whether it was a conversion or not. The system calculates angles, distances, and zones automatically.',
             benefits: [
-              'Mapa visual de tus zonas fuertes y débiles en el campo',
-              'Tasa de conversión por zona — sabés exactamente dónde entrenar más',
-              'Historial completo para comparar progresión entre sesiones',
+              'Visual map of your strong and weak zones on the field',
+              'Conversion rate by zone — know exactly where to train more',
+              'Full history to compare progression between sessions',
             ],
-            stats: [{ l:'SESIONES', v:'41' },{ l:'PATADAS', v:'1,240' },{ l:'CONVERSIÓN', v:'68%' },{ l:'MEJOR', v:'94%' }],
-            action: 'INICIAR TRACKING →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
-        { label: 'DNA 7\nEJES',       x: 0.82, y: 0.38, color: '#00F0FF', size: 13,
-          detail: { title: 'PERFORMANCE DNA', status: 'build', eyebrow: 'RUGBY ESPECÍFICO',
-            desc: '7 ejes de rendimiento rugby: Patada, Tackle, Velocidad, Resistencia, Potencia, Mental y Posicionamiento.',
-            howTo: 'Se construye automáticamente desde tus sesiones de tracking. Registra entrenamientos y partidos — el DNA se actualiza solo con cada entrada.',
+            stats: [{ l:'SESSIONS', v:'41' },{ l:'KICKS', v:'1,240' },{ l:'CONVERSION', v:'68%' },{ l:'BEST', v:'94%' }],
+            action: 'START TRACKING →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+        { label: 'DNA 7\nAXES',       x: 0.82, y: 0.38, color: '#00F0FF', size: 13,
+          detail: { title: 'PERFORMANCE DNA', status: 'build', eyebrow: 'RUGBY SPECIFIC',
+            desc: '7 rugby performance axes: Kick, Tackle, Speed, Endurance, Power, Mental, and Positioning.',
+            howTo: 'Built automatically from your tracking sessions. Log training and matches — the DNA updates with each entry.',
             benefits: [
-              '7 ejes específicos de rugby para una foto completa de tu perfil atlético',
-              'Compara con jugadores de tu posición a nivel regional y global',
-              'Identifica exactamente qué atributo limita tu próximo nivel',
+              '7 rugby-specific axes for a complete picture of your athletic profile',
+              'Compare against players in your position at regional and global level',
+              'Identify exactly which attribute is limiting your next level',
             ],
-            stats: [{ l:'PATADA', v:'81' },{ l:'TACKLE', v:'74' },{ l:'VELOCIDAD', v:'68' },{ l:'MENTAL', v:'77' }],
-            action: 'VER DNA →', actionColor: '#00F0FF' }},
+            stats: [{ l:'KICK', v:'81' },{ l:'TACKLE', v:'74' },{ l:'SPEED', v:'68' },{ l:'MENTAL', v:'77' }],
+            action: 'VIEW DNA →', actionColor: '#00F0FF' }},
         { label: 'RUGBY CV',          x: 0.82, y: 0.64, color: '#B84DFF', size: 11,
-          detail: { title: 'RUGBY CV', status: 'soon', eyebrow: 'CARRERA PROFESIONAL',
-            desc: 'Tu perfil deportivo público. Estadísticas reales, videos, posición y historial para mostrar a clubes y scouts.',
-            stats: [{ l:'POSICIÓN', v:'FLY-HALF' },{ l:'CLUBES', v:'3' },{ l:'VIDEOS', v:'0' },{ l:'VISIBILIDAD', v:'PRIVADO' }],
-            action: 'CREAR CV →', actionColor: '#B84DFF' }},
+          detail: { title: 'RUGBY CV', status: 'soon', eyebrow: 'PROFESSIONAL CAREER',
+            desc: 'Your public sports profile. Real stats, videos, position, and history to show clubs and scouts.',
+            stats: [{ l:'POSITION', v:'FLY-HALF' },{ l:'CLUBS', v:'3' },{ l:'VIDEOS', v:'0' },{ l:'VISIBILITY', v:'PRIVATE' }],
+            action: 'CREATE CV →', actionColor: '#B84DFF' }},
         { label: 'MENTAL\nPROTOCOLS', x: 0.50, y: 0.84, color: '#FF3A1F', size: 11,
-          detail: { title: 'PROTOCOLOS MENTALES', status: 'soon', eyebrow: 'RENDIMIENTO MENTAL',
-            desc: 'Rutinas pre-partido, ejercicios de concentración y protocolos de presión para el momento que más importa.',
-            stats: [{ l:'PROTOCOLOS', v:'8' },{ l:'DURACIÓN', v:'5-15 min' },{ l:'COMPLETADOS', v:'0' },{ l:'RACHA', v:'—' }],
-            action: 'EXPLORAR →', actionColor: '#FF3A1F' }},
+          detail: { title: 'MENTAL PROTOCOLS', status: 'soon', eyebrow: 'MENTAL PERFORMANCE',
+            desc: 'Pre-match routines, focus exercises, and pressure protocols for the moments that matter most.',
+            stats: [{ l:'PROTOCOLS', v:'8' },{ l:'LENGTH', v:'5-15 min' },{ l:'COMPLETED', v:'0' },{ l:'STREAK', v:'—' }],
+            action: 'EXPLORE →', actionColor: '#FF3A1F' }},
         { label: 'RANKINGS',          x: 0.18, y: 0.64, color: '#FFD200', size: 10,
-          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'COMPETENCIA GLOBAL',
-            desc: 'Leaderboard de kickers por región, posición y nivel. Sube tu ranking con cada sesión registrada.',
-            stats: [{ l:'TU POSICIÓN', v:'#28' },{ l:'JUGADORES', v:'312' },{ l:'REGIÓN', v:'CHILE' },{ l:'NIVEL', v:'7' }],
-            action: 'VER RANKING →', actionColor: '#FFD200' }},
+          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'GLOBAL COMPETITION',
+            desc: 'Kicker leaderboard by region, position, and level. Climb the ranking with every logged session.',
+            stats: [{ l:'YOUR POS.', v:'#28' },{ l:'PLAYERS', v:'312' },{ l:'REGION', v:'CHILE' },{ l:'LEVEL', v:'7' }],
+            action: 'VIEW RANKING →', actionColor: '#FFD200' }},
         { label: 'COMMUNITY',         x: 0.18, y: 0.38, color: '#FFD200', size: 10,
-          detail: { title: 'COMMUNITY', status: 'soon', eyebrow: 'RED DE JUGADORES',
-            desc: 'Conecta con jugadores de tu posición, comparte sesiones y sigue el progreso de tu equipo.',
-            stats: [{ l:'MIEMBROS', v:'—' },{ l:'CLUBES', v:'—' },{ l:'PAÍSES', v:'—' },{ l:'POSTS', v:'—' }],
-            action: 'PRÓXIMAMENTE →', actionColor: '#FFD200' }},
+          detail: { title: 'COMMUNITY', status: 'soon', eyebrow: 'PLAYER NETWORK',
+            desc: 'Connect with players in your position, share sessions, and follow your team\'s progress.',
+            stats: [{ l:'MEMBERS', v:'—' },{ l:'CLUBS', v:'—' },{ l:'COUNTRIES', v:'—' },{ l:'POSTS', v:'—' }],
+            action: 'COMING SOON →', actionColor: '#FFD200' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[2,4]]
     }
   },
   {
-    id: 'laiglesia', label: 'LA IGLESIA', sub: 'Gold · IV Región · 3,676ha',
+    id: 'laiglesia', label: 'LA IGLESIA', sub: 'Gold · IV Region · 3,676ha',
     x: 0.50, y: 0.62, color: '#FFD200', size: 19,
     universe: {
       title: 'LA IGLESIA', color: '#FFD200',
       nodes: [
-        { label: 'CONCESIÓN\n3,676 ha',    x: 0.50, y: 0.16, color: '#FFD200', size: 16,
-          detail: { title: 'CONCESIÓN MINERA', status: 'live', eyebrow: 'PROPIEDAD',
-            desc: '3,676 hectáreas en la IV Región de Chile. Concesión activa con anomalías geoquímicas de oro confirmadas.',
-            stats: [{ l:'HECTÁREAS', v:'3,676' },{ l:'REGIÓN', v:'IV — CHILE' },{ l:'MINERAL', v:'ORO' },{ l:'ESTADO', v:'ACTIVA' }],
-            action: 'VER DATOS →', actionColor: '#FFD200' }},
+        { label: 'CLAIM\n3,676 ha',    x: 0.50, y: 0.16, color: '#FFD200', size: 16,
+          detail: { title: 'MINING CLAIM', status: 'live', eyebrow: 'PROPERTY',
+            desc: '3,676 hectares in Chile\'s IV Region. Active mining claim with confirmed gold geochemical anomalies.',
+            stats: [{ l:'HECTARES', v:'3,676' },{ l:'REGION', v:'IV — CHILE' },{ l:'MINERAL', v:'GOLD' },{ l:'STATUS', v:'ACTIVE' }],
+            action: 'VIEW DATA →', actionColor: '#FFD200' }},
         { label: 'DRILL\nPROGRAM',         x: 0.82, y: 0.38, color: '#FFD200', size: 13,
-          detail: { title: 'PROGRAMA DE PERFORACIÓN', status: 'build', eyebrow: 'EXPLORACIÓN',
-            desc: 'Programa de sondajes definiendo los cuerpos mineralizados. Muestras geoquímicas y datos de laboratorio integrados.',
-            stats: [{ l:'SONDAJES', v:'12' },{ l:'METROS', v:'2,400m' },{ l:'MUESTRAS', v:'840' },{ l:'LEY Au', v:'2.1 g/t' }],
-            action: 'VER PROGRAMA →', actionColor: '#FFD200' }},
-        { label: 'INVERSIÓN\nDECK',        x: 0.82, y: 0.64, color: '#FF3A1F', size: 12,
-          detail: { title: 'INVERSIÓN', status: 'live', eyebrow: 'CAPTACIÓN DE CAPITAL',
-            desc: 'Deck de inversión para capitalizar la etapa de exploración avanzada. Targets, valorización y plan de trabajo.',
-            stats: [{ l:'BUSCANDO', v:'USD 2M' },{ l:'EQUITY', v:'25%' },{ l:'ETAPA', v:'EXPLORACIÓN' },{ l:'ROI ESTIMADO', v:'8–12×' }],
-            action: 'VER DECK →', actionColor: '#FF3A1F' }},
+          detail: { title: 'DRILL PROGRAM', status: 'build', eyebrow: 'EXPLORATION',
+            desc: 'Drilling program defining the mineralized bodies. Geochemical samples and lab data integrated.',
+            stats: [{ l:'DRILL HOLES', v:'12' },{ l:'METERS', v:'2,400m' },{ l:'SAMPLES', v:'840' },{ l:'Au GRADE', v:'2.1 g/t' }],
+            action: 'VIEW PROGRAM →', actionColor: '#FFD200' }},
+        { label: 'INVESTMENT\nDECK',        x: 0.82, y: 0.64, color: '#FF3A1F', size: 12,
+          detail: { title: 'INVESTMENT', status: 'live', eyebrow: 'CAPITAL RAISE',
+            desc: 'Investment deck to capitalize the advanced exploration phase. Targets, valuation, and work plan.',
+            stats: [{ l:'RAISING', v:'USD 2M' },{ l:'EQUITY', v:'25%' },{ l:'STAGE', v:'EXPLORATION' },{ l:'EST. ROI', v:'8–12×' }],
+            action: 'VIEW DECK →', actionColor: '#FF3A1F' }},
         { label: 'DATA\nENGINEERING',      x: 0.50, y: 0.84, color: '#AAFF00', size: 11,
-          detail: { title: 'DATA ENGINEERING', status: 'live', eyebrow: 'PIPELINE DE DATOS',
-            desc: 'Pipeline de datos geológicos: muestras → laboratorio → base de datos → visualización. Trazabilidad completa.',
-            stats: [{ l:'REGISTROS', v:'4,200' },{ l:'FORMATOS', v:'CSV/GIS' },{ l:'DASHBOARDS', v:'3' },{ l:'ACTUALIZACIÓN', v:'SEMANAL' }],
-            action: 'VER PIPELINE →', actionColor: '#AAFF00' }},
-        { label: 'GEOLOGÍA\nIV REGIÓN',    x: 0.18, y: 0.64, color: '#00F0FF', size: 11,
-          detail: { title: 'CONTEXTO GEOLÓGICO', status: 'live', eyebrow: 'MARCO REGIONAL',
-            desc: 'Franja metalogénica aurífera de la Cordillera de la Costa. Contexto geológico favorable comparado con depósitos vecinos.',
-            stats: [{ l:'FORMACIÓN', v:'PALEOZOICO' },{ l:'TIPO YACIMIENTO', v:'ORO OROGÉNICO' },{ l:'VECINOS', v:'EL INDIO' },{ l:'POTENCIAL', v:'ALTO' }],
-            action: 'VER GEOLOGÍA →', actionColor: '#00F0FF' }},
-        { label: 'EQUIPO\n& TIMELINE',     x: 0.18, y: 0.38, color: '#B84DFF', size: 10,
-          detail: { title: 'EQUIPO & TIMELINE', status: 'live', eyebrow: 'EJECUCIÓN',
-            desc: 'Equipo de geólogos certificados y timeline de exploración 2025–2026. Próxima entrega: informe de recursos.',
-            stats: [{ l:'GEÓLOGOS', v:'3' },{ l:'FASE ACTUAL', v:'2 DE 4' },{ l:'PRÓXIMO HITO', v:'Q3 2026' },{ l:'INFORME', v:'EN PROCESO' }],
-            action: 'VER EQUIPO →', actionColor: '#B84DFF' }},
+          detail: { title: 'DATA ENGINEERING', status: 'live', eyebrow: 'DATA PIPELINE',
+            desc: 'Geological data pipeline: samples → lab → database → visualization. Full traceability.',
+            stats: [{ l:'RECORDS', v:'4,200' },{ l:'FORMATS', v:'CSV/GIS' },{ l:'DASHBOARDS', v:'3' },{ l:'UPDATE', v:'WEEKLY' }],
+            action: 'VIEW PIPELINE →', actionColor: '#AAFF00' }},
+        { label: 'GEOLOGY\nIV REGION',    x: 0.18, y: 0.64, color: '#00F0FF', size: 11,
+          detail: { title: 'GEOLOGICAL CONTEXT', status: 'live', eyebrow: 'REGIONAL CONTEXT',
+            desc: 'Gold metallogenic belt of the Coastal Range. Favorable geological context compared to neighboring deposits.',
+            stats: [{ l:'FORMATION', v:'PALEOZOIC' },{ l:'DEPOSIT TYPE', v:'OROGENIC GOLD' },{ l:'NEIGHBORS', v:'EL INDIO' },{ l:'POTENTIAL', v:'HIGH' }],
+            action: 'VIEW GEOLOGY →', actionColor: '#00F0FF' }},
+        { label: 'TEAM &\nTIMELINE',     x: 0.18, y: 0.38, color: '#B84DFF', size: 10,
+          detail: { title: 'TEAM & TIMELINE', status: 'live', eyebrow: 'EXECUTION',
+            desc: 'Certified geologist team and 2025–2026 exploration timeline. Next delivery: resource report.',
+            stats: [{ l:'GEOLOGISTS', v:'3' },{ l:'CURRENT PHASE', v:'2 OF 4' },{ l:'NEXT MILESTONE', v:'Q3 2026' },{ l:'REPORT', v:'IN PROGRESS' }],
+            action: 'VIEW TEAM →', actionColor: '#B84DFF' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,4]]
     }
@@ -2081,34 +2148,34 @@ const PROJECTS = [
       nodes: [
         { label: 'JAMES\nCRAIG ART',   x:0.50, y:0.16, color:'#FF3A1F', size:16,
           detail:{ title:'JAMES CRAIG ART', status:'live', eyebrow:'FINE ART · BRAND',
-            desc:'Marca de arte original — prints limitados, obras sobre lienzo y comisiones. Todo nace de la práctica diaria.',
-            stats:[{l:'OBRAS',v:'47'},{l:'PRINTS',v:'12'},{l:'VENDIDAS',v:'8'},{l:'EXPOSICIÓN',v:'SANTIAGO'}],
-            action:'VER PORTFOLIO →', actionColor:'#FF3A1F' }},
+            desc:'Original art brand — limited prints, canvas works, and commissions. Everything starts from a daily practice.',
+            stats:[{l:'WORKS',v:'47'},{l:'PRINTS',v:'12'},{l:'SOLD',v:'8'},{l:'EXHIBITION',v:'SANTIAGO'}],
+            action:'VIEW PORTFOLIO →', actionColor:'#FF3A1F' }},
         { label: 'FALLOWOOD',          x:0.82, y:0.38, color:'#FFD200', size:13,
           detail:{ title:'FALLOWOOD', status:'live', eyebrow:'STREETWEAR · BRAND',
-            desc:'Marca de ropa independiente. Diseños que cruzan el streetwear con referencias de cultura underground y arte generativo.',
-            stats:[{l:'DROPS',v:'3'},{l:'PIEZAS',v:'24'},{l:'COLECCIÓN',v:'SS26'},{l:'CANAL',v:'INSTAGRAM'}],
-            action:'VER COLECCIÓN →', actionColor:'#FFD200' }},
+            desc:'Independent clothing brand. Designs that cross streetwear with underground culture references and generative art.',
+            stats:[{l:'DROPS',v:'3'},{l:'PIECES',v:'24'},{l:'COLLECTION',v:'SS26'},{l:'CHANNEL',v:'INSTAGRAM'}],
+            action:'VIEW COLLECTION →', actionColor:'#FFD200' }},
         { label: 'MIDJOURNEY\nSTUDIO', x:0.82, y:0.64, color:'#B84DFF', size:12,
-          detail:{ title:'MIDJOURNEY STUDIO', status:'build', eyebrow:'AI ART · GENERATIVO',
-            desc:'Estudio de arte generativo con Midjourney. Referencia visual para productos, campañas y exploración estética del universo HK23.',
-            stats:[{l:'IMÁGENES',v:'2,400+'},{l:'ESTILOS',v:'12'},{l:'PROMPTS',v:'340'},{l:'USO',v:'INTERNO'}],
-            action:'VER ARCHIVO →', actionColor:'#B84DFF' }},
+          detail:{ title:'MIDJOURNEY STUDIO', status:'build', eyebrow:'AI ART · GENERATIVE',
+            desc:'Generative art studio with Midjourney. Visual reference for products, campaigns, and aesthetic exploration of the HK23 universe.',
+            stats:[{l:'IMAGES',v:'2,400+'},{l:'STYLES',v:'12'},{l:'PROMPTS',v:'340'},{l:'USAGE',v:'INTERNAL'}],
+            action:'VIEW ARCHIVE →', actionColor:'#B84DFF' }},
         { label: 'BRAND\nIDENTITY',    x:0.50, y:0.84, color:'#FF3A1F', size:11,
-          detail:{ title:'BRAND IDENTITY', status:'live', eyebrow:'SISTEMA VISUAL',
-            desc:'El sistema visual completo de HK23: paleta, tipografías, tokens CSS y assets de marca para todos los productos del ecosistema.',
-            stats:[{l:'COLORES',v:'8'},{l:'TIPOGRAFÍAS',v:'2'},{l:'TOKENS',v:'34'},{l:'DOCUMENTADO',v:'SÍ'}],
-            action:'VER SYSTEM →', actionColor:'#FF3A1F' }},
+          detail:{ title:'BRAND IDENTITY', status:'live', eyebrow:'VISUAL SYSTEM',
+            desc:'The complete HK23 visual system: palette, typefaces, CSS tokens, and brand assets for every product in the ecosystem.',
+            stats:[{l:'COLORS',v:'8'},{l:'TYPEFACES',v:'2'},{l:'TOKENS',v:'34'},{l:'DOCUMENTED',v:'YES'}],
+            action:'VIEW SYSTEM →', actionColor:'#FF3A1F' }},
         { label: 'MOTION\nGRAPHICS',   x:0.18, y:0.64, color:'#00F0FF', size:10,
-          detail:{ title:'MOTION GRAPHICS', status:'soon', eyebrow:'ANIMACIÓN · VIDEO',
-            desc:'Animaciones de marca para social media, intros de video y el universo visual animado de VICE OS.',
-            stats:[{l:'PROYECTOS',v:'0'},{l:'HERRAMIENTA',v:'FIGMA/AE'},{l:'ESTADO',v:'DISEÑO'},{l:'ETA',v:'Q3 2026'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
+          detail:{ title:'MOTION GRAPHICS', status:'soon', eyebrow:'ANIMATION · VIDEO',
+            desc:'Brand animations for social media, video intros, and the animated visual universe of VICE OS.',
+            stats:[{l:'PROJECTS',v:'0'},{l:'TOOL',v:'FIGMA/AE'},{l:'STATUS',v:'DESIGN'},{l:'ETA',v:'Q3 2026'}],
+            action:'COMING SOON →', actionColor:'#00F0FF' }},
         { label: 'CONTENT\nENGINE',    x:0.18, y:0.38, color:'#AAFF00', size:10,
-          detail:{ title:'CONTENT ENGINE', status:'build', eyebrow:'PIPELINE VISUAL',
-            desc:'Pipeline de contenido visual: sesión → frame → post → branded. Cada acción en VICE OS genera contenido publicable.',
-            stats:[{l:'TEMPLATES',v:'7'},{l:'FORMATOS',v:'4'},{l:'PLATAFORMAS',v:'3'},{l:'AUTO',v:'SÍ'}],
-            action:'VER PIPELINE →', actionColor:'#AAFF00' }},
+          detail:{ title:'CONTENT ENGINE', status:'build', eyebrow:'VISUAL PIPELINE',
+            desc:'Visual content pipeline: session → frame → post → branded. Every action in VICE OS generates publishable content.',
+            stats:[{l:'TEMPLATES',v:'7'},{l:'FORMATS',v:'4'},{l:'PLATFORMS',v:'3'},{l:'AUTO',v:'YES'}],
+            action:'VIEW PIPELINE →', actionColor:'#AAFF00' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,5]]
     }
@@ -2120,35 +2187,35 @@ const PROJECTS = [
       title: 'PROJECTS', color: '#FF3A1F',
       nodes: [
         { label: 'FALLOWOOD',        x:0.50, y:0.16, color:'#FFD200', size:16,
-          detail:{ title:'FALLOWOOD', status:'live', eyebrow:'MARCA · STREETWEAR',
-            desc:'Marca de ropa independiente fundada 2024. Diseños que mezclan streetwear con referencias culturales underground y arte digital.',
-            stats:[{l:'DROPS',v:'3'},{l:'PIEZAS',v:'24'},{l:'VENTAS',v:'USD 4.2k'},{l:'PLATAFORMA',v:'SHOPIFY'}],
-            action:'VER PROYECTO →', actionColor:'#FFD200' }},
+          detail:{ title:'FALLOWOOD', status:'live', eyebrow:'BRAND · STREETWEAR',
+            desc:'Independent clothing brand founded 2024. Designs that mix streetwear with underground cultural references and digital art.',
+            stats:[{l:'DROPS',v:'3'},{l:'PIECES',v:'24'},{l:'SALES',v:'USD 4.2k'},{l:'PLATFORM',v:'SHOPIFY'}],
+            action:'VIEW PROJECT →', actionColor:'#FFD200' }},
         { label: 'JAMES\nCRAIG ART', x:0.82, y:0.38, color:'#FF3A1F', size:13,
-          detail:{ title:'JAMES CRAIG ART', status:'live', eyebrow:'ARTE ORIGINAL · PRINTS',
-            desc:'Proyecto de arte original y prints limitados. Obras sobre lienzo, técnica mixta y serigrafía artesanal.',
-            stats:[{l:'OBRAS',v:'47'},{l:'PRINTS SOLD',v:'8'},{l:'EXPOSICIONES',v:'2'},{l:'CIUDAD',v:'SANTIAGO'}],
-            action:'VER PITCH →', actionColor:'#FF3A1F' }},
+          detail:{ title:'JAMES CRAIG ART', status:'live', eyebrow:'ORIGINAL ART · PRINTS',
+            desc:'Original art and limited prints project. Canvas works, mixed media, and artisan screen printing.',
+            stats:[{l:'WORKS',v:'47'},{l:'PRINTS SOLD',v:'8'},{l:'EXHIBITIONS',v:'2'},{l:'CITY',v:'SANTIAGO'}],
+            action:'VIEW PITCH →', actionColor:'#FF3A1F' }},
         { label: 'LA PLAYA',         x:0.82, y:0.64, color:'#00F0FF', size:12,
           detail:{ title:'LA PLAYA', status:'soon', eyebrow:'HOSPITALITY · CONCEPT',
-            desc:'Concepto de espacio social en la costa. Hostel, surf, arte y música. Un nodo cultural donde el ecosistema HK23 se materializa físicamente.',
-            stats:[{l:'UBICACIÓN',v:'CHILE'},{l:'ETAPA',v:'CONCEPTO'},{l:'INVERSIÓN',v:'TBD'},{l:'ETA',v:'2027'}],
-            action:'VER CONCEPTO →', actionColor:'#00F0FF' }},
+            desc:'Social space concept on the coast. Hostel, surf, art, and music. A cultural node where the HK23 ecosystem materializes physically.',
+            stats:[{l:'LOCATION',v:'CHILE'},{l:'STAGE',v:'CONCEPT'},{l:'INVESTMENT',v:'TBD'},{l:'ETA',v:'2027'}],
+            action:'VIEW CONCEPT →', actionColor:'#00F0FF' }},
         { label: 'VICE OS',          x:0.50, y:0.84, color:'#AAFF00', size:14,
-          detail:{ title:'VICE OS', status:'build', eyebrow:'PLATAFORMA PRINCIPAL',
-            desc:'Sistema operativo modular para performance, identidad, memoria y comunidad. 4 verticales: Golf, Rugby, Crypto y HK23.',
-            stats:[{l:'SPRINT',v:'1 DE 6'},{l:'VERTICALES',v:'4'},{l:'STACK',v:'NEXT 15'},{l:'DB',v:'SUPABASE'}],
-            action:'ENTRAR AL OS →', actionColor:'#AAFF00' }},
+          detail:{ title:'VICE OS', status:'build', eyebrow:'MAIN PLATFORM',
+            desc:'Modular operating system for performance, identity, memory, and community. 4 verticals: Golf, Rugby, Crypto, and HK23.',
+            stats:[{l:'SPRINT',v:'1 OF 6'},{l:'VERTICALS',v:'4'},{l:'STACK',v:'NEXT 15'},{l:'DB',v:'SUPABASE'}],
+            action:'ENTER THE OS →', actionColor:'#AAFF00' }},
         { label: 'LA IGLESIA',       x:0.18, y:0.64, color:'#FFD200', size:13,
-          detail:{ title:'LA IGLESIA — MINA', status:'live', eyebrow:'MINERÍA · ORO · IV REGIÓN',
-            desc:'3,676 hectáreas en la IV Región de Chile. Concesión minera activa con anomalías geoquímicas de oro confirmadas.',
-            stats:[{l:'HECTÁREAS',v:'3,676'},{l:'LEY AU',v:'2.1 g/t'},{l:'CAPITAL',v:'USD 2M'},{l:'ROI',v:'8–12×'}],
-            action:'VER DECK →', actionColor:'#FFD200' }},
+          detail:{ title:'LA IGLESIA — MINE', status:'live', eyebrow:'MINING · GOLD · IV REGION',
+            desc:'3,676 hectares in Chile\'s IV Region. Active mining claim with confirmed gold geochemical anomalies.',
+            stats:[{l:'HECTARES',v:'3,676'},{l:'AU GRADE',v:'2.1 g/t'},{l:'CAPITAL',v:'USD 2M'},{l:'ROI',v:'8–12×'}],
+            action:'VIEW DECK →', actionColor:'#FFD200' }},
         { label: 'HK23\nPLATFORM',  x:0.18, y:0.38, color:'#F0EDE8', size:11,
-          detail:{ title:'HK23 PLATFORM', status:'build', eyebrow:'ECOSISTEMA DIGITAL',
-            desc:'La plataforma digital completa del universo HK23. Hub de contenido, libros, guías y productos digitales.',
-            stats:[{l:'PROYECTOS',v:'6'},{l:'VERTICALES',v:'4'},{l:'USUARIOS',v:'—'},{l:'LANZAMIENTO',v:'2026'}],
-            action:'VER ROADMAP →', actionColor:'#F0EDE8' }},
+          detail:{ title:'HK23 PLATFORM', status:'build', eyebrow:'DIGITAL ECOSYSTEM',
+            desc:'The complete digital platform of the HK23 universe. Content hub, books, guides, and digital products.',
+            stats:[{l:'PROJECTS',v:'6'},{l:'VERTICALS',v:'4'},{l:'USERS',v:'—'},{l:'LAUNCH',v:'2026'}],
+            action:'VIEW ROADMAP →', actionColor:'#F0EDE8' }},
       ],
       connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
     }
@@ -2161,34 +2228,34 @@ const PROJECTS = [
       nodes: [
         { label: 'PORTFOLIO\nTRACKER',  x:0.50, y:0.16, color:'#B84DFF', size:16,
           detail:{ title:'PORTFOLIO TRACKER', status:'soon', eyebrow:'ON-CHAIN · MULTI-WALLET',
-            desc:'Agregador de portfolio multi-chain. Visualiza tus activos crypto en tiempo real con métricas de rendimiento y DNA financiero.',
-            stats:[{l:'CHAINS',v:'12'},{l:'WALLETS',v:'∞'},{l:'MÉTRICAS',v:'18'},{l:'ETA',v:'FASE 3'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+            desc:'Multi-chain portfolio aggregator. View your crypto assets in real time with performance metrics and financial DNA.',
+            stats:[{l:'CHAINS',v:'12'},{l:'WALLETS',v:'∞'},{l:'METRICS',v:'18'},{l:'ETA',v:'PHASE 3'}],
+            action:'COMING SOON →', actionColor:'#B84DFF' }},
         { label: 'TRADING\nDASHBOARD', x:0.82, y:0.38, color:'#B84DFF', size:13,
-          detail:{ title:'TRADING DASHBOARD', status:'soon', eyebrow:'ANÁLISIS · SEÑALES',
-            desc:'Dashboard de trading con indicadores técnicos, señales de entrada/salida y registro de operaciones para el DNA crypto.',
-            stats:[{l:'EXCHANGES',v:'TBD'},{l:'PARES',v:'TBD'},{l:'INDICADORES',v:'TBD'},{l:'ETA',v:'FASE 3'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+          detail:{ title:'TRADING DASHBOARD', status:'soon', eyebrow:'ANALYSIS · SIGNALS',
+            desc:'Trading dashboard with technical indicators, entry/exit signals, and trade logging for your crypto DNA.',
+            stats:[{l:'EXCHANGES',v:'TBD'},{l:'PAIRS',v:'TBD'},{l:'INDICATORS',v:'TBD'},{l:'ETA',v:'PHASE 3'}],
+            action:'COMING SOON →', actionColor:'#B84DFF' }},
         { label: 'CHAIN\nANALYSIS',    x:0.82, y:0.64, color:'#00F0FF', size:12,
           detail:{ title:'CHAIN ANALYSIS', status:'soon', eyebrow:'ON-CHAIN · FORENSICS',
-            desc:'Análisis on-chain: flujos de ballenas, distribución de holders, análisis de contratos y señales de mercado desde la blockchain.',
-            stats:[{l:'CHAINS',v:'ETH/SOL/BTC'},{l:'SEÑALES',v:'TBD'},{l:'ALERTAS',v:'TBD'},{l:'ETA',v:'FASE 3'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
+            desc:'On-chain analysis: whale flows, holder distribution, contract analysis, and market signals from the blockchain.',
+            stats:[{l:'CHAINS',v:'ETH/SOL/BTC'},{l:'SIGNALS',v:'TBD'},{l:'ALERTS',v:'TBD'},{l:'ETA',v:'PHASE 3'}],
+            action:'COMING SOON →', actionColor:'#00F0FF' }},
         { label: 'ALERTS &\nSIGNALS',  x:0.50, y:0.84, color:'#FFD200', size:11,
-          detail:{ title:'ALERTS & SIGNALS', status:'soon', eyebrow:'NOTIFICACIONES · AI',
-            desc:'Sistema de alertas inteligentes: precios, movimientos on-chain, oportunidades DeFi y señales generadas por IA.',
-            stats:[{l:'TIPOS',v:'TBD'},{l:'CANALES',v:'PUSH/EMAIL'},{l:'AI',v:'SÍ'},{l:'ETA',v:'FASE 3'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#FFD200' }},
+          detail:{ title:'ALERTS & SIGNALS', status:'soon', eyebrow:'NOTIFICATIONS · AI',
+            desc:'Smart alert system: prices, on-chain movements, DeFi opportunities, and AI-generated signals.',
+            stats:[{l:'TYPES',v:'TBD'},{l:'CHANNELS',v:'PUSH/EMAIL'},{l:'AI',v:'YES'},{l:'ETA',v:'PHASE 3'}],
+            action:'COMING SOON →', actionColor:'#FFD200' }},
         { label: 'DeFi\nPROTOCOLS',    x:0.18, y:0.64, color:'#AAFF00', size:10,
           detail:{ title:'DeFi PROTOCOLS', status:'soon', eyebrow:'YIELD · LIQUIDITY',
-            desc:'Integración con protocolos DeFi: yield farming, liquidity pools y estrategias de staking integradas al DNA financiero.',
-            stats:[{l:'PROTOCOLOS',v:'TBD'},{l:'APY TARGET',v:'TBD'},{l:'RIESGO',v:'CALIBRADO'},{l:'ETA',v:'FASE 4'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#AAFF00' }},
+            desc:'Integration with DeFi protocols: yield farming, liquidity pools, and staking strategies integrated into your financial DNA.',
+            stats:[{l:'PROTOCOLS',v:'TBD'},{l:'APY TARGET',v:'TBD'},{l:'RISK',v:'CALIBRATED'},{l:'ETA',v:'PHASE 4'}],
+            action:'COMING SOON →', actionColor:'#AAFF00' }},
         { label: 'COMMUNITY',          x:0.18, y:0.38, color:'#FF3A1F', size:10,
-          detail:{ title:'CRYPTO COMMUNITY', status:'soon', eyebrow:'RED · SEÑALES SOCIALES',
-            desc:'Red de traders y holders del ecosistema VICE OS. Comparte análisis, señales y construye tu DNA crypto público.',
-            stats:[{l:'MIEMBROS',v:'—'},{l:'SEÑALES',v:'—'},{l:'GRUPOS',v:'—'},{l:'ETA',v:'FASE 4'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#FF3A1F' }},
+          detail:{ title:'CRYPTO COMMUNITY', status:'soon', eyebrow:'NETWORK · SOCIAL SIGNALS',
+            desc:'Network of traders and holders in the VICE OS ecosystem. Share analysis, signals, and build your public crypto DNA.',
+            stats:[{l:'MEMBERS',v:'—'},{l:'SIGNALS',v:'—'},{l:'GROUPS',v:'—'},{l:'ETA',v:'PHASE 4'}],
+            action:'COMING SOON →', actionColor:'#FF3A1F' }},
       ],
       connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[2,4]]
     }
@@ -2200,37 +2267,109 @@ const PROJECTS = [
       title: 'HK23 HUB', color: '#00F0FF',
       nodes: [
         { label: 'BLOG &\nARTICLES',   x:0.50, y:0.16, color:'#00F0FF', size:16,
-          detail:{ title:'BLOG & ARTICLES', status:'build', eyebrow:'CONTENIDO · PUBLICACIONES',
-            desc:'Artículos sobre rendimiento, sistemas, arte y filosofía Heyoka. Contenido largo que alimenta el ecosistema y posiciona la marca.',
-            stats:[{l:'ARTÍCULOS',v:'0'},{l:'CATEGORÍAS',v:'5'},{l:'AI ASSIST',v:'SÍ'},{l:'FRECUENCIA',v:'SEMANAL'}],
-            action:'VER BLOG →', actionColor:'#00F0FF' }},
-        { label: 'LIBROS\nDIGITALES', x:0.82, y:0.38, color:'#00F0FF', size:13,
-          detail:{ title:'LIBROS DIGITALES', status:'soon', eyebrow:'PDF · EPUB · GUÍAS',
-            desc:'Libros digitales y guías de alto valor: sistemas de rendimiento, filosofía HK23, metodologías de entrenamiento.',
-            stats:[{l:'LIBROS',v:'0'},{l:'EN PROCESO',v:'2'},{l:'PRECIO',v:'USD 15–47'},{l:'PLATAFORMA',v:'VICE OS'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
-        { label: 'GUÍAS &\nSISTEMAS', x:0.82, y:0.64, color:'#AAFF00', size:12,
-          detail:{ title:'GUÍAS & SISTEMAS', status:'soon', eyebrow:'TEMPLATES · FRAMEWORKS',
-            desc:'Guías accionables y frameworks de sistemas. Desde pautas de entrenamiento hasta estructuras de negocio.',
-            stats:[{l:'GUÍAS',v:'0'},{l:'TIPO',v:'PDF/HTML'},{l:'PRECIO',v:'GRATIS–47'},{l:'ETA',v:'Q4 2026'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#AAFF00' }},
+          detail:{ title:'BLOG & ARTICLES', status:'build', eyebrow:'CONTENT · PUBLICATIONS',
+            desc:'Articles on performance, systems, art, and Heyoka philosophy. Long-form content that feeds the ecosystem and builds the brand.',
+            stats:[{l:'ARTICLES',v:'0'},{l:'CATEGORIES',v:'5'},{l:'AI ASSIST',v:'YES'},{l:'FREQUENCY',v:'WEEKLY'}],
+            action:'VIEW BLOG →', actionColor:'#00F0FF' }},
+        { label: 'DIGITAL\nBOOKS', x:0.82, y:0.38, color:'#00F0FF', size:13,
+          detail:{ title:'DIGITAL BOOKS', status:'soon', eyebrow:'PDF · EPUB · GUIDES',
+            desc:'High-value digital books and guides: performance systems, HK23 philosophy, training methodologies.',
+            stats:[{l:'BOOKS',v:'0'},{l:'IN PROGRESS',v:'2'},{l:'PRICE',v:'USD 15–47'},{l:'PLATFORM',v:'VICE OS'}],
+            action:'COMING SOON →', actionColor:'#00F0FF' }},
+        { label: 'GUIDES &\nSYSTEMS', x:0.82, y:0.64, color:'#AAFF00', size:12,
+          detail:{ title:'GUIDES & SYSTEMS', status:'soon', eyebrow:'TEMPLATES · FRAMEWORKS',
+            desc:'Actionable guides and system frameworks. From training plans to business structures.',
+            stats:[{l:'GUIDES',v:'0'},{l:'TYPE',v:'PDF/HTML'},{l:'PRICE',v:'FREE–47'},{l:'ETA',v:'Q4 2026'}],
+            action:'COMING SOON →', actionColor:'#AAFF00' }},
         { label: 'DIGITAL\nSTORE',    x:0.50, y:0.84, color:'#FFD200', size:13,
-          detail:{ title:'DIGITAL STORE', status:'soon', eyebrow:'TIENDA · PRODUCTOS DIGITALES',
-            desc:'Tienda de productos digitales: libros, guías, templates, prompts y acceso a sistemas exclusivos del ecosistema HK23.',
-            stats:[{l:'PRODUCTOS',v:'0'},{l:'CATEGORÍAS',v:'5'},{l:'PAGO',v:'STRIPE'},{l:'ETA',v:'FASE 3'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#FFD200' }},
+          detail:{ title:'DIGITAL STORE', status:'soon', eyebrow:'STORE · DIGITAL PRODUCTS',
+            desc:'Digital product store: books, guides, templates, prompts, and access to exclusive HK23 ecosystem systems.',
+            stats:[{l:'PRODUCTS',v:'0'},{l:'CATEGORIES',v:'5'},{l:'PAYMENT',v:'STRIPE'},{l:'ETA',v:'PHASE 3'}],
+            action:'COMING SOON →', actionColor:'#FFD200' }},
         { label: 'NEWSLETTER',        x:0.18, y:0.64, color:'#B84DFF', size:10,
-          detail:{ title:'NEWSLETTER', status:'soon', eyebrow:'EMAIL · COMUNIDAD',
-            desc:'Newsletter semanal del universo HK23. Insights de performance, sistemas, arte y actualización del ecosistema.',
-            stats:[{l:'SUSCRIPTORES',v:'0'},{l:'FRECUENCIA',v:'SEMANAL'},{l:'PLATAFORMA',v:'TBD'},{l:'ETA',v:'Q3 2026'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+          detail:{ title:'NEWSLETTER', status:'soon', eyebrow:'EMAIL · COMMUNITY',
+            desc:'Weekly newsletter from the HK23 universe. Performance insights, systems, art, and ecosystem updates.',
+            stats:[{l:'SUBSCRIBERS',v:'0'},{l:'FREQUENCY',v:'WEEKLY'},{l:'PLATFORM',v:'TBD'},{l:'ETA',v:'Q3 2026'}],
+            action:'COMING SOON →', actionColor:'#B84DFF' }},
         { label: 'PODCAST',           x:0.18, y:0.38, color:'#FF3A1F', size:10,
-          detail:{ title:'PODCAST HK23', status:'soon', eyebrow:'AUDIO · CONVERSACIONES',
-            desc:'Podcast del universo HK23. Episodios sobre rendimiento, sistemas, arte, minería y filosofía HK23.',
-            stats:[{l:'EPISODIOS',v:'0'},{l:'DURACIÓN',v:'30–60 min'},{l:'PLATAFORMAS',v:'SPO/APC'},{l:'ETA',v:'Q4 2026'}],
-            action:'PRÓXIMAMENTE →', actionColor:'#FF3A1F' }},
+          detail:{ title:'PODCAST HK23', status:'soon', eyebrow:'AUDIO · CONVERSATIONS',
+            desc:'The HK23 universe podcast. Episodes on performance, systems, art, mining, and HK23 philosophy.',
+            stats:[{l:'EPISODES',v:'0'},{l:'LENGTH',v:'30–60 min'},{l:'PLATFORMS',v:'SPO/APC'},{l:'ETA',v:'Q4 2026'}],
+            action:'COMING SOON →', actionColor:'#FF3A1F' }},
       ],
       connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
+    }
+  },
+  {
+    id: 'mvb', label: 'MVB', sub: 'Music Vice Beats',
+    x: 0.14, y: 0.50, color: '#FF2D78', size: 17,
+    universe: {
+      title: 'MVB — MUSIC VICE BEATS', color: '#FF2D78',
+      nodes: [
+        { label: 'MVB\nCORE',          x:0.50, y:0.12, color:'#FF2D78', size:18,
+          detail:{ title:'MUSIC VICE BEATS', status:'build', eyebrow:'MUSIC BRAND · COLECTIVO',
+            desc:'MVB is not a label. It\'s a creative operating system for music. HK23 handles the digital architecture, brand strategy, release pipeline, and long-term trajectory. The artists handle the sound.',
+            howTo: 'Four people, one signal. Thomas, Jean Christophe, and Vhontotumadre bring the music. HK23 builds the machine around it — digital presence, releases, brand, and the road to mainstream.',
+            benefits: [
+              'Each artist gets a built digital identity that evolves with their sound',
+              'Coordinated release strategy across all 4 members simultaneously',
+              'HK23 as manager, architect, and label — keeping creative control inside the crew',
+            ],
+            stats:[{l:'MEMBERS',v:'4'},{l:'TRACKS',v:'—'},{l:'LABEL',v:'INDEPENDENT'},{l:'STATUS',v:'BUILDING'}],
+            action:'ENTER MVB →', actionColor:'#FF2D78' }},
+        { label: 'THOMAS\nHOLMES',     x:0.82, y:0.28, color:'#FF2D78', size:15,
+          detail:{ title:'THOMAS HOLMES MUSIC', status:'build', eyebrow:'ARTIST · MVB',
+            desc:'Thomas Holmes. The first orbit. His sound is the baseline of MVB\'s identity — raw, precise, built from real sessions. Every track he drops feeds the collective.',
+            benefits: [
+              'Own branded digital presence under the MVB umbrella',
+              'Release pipeline managed end-to-end by HK23',
+              'Long-term trajectory from underground to mainstream',
+            ],
+            stats:[{l:'ROLE',v:'ARTIST'},{l:'GENRE',v:'—'},{l:'TRACKS',v:'—'},{l:'COLLAB',v:'MVB'}],
+            action:'THOMAS HOLMES →', actionColor:'#FF2D78' }},
+        { label: 'JEAN\nCHRISTOPHE',  x:0.82, y:0.60, color:'#00F0FF', size:15,
+          detail:{ title:'JEAN CHRISTOPHE MUSIC', status:'build', eyebrow:'ARTIST · MVB',
+            desc:'Jean Christophe. The frequency. Brings a sonic dimension that completes the MVB sound — where Thomas has edge, Jean C. has depth. The two together define the range.',
+            benefits: [
+              'Individual digital identity that lives within the MVB galaxy',
+              'Cross-promotion through collective releases and shared audiences',
+              'HK23-managed brand consistency across all his platforms',
+            ],
+            stats:[{l:'ROLE',v:'ARTIST'},{l:'GENRE',v:'—'},{l:'TRACKS',v:'—'},{l:'COLLAB',v:'MVB'}],
+            action:'JEAN CHRISTOPHE →', actionColor:'#00F0FF' }},
+        { label: 'VHONTO\nTUMADRE',   x:0.50, y:0.86, color:'#AAFF00', size:15,
+          detail:{ title:'VHONTOTUMADRE MUSIC', status:'build', eyebrow:'ARTIST · MVB',
+            desc:'Vhontotumadre. The wildcard. The name alone is a statement. His presence in MVB is the element that keeps the collective from being predictable. Chaos with direction.',
+            benefits: [
+              'Raw identity channeled into a coherent digital presence',
+              'The name as brand — turned into asset, not liability',
+              'MVB\'s most distinctive voice given the platform it deserves',
+            ],
+            stats:[{l:'ROLE',v:'ARTIST'},{l:'GENRE',v:'—'},{l:'TRACKS',v:'—'},{l:'COLLAB',v:'MVB'}],
+            action:'VHONTO →', actionColor:'#AAFF00' }},
+        { label: 'HK23\nARCHITECT',   x:0.18, y:0.60, color:'#F0EDE8', size:14,
+          detail:{ title:'HK23 — DIGITAL ARCHITECT', status:'live', eyebrow:'MANAGER · BUILDER · STRATEGIST',
+            desc:'HK23 is the fourth member — but the one who never plays an instrument. He builds the machine the music runs on. Digital identity, release strategy, brand architecture, revenue systems. The artists focus on the sound; HK23 focuses on everything else.',
+            howTo: 'Manages the collective as a whole: schedules releases, builds individual digital presences, runs social strategy, designs the visual language, and engineers the path to mainstream exposure.',
+            benefits: [
+              'The crew never has to think about the digital layer — it\'s handled',
+              'Each artist gets professional-grade brand and release infrastructure',
+              'Strategic vision that keeps all 4 people aligned on the long game',
+            ],
+            stats:[{l:'ROLE',v:'ARCHITECT'},{l:'TOOLS',v:'VICE OS'},{l:'MANAGES',v:'3 ARTISTS'},{l:'PHASE',v:'BUILDING'}],
+            action:'THE VISION →', actionColor:'#F0EDE8' }},
+        { label: 'RELEASES\n& DROPS',  x:0.18, y:0.28, color:'#FFD200', size:12,
+          detail:{ title:'RELEASES & DROPS', status:'build', eyebrow:'PIPELINE · DISTRIBUTION',
+            desc:'The MVB release engine. Every track, EP, and drop from all three artists flows through this system — timed, coordinated, branded, and distributed to maximize impact across platforms.',
+            benefits: [
+              'Coordinated release calendar across all 3 artists simultaneously',
+              'Each drop has a built content strategy — never just upload and hope',
+              'Revenue split structure designed from day one for scalability',
+            ],
+            stats:[{l:'DROPS',v:'0'},{l:'PIPELINE',v:'BUILDING'},{l:'PLATFORMS',v:'SPO/SC/YT'},{l:'LABEL',v:'INDIE'}],
+            action:'VIEW PIPELINE →', actionColor:'#FFD200' }},
+      ],
+      connections: [[0,1],[0,2],[0,3],[0,4],[0,5],[1,2],[2,3],[3,5],[4,5],[1,4]]
     }
   },
 ];
@@ -2240,26 +2379,26 @@ const BLACK_HOLES = [
   {
     id: 'void',
     x: 0.05, y: 0.50,
-    negatives: ['MIEDO','DUDA','LÍMITES','EXCUSAS','RUIDO','COMPARACIÓN','VICTIMISMO','PASADO'],
+    negatives: ['FEAR','DOUBT','LIMITS','EXCUSES','NOISE','COMPARISON','VICTIMHOOD','PAST'],
     affirmations: [
-      'Soy el arquitecto de mi realidad',
-      'Mi visión no tiene límites',
-      'Construyo desde el poder, no desde el miedo',
-      'El universo conspira a mi favor',
-      'Soy disciplina, visión y acción pura',
+      'I am the architect of my reality',
+      'My vision has no limits',
+      'I build from power, not from fear',
+      'The universe conspires in my favor',
+      'I am discipline, vision, and pure action',
     ],
     color: '#FF3A1F',
   },
   {
     id: 'nexus',
     x: 0.95, y: 0.50,
-    negatives: ['POSTERGACIÓN','DISTRACCIÓN','QUEJA','MEDIOCIDAD','PARÁLISIS','CONFORMISMO'],
+    negatives: ['PROCRASTINATION','DISTRACTION','COMPLAINT','MEDIOCRITY','PARALYSIS','CONFORMISM'],
     affirmations: [
-      'Lo que creo con mi mente, lo ejecuto con mis manos',
-      'Soy Heyoka — el espejo que rompe lo falso',
-      'Cada idea que nace en mí tiene poder real',
-      'El dinero fluye hacia quienes crean valor real',
-      'Soy la suma de todo lo que he leído, vivido y superado',
+      'What I create with my mind, I execute with my hands',
+      'I am Heyoka — the mirror that breaks the false',
+      'Every idea born in me carries real power',
+      'Money flows to those who create real value',
+      'I am the sum of everything I have read, lived, and overcome',
     ],
     color: '#AAFF00',
   },
@@ -2267,16 +2406,16 @@ const BLACK_HOLES = [
 
 // ─── FLOATING QUOTE PORTALS ───
 const QUOTE_PORTALS = [
-  { text: 'La perfección está en el putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
-  { text: 'Domina la zona de patada.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
-  { text: 'Un vicio no es un hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
-  { text: 'La mina nunca miente.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
-  { text: 'Ideas que nacen como estrellas.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
-  { text: 'Sé impecable con tus palabras.', target: 'lore', color: '#FFD200', rarity: 'common' },
-  { text: 'Todo tiene precio.', target: 'flow', color: '#FFD200', rarity: 'common' },
-  { text: 'El sistema nunca duerme.', target: 'agents', color: '#00F0FF', rarity: 'rare' },
-  { text: 'Caos controlado es arte.', target: 'arte', color: '#FF3A1F', rarity: 'common' },
-  { text: 'El mapa no es el territorio.', target: 'systems', color: '#B84DFF', rarity: 'rare' },
+  { text: 'Perfection lives in the putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
+  { text: 'Own the kick zone.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
+  { text: 'A vice is not a hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
+  { text: 'The mine never lies.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
+  { text: 'Ideas born like stars.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
+  { text: 'Be impeccable with your words.', target: 'lore', color: '#FFD200', rarity: 'common' },
+  { text: 'Everything has a price.', target: 'flow', color: '#FFD200', rarity: 'common' },
+  { text: 'The system never sleeps.', target: 'agents', color: '#00F0FF', rarity: 'rare' },
+  { text: 'Controlled chaos is art.', target: 'arte', color: '#FF3A1F', rarity: 'common' },
+  { text: 'The map is not the territory.', target: 'systems', color: '#B84DFF', rarity: 'rare' },
 ].map((q, i) => ({
   ...q,
   id: 'quote_' + i,
@@ -2318,6 +2457,7 @@ const ORBITAL_CONFIG = {
   projects_pl: { r: 272, a: Math.PI * 1.50, speed: 0.000060 },
   cryptovice:  { r: 272, a: Math.PI * 1.90, speed: 0.000050 },
   hk23hub:     { r: 272, a: Math.PI * 0.30, speed: 0.000070 },
+  mvb:         { r: 272, a: Math.PI * 2.10, speed: 0.000058 },
 };
 
 // Nexus planets — shared systems at intermediate orbit
@@ -2347,9 +2487,9 @@ const ORBITAL_MOONS = {
     { label: 'COMMUNITY',      mr: 68, ma: 0.20, ms: 0.0010, sz: 4, col: '#FFD200',                     px:0, py:0 },
   ],
   laiglesia: [
-    { label: 'CONCESIÓN',      mr: 46, ma: 0.50, ms: 0.0024, sz: 5, col: '#FFD200', px:0, py:0 },
+    { label: 'CLAIM',          mr: 46, ma: 0.50, ms: 0.0024, sz: 5, col: '#FFD200', px:0, py:0 },
     { label: 'DRILL',          mr: 56, ma: 2.80, ms: 0.0017, sz: 5, col: '#FFD200', px:0, py:0 },
-    { label: 'INVERSIÓN',      mr: 40, ma: 4.80, ms: 0.0026, sz: 4, col: '#FF3A1F', px:0, py:0 },
+    { label: 'INVESTMENT',     mr: 40, ma: 4.80, ms: 0.0026, sz: 4, col: '#FF3A1F', px:0, py:0 },
   ],
   arteworld: [
     { label: 'JC ART',         mr: 48, ma: 1.20, ms: 0.0020, sz: 6, col: '#FF3A1F', px:0, py:0 },
@@ -2372,6 +2512,13 @@ const ORBITAL_MOONS = {
     { label: 'LIBROS',         mr: 58, ma: 3.20, ms: 0.0016, sz: 5, col: '#00F0FF', nexus: 'marketplace', px:0, py:0 },
     { label: 'DIGITAL',        mr: 40, ma: 5.20, ms: 0.0024, sz: 4, col: '#AAFF00', nexus: 'marketplace', px:0, py:0 },
   ],
+  mvb: [
+    { label: 'THOMAS',         mr: 54, ma: 0.40, ms:  0.0020, sz: 7, col: '#FF2D78', px:0, py:0 },
+    { label: 'JEAN C.',        mr: 66, ma: 2.10, ms: -0.0016, sz: 7, col: '#00F0FF', px:0, py:0 },
+    { label: 'VHONTO',         mr: 48, ma: 3.90, ms:  0.0022, sz: 7, col: '#AAFF00', px:0, py:0 },
+    { label: 'RELEASES',       mr: 60, ma: 5.30, ms: -0.0014, sz: 5, col: '#FFD200', nexus: 'content',     px:0, py:0 },
+    { label: 'MERCH',          mr: 40, ma: 1.20, ms:  0.0028, sz: 4, col: '#FF6600', nexus: 'marketplace', px:0, py:0 },
+  ],
 };
 
 // ═══════════ FASE 2 — SPECIAL PLANETS ═══════════
@@ -2382,15 +2529,15 @@ const IDEAS_PLANET = {
   px: 0, py: 0,
   ideas: [
     { label: 'VICE OS\nMOBILE',  mr: 58, ma: 0.50, ms:  0.0019, sz: 6, col: '#FFD200', px:0, py:0,
-      detail: { title: 'VICE OS MOBILE', desc: 'App nativa para tracking en campo — Golfer + Rugby desde el bolsillo. Sin fricción entre el momento y el registro.' } },
+      detail: { title: 'VICE OS MOBILE', desc: 'Native app for field tracking — Golfer + Rugby from your pocket. Zero friction between the moment and the log.' } },
     { label: 'NEURAL\nBRAIN',    mr: 72, ma: 2.00, ms: -0.0014, sz: 7, col: '#B84DFF', px:0, py:0,
-      detail: { title: 'NEURAL BRAIN', desc: 'Visualización 3D del segundo cerebro — grafo causal vivo de todas las decisiones, commits, sesiones e ideas. Diferente a Obsidian: el grafo respira.' } },
+      detail: { title: 'NEURAL BRAIN', desc: 'Live 3D second-brain visualization — a causal graph of every decision, commit, session, and idea. Different from Obsidian: this graph breathes.' } },
     { label: 'AI COACH',         mr: 48, ma: 3.60, ms:  0.0022, sz: 5, col: '#AAFF00', px:0, py:0,
-      detail: { title: 'AI COACH', desc: 'Coach de IA que analiza tu historial completo y diseña planes de entrenamiento personalizados semana a semana. Aprende con cada sesión registrada.' } },
+      detail: { title: 'AI COACH', desc: 'AI coach that analyzes your full history and designs personalized training plans week by week. Learns from every logged session.' } },
     { label: 'LIVE\nTOURNEY',    mr: 62, ma: 5.10, ms: -0.0017, sz: 5, col: '#FF6600', px:0, py:0,
-      detail: { title: 'LIVE TOURNAMENT', desc: 'Torneos en vivo con scoring compartido, leaderboard en tiempo real y transmisión integrada al universo. Compite desde cualquier cancha.' } },
+      detail: { title: 'LIVE TOURNAMENT', desc: 'Live tournaments with shared scoring, real-time leaderboard, and universe-integrated streaming. Compete from any course.' } },
     { label: 'VAULT\nSEARCH',    mr: 42, ma: 1.30, ms:  0.0025, sz: 4, col: '#00F0FF', px:0, py:0,
-      detail: { title: 'VAULT SEARCH', desc: 'Búsqueda semántica en todo el vault: notas, sesiones, ideas, decisiones. Encuentra cualquier cosa que hayas pensado o hecho — como buscar en tu propia mente.' } },
+      detail: { title: 'VAULT SEARCH', desc: 'Semantic search across the full vault: notes, sessions, ideas, decisions. Find anything you have thought or done — like searching your own mind.' } },
   ],
 };
 
@@ -3831,27 +3978,208 @@ function openAgentBasePanel() {
   panel.classList.add('visible');
 }
 
+// ═══════════ FRACTAL DRILL-DOWN SUBNODES ═══════════
+// Explicit sub-universes for key modules. Anything not here gets auto-generated.
+const SUBNODES_MAP = {
+
+  // ── ViceGolfer ──
+  'PERFORMANCE DNA': [
+    { label: 'DRIVER', color: '#AAFF00', size: 14,
+      detail: { title: 'DRIVER DNA', status: 'live', eyebrow: 'LONG GAME',
+        desc: 'Power and accuracy off the tee. Tracks fairway %, average distance, and dispersion pattern across every round.',
+        stats: [{l:'SCORE',v:'78'},{l:'FAIRWAYS',v:'64%'},{l:'AVG DIST',v:'242m'},{l:'TREND',v:'↑ +4'}],
+        action: 'IMPROVE DRIVER →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+    { label: 'IRONS', color: '#AAFF00', size: 13,
+      detail: { title: 'IRONS DNA', status: 'live', eyebrow: 'BALL STRIKING',
+        desc: 'Mid-range precision. GIR %, approach accuracy, and distance control. Where handicaps are built.',
+        stats: [{l:'SCORE',v:'65'},{l:'GIR',v:'48%'},{l:'AVG DIST',v:'155m'},{l:'TREND',v:'→ FLAT'}],
+        action: 'IMPROVE IRONS →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+    { label: 'SHORT\nGAME', color: '#AAFF00', size: 13,
+      detail: { title: 'SHORT GAME DNA', status: 'live', eyebrow: 'SCORING ZONE',
+        desc: 'Chipping, pitching, and scrambling within 100m. The biggest stroke-savers — most underrated part of the game.',
+        stats: [{l:'SCORE',v:'82'},{l:'SCRAMBLING',v:'58%'},{l:'UP&DOWN',v:'42%'},{l:'TREND',v:'↑ +6'}],
+        action: 'IMPROVE SHORT GAME →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+    { label: 'PUTTING', color: '#00F0FF', size: 13,
+      detail: { title: 'PUTTING DNA', status: 'live', eyebrow: 'ON THE GREEN',
+        desc: '3-zone make rate built from every putting session. Where most rounds are actually scored.',
+        stats: [{l:'SCORE',v:'71'},{l:'3-PUTT RATE',v:'12%'},{l:'MAKE < 2m',v:'88%'},{l:'SESSIONS',v:'34'}],
+        action: 'START PUTTING →', actionColor: '#00F0FF', link: 'https://vicegolfer.com' }},
+    { label: 'MENTAL', color: '#FF6600', size: 11,
+      detail: { title: 'MENTAL DNA', status: 'live', eyebrow: 'MINDSET',
+        desc: 'Pressure performance, emotional recovery, and consistency under competition. The hardest axis to move.',
+        stats: [{l:'SCORE',v:'59'},{l:'BOUNCE-BACK',v:'71%'},{l:'UNDER PRESSURE',v:'62%'},{l:'GOAL',v:'75'}],
+        action: 'BUILD MENTAL →', actionColor: '#FF6600', link: 'https://vicegolfer.com' }},
+  ],
+
+  'PUTTING PROTOCOL': [
+    { label: 'ZONE 1\n0–1.5m', color: '#AAFF00', size: 15,
+      detail: { title: 'ZONE 1 — SHORT RANGE', status: 'live', eyebrow: 'THE MONEY ZONE',
+        desc: 'Putts from 0 to 1.5m. These should be automatic. If you miss here, you lose rounds you should win.',
+        stats: [{l:'MAKE RATE',v:'88%'},{l:'TARGET',v:'95%'},{l:'TODAY',v:'18/20'},{l:'TREND',v:'↑ +4%'}],
+        action: 'START SESSION →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+    { label: 'ZONE 2\n1.5–3m', color: '#AAFF00', size: 14,
+      detail: { title: 'ZONE 2 — MID RANGE', status: 'live', eyebrow: 'WHERE ROUNDS ARE BUILT',
+        desc: 'The make-or-miss zone. A single percentage point improvement here saves 2–3 strokes per round.',
+        stats: [{l:'MAKE RATE',v:'61%'},{l:'TARGET',v:'72%'},{l:'TODAY',v:'12/20'},{l:'TREND',v:'↑ +2%'}],
+        action: 'START SESSION →', actionColor: '#AAFF00', link: 'https://vicegolfer.com' }},
+    { label: 'ZONE 3\n3m+', color: '#FFD200', size: 13,
+      detail: { title: 'ZONE 3 — LONG RANGE', status: 'live', eyebrow: 'DISTANCE CONTROL',
+        desc: 'Long putts from 3m+. Goal is 2-putt. Make rate matters less than leaving the ball inside 60cm.',
+        stats: [{l:'MAKE RATE',v:'18%'},{l:'2-PUTT RATE',v:'78%'},{l:'3-PUTT RATE',v:'8%'},{l:'TARGET',v:'85% 2-putt'}],
+        action: 'START SESSION →', actionColor: '#FFD200', link: 'https://vicegolfer.com' }},
+    { label: 'MAKE\nRATE', color: '#00F0FF', size: 12,
+      detail: { title: 'OVERALL MAKE RATE', status: 'live', eyebrow: 'KEY METRIC',
+        desc: 'Your single most important putting number — average conversion across all 3 zones. This is what moves your handicap.',
+        stats: [{l:'OVERALL',v:'74%'},{l:'TREND',v:'↑ +3%'},{l:'BEST EVER',v:'84%'},{l:'TOUR AVG',v:'~78%'}],
+        action: 'VIEW STATS →', actionColor: '#00F0FF', link: 'https://vicegolfer.com' }},
+    { label: 'STREAK\n& LOG', color: '#B84DFF', size: 11,
+      detail: { title: 'STREAK & SESSION LOG', status: 'live', eyebrow: 'CONSISTENCY TRACKING',
+        desc: 'Active training streak and full session history. The habit layer of your putting practice.',
+        stats: [{l:'STREAK',v:'5 DAYS'},{l:'SESSIONS',v:'34'},{l:'TOTAL PUTTS',v:'3,400'},{l:'BEST STREAK',v:'12 DAYS'}],
+        action: 'VIEW LOG →', actionColor: '#B84DFF', link: 'https://vicegolfer.com' }},
+  ],
+
+  'KICK TRACKER 2D': [
+    { label: 'PLACE\nKICK', color: '#00F0FF', size: 15,
+      detail: { title: 'PLACE KICK', status: 'live', eyebrow: 'CONVERSIONS & PENALTIES',
+        desc: 'Stationary kicks from tee or penalty spots. Tracks position, angle, distance, and conversion result.',
+        stats: [{l:'CONVERSION',v:'72%'},{l:'SESSIONS',v:'28'},{l:'KICKS',v:'560'},{l:'BEST ANGLE',v:'CENTER'}],
+        action: 'TRACK KICK →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+    { label: 'DROP\nKICK', color: '#00F0FF', size: 13,
+      detail: { title: 'DROP KICK', status: 'live', eyebrow: 'IN-PLAY SCORING',
+        desc: 'Drop goals from open play. Angle, pressure, and distance tracked on the 2D field map.',
+        stats: [{l:'ATTEMPTS',v:'84'},{l:'CONVERSION',v:'54%'},{l:'BEST DIST',v:'42m'},{l:'TREND',v:'↑ +8%'}],
+        action: 'TRACK KICK →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+    { label: 'LEFT\nSIDE', color: '#AAFF00', size: 12,
+      detail: { title: 'LEFT SIDE ANALYSIS', status: 'live', eyebrow: 'ZONE ANALYSIS',
+        desc: 'Kick performance from the left side of the field. Most kickers have a weaker side — this is how you close the gap.',
+        stats: [{l:'CONVERSION',v:'61%'},{l:'VS RIGHT',v:'-11%'},{l:'TREND',v:'↑ +4%'},{l:'SESSIONS',v:'18'}],
+        action: 'VIEW ZONES →', actionColor: '#AAFF00', link: 'https://rugbyvice.com' }},
+    { label: 'RIGHT\nSIDE', color: '#FFD200', size: 12,
+      detail: { title: 'RIGHT SIDE ANALYSIS', status: 'live', eyebrow: 'STRONG SIDE',
+        desc: 'Your dominant side. Tracks how far ahead this is from your weak side and where diminishing returns start.',
+        stats: [{l:'CONVERSION',v:'82%'},{l:'VS LEFT',v:'+21%'},{l:'TARGET',v:'85%'},{l:'SESSIONS',v:'28'}],
+        action: 'VIEW ZONES →', actionColor: '#FFD200', link: 'https://rugbyvice.com' }},
+    { label: 'LONG\nRANGE 40m+', color: '#FF3A1F', size: 11,
+      detail: { title: 'LONG RANGE 40m+', status: 'live', eyebrow: 'RANGE EXTENSION',
+        desc: 'Kicks beyond 40m. Separates the kickers who change games from the ones who only score easy ones.',
+        stats: [{l:'CONVERSION',v:'38%'},{l:'ATTEMPTS',v:'52'},{l:'BEST',v:'58m'},{l:'TARGET',v:'50%'}],
+        action: 'TRACK KICK →', actionColor: '#FF3A1F', link: 'https://rugbyvice.com' }},
+  ],
+
+  // ── MVB ──
+  'MUSIC VICE BEATS': [
+    { label: 'THOMAS\nHOLMES', color: '#FF2D78', size: 15,
+      detail: { title: 'THOMAS HOLMES', status: 'build', eyebrow: 'ARTIST · MVB',
+        desc: 'The first orbit. Raw precision with sound — Thomas brings the edge that makes MVB impossible to ignore.',
+        stats: [{l:'ROLE',v:'ARTIST'},{l:'STATUS',v:'BUILDING'},{l:'COLLAB',v:'MVB'},{l:'PHASE',v:'BRAND LAUNCH'}],
+        action: 'ENTER ORBIT →', actionColor: '#FF2D78' }},
+    { label: 'JEAN\nCHRISTOPHE', color: '#00F0FF', size: 15,
+      detail: { title: 'JEAN CHRISTOPHE', status: 'build', eyebrow: 'ARTIST · MVB',
+        desc: 'Depth where Thomas has edge. Jean Christophe defines the range of MVB\'s sound — the second frequency.',
+        stats: [{l:'ROLE',v:'ARTIST'},{l:'STATUS',v:'BUILDING'},{l:'COLLAB',v:'MVB'},{l:'PHASE',v:'BRAND LAUNCH'}],
+        action: 'ENTER ORBIT →', actionColor: '#00F0FF' }},
+    { label: 'VHONTO\nTUMADRE', color: '#AAFF00', size: 15,
+      detail: { title: 'VHONTOTUMADRE', status: 'build', eyebrow: 'ARTIST · MVB',
+        desc: 'The wildcard. The name is a statement. His presence keeps MVB from ever being predictable.',
+        stats: [{l:'ROLE',v:'ARTIST'},{l:'STATUS',v:'BUILDING'},{l:'COLLAB',v:'MVB'},{l:'PHASE',v:'BRAND LAUNCH'}],
+        action: 'ENTER ORBIT →', actionColor: '#AAFF00' }},
+    { label: 'DIGITAL\nSTRATEGY', color: '#F0EDE8', size: 13,
+      detail: { title: 'DIGITAL STRATEGY', status: 'build', eyebrow: 'HK23 SYSTEM',
+        desc: 'The machine the music runs on. Digital identity, release pipeline, social strategy, and long-term brand architecture.',
+        stats: [{l:'PLATFORMS',v:'SPO/SC/YT'},{l:'ARTISTS',v:'3'},{l:'RELEASES',v:'PIPELINE'},{l:'TARGET',v:'MAINSTREAM'}],
+        action: 'THE VISION →', actionColor: '#F0EDE8' }},
+    { label: 'RELEASE\nPIPELINE', color: '#FFD200', size: 11,
+      detail: { title: 'RELEASE PIPELINE', status: 'build', eyebrow: 'DROP SCHEDULE',
+        desc: 'Every track, EP, and collective drop scheduled and coordinated. Never just upload — always a coordinated strike.',
+        stats: [{l:'TRACKS',v:'PENDING'},{l:'NEXT DROP',v:'TBD'},{l:'STRATEGY',v:'COORDINATED'},{l:'LABEL',v:'INDIE'}],
+        action: 'VIEW PIPELINE →', actionColor: '#FFD200' }},
+  ],
+};
+
+// Auto-generate subnodes from node stats/benefits if not in SUBNODES_MAP
+function generateDefaultSubnodes(node) {
+  const d = node.detail;
+  const result = [];
+  if (d.stats && d.stats.length >= 2) {
+    d.stats.slice(0, 6).forEach((stat) => {
+      result.push({
+        label: stat.l.replace(' ', '\n'),
+        color: node.color,
+        size: 11,
+        value: stat.v,
+        detail: {
+          title: stat.l + ' — ' + stat.v,
+          status: d.status,
+          eyebrow: d.eyebrow || '',
+          desc: d.desc,
+          action: d.action || 'OPEN IN APP →',
+          actionColor: d.actionColor || node.color,
+          link: d.link,
+        }
+      });
+    });
+  } else if (d.benefits && d.benefits.length) {
+    d.benefits.slice(0, 4).forEach((b, i) => {
+      result.push({
+        label: `KEY ${i + 1}`,
+        color: node.color,
+        size: 11,
+        detail: {
+          title: d.title,
+          status: d.status,
+          eyebrow: d.eyebrow || '',
+          desc: b,
+          action: d.action || 'OPEN IN APP →',
+          actionColor: d.actionColor || node.color,
+          link: d.link,
+        }
+      });
+    });
+  }
+  if (result.length === 0) {
+    result.push(
+      { label: 'WHAT IT\nDOES', color: node.color, size: 12, detail: { title: d.title, status: d.status, eyebrow: d.eyebrow || '', desc: d.desc, action: d.action, actionColor: d.actionColor, link: d.link } },
+      { label: 'STATUS', color: node.color, size: 10, detail: { title: 'STATUS', status: d.status, eyebrow: d.eyebrow || '', desc: d.status === 'live' ? 'Live and available now.' : d.status === 'build' ? 'Under active development.' : 'Planned for a future phase.', action: d.action, actionColor: d.actionColor, link: d.link } }
+    );
+  }
+  return result;
+}
+
+function getSubnodes(node) {
+  if (!node.detail) return [];
+  const key = node.detail.title;
+  return SUBNODES_MAP[key] || generateDefaultSubnodes(node);
+}
+
 // ═══════════ FRACTAL UNIVERSE ═══════════
 let fractalAnimId = null;
 let fractalT = 0;
+let fractalStack = []; // navigation stack for drill-down
 
 function openFractalUniverse(project) {
+  fractalStack = [{
+    sunLabel: project.label,
+    sunColor: project.color,
+    sunSize: 28,
+    nodes: project.universe.nodes,
+    headerTitle: project.universe.title,
+    headerSub: project.sub.toUpperCase(),
+    appLink: null,
+    appAction: null,
+  }];
+
   const overlay = document.getElementById('fractal-overlay');
   const canvas = document.getElementById('fractal-canvas');
-  const title = document.getElementById('fractal-title');
-  const status = document.getElementById('fractal-status');
-
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  title.textContent = project.universe.title;
-  title.style.color = project.color;
-  status.textContent = project.sub.toUpperCase();
 
   overlay.style.display = 'block';
   requestAnimationFrame(() => { overlay.style.opacity = '1'; });
 
-  document.getElementById('fractal-back').onclick = closeFractalUniverse;
-  startFractalAnimation(project);
+  updateFractalHeader();
+  updateFractalCTA();
+  startFractalAnimation();
 }
 
 function closeFractalUniverse() {
@@ -3860,34 +4188,102 @@ function closeFractalUniverse() {
   setTimeout(() => {
     overlay.style.display = 'none';
     if (fractalAnimId) { cancelAnimationFrame(fractalAnimId); fractalAnimId = null; }
+    fractalStack = [];
   }, 700);
+  hideFractalCTA();
+}
+
+function updateFractalHeader() {
+  const level = fractalStack[fractalStack.length - 1];
+  const title = document.getElementById('fractal-title');
+  const status = document.getElementById('fractal-status');
+  const backBtn = document.getElementById('fractal-back');
+  const breadcrumb = document.getElementById('fractal-breadcrumb');
+
+  title.textContent = level.headerTitle;
+  title.style.color = level.sunColor;
+  status.textContent = level.headerSub;
+
+  backBtn.textContent = fractalStack.length > 1 ? '← BACK' : '← COLLAPSE';
+
+  // Build breadcrumb
+  if (fractalStack.length > 1) {
+    const parts = fractalStack.map((l, i) =>
+      i < fractalStack.length - 1
+        ? `<span>${l.headerTitle}</span>`
+        : `<span class="bc-active">${l.headerTitle}</span>`
+    );
+    breadcrumb.innerHTML = parts.join('<span class="bc-sep">→</span>');
+  } else {
+    breadcrumb.innerHTML = '';
+  }
+
+  // Back button wiring
+  backBtn.onclick = () => {
+    document.getElementById('fractal-node-panel').classList.remove('visible');
+    if (fractalStack.length > 1) {
+      fractalStack.pop();
+      updateFractalHeader();
+      updateFractalCTA();
+      startFractalAnimation();
+    } else {
+      closeFractalUniverse();
+    }
+  };
+}
+
+function updateFractalCTA() {
+  const level = fractalStack[fractalStack.length - 1];
+  const cta = document.getElementById('fractal-app-cta');
+  const btn = document.getElementById('fractal-app-cta-btn');
+  const sub = document.getElementById('fractal-app-cta-sub');
+  const hint = document.getElementById('fractal-hint');
+
+  if (level.appLink) {
+    btn.textContent = level.appAction || 'OPEN IN APP →';
+    btn.style.background = level.sunColor;
+    btn.style.boxShadow = `0 0 30px ${level.sunColor}55`;
+    btn.onclick = () => window.open(level.appLink, '_blank');
+    sub.textContent = 'tap to open · live now';
+    sub.style.color = level.sunColor + '80';
+    cta.classList.add('show');
+    hint.classList.add('hidden');
+  } else {
+    cta.classList.remove('show');
+    hint.classList.remove('hidden');
+  }
+}
+
+function hideFractalCTA() {
+  document.getElementById('fractal-app-cta').classList.remove('show');
+  document.getElementById('fractal-hint').classList.remove('hidden');
 }
 
 let fractalHoveredNode = -1;
 
-function startFractalAnimation(project) {
+function startFractalAnimation() {
   if (fractalAnimId) cancelAnimationFrame(fractalAnimId);
   fractalT = 0;
   fractalHoveredNode = -1;
 
+  const level = fractalStack[fractalStack.length - 1];
   const canvas = document.getElementById('fractal-canvas');
   const ctx = canvas.getContext('2d');
-  const uni = project.universe;
-  const color = project.color;
+  const nodes = level.nodes;
+  const color = level.sunColor;
 
   // ── 2D orbital system — same visual language as main universe ──
-  const EY = 0.60; // ellipse y-compression
-  const BASE_R     = [148, 192, 138, 200, 158, 182]; // alternating radii for visual depth
-  const BASE_SPD   = [0.00038,-0.00030, 0.00046,-0.00027, 0.00042,-0.00034];
-  const nodeOrbits = uni.nodes.map((n, i) => ({
+  const EY = 0.60;
+  const BASE_R   = [148, 192, 132, 205, 162, 178, 144, 198];
+  const BASE_SPD = [0.00038,-0.00030,0.00046,-0.00027,0.00042,-0.00034,0.00040,-0.00028];
+  const nodeOrbits = nodes.map((n, i) => ({
     r: BASE_R[i % BASE_R.length],
-    a: (i / uni.nodes.length) * Math.PI * 2,
+    a: (i / nodes.length) * Math.PI * 2,
     spd: BASE_SPD[i % BASE_SPD.length],
     px: 0, py: 0,
   }));
-  const nodeHitPos = []; // updated per frame for hover
+  const nodeHitPos = [];
 
-  // Static star field
   const stars = Array.from({length: 200}, () => ({
     x: Math.random(), y: Math.random(),
     sz: 0.4 + Math.random() * 1.2,
@@ -3895,7 +4291,6 @@ function startFractalAnimation(project) {
     tw: Math.random() * Math.PI * 2,
   }));
 
-  // ── Event handlers ──
   function onMove(e) {
     const mx = e.clientX, my = e.clientY;
     let found = -1;
@@ -3905,18 +4300,37 @@ function startFractalAnimation(project) {
     fractalHoveredNode = found;
     canvas.style.cursor = found >= 0 ? 'pointer' : 'default';
   }
+
   function onClick() {
-    if (fractalHoveredNode >= 0)
-      openFractalNodePanel(uni.nodes[fractalHoveredNode], color, project.label);
+    if (fractalHoveredNode < 0) return;
+    const node = nodes[fractalHoveredNode];
+    const subnodes = getSubnodes(node);
+    if (subnodes && subnodes.length > 0) {
+      // Drill into this node's sub-universe
+      canvas.removeEventListener('mousemove', onMove);
+      canvas.removeEventListener('click', onClick);
+      document.getElementById('fractal-node-panel').classList.remove('visible');
+      fractalStack.push({
+        sunLabel: node.label,
+        sunColor: node.color,
+        sunSize: 22,
+        nodes: subnodes,
+        headerTitle: node.detail ? node.detail.title : node.label,
+        headerSub: node.detail ? (node.detail.eyebrow || '') : '',
+        appLink: node.detail ? (node.detail.link || null) : null,
+        appAction: node.detail ? (node.detail.action || 'OPEN IN APP →') : 'OPEN IN APP →',
+      });
+      updateFractalHeader();
+      updateFractalCTA();
+      startFractalAnimation();
+    } else {
+      // Leaf node — show detail panel
+      openFractalNodePanel(node, color, level.headerTitle);
+    }
   }
+
   canvas.addEventListener('mousemove', onMove);
   canvas.addEventListener('click', onClick);
-  document.getElementById('fractal-back').onclick = () => {
-    canvas.removeEventListener('mousemove', onMove);
-    canvas.removeEventListener('click', onClick);
-    document.getElementById('fractal-node-panel').classList.remove('visible');
-    closeFractalUniverse();
-  };
 
   function loop() {
     fractalT += 0.004;
@@ -3966,13 +4380,14 @@ function startFractalAnimation(project) {
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(o.px, o.py);
-      ctx.strokeStyle = isHov ? uni.nodes[i].color + '28' : color + '08';
+      ctx.strokeStyle = isHov ? nodes[i].color + '28' : color + '08';
       ctx.lineWidth = isHov ? 0.8 : 0.3;
       ctx.stroke();
     });
 
     // ── Center sun ──
-    const sunR = 28 + Math.sin(fractalT * 0.7) * 2;
+    const sunBaseR = level.sunSize || 28;
+    const sunR = sunBaseR + Math.sin(fractalT * 0.7) * 2;
     // Outer corona
     [sunR * 5.2, sunR * 3.4, sunR * 2.1].forEach((gr, gi) => {
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
@@ -4001,11 +4416,15 @@ function startFractalAnimation(project) {
     ctx.strokeStyle = color + 'BB'; ctx.lineWidth = 1.2; ctx.stroke();
     ctx.font = `800 11px 'Space Grotesk',system-ui`;
     ctx.fillStyle = '#080808'; ctx.textAlign = 'center';
-    ctx.fillText(project.label, cx, cy + 4);
+    // Sun label — multiline support
+    const sunLines = level.sunLabel.split('\n');
+    const lineH = 13;
+    const startY = cy - ((sunLines.length - 1) * lineH * 0.5) + 4;
+    sunLines.forEach((ln, li) => ctx.fillText(ln, cx, startY + li * lineH));
 
     // ── Nodes (orbiting planets) ──
     nodeOrbits.forEach((o, i) => {
-      const n = uni.nodes[i];
+      const n = nodes[i];
       const isHov = fractalHoveredNode === i;
       const pulse = Math.sin(fractalT * 1.4 + i * 1.1) * 1.2;
       const nr = n.size + pulse * 0.5 + (isHov ? 5 : 0);
@@ -4053,7 +4472,9 @@ function startFractalAnimation(project) {
       if (isHov) {
         ctx.font = `400 8px 'Space Mono',monospace`;
         ctx.fillStyle = n.color + 'AA';
-        ctx.fillText('▶ ABRIR', o.px, o.py + nr + 14 + lines.length * 12);
+        const hasSubs = getSubnodes(n).length > 0;
+        const hintLabel = hasSubs ? '→ ENTER' : '▶ VIEW';
+        ctx.fillText(hintLabel, o.px, o.py + nr + 14 + lines.length * 12);
       }
     });
 
