@@ -1224,6 +1224,77 @@
     .zone-body { padding: 20px; }
     .hk23-title { font-size: 80px; letter-spacing: -4px; }
   }
+
+  /* ─── SWARM ART ─── */
+  #swarm-overlay {
+    display: none;
+    position: fixed; inset: 0; z-index: 600;
+    background: rgba(7,7,15,0.96);
+    flex-direction: column;
+  }
+  #swarm-overlay.active { display: flex; }
+  #swarm-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px; border-bottom: 1px solid rgba(255,255,255,.07);
+    flex-shrink: 0;
+  }
+  #swarm-header-left { display: flex; flex-direction: column; gap: 3px; }
+  #swarm-title {
+    font-family: 'Space Mono', monospace; font-size: 13px; font-weight: 700;
+    letter-spacing: .18em; color: #B84DFF;
+  }
+  #swarm-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: .1em; color: rgba(240,237,232,.4); }
+  #swarm-close {
+    font-family: 'Space Mono', monospace; font-size: 11px; color: rgba(240,237,232,.4);
+    background: none; border: 1px solid rgba(255,255,255,.1); padding: 6px 12px;
+    cursor: pointer; letter-spacing: .1em; transition: all .15s;
+  }
+  #swarm-close:hover { color: #F0EDE8; border-color: rgba(255,255,255,.3); }
+  #swarm-body { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  #swarm-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+  #swarm-upload {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 20px; z-index: 2; position: relative; pointer-events: auto;
+  }
+  #swarm-drop-zone {
+    width: 360px; height: 220px;
+    border: 2px dashed rgba(184,77,255,.4);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; cursor: pointer; transition: all .2s; position: relative;
+  }
+  #swarm-drop-zone:hover, #swarm-drop-zone.drag-over {
+    border-color: #B84DFF; background: rgba(184,77,255,.06);
+  }
+  #swarm-drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .swarm-icon { font-size: 32px; opacity: .6; }
+  .swarm-drop-label {
+    font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700;
+    letter-spacing: .18em; color: #B84DFF;
+  }
+  .swarm-drop-sub { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: .1em; color: rgba(240,237,232,.35); }
+  #swarm-controls {
+    display: none; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 10px; z-index: 3;
+    background: rgba(7,7,15,.8); padding: 10px 16px; border: 1px solid rgba(255,255,255,.08);
+  }
+  .swarm-btn {
+    font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: .1em;
+    padding: 7px 14px; border: 1px solid rgba(184,77,255,.4); color: #B84DFF;
+    background: none; cursor: pointer; transition: all .15s;
+  }
+  .swarm-btn:hover { background: rgba(184,77,255,.1); border-color: #B84DFF; }
+  .swarm-btn.active { background: rgba(184,77,255,.2); }
+  #swarm-thumb-strip {
+    display: flex; gap: 8px; z-index: 2; position: relative; flex-wrap: wrap;
+    justify-content: center; max-width: 500px;
+  }
+  .swarm-thumb {
+    width: 60px; height: 60px; object-fit: cover;
+    border: 1px solid rgba(184,77,255,.3); cursor: pointer; transition: border-color .15s;
+  }
+  .swarm-thumb:hover, .swarm-thumb.selected { border-color: #B84DFF; }
 </style>
 </head>
 <body>
@@ -1340,9 +1411,40 @@
   <div class="sc-row"><div class="sc-key">G</div><div class="sc-label">Galaxy mode</div></div>
   <div class="sc-row"><div class="sc-key">B</div><div class="sc-label">Black hole</div></div>
   <div class="sc-row"><div class="sc-key">A</div><div class="sc-label">Agents</div></div>
+  <div class="sc-row"><div class="sc-key">R</div><div class="sc-label">Arte world</div></div>
+  <div class="sc-row"><div class="sc-key">S</div><div class="sc-label">Swarm art</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
+</div>
+
+<!-- ═══════════ SWARM ART OVERLAY ═══════════ -->
+<div id="swarm-overlay">
+  <div id="swarm-header">
+    <div id="swarm-header-left">
+      <div id="swarm-title">⬡ SWARM ART</div>
+      <div id="swarm-sub">UPLOAD PHOTOS — WATCH THEM COME ALIVE</div>
+    </div>
+    <button id="swarm-close" onclick="closeSwarmArt()">✕ CLOSE</button>
+  </div>
+  <div id="swarm-body">
+    <canvas id="swarm-canvas"></canvas>
+    <div id="swarm-upload">
+      <div id="swarm-drop-zone">
+        <input type="file" id="swarm-file-input" accept="image/*" multiple onchange="handleSwarmFiles(this.files)">
+        <div class="swarm-icon">◈</div>
+        <div class="swarm-drop-label">DROP PHOTOS HERE</div>
+        <div class="swarm-drop-sub">OR CLICK TO BROWSE · JPG / PNG / WEBP</div>
+      </div>
+      <div id="swarm-thumb-strip"></div>
+    </div>
+    <div id="swarm-controls" style="display:none">
+      <button class="swarm-btn active" id="swarm-btn-attract" onclick="setSwarmMode('attract')">ATTRACT</button>
+      <button class="swarm-btn" id="swarm-btn-explode" onclick="setSwarmMode('explode')">EXPLODE</button>
+      <button class="swarm-btn" id="swarm-btn-drift"   onclick="setSwarmMode('drift')">DRIFT</button>
+      <button class="swarm-btn" onclick="clearSwarmArt()">CLEAR</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════ GALAXY MODE ═══════════ -->
@@ -4097,7 +4199,7 @@ function executeCmdAction(action) {
   } else if (action === 'whitehole') {
     showCmdToast('⌘ WHITE HOLE — COMING SOON', '#ffffff');
   } else if (action === 'swarmart') {
-    showCmdToast('⌘ SWARM ART — COMING SOON', '#B84DFF');
+    openSwarmArt();
   }
 }
 
@@ -5026,6 +5128,13 @@ document.addEventListener('keydown', e => {
     return;
   }
 
+  // ── R — Arte World ──
+  if (key === 'r' || key === 'R') {
+    const arteProj = PROJECTS.find(p => p.id === 'arteworld');
+    if (arteProj) openFractalUniverse(arteProj);
+    return;
+  }
+
   // ── S — Swarm Art ──
   if (key === 's' || key === 'S') {
     executeCmdAction('swarmart');
@@ -5050,6 +5159,228 @@ document.addEventListener('keydown', e => {
     return;
   }
 });
+
+// ═══════════ SWARM ART ENGINE ═══════════
+let swarmActive = false;
+let swarmCtx = null;
+let swarmParticles = [];
+let swarmAnimId = null;
+let swarmMode = 'attract'; // attract | explode | drift
+let swarmLoadedImages = []; // { img, name }
+let swarmCurrentImg = null;
+
+function openSwarmArt() {
+  document.getElementById('swarm-overlay').classList.add('active');
+  swarmActive = true;
+}
+
+function closeSwarmArt() {
+  document.getElementById('swarm-overlay').classList.remove('active');
+  swarmActive = false;
+  if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
+  swarmParticles = [];
+  const c = document.getElementById('swarm-canvas');
+  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  c.style.display = 'none';
+  document.getElementById('swarm-upload').style.display = 'flex';
+  document.getElementById('swarm-controls').style.display = 'none';
+}
+
+function clearSwarmArt() {
+  if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
+  swarmParticles = [];
+  const c = document.getElementById('swarm-canvas');
+  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  c.style.display = 'none';
+  document.getElementById('swarm-upload').style.display = 'flex';
+  document.getElementById('swarm-controls').style.display = 'none';
+}
+
+function setSwarmMode(mode) {
+  swarmMode = mode;
+  ['attract','explode','drift'].forEach(m => {
+    const btn = document.getElementById('swarm-btn-' + m);
+    if (btn) btn.classList.toggle('active', m === mode);
+  });
+  // scatter particles on explode
+  if (mode === 'explode') {
+    swarmParticles.forEach(p => {
+      p.vx = (Math.random() - 0.5) * 18;
+      p.vy = (Math.random() - 0.5) * 18;
+    });
+  }
+}
+
+function handleSwarmFiles(files) {
+  if (!files || !files.length) return;
+  const strip = document.getElementById('swarm-thumb-strip');
+  Array.from(files).forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        swarmLoadedImages.push({ img, name: file.name });
+        // Add thumbnail
+        const thumb = document.createElement('img');
+        thumb.src = e.target.result;
+        thumb.className = 'swarm-thumb';
+        thumb.title = file.name;
+        thumb.onclick = () => {
+          strip.querySelectorAll('.swarm-thumb').forEach(t => t.classList.remove('selected'));
+          thumb.classList.add('selected');
+          launchSwarm(img);
+        };
+        strip.appendChild(thumb);
+        // Auto-launch first image
+        if (swarmLoadedImages.length === 1) {
+          thumb.classList.add('selected');
+          launchSwarm(img);
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function launchSwarm(img) {
+  swarmCurrentImg = img;
+  if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
+
+  const canvas = document.getElementById('swarm-canvas');
+  canvas.width  = canvas.offsetWidth  || window.innerWidth;
+  canvas.height = canvas.offsetHeight || window.innerHeight;
+  swarmCtx = canvas.getContext('2d');
+
+  // Sample image into particles
+  const sampleW = 160, sampleH = Math.round(160 * (img.height / img.width));
+  const off = document.createElement('canvas');
+  off.width = sampleW; off.height = sampleH;
+  const offCtx = off.getContext('2d');
+  offCtx.drawImage(img, 0, 0, sampleW, sampleH);
+  const data = offCtx.getImageData(0, 0, sampleW, sampleH).data;
+
+  // Fit image centered on canvas
+  const aspect = sampleW / sampleH;
+  let fitW = canvas.width * 0.65;
+  let fitH = fitW / aspect;
+  if (fitH > canvas.height * 0.70) { fitH = canvas.height * 0.70; fitW = fitH * aspect; }
+  const ox = (canvas.width  - fitW) / 2;
+  const oy = (canvas.height - fitH) / 2;
+
+  swarmParticles = [];
+  const density = 0.28; // sample fraction
+  for (let y = 0; y < sampleH; y++) {
+    for (let x = 0; x < sampleW; x++) {
+      if (Math.random() > density) continue;
+      const i = (y * sampleW + x) * 4;
+      const a = data[i + 3];
+      if (a < 40) continue;
+      const r = data[i], g = data[i+1], b = data[i+2];
+      const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+      swarmParticles.push({
+        tx: ox + (x / sampleW) * fitW,
+        ty: oy + (y / sampleH) * fitH,
+        x:  Math.random() * canvas.width,
+        y:  Math.random() * canvas.height,
+        vx: 0, vy: 0,
+        r, g, b,
+        size: 1.2 + brightness * 2.2,
+        attract: 0.055 + Math.random() * 0.03,
+        dampen: 0.88 + Math.random() * 0.06,
+        noise:  0.5  + Math.random() * 1.0,
+      });
+    }
+  }
+
+  // Show canvas + controls
+  canvas.style.display = 'block';
+  document.getElementById('swarm-upload').style.display = 'none';
+  document.getElementById('swarm-controls').style.display = 'flex';
+  // Keep thumb strip visible on top
+  document.getElementById('swarm-upload').style.display = 'none';
+
+  swarmMode = 'attract';
+  ['attract','explode','drift'].forEach(m => {
+    const btn = document.getElementById('swarm-btn-' + m);
+    if (btn) btn.classList.toggle('active', m === 'attract');
+  });
+
+  // Bring thumb strip to overlay body
+  const strip = document.getElementById('swarm-thumb-strip');
+  strip.style.cssText = 'position:absolute;bottom:70px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:4;flex-wrap:wrap;justify-content:center;max-width:600px;';
+  document.getElementById('swarm-body').appendChild(strip);
+
+  animateSwarm();
+}
+
+function animateSwarm() {
+  if (!swarmActive) return;
+  const canvas = document.getElementById('swarm-canvas');
+  if (!swarmCtx) return;
+
+  // Trail effect
+  swarmCtx.fillStyle = 'rgba(7,7,15,0.18)';
+  swarmCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+
+  swarmParticles.forEach(p => {
+    let ax = 0, ay = 0;
+
+    if (swarmMode === 'attract') {
+      const dx = p.tx - p.x, dy = p.ty - p.y;
+      ax = dx * p.attract + (Math.random() - 0.5) * p.noise;
+      ay = dy * p.attract + (Math.random() - 0.5) * p.noise;
+    } else if (swarmMode === 'explode') {
+      const dx = p.x - cx, dy = p.y - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      ax = (dx / dist) * 0.4 + (Math.random() - 0.5) * 1.5;
+      ay = (dy / dist) * 0.4 + (Math.random() - 0.5) * 1.5;
+    } else { // drift
+      ax = (Math.random() - 0.5) * 1.2;
+      ay = (Math.random() - 0.5) * 1.2;
+      // gentle pull toward target so they don't fly off screen
+      ax += (p.tx - p.x) * 0.004;
+      ay += (p.ty - p.y) * 0.004;
+    }
+
+    p.vx = (p.vx + ax) * p.dampen;
+    p.vy = (p.vy + ay) * p.dampen;
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Wrap screen edges in explode/drift
+    if (swarmMode !== 'attract') {
+      if (p.x < -10) p.x = W + 10;
+      if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10;
+      if (p.y > H + 10) p.y = -10;
+    }
+
+    swarmCtx.beginPath();
+    swarmCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    swarmCtx.fillStyle = `rgb(${p.r},${p.g},${p.b})`;
+    swarmCtx.fill();
+  });
+
+  swarmAnimId = requestAnimationFrame(animateSwarm);
+}
+
+// Drag-over highlight on drop zone
+(function() {
+  const dz = document.getElementById('swarm-drop-zone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault();
+    dz.classList.remove('drag-over');
+    if (e.dataTransfer.files.length) handleSwarmFiles(e.dataTransfer.files);
+  });
+})();
 
 // ═══════════ INIT ═══════════
 initBgCanvas();
