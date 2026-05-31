@@ -908,6 +908,62 @@
     transform: translateX(-50%) translateY(0);
   }
 
+  /* ─── I NEED MY GALAXY CTA ─── */
+  #galaxy-cta {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 400;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    pointer-events: all;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+  #galaxy-cta.visible { opacity: 1; }
+  #galaxy-cta-btn {
+    background: none;
+    border: 1px solid rgba(180, 77, 255, 0.7);
+    color: #B84DFF;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 5px;
+    padding: 14px 36px;
+    cursor: pointer;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0 18px rgba(184,77,255,0.18), inset 0 0 18px rgba(184,77,255,0.04);
+  }
+  #galaxy-cta-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 50%, rgba(184,77,255,0.08) 0%, transparent 70%);
+    animation: galaxy-pulse 2.8s ease-in-out infinite;
+  }
+  #galaxy-cta-btn:hover {
+    border-color: #B84DFF;
+    color: #fff;
+    box-shadow: 0 0 32px rgba(184,77,255,0.45), inset 0 0 24px rgba(184,77,255,0.1);
+  }
+  #galaxy-cta-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 3px;
+    color: #444;
+    text-transform: uppercase;
+  }
+  @keyframes galaxy-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
   /* ─── AGENT BASE PANEL ─── */
   #agent-base-panel {
     position: fixed;
@@ -1021,25 +1077,25 @@
     <div id="fractal-title"></div>
     <div id="fractal-status"></div>
   </div>
-  <div id="fractal-hint">CLICK ANY NODE TO EXPAND — ESC TO SALIR</div>
+  <div id="fractal-hint">CLICK ANY NODE TO EXPAND — ESC TO EXIT</div>
   <div id="fractal-node-panel">
-    <div class="fnp-eyebrow" id="fnp-eyebrow">MÓDULO</div>
+    <div class="fnp-eyebrow" id="fnp-eyebrow">MODULE</div>
     <div class="fnp-header">
       <div class="fnp-title" id="fnp-title">—</div>
       <div class="fnp-status" id="fnp-status">LIVE</div>
     </div>
     <div class="fnp-divider"></div>
 
-    <div class="fnp-section-label">PARA QUÉ SIRVE</div>
+    <div class="fnp-section-label">WHAT IT DOES</div>
     <div class="fnp-desc" id="fnp-desc">—</div>
 
     <div id="fnp-howto-wrap">
-      <div class="fnp-section-label">CÓMO SE USA</div>
+      <div class="fnp-section-label">HOW TO USE IT</div>
       <div class="fnp-howto" id="fnp-howto">—</div>
     </div>
 
     <div id="fnp-benefits-wrap">
-      <div class="fnp-section-label">BENEFICIOS</div>
+      <div class="fnp-section-label">BENEFITS</div>
       <ul class="fnp-benefits" id="fnp-benefits"></ul>
     </div>
 
@@ -1048,35 +1104,35 @@
     </div>
 
     <div id="fnp-cta-soon">
-      <div class="fnp-notify-title">¿Querés ser el primero en probarlo?</div>
+      <div class="fnp-notify-title">Want to be the first to try it?</div>
       <div class="fnp-email-row">
-        <input type="email" class="fnp-email-input" id="fnp-email" placeholder="tu@email.com" />
-        <button class="fnp-notify-btn" id="fnp-notify-btn">AVISAR →</button>
+        <input type="email" class="fnp-email-input" id="fnp-email" placeholder="your@email.com" />
+        <button class="fnp-notify-btn" id="fnp-notify-btn">NOTIFY ME →</button>
       </div>
       <div class="fnp-suggest-toggle-row">
-        <button class="fnp-suggest-btn" id="fnp-suggest-toggle">+ DEJAR UNA RECOMENDACIÓN</button>
+        <button class="fnp-suggest-btn" id="fnp-suggest-toggle">+ LEAVE A SUGGESTION</button>
       </div>
       <div class="fnp-suggest-area" id="fnp-suggest-area" style="display:none">
-        <textarea class="fnp-textarea" id="fnp-suggestion" placeholder="¿Qué te gustaría ver? ¿Cómo querés que funcione? Tu input puede llegar directo al producto."></textarea>
-        <button class="fnp-submit-suggest" id="fnp-submit-suggest">ENVIAR RECOMENDACIÓN →</button>
+        <textarea class="fnp-textarea" id="fnp-suggestion" placeholder="What would you like to see? How do you want it to work? Your input can go straight into the product."></textarea>
+        <button class="fnp-submit-suggest" id="fnp-submit-suggest">SEND SUGGESTION →</button>
       </div>
-      <div class="fnp-reward-copy">✦ Los aportes son premiados con descuentos y membresías de socio.</div>
+      <div class="fnp-reward-copy">✦ Contributors are rewarded with discounts and founding memberships.</div>
     </div>
 
     <div class="fnp-stats" id="fnp-stats"></div>
     <div class="fnp-footer">
-      <button class="fnp-close" id="fnp-close">✕ CERRAR</button>
+      <button class="fnp-close" id="fnp-close">✕ CLOSE</button>
     </div>
   </div>
 </div>
 
 <!-- ═══════════ AFFIRMATION OVERLAY ═══════════ -->
 <div id="affirmation-overlay">
-  <div id="aff-label">TRANSMUTACIÓN EN CURSO</div>
+  <div id="aff-label">TRANSMUTATION IN PROGRESS</div>
   <div id="aff-absorb"></div>
   <div id="aff-transmute">∅ → ∞</div>
   <div id="aff-text"></div>
-  <button id="aff-close" onclick="closeAffirmation()">← VOLVER AL UNIVERSO</button>
+  <button id="aff-close" onclick="closeAffirmation()">← BACK TO UNIVERSE</button>
 </div>
 
 <!-- ═══════════ SCREEN: PORTAL ═══════════ -->
@@ -1104,33 +1160,39 @@
   </div>
   <canvas id="map-canvas"></canvas>
   <div id="collectibles-counter">
-    <div class="collect-badge">COLECCIONABLES</div>
+    <div class="collect-badge">COLLECTIBLES</div>
     <div class="collect-count" id="collect-num">0</div>
   </div>
 </div>
-<div id="collect-toast">✦ NUEVO COLECCIONABLE DESBLOQUEADO</div>
+<div id="collect-toast">✦ NEW COLLECTIBLE UNLOCKED</div>
 <div id="cmd-toast">⌘ CMD</div>
+
+<!-- ═══════════ I NEED MY GALAXY CTA ═══════════ -->
+<div id="galaxy-cta">
+  <button id="galaxy-cta-btn" onclick="window.location.href='galaxy-questionnaire.html'">I NEED MY GALAXY</button>
+  <div id="galaxy-cta-sub">build your own universe →</div>
+</div>
 
 <!-- AGENT BASE PANEL -->
 <div id="agent-base-panel">
   <div class="abp-title">AGENT BASE</div>
   <div id="abp-agents-list"></div>
-  <button class="abp-close" id="abp-close">✕ CERRAR</button>
+  <button class="abp-close" id="abp-close">✕ CLOSE</button>
 </div>
 
 <!-- IDEAS PANEL -->
 <div id="ideas-panel">
-  <div class="ip-eyebrow">IDEA — UNIVERSO HK23</div>
+  <div class="ip-eyebrow">IDEA — HK23 UNIVERSE</div>
   <div class="ip-title" id="ip-title">—</div>
-  <div class="ip-status-badge">IDEA EN ÓRBITA</div>
+  <div class="ip-status-badge">IDEA IN ORBIT</div>
   <div class="ip-divider"></div>
   <div class="ip-desc" id="ip-desc">—</div>
   <div class="ip-actions">
-    <button class="ip-btn ip-btn-develop" id="ip-develop-btn">DESARROLLAR ESTA IDEA →</button>
-    <button class="ip-btn ip-btn-vault">+ GUARDAR EN VAULT</button>
+    <button class="ip-btn ip-btn-develop" id="ip-develop-btn">DEVELOP THIS IDEA →</button>
+    <button class="ip-btn ip-btn-vault">+ SAVE TO VAULT</button>
   </div>
-  <div class="ip-reward">✦ Las ideas desarrolladas se vuelven proyectos en el universo.</div>
-  <button class="ip-close" id="ip-close">✕ CERRAR</button>
+  <div class="ip-reward">✦ Developed ideas become projects in the universe.</div>
+  <button class="ip-close" id="ip-close">✕ CLOSE</button>
 </div>
 
 <!-- ═══════════ SCREEN: ARTE ═══════════ -->
@@ -1251,7 +1313,7 @@
   <div class="zone-header">
     <button class="zone-back" onclick="goTo('map')">← MAP</button>
     <div class="zone-title" style="color:#AAFF00">VICE OS</div>
-    <div class="tag live">EN BUILD</div>
+    <div class="tag live">BUILDING</div>
   </div>
   <div class="zone-body">
     <div class="section-label">EL SISTEMA DEPORTIVO</div>
@@ -1413,7 +1475,7 @@
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">💬 ChatGPT Extractor</div>
           <div style="font-size:11px;color:#555">Extrae conversaciones diarias de ChatGPT y las transforma en contenido — threads, ideas, afirmaciones, lore crudo.</div>
-          <div style="margin-top:8px"><span class="tag" style="border-color:#FFD200;color:#FFD200">PRÓXIMO</span></div>
+          <div style="margin-top:8px"><span class="tag" style="border-color:#FFD200;color:#FFD200">COMING SOON</span></div>
         </div>
       </div>
       <div class="agent-card" style="opacity:0.5">
@@ -1421,7 +1483,7 @@
         <div>
           <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">🔮 Mindmap Agent</div>
           <div style="font-size:11px;color:#444">Actualiza el universo map en tiempo real con tus nuevas ideas y conexiones.</div>
-          <div style="margin-top:8px"><span class="tag">PRÓXIMO</span></div>
+          <div style="margin-top:8px"><span class="tag">COMING SOON</span></div>
         </div>
       </div>
     </div>
@@ -1661,6 +1723,15 @@ function goTo(id) {
     target.classList.add('active');
     currentScreen = id;
     if (id === 'map') startMapCanvas();
+  }
+  // Show galaxy CTA only on the map screen
+  const galaxyCta = document.getElementById('galaxy-cta');
+  if (galaxyCta) {
+    if (id === 'map') {
+      setTimeout(() => galaxyCta.classList.add('visible'), 1800);
+    } else {
+      galaxyCta.classList.remove('visible');
+    }
   }
 }
 
@@ -2187,7 +2258,7 @@ const ORBITAL_MOONS = {
 // ═══════════ FASE 2 — SPECIAL PLANETS ═══════════
 
 const IDEAS_PLANET = {
-  id: 'ideas_pl', label: 'IDEAS', sub: 'Todo lo que aún no tiene hogar',
+  id: 'ideas_pl', label: 'IDEAS', sub: 'Everything without a home yet',
   color: '#FFD200', r: 330, a: Math.PI * 0.55, speed: 0.000038, size: 18,
   px: 0, py: 0,
   ideas: [
@@ -3613,13 +3684,13 @@ function executeCmdAction(action) {
     // Trigger the nearest black hole
     const bh = BLACK_HOLES[0];
     if (bh) showAffirmation(bh, true);
-    showCmdToast('⌘ BLACK HOLE ACTIVADO', '#FF3A1F');
+    showCmdToast('⌘ BLACK HOLE ACTIVATED', '#FF3A1F');
   } else if (action === 'agentbase') {
     openAgentBasePanel();
   } else if (action === 'whitehole') {
-    showCmdToast('⌘ WHITE HOLE — EN BUILD', '#ffffff');
+    showCmdToast('⌘ WHITE HOLE — COMING SOON', '#ffffff');
   } else if (action === 'swarmart') {
-    showCmdToast('⌘ SWARM ART — EN BUILD', '#B84DFF');
+    showCmdToast('⌘ SWARM ART — COMING SOON', '#B84DFF');
   }
 }
 
@@ -3633,7 +3704,7 @@ function openAgentBasePanel() {
         <div class="abp-name">${a.label}</div>
         <div class="abp-status">● IDLE — BASE</div>
       </div>
-      <div class="abp-assign">ASIGNAR →</div>
+      <div class="abp-assign">ASSIGN →</div>
     </div>
   `).join('');
   const panel = document.getElementById('agent-base-panel');
@@ -3877,11 +3948,11 @@ function openFractalNodePanel(node, projectColor, projectLabel) {
   const panel = document.getElementById('fractal-node-panel');
 
   // ── Header ──
-  document.getElementById('fnp-eyebrow').textContent = d.eyebrow || 'MÓDULO';
+  document.getElementById('fnp-eyebrow').textContent = d.eyebrow || 'MODULE';
   document.getElementById('fnp-title').textContent = d.title;
   document.getElementById('fnp-title').style.color = node.color;
   const statusEl = document.getElementById('fnp-status');
-  statusEl.textContent = d.status === 'live' ? 'LIVE' : d.status === 'build' ? 'EN BUILD' : 'PRÓXIMO';
+  statusEl.textContent = d.status === 'live' ? 'LIVE' : d.status === 'build' ? 'BUILDING' : 'COMING SOON';
   statusEl.className = 'fnp-status ' + (d.status === 'live' ? 'live' : d.status === 'build' ? 'build' : 'soon');
 
   // ── Para qué sirve ──
@@ -3911,7 +3982,7 @@ function openFractalNodePanel(node, projectColor, projectLabel) {
     ctaLive.style.display = '';
     ctaSoon.style.display = 'none';
     const btn = document.getElementById('fnp-action');
-    btn.textContent = d.action || 'ABRIR EN APP →';
+    btn.textContent = d.action || 'OPEN IN APP →';
     btn.style.background = node.color;
     btn.style.color = '#080808';
     btn.onclick = () => { if (d.link) window.open(d.link, '_blank'); };
@@ -3925,11 +3996,11 @@ function openFractalNodePanel(node, projectColor, projectLabel) {
     document.getElementById('fnp-email').value = '';
     document.getElementById('fnp-suggestion').value = '';
     suggestArea.style.display = 'none';
-    notifyBtn.textContent = 'AVISAR →';
+    notifyBtn.textContent = 'NOTIFY ME →';
     notifyBtn.style.opacity = '1';
     notifyBtn.style.borderColor = node.color;
     notifyBtn.style.color = node.color;
-    submitBtn.textContent = 'ENVIAR RECOMENDACIÓN →';
+    submitBtn.textContent = 'SEND SUGGESTION →';
     submitBtn.style.opacity = '1';
     submitBtn.style.borderColor = node.color;
     submitBtn.style.color = node.color;
@@ -3940,13 +4011,13 @@ function openFractalNodePanel(node, projectColor, projectLabel) {
     notifyBtn.onclick = () => {
       const email = document.getElementById('fnp-email').value.trim();
       if (!email) { document.getElementById('fnp-email').focus(); return; }
-      notifyBtn.textContent = '✓ TE AVISAMOS';
+      notifyBtn.textContent = '✓ YOU\'RE ON THE LIST';
       notifyBtn.style.opacity = '0.45';
     };
     submitBtn.onclick = () => {
       const s = document.getElementById('fnp-suggestion').value.trim();
       if (!s) return;
-      submitBtn.textContent = '✓ ENVIADO — GRACIAS';
+      submitBtn.textContent = '✓ SENT — THANK YOU';
       submitBtn.style.opacity = '0.45';
     };
   }

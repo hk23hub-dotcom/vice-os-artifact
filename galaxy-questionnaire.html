@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build Your Galaxy — HK23 Universe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #050508;
+  --fg: #F0EDE8;
+  --dim: #444;
+  --accent: #B84DFF;
+  --accent2: #00F0FF;
+  --green: #AAFF00;
+  --red: #FF3A1F;
+  --gold: #FFD200;
+  --font: 'Space Mono', 'Courier New', monospace;
+}
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
+  overflow: hidden;
+}
+
+/* ─── STARS CANVAS ─── */
+#star-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ─── BACK LINK ─── */
+#back-link {
+  position: fixed;
+  top: 28px;
+  left: 28px;
+  z-index: 100;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: #333;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+#back-link:hover { color: #666; }
+
+/* ─── PROGRESS BAR ─── */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: var(--accent);
+  z-index: 100;
+  transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 12px rgba(184,77,255,0.6);
+}
+
+/* ─── QUESTION COUNTER ─── */
+#q-counter {
+  position: fixed;
+  top: 28px;
+  right: 28px;
+  z-index: 100;
+  font-size: 8px;
+  letter-spacing: 4px;
+  color: #222;
+  text-transform: uppercase;
+}
+#q-counter span { color: var(--accent); }
+
+/* ─── MAIN STAGE ─── */
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 120px;
+}
+
+/* ─── QUESTION CARD ─── */
+.q-card {
+  max-width: 600px;
+  width: 100%;
+  text-align: left;
+  position: absolute;
+  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.q-card.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px);
+}
+.q-card.exit-up {
+  opacity: 0;
+  transform: translateY(-32px);
+  pointer-events: none;
+}
+
+.q-eyebrow {
+  font-size: 7px;
+  letter-spacing: 6px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.q-eyebrow::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.q-question {
+  font-size: clamp(22px, 4vw, 34px);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--fg);
+  margin-bottom: 32px;
+  letter-spacing: -0.5px;
+}
+
+/* ─── INPUT TYPES ─── */
+.q-input {
+  width: 100%;
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1A1A1A;
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 18px;
+  font-weight: 700;
+  padding: 12px 0;
+  outline: none;
+  caret-color: var(--accent);
+  transition: border-color 0.3s;
+  letter-spacing: 1px;
+}
+.q-input:focus { border-bottom-color: var(--accent); }
+.q-input::placeholder { color: #222; font-weight: 400; }
+
+/* multi-choice options */
+.q-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.q-option {
+  background: none;
+  border: 1px solid #1A1A1A;
+  color: #555;
+  font-family: var(--font);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 14px 20px;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  position: relative;
+}
+.q-option::before {
+  content: attr(data-key);
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #222;
+}
+.q-option:hover, .q-option.selected {
+  border-color: var(--accent);
+  color: var(--fg);
+  background: rgba(184,77,255,0.04);
+}
+.q-option.selected { color: var(--accent); }
+
+/* color picker */
+.q-colors {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.q-color-dot {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+.q-color-dot:hover { transform: scale(1.15); }
+.q-color-dot.selected {
+  border-color: var(--fg);
+  box-shadow: 0 0 16px var(--dot-color, #fff);
+  transform: scale(1.2);
+}
+.q-color-label {
+  margin-top: 14px;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--accent);
+  text-transform: uppercase;
+  min-height: 14px;
+}
+
+/* ─── HINT ─── */
+.q-hint {
+  margin-top: 16px;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: #1E1E1E;
+  text-transform: uppercase;
+}
+
+/* ─── NEXT BUTTON ─── */
+#next-btn {
+  position: fixed;
+  bottom: 44px;
+  right: 28px;
+  z-index: 100;
+  background: none;
+  border: 1px solid #1A1A1A;
+  color: #333;
+  font-family: var(--font);
+  font-size: 8px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: border-color 0.3s, color 0.3s, box-shadow 0.3s;
+}
+#next-btn.ready {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 18px rgba(184,77,255,0.2);
+}
+#next-btn.ready:hover {
+  background: rgba(184,77,255,0.06);
+  box-shadow: 0 0 28px rgba(184,77,255,0.4);
+}
+
+/* ─── SKIP ─── */
+#skip-btn {
+  position: fixed;
+  bottom: 50px;
+  left: 28px;
+  z-index: 100;
+  background: none;
+  border: none;
+  color: #1C1C1C;
+  font-family: var(--font);
+  font-size: 7px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.3s;
+}
+#skip-btn:hover { color: #444; }
+
+/* ─── FINAL / LAUNCH SCREEN ─── */
+#final-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+#final-screen.show { display: flex; }
+
+.final-eyebrow {
+  font-size: 7px;
+  letter-spacing: 8px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 28px;
+}
+.final-title {
+  font-size: clamp(28px, 6vw, 52px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--fg);
+  margin-bottom: 20px;
+}
+.final-title em {
+  font-style: italic;
+  color: var(--accent);
+}
+.final-summary {
+  max-width: 480px;
+  margin: 0 auto 40px;
+  font-size: 11px;
+  color: #555;
+  line-height: 2;
+  letter-spacing: 1px;
+}
+.final-summary strong { color: #888; font-weight: 700; }
+
+.final-email-wrap {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0 auto 28px;
+}
+.final-email-input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #1A1A1A;
+  color: var(--fg);
+  font-family: var(--font);
+  font-size: 14px;
+  padding: 12px 0;
+  outline: none;
+  caret-color: var(--accent);
+  width: 100%;
+  text-align: center;
+  transition: border-color 0.3s;
+}
+.final-email-input:focus { border-bottom-color: var(--accent); }
+.final-email-input::placeholder { color: #222; }
+.final-launch-btn {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-family: var(--font);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  padding: 18px 48px;
+  cursor: pointer;
+  width: 100%;
+  max-width: 440px;
+  transition: opacity 0.3s, box-shadow 0.3s;
+  box-shadow: 0 0 24px rgba(184,77,255,0.3);
+}
+.final-launch-btn:hover {
+  opacity: 0.85;
+  box-shadow: 0 0 40px rgba(184,77,255,0.5);
+}
+.final-launch-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+  box-shadow: none;
+}
+.final-footnote {
+  font-size: 7px;
+  letter-spacing: 2px;
+  color: #1A1A1A;
+  text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ─── CONFIRMATION FLASH ─── */
+#confirm-flash {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--bg);
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px;
+}
+#confirm-flash.show { display: flex; }
+.cf-glyph {
+  font-size: 60px;
+  color: var(--accent);
+  animation: cf-pop 0.6s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity: 0;
+  transform: scale(0.4);
+}
+.cf-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fg);
+  margin: 20px 0 10px;
+  letter-spacing: 2px;
+  animation: cf-fadein 0.6s 0.25s ease forwards;
+  opacity: 0;
+}
+.cf-sub {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: #444;
+  text-transform: uppercase;
+  animation: cf-fadein 0.6s 0.4s ease forwards;
+  opacity: 0;
+}
+@keyframes cf-pop {
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes cf-fadein {
+  to { opacity: 1; }
+}
+
+/* ─── GALAXY PREVIEW PARTICLE ─── */
+.galaxy-preview {
+  position: fixed;
+  bottom: 110px;
+  right: 28px;
+  z-index: 50;
+  width: 60px; height: 60px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+.galaxy-preview.show { opacity: 1; }
+.galaxy-preview canvas { width: 60px; height: 60px; }
+
+</style>
+</head>
+<body>
+
+<canvas id="star-canvas"></canvas>
+
+<a href="hk23-universe.html" id="back-link">← UNIVERSE</a>
+<div id="progress-bar" style="width:0%"></div>
+<div id="q-counter">SIGNAL <span id="q-num">1</span> / 7</div>
+
+<!-- ═══ QUESTION STAGE ═══ -->
+<div id="stage">
+
+  <!-- Q1: Universe name -->
+  <div class="q-card" id="q1">
+    <div class="q-eyebrow">Foundation</div>
+    <div class="q-question">What do you call<br>your universe?</div>
+    <input class="q-input" id="q1-input" type="text" placeholder="ENTER NAME..." maxlength="32" autocomplete="off" spellcheck="false" />
+    <div class="q-hint">This is the name others will see when they find your galaxy.</div>
+  </div>
+
+  <!-- Q2: Obsessions -->
+  <div class="q-card hidden" id="q2">
+    <div class="q-eyebrow">Core Signal</div>
+    <div class="q-question">What are you<br>obsessed with?</div>
+    <input class="q-input" id="q2-input" type="text" placeholder="GOLF. FILM. CODE. MARKETS..." maxlength="80" autocomplete="off" spellcheck="false" />
+    <div class="q-hint">Not hobbies. What you can't stop thinking about.</div>
+  </div>
+
+  <!-- Q3: Track / build / create -->
+  <div class="q-card hidden" id="q3">
+    <div class="q-eyebrow">Your Orbit</div>
+    <div class="q-question">What do you track,<br>build, or create?</div>
+    <div class="q-options" id="q3-options">
+      <button class="q-option" data-val="Performance data — I log everything" data-key="A">Performance data — I log everything</button>
+      <button class="q-option" data-val="Projects — I build things" data-key="B">Projects — I build things</button>
+      <button class="q-option" data-val="Content — I document my process" data-key="C">Content — I document my process</button>
+      <button class="q-option" data-val="Investments — I move money with conviction" data-key="D">Investments — I move money with conviction</button>
+    </div>
+    <div class="q-hint">Pick the one that hits first.</div>
+  </div>
+
+  <!-- Q4: Inner orbit -->
+  <div class="q-card hidden" id="q4">
+    <div class="q-eyebrow">Inner Orbit</div>
+    <div class="q-question">Who's in your<br>inner orbit?</div>
+    <input class="q-input" id="q4-input" type="text" placeholder="A PARTNER, A RIVAL, A CREW..." maxlength="80" autocomplete="off" spellcheck="false" />
+    <div class="q-hint">The people whose planets orbit close to yours.</div>
+  </div>
+
+  <!-- Q5: Color / energy -->
+  <div class="q-card hidden" id="q5">
+    <div class="q-eyebrow">Frequency</div>
+    <div class="q-question">What color<br>is your energy?</div>
+    <div class="q-colors" id="q5-colors">
+      <div class="q-color-dot" data-col="#AAFF00" data-name="ELECTRIC GREEN — Relentless growth" style="background:#AAFF00;--dot-color:#AAFF00"></div>
+      <div class="q-color-dot" data-col="#B84DFF" data-name="DEEP VIOLET — Creative obsession" style="background:#B84DFF;--dot-color:#B84DFF"></div>
+      <div class="q-color-dot" data-col="#00F0FF" data-name="NEON CYAN — Mental clarity" style="background:#00F0FF;--dot-color:#00F0FF"></div>
+      <div class="q-color-dot" data-col="#FFD200" data-name="GOLD — Legacy builder" style="background:#FFD200;--dot-color:#FFD200"></div>
+      <div class="q-color-dot" data-col="#FF3A1F" data-name="INFERNO — Raw intensity" style="background:#FF3A1F;--dot-color:#FF3A1F"></div>
+      <div class="q-color-dot" data-col="#FF6600" data-name="BURN ORANGE — Systems thinker" style="background:#FF6600;--dot-color:#FF6600"></div>
+      <div class="q-color-dot" data-col="#F0EDE8" data-name="WHITE — Everything at once" style="background:#F0EDE8;--dot-color:#F0EDE8"></div>
+    </div>
+    <div class="q-color-label" id="q5-label"></div>
+    <div class="q-hint">This becomes the signature color of your galaxy.</div>
+  </div>
+
+  <!-- Q6: What you protect -->
+  <div class="q-card hidden" id="q6">
+    <div class="q-eyebrow">Core Mass</div>
+    <div class="q-question">What's the one thing<br>you'd protect at all costs?</div>
+    <div class="q-options" id="q6-options">
+      <button class="q-option" data-val="My edge — the obsessive advantage I've built" data-key="A">My edge — the obsessive advantage I've built</button>
+      <button class="q-option" data-val="My time — I don't trade it for anything less than great" data-key="B">My time — I don't trade it for anything less than great</button>
+      <button class="q-option" data-val="My people — the ones in my inner orbit" data-key="C">My people — the ones in my inner orbit</button>
+      <button class="q-option" data-val="My vision — the long game nobody else can see yet" data-key="D">My vision — the long game nobody else can see yet</button>
+    </div>
+    <div class="q-hint">This becomes the gravitational center of your universe.</div>
+  </div>
+
+  <!-- Q7: How to be discovered -->
+  <div class="q-card hidden" id="q7">
+    <div class="q-eyebrow">Transmission</div>
+    <div class="q-question">How do you want<br>to be discovered?</div>
+    <div class="q-options" id="q7-options">
+      <button class="q-option" data-val="Through my results — let the work speak" data-key="A">Through my results — let the work speak</button>
+      <button class="q-option" data-val="Through my process — raw, unfiltered, real" data-key="B">Through my process — raw, unfiltered, real</button>
+      <button class="q-option" data-val="Through my community — my network is my net worth" data-key="C">Through my community — my network is my net worth</button>
+      <button class="q-option" data-val="I don't want to be discovered — I want to be hunted" data-key="D">I don't want to be discovered — I want to be hunted</button>
+    </div>
+    <div class="q-hint">This shapes how your galaxy broadcasts across the network.</div>
+  </div>
+
+</div>
+
+<!-- ═══ NAVIGATION ═══ -->
+<button id="next-btn">CONTINUE →</button>
+<button id="skip-btn">skip this question</button>
+
+<!-- ═══ FINAL SCREEN ═══ -->
+<div id="final-screen">
+  <div class="final-eyebrow">Galaxy coordinates locked</div>
+  <div class="final-title">Your universe<br>is <em>ready to exist.</em></div>
+  <div class="final-summary" id="final-summary"></div>
+  <div class="final-email-wrap">
+    <input type="email" class="final-email-input" id="final-email" placeholder="your@email.com" />
+    <button class="final-launch-btn" id="final-launch-btn" disabled>LAUNCH MY GALAXY →</button>
+  </div>
+  <div class="final-footnote">We'll notify you when your galaxy goes live. First wave gets Founder access.</div>
+</div>
+
+<!-- ═══ CONFIRMATION ═══ -->
+<div id="confirm-flash">
+  <div class="cf-glyph">✦</div>
+  <div class="cf-title" id="cf-title">GALAXY REGISTERED</div>
+  <div class="cf-sub">YOU'LL BE FIRST WHEN YOUR UNIVERSE GOES LIVE</div>
+</div>
+
+<script>
+// ═══════════ STARS ═══════════
+const starCanvas = document.getElementById('star-canvas');
+const starCtx = starCanvas.getContext('2d');
+let stars = [];
+
+function initStars() {
+  starCanvas.width = window.innerWidth;
+  starCanvas.height = window.innerHeight;
+  stars = Array.from({ length: 140 }, () => ({
+    x: Math.random() * starCanvas.width,
+    y: Math.random() * starCanvas.height,
+    r: Math.random() * 0.9 + 0.1,
+    a: Math.random() * 0.5 + 0.05,
+    tw: Math.random() * Math.PI * 2,
+    ts: (Math.random() * 0.4 + 0.2) * 0.001,
+  }));
+}
+
+function drawStars(t) {
+  starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+  stars.forEach(s => {
+    s.tw += s.ts;
+    const alpha = s.a * (0.5 + 0.5 * Math.sin(s.tw));
+    starCtx.beginPath();
+    starCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    starCtx.fillStyle = `rgba(240,237,232,${alpha})`;
+    starCtx.fill();
+  });
+  requestAnimationFrame(drawStars);
+}
+
+initStars();
+requestAnimationFrame(drawStars);
+window.addEventListener('resize', initStars);
+
+// ═══════════ STATE ═══════════
+const TOTAL = 7;
+let currentQ = 1;
+const answers = {};
+
+// Q3, Q6, Q7 are multi-choice
+const multiChoiceQs = [3, 6, 7];
+
+function getInput(qNum) {
+  if (multiChoiceQs.includes(qNum)) return null;
+  if (qNum === 5) return null; // color picker
+  return document.getElementById(`q${qNum}-input`);
+}
+
+function hasAnswer(qNum) {
+  if (answers[qNum]) return true;
+  return false;
+}
+
+// ═══════════ PROGRESS ═══════════
+function updateProgress() {
+  const pct = ((currentQ - 1) / TOTAL) * 100;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('q-num').textContent = currentQ;
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.textContent = currentQ === TOTAL ? 'FINISH →' : 'CONTINUE →';
+}
+
+function updateNextBtn() {
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.classList.toggle('ready', hasAnswer(currentQ));
+}
+
+// ═══════════ MULTI-CHOICE SETUP ═══════════
+function setupMultiChoice(qNum, containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.querySelectorAll('.q-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      container.querySelectorAll('.q-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      answers[qNum] = btn.dataset.val;
+      updateNextBtn();
+      // Subtle: auto-advance after brief pause
+      setTimeout(() => {
+        if (currentQ === qNum) advance();
+      }, 420);
+    });
+  });
+}
+
+setupMultiChoice(3, 'q3-options');
+setupMultiChoice(6, 'q6-options');
+setupMultiChoice(7, 'q7-options');
+
+// ═══════════ TEXT INPUT SETUP ═══════════
+[1, 2, 4].forEach(n => {
+  const inp = document.getElementById(`q${n}-input`);
+  if (!inp) return;
+  inp.addEventListener('input', () => {
+    const val = inp.value.trim();
+    answers[n] = val || null;
+    updateNextBtn();
+  });
+  inp.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && hasAnswer(n) && currentQ === n) advance();
+  });
+});
+
+// ═══════════ COLOR PICKER SETUP ═══════════
+document.querySelectorAll('#q5-colors .q-color-dot').forEach(dot => {
+  dot.addEventListener('click', () => {
+    document.querySelectorAll('#q5-colors .q-color-dot').forEach(d => d.classList.remove('selected'));
+    dot.classList.add('selected');
+    answers[5] = { color: dot.dataset.col, name: dot.dataset.name };
+    document.getElementById('q5-label').textContent = dot.dataset.name;
+    updateNextBtn();
+    // Auto-advance
+    setTimeout(() => {
+      if (currentQ === 5) advance();
+    }, 500);
+  });
+});
+
+// ═══════════ NAVIGATION ═══════════
+function advance() {
+  if (currentQ >= TOTAL) {
+    showFinal();
+    return;
+  }
+
+  const currentCard = document.getElementById('q' + currentQ);
+  const nextCard = document.getElementById('q' + (currentQ + 1));
+
+  // Exit current
+  currentCard.classList.add('exit-up');
+  setTimeout(() => {
+    currentCard.classList.remove('exit-up');
+    currentCard.classList.add('hidden');
+  }, 500);
+
+  // Enter next
+  currentQ++;
+  updateProgress();
+
+  setTimeout(() => {
+    nextCard.classList.remove('hidden');
+    updateNextBtn();
+    // Focus text inputs
+    const inp = getInput(currentQ);
+    if (inp) setTimeout(() => inp.focus(), 100);
+  }, 200);
+}
+
+document.getElementById('next-btn').addEventListener('click', () => {
+  if (hasAnswer(currentQ)) advance();
+});
+
+document.getElementById('skip-btn').addEventListener('click', () => {
+  advance();
+});
+
+// Keyboard shortcut: Tab or Enter to advance when answer ready
+document.addEventListener('keydown', e => {
+  if (e.key === 'Tab') {
+    e.preventDefault();
+    if (hasAnswer(currentQ)) advance();
+    return;
+  }
+});
+
+// ═══════════ INITIAL FOCUS ═══════════
+setTimeout(() => {
+  const firstInput = document.getElementById('q1-input');
+  if (firstInput) firstInput.focus();
+}, 300);
+
+updateProgress();
+updateNextBtn();
+
+// ═══════════ FINAL SCREEN ═══════════
+function buildSummary() {
+  const name = answers[1] || 'YOUR UNIVERSE';
+  const obs = answers[2] || 'the unspoken';
+  const col = answers[5] ? answers[5].name.split(' — ')[0] : 'UNKNOWN';
+
+  return `<strong>${name.toUpperCase()}</strong> is coming into existence.<br>
+Fueled by <strong>${obs}</strong>.<br>
+Frequency: <strong>${col}</strong>.<br><br>
+You are not a user. You are a star.`;
+}
+
+function showFinal() {
+  document.getElementById('stage').style.display = 'none';
+  document.getElementById('next-btn').style.display = 'none';
+  document.getElementById('skip-btn').style.display = 'none';
+  document.getElementById('q-counter').style.display = 'none';
+  document.getElementById('back-link').style.display = 'none';
+  document.getElementById('progress-bar').style.width = '100%';
+
+  document.getElementById('final-summary').innerHTML = buildSummary();
+
+  // Apply galaxy color if set
+  if (answers[5]) {
+    document.documentElement.style.setProperty('--accent', answers[5].color);
+  }
+
+  const finalScreen = document.getElementById('final-screen');
+  finalScreen.classList.add('show');
+
+  // Wire email → enable launch btn
+  const emailInput = document.getElementById('final-email');
+  const launchBtn = document.getElementById('final-launch-btn');
+
+  emailInput.addEventListener('input', () => {
+    const valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailInput.value.trim());
+    launchBtn.disabled = !valid;
+  });
+
+  launchBtn.addEventListener('click', () => {
+    if (launchBtn.disabled) return;
+    launchBtn.disabled = true;
+    launchBtn.textContent = 'LAUNCHING...';
+
+    // Simulate submission (replace with real endpoint)
+    setTimeout(() => {
+      finalScreen.classList.remove('show');
+      showConfirmation();
+    }, 800);
+  });
+}
+
+// ═══════════ CONFIRMATION ═══════════
+function showConfirmation() {
+  const galaxyName = answers[1] ? answers[1].toUpperCase() : 'YOUR GALAXY';
+  document.getElementById('cf-title').textContent = galaxyName + ' — REGISTERED';
+  document.getElementById('confirm-flash').classList.add('show');
+
+  // Return to universe after 3.5s
+  setTimeout(() => {
+    window.location.href = 'hk23-universe.html';
+  }, 3500);
+}
+</script>
+</body>
+</html>
