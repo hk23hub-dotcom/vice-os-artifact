@@ -1,0 +1,3277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HK23 — HEYOKA UNIVERSE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --black: #080808;
+    --surface: #0F0F0F;
+    --card: #161616;
+    --border: #252525;
+    --red: #FF3A1F;
+    --gold: #FFD200;
+    --green: #AAFF00;
+    --electric: #00F0FF;
+    --purple: #B84DFF;
+    --white: #F0EDE8;
+    --muted: #444;
+    --dim: #2A2A2A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Space Grotesk', system-ui, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    cursor: crosshair;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+  }
+
+  .screen {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    overflow: hidden;
+  }
+  .screen.active {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  #constellation {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* ─── PORTAL ─── */
+  #screen-portal {
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .portal-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+
+  .hk23-title {
+    font-size: clamp(80px, 18vw, 200px);
+    font-weight: 700;
+    letter-spacing: -6px;
+    line-height: 0.85;
+    color: var(--white);
+    mix-blend-mode: difference;
+    position: relative;
+  }
+
+  .hk23-title .red { color: var(--red); text-shadow: 0 0 40px rgba(255,58,31,0.4); }
+  .hk23-title .ghost {
+    position: absolute;
+    inset: 0;
+    color: transparent;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.08);
+    transform: translate(3px, 3px);
+    pointer-events: none;
+  }
+
+  .subtitle {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 6px;
+    color: var(--muted);
+    margin-top: 16px;
+    margin-bottom: 48px;
+    text-transform: uppercase;
+  }
+
+  .enter-btn {
+    background: none;
+    border: 1px solid var(--red);
+    color: var(--red);
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 6px;
+    padding: 14px 40px;
+    cursor: pointer;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .enter-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+    transform: translateX(-101%);
+    transition: transform 0.3s ease;
+    z-index: -1;
+  }
+  .enter-btn:hover { color: #000; }
+  .enter-btn:hover::before { transform: translateX(0); }
+
+  .portal-quote {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: #2A2A2A;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 2px;
+    white-space: nowrap;
+  }
+
+  /* ─── MAP ─── */
+  #screen-map { z-index: 5; }
+
+  #map-canvas {
+    position: absolute;
+    inset: 0;
+    cursor: crosshair;
+  }
+
+  .map-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .map-logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: var(--white);
+  }
+  .map-logo span { color: var(--red); }
+
+  .map-nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav-btn {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    background: none;
+    border: 1px solid var(--dim);
+    padding: 6px 12px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover, .nav-btn.active { color: var(--white); border-color: var(--white); }
+
+  .node-tooltip {
+    position: absolute;
+    background: var(--card);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    font-size: 10px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 2px;
+    color: var(--white);
+    pointer-events: none;
+    white-space: nowrap;
+    z-index: 20;
+    display: none;
+    text-transform: uppercase;
+  }
+
+  /* ─── ZONE SCREENS ─── */
+  .zone-screen {
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .zone-header {
+    padding: 24px 40px;
+    border-bottom: 1px solid var(--dim);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: rgba(8,8,8,0.9);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 2;
+  }
+
+  .zone-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .zone-back:hover { color: var(--white); }
+
+  .zone-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+  }
+
+  .zone-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+    scrollbar-width: none;
+  }
+  .zone-body::-webkit-scrollbar { display: none; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px; }
+
+  .raw-card {
+    border: 1px solid var(--dim);
+    background: var(--card);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .raw-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px;
+    height: 100%;
+    background: var(--accent, var(--red));
+  }
+  .raw-card:hover { border-color: var(--accent, var(--red)); }
+
+  .card-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+  .card-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .big-number {
+    font-size: 64px;
+    font-weight: 700;
+    letter-spacing: -3px;
+    line-height: 1;
+  }
+
+  .tag {
+    display: inline-block;
+    border: 1px solid var(--dim);
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 2px;
+  }
+  .tag.live { border-color: var(--green); color: var(--green); }
+  .tag.locked { border-color: var(--red); color: var(--red); }
+  .tag.gold { border-color: var(--gold); color: var(--gold); }
+
+  .gate-tier {
+    border: 1px solid var(--dim);
+    padding: 32px;
+    position: relative;
+    transition: all 0.3s;
+  }
+  .gate-tier:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .gate-tier.featured {
+    border-color: var(--accent);
+    box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 30px rgba(0,0,0,0.3);
+  }
+
+  .tier-badge {
+    position: absolute;
+    top: -11px;
+    left: 20px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    padding: 3px 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .agent-card {
+    border: 1px solid var(--dim);
+    background: var(--card);
+    padding: 20px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    transition: border-color 0.2s;
+  }
+  .agent-card:hover { border-color: var(--electric); }
+
+  .agent-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  #screen-trap {
+    z-index: 20;
+    background: var(--black);
+  }
+  #screen-trap.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .trap-content {
+    text-align: center;
+    max-width: 480px;
+    padding: 40px;
+  }
+
+  ::-webkit-scrollbar { width: 2px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--dim); }
+
+  @keyframes flicker {
+    0%, 95%, 100% { opacity: 1; }
+    96%, 99% { opacity: 0.7; }
+    97% { opacity: 0.9; }
+  }
+  .flicker { animation: flicker 4s infinite; }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100vh); }
+  }
+
+  .scan-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.02);
+    pointer-events: none;
+    z-index: 9998;
+    animation: scanline 6s linear infinite;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 6px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--dim);
+  }
+
+  .mega-text {
+    font-size: clamp(36px, 6vw, 80px);
+    font-weight: 700;
+    letter-spacing: -2px;
+    line-height: 0.9;
+    margin-bottom: 24px;
+  }
+
+  /* ─── FRACTAL OVERLAY ─── */
+  #fractal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: #000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  #fractal-canvas {
+    position: absolute;
+    inset: 0;
+  }
+
+  .fractal-ui {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 24px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 10;
+  }
+
+  .fractal-back {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #444;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .fractal-back:hover { color: #fff; }
+
+  #fractal-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+  }
+
+  #fractal-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #333;
+    text-transform: uppercase;
+  }
+
+  #fractal-hint {
+    position: absolute;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #222;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-align: center;
+    animation: flicker 5s infinite;
+  }
+
+  /* ─── FRACTAL NODE PANEL ─── */
+  #fractal-node-panel {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(24px);
+    width: min(420px, 90vw);
+    background: #080808;
+    border: 1px solid #1E1E1E;
+    border-radius: 2px;
+    padding: 28px 28px 24px;
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  #fractal-node-panel.visible {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+  .fnp-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: #333;
+    margin-bottom: 6px;
+  }
+  .fnp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .fnp-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    line-height: 1.1;
+  }
+  .fnp-status {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 3px;
+    padding: 4px 9px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .fnp-status.live    { background: rgba(170,255,0,0.12); color: #AAFF00; border: 1px solid rgba(170,255,0,0.25); }
+  .fnp-status.build   { background: rgba(255,210,0,0.10); color: #FFD200; border: 1px solid rgba(255,210,0,0.25); }
+  .fnp-status.soon    { background: rgba(0,240,255,0.08); color: #00F0FF; border: 1px solid rgba(0,240,255,0.20); }
+  .fnp-divider {
+    height: 1px;
+    background: #1A1A1A;
+    margin-bottom: 14px;
+  }
+  .fnp-desc {
+    font-size: 12px;
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 18px;
+  }
+  .fnp-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  .fnp-stat {
+    background: #0D0D0D;
+    border: 1px solid #161616;
+    border-radius: 2px;
+    padding: 10px 12px;
+  }
+  .fnp-stat-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 7px;
+    letter-spacing: 3px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  .fnp-stat-value {
+    font-size: 15px;
+    font-weight: 700;
+    color: #F0EDE8;
+  }
+  .fnp-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .fnp-action {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    padding: 9px 18px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: none;
+    font-weight: 700;
+    transition: opacity 0.15s;
+  }
+  .fnp-action:hover { opacity: 0.8; }
+  .fnp-close {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #333;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+  .fnp-close:hover { color: #666; }
+
+  /* ─── AFFIRMATION OVERLAY ─── */
+  #affirmation-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    background: #000;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  #affirmation-overlay.show {
+    display: flex;
+  }
+
+  #aff-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 6px;
+    color: #333;
+    margin-bottom: 48px;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  #aff-absorb {
+    font-family: 'Space Mono', monospace;
+    font-size: 16px;
+    letter-spacing: 6px;
+    color: #FF3A1F;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.6s ease, transform 1.2s ease;
+    text-decoration: line-through;
+    text-decoration-color: rgba(255,58,31,0.5);
+    transform-origin: center;
+  }
+
+  #aff-transmute {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 8px;
+    color: #222;
+    margin: 28px 0;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    text-transform: uppercase;
+  }
+
+  #aff-text {
+    font-size: clamp(22px, 4vw, 52px);
+    font-weight: 900;
+    letter-spacing: -1px;
+    text-align: center;
+    max-width: 720px;
+    line-height: 1.15;
+    opacity: 0;
+    transition: opacity 1.5s ease, transform 1.5s ease;
+    transform: translateY(20px);
+    padding: 0 40px;
+  }
+
+  #aff-close {
+    margin-top: 56px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #2A2A2A;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 1s ease, color 0.2s;
+  }
+  #aff-close:hover { color: #555; }
+
+  /* ─── ECOSYSTEM SCREEN ─── */
+  #screen-ecosystem {
+    z-index: 6;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ─── COLLECTIBLES ─── */
+  #collectibles-counter {
+    position: absolute;
+    bottom: 28px;
+    right: 28px;
+    z-index: 20;
+    display: none;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+  }
+  .collect-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 8px;
+    letter-spacing: 3px;
+    color: #333;
+    text-transform: uppercase;
+  }
+  .collect-count {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    line-height: 1;
+    color: #222;
+    transition: color 0.5s;
+  }
+  .collect-count.new { color: #B84DFF; }
+
+  /* ─── COLLECT TOAST ─── */
+  #collect-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    z-index: 500;
+    background: #0A0A0A;
+    border: 1px solid #B84DFF;
+    padding: 12px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: #B84DFF;
+    text-transform: uppercase;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+  }
+  #collect-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .zone-body { padding: 20px; }
+    .hk23-title { font-size: 80px; letter-spacing: -4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scan-line"></div>
+<canvas id="constellation"></canvas>
+<div id="node-tooltip" class="node-tooltip"></div>
+
+<!-- ═══════════ FRACTAL UNIVERSE OVERLAY ═══════════ -->
+<div id="fractal-overlay">
+  <canvas id="fractal-canvas"></canvas>
+  <div class="fractal-ui">
+    <button class="fractal-back" id="fractal-back">← COLLAPSE</button>
+    <div id="fractal-title"></div>
+    <div id="fractal-status"></div>
+  </div>
+  <div id="fractal-hint">CLICK ANY NODE TO EXPAND — ESC TO SALIR</div>
+  <div id="fractal-node-panel">
+    <div class="fnp-eyebrow" id="fnp-eyebrow">MÓDULO</div>
+    <div class="fnp-header">
+      <div class="fnp-title" id="fnp-title">—</div>
+      <div class="fnp-status" id="fnp-status">LIVE</div>
+    </div>
+    <div class="fnp-divider"></div>
+    <div class="fnp-desc" id="fnp-desc">—</div>
+    <div class="fnp-stats" id="fnp-stats"></div>
+    <div class="fnp-footer">
+      <button class="fnp-action" id="fnp-action">—</button>
+      <button class="fnp-close" id="fnp-close">✕ CERRAR</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ AFFIRMATION OVERLAY ═══════════ -->
+<div id="affirmation-overlay">
+  <div id="aff-label">TRANSMUTACIÓN EN CURSO</div>
+  <div id="aff-absorb"></div>
+  <div id="aff-transmute">∅ → ∞</div>
+  <div id="aff-text"></div>
+  <button id="aff-close" onclick="closeAffirmation()">← VOLVER AL UNIVERSO</button>
+</div>
+
+<!-- ═══════════ SCREEN: PORTAL ═══════════ -->
+<div id="screen-portal" class="screen active">
+  <div class="portal-content flicker">
+    <div class="hk23-title">
+      <div class="ghost">HK<span>23</span></div>
+      <span>HK</span><span class="red">23</span>
+    </div>
+    <div class="subtitle">HEYOKA 23 — UNIVERSE OS</div>
+    <button class="enter-btn" onclick="goTo('map')">ENTER THE UNIVERSE</button>
+  </div>
+  <div class="portal-quote">EVERYTHING IS MONETIZABLE. EVERYTHING IS DOCUMENTED. EVERYTHING IS RAW.</div>
+</div>
+
+<!-- ═══════════ SCREEN: MAP ═══════════ -->
+<div id="screen-map" class="screen">
+  <div class="map-ui">
+    <div class="map-logo"><span>HK</span>23</div>
+    <div class="map-nav">
+      <button class="nav-btn" onclick="goTo('gates')">GATES</button>
+      <button class="nav-btn" onclick="goTo('agents')">AGENTS</button>
+      <button class="nav-btn" onclick="goTo('trap')">🔒</button>
+    </div>
+  </div>
+  <canvas id="map-canvas"></canvas>
+  <div id="collectibles-counter">
+    <div class="collect-badge">COLECCIONABLES</div>
+    <div class="collect-count" id="collect-num">0</div>
+  </div>
+</div>
+<div id="collect-toast">✦ NUEVO COLECCIONABLE DESBLOQUEADO</div>
+
+<!-- ═══════════ SCREEN: ARTE ═══════════ -->
+<div id="screen-arte" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#FF3A1F">ARTE</div>
+    <div class="tag live">ACTIVO</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">IDENTIDAD VISUAL</div>
+    <div class="mega-text" style="color:#FF3A1F">HK23<br>HEYOKA</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      Arte crudo. Sin filtros. La imagen es la filosofía. HK23 no es un estilo — es una manera de procesar el mundo y devolverlo transformado. Owls. Mythology. Chaos controlled.
+    </p>
+    <div class="grid-3" style="--accent:#FF3A1F">
+      <div class="raw-card" style="--accent:#FF3A1F">
+        <div class="card-label">IDENTIDAD</div>
+        <div class="card-title">HK23 Visual System</div>
+        <div class="card-desc">La imagen completa. Logo, palette, símbología.</div>
+      </div>
+      <div class="raw-card" style="--accent:#FF3A1F">
+        <div class="card-label">COLLAGE</div>
+        <div class="card-title">Mixed Media Universe</div>
+        <div class="card-desc">Graffiti + digital + mitología. Todo mezclado.</div>
+      </div>
+      <div class="raw-card" style="--accent:#FF3A1F">
+        <div class="card-label">PRINTS</div>
+        <div class="card-title">Limited Editions</div>
+        <div class="card-desc">Cada pieza única. Todo numerado. Todo real.</div>
+        <div style="margin-top:12px"><span class="tag gold">MONETIZABLE</span></div>
+      </div>
+    </div>
+    <div class="grid-2" style="--accent:#FF3A1F">
+      <div class="raw-card" style="--accent:#FF3A1F;min-height:160px;display:flex;align-items:flex-end">
+        <div>
+          <div class="big-number" style="color:#FF3A1F;opacity:0.15">🦉</div>
+          <div class="card-label">SÍMBOLO</div>
+          <div class="card-title">The Owl</div>
+          <div class="card-desc">Ve en la oscuridad. Sabe lo que no se dice.</div>
+        </div>
+      </div>
+      <div class="raw-card" style="--accent:#FF3A1F">
+        <div class="card-label">ARCHIVO</div>
+        <div class="card-title">Todo está documentado</div>
+        <div class="card-desc">Cada proceso, cada sketch, cada idea. El making-of es parte del arte.</div>
+        <div style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap">
+          <span class="tag">2020 →</span>
+          <span class="tag">2021 →</span>
+          <span class="tag">2022 →</span>
+          <span class="tag">2023 →</span>
+          <span class="tag">2024 →</span>
+          <span class="tag gold">2025 →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: LORE ═══════════ -->
+<div id="screen-lore" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#FFD200">LORE</div>
+    <div class="tag gold">RAW</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">FILOSOFÍA PROPIA</div>
+    <div class="mega-text" style="color:#FFD200">EL<br>HEYOKA</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      El Heyoka es el sagrado contrario. El que ve diferente. El que dice lo que nadie quiere escuchar. Esto no es un persona — es lo que realmente eres cuando dejas de pretender.
+    </p>
+    <div class="grid-2" style="--accent:#FFD200">
+      <div class="raw-card" style="--accent:#FFD200">
+        <div class="card-label">MANIFIESTO</div>
+        <div class="card-title">"Un vicio no es un hobby."</div>
+        <div class="card-desc">Es lo que la obsesión parece desde afuera. La filosofía central detrás de todo lo que construyo.</div>
+        <div style="margin-top:16px"><span class="tag locked">MEMBERSHIP ONLY</span></div>
+      </div>
+      <div class="raw-card" style="--accent:#FFD200">
+        <div class="card-label">NOTAS CRUDAS</div>
+        <div class="card-title">Stream of Consciousness</div>
+        <div class="card-desc">Lo que pienso sin editar. Pensamientos del día. Ideas a las 3am. Lo real.</div>
+        <div style="margin-top:16px"><span class="tag locked">OBSESIONADO+</span></div>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="raw-card" style="--accent:#FFD200">
+        <div class="card-label">CREENCIA 01</div>
+        <div class="card-title">Todo tiene precio</div>
+        <div class="card-desc">El tiempo, el conocimiento, el acceso. Nada es gratis. Todo tiene valor.</div>
+      </div>
+      <div class="raw-card" style="--accent:#FFD200">
+        <div class="card-label">CREENCIA 02</div>
+        <div class="card-title">Documenta todo</div>
+        <div class="card-desc">El proceso es el producto. La vida documentada es la vida vivida dos veces.</div>
+      </div>
+      <div class="raw-card" style="--accent:#FFD200">
+        <div class="card-label">CREENCIA 03</div>
+        <div class="card-title">Sé el contrario</div>
+        <div class="card-desc">Cuando todos hacen lo mismo, hacer lo opuesto es ventaja. Siempre.</div>
+      </div>
+    </div>
+    <div class="raw-card" style="--accent:#FFD200;margin-top:0">
+      <div class="card-label">LOS CUATRO ACUERDOS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Sé impecable con tus palabras</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">No tomes nada personal</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">No hagas suposiciones</div>
+        <div style="font-size:12px;color:#666;border-left:2px solid rgba(255,210,0,0.3);padding-left:12px">Da siempre lo mejor de ti</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: VICE OS ═══════════ -->
+<div id="screen-viceos" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#AAFF00">VICE OS</div>
+    <div class="tag live">EN BUILD</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">EL SISTEMA DEPORTIVO</div>
+    <div class="mega-text" style="color:#AAFF00">VICE<br>OS</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      El sistema operativo del rendimiento deportivo. Golf + Rugby. Una identidad. Datos sin filtro. Esto no es una app — es una manera de vivir el deporte.
+    </p>
+    <div class="grid-2" style="--accent:#AAFF00">
+      <div class="raw-card" style="--accent:#AAFF00">
+        <div class="card-label">APP 01</div>
+        <div class="card-title">⛳ ViceGolfer</div>
+        <div class="card-desc">Performance DNA. Putting Protocol. Caddie Booking. Datos reales del campo.</div>
+        <div style="margin-top:12px"><span class="tag live">ACTIVO</span></div>
+      </div>
+      <div class="raw-card" style="--accent:#00F0FF">
+        <div class="card-label">APP 02</div>
+        <div class="card-title">🏉 Rugby Vice</div>
+        <div class="card-desc">Kick Tracker 2D. Rugby CV. Mental exercises. Performance DNA 7 ejes.</div>
+        <div style="margin-top:12px"><span class="tag" style="border-color:#00F0FF;color:#00F0FF">NUEVO</span></div>
+      </div>
+    </div>
+    <div class="raw-card" style="--accent:#AAFF00;margin-bottom:16px">
+      <div class="card-label">VICE OS CORE</div>
+      <div style="display:flex;gap:32px;align-items:center">
+        <div>
+          <div class="card-title">One Identity. All Sports.</div>
+          <div class="card-desc" style="max-width:400px">Un login unificado. Rankings cross-sport. Content engine. Community privada. Membership tiers.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="big-number" style="color:#AAFF00;opacity:0.3;font-size:48px">2</div>
+          <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;color:#444">VERTICALES</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: SYSTEMS ═══════════ -->
+<div id="screen-systems" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#B84DFF">SYSTEMS</div>
+    <div class="tag locked">GATEADO</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">CÓMO PIENSO Y CONSTRUYO</div>
+    <div class="mega-text" style="color:#B84DFF">HOW<br>I BUILD</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      Mis frameworks. Mis procesos. Cómo paso de idea a producto. Esto es lo más valioso que tengo — y lo más gateado.
+    </p>
+    <div class="grid-3">
+      <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
+        <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
+        <div class="card-label">FRAMEWORK 01</div>
+        <div class="card-title">El Sistema de Ideas</div>
+        <div class="card-desc">Cómo capturo, proceso y ejecuto ideas...</div>
+        <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
+      </div>
+      <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
+        <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
+        <div class="card-label">FRAMEWORK 02</div>
+        <div class="card-title">Build Fast, Ship Real</div>
+        <div class="card-desc">Mi proceso de desarrollo y lanzamiento...</div>
+        <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
+      </div>
+      <div class="raw-card" style="--accent:#B84DFF;opacity:0.4;cursor:not-allowed">
+        <div class="tag locked" style="margin-bottom:12px">LOCKED</div>
+        <div class="card-label">FRAMEWORK 03</div>
+        <div class="card-title">Todo es Monetizable</div>
+        <div class="card-desc">Cómo convierto ideas en flujo de dinero...</div>
+        <div style="margin-top:12px;font-size:40px;opacity:0.3">🔒</div>
+      </div>
+    </div>
+    <div style="border:1px solid #B84DFF;padding:32px;text-align:center;margin-top:16px">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#B84DFF;margin-bottom:16px">ACCESO COMPLETO</div>
+      <div style="font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:8px">OBSESIONADO</div>
+      <div style="font-size:13px;color:#555;margin-bottom:24px">$29/mes o $290/año</div>
+      <button onclick="goTo('gates')" style="background:#B84DFF;color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">VER MEMBERSHIP</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: $FLOW ═══════════ -->
+<div id="screen-flow" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#FFD200">$ FLOW</div>
+    <div class="tag gold">MONETIZABLE</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">TODO TIENE VALOR</div>
+    <div class="mega-text" style="color:#FFD200">TODO<br>VALE.</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      Arte. Conocimiento. Acceso. Tiempo. Ideas. Sistemas. Nada es gratis. Todo tiene un precio justo. El que quiere, paga. El que no, está afuera — y eso también tiene valor.
+    </p>
+    <div class="grid-3">
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 01</div><div class="card-title">Arte & Prints</div></div>
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 02</div><div class="card-title">Membership HK23</div></div>
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 03</div><div class="card-title">Vice OS Subs</div></div>
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 04</div><div class="card-title">Consulting</div></div>
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 05</div><div class="card-title">Brand Collabs</div></div>
+      <div class="raw-card" style="--accent:#FFD200"><div class="card-label">STREAM 06</div><div class="card-title">Content Premium</div></div>
+    </div>
+    <div class="raw-card" style="--accent:#FFD200;margin-top:0">
+      <div class="card-label">FILOSOFÍA</div>
+      <div class="card-title" style="font-size:22px;line-height:1.3">"No cobro porque necesito. Cobro porque lo que tengo tiene valor — y las personas que pagan son las que realmente lo van a usar."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: AGENTS ═══════════ -->
+<div id="screen-agents" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#00F0FF">AGENTS</div>
+    <div class="tag live">24/7 RUNNING</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">AI TRABAJANDO POR TI</div>
+    <div class="mega-text" style="color:#00F0FF">NEVER<br>OFFLINE.</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      Agentes de IA creando contenido, documentando tu universo, generando clips, posts, threads — mientras tú vives. Tu ecosistema trabaja 24/7.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:12px;margin-bottom:32px">
+      <div class="agent-card">
+        <div class="agent-dot" style="background:#FF3A1F"></div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">🎥 YouTube Agent</div>
+          <div style="font-size:11px;color:#555">Toma tus ideas, builds the script, edits the narrative. Sube a tu canal. Tu voz, su trabajo.</div>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <span class="tag live">RUNNING</span>
+            <span class="tag">HK23 Channel</span>
+            <span class="tag">Vice OS Channel</span>
+          </div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-dot" style="background:#B84DFF"></div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">📱 TikTok Agent</div>
+          <div style="font-size:11px;color:#555">Clips cortos de tu entrenamiento, arte, ideas. 3-5 videos por día. Algoritmo fed. Audience growing.</div>
+          <div style="margin-top:8px;display:flex;gap:6px">
+            <span class="tag live">RUNNING</span>
+            <span class="tag">@hk23neo</span>
+          </div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-dot" style="background:#AAFF00"></div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">📊 Data Agent</div>
+          <div style="font-size:11px;color:#555">Documenta sesiones de Vice OS. Genera reports automáticos. Sube al content engine del dashboard.</div>
+          <div style="margin-top:8px"><span class="tag live">RUNNING</span></div>
+        </div>
+      </div>
+      <div class="agent-card">
+        <div class="agent-dot" style="background:#FFD200"></div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">💬 ChatGPT Extractor</div>
+          <div style="font-size:11px;color:#555">Extrae conversaciones diarias de ChatGPT y las transforma en contenido — threads, ideas, afirmaciones, lore crudo.</div>
+          <div style="margin-top:8px"><span class="tag" style="border-color:#FFD200;color:#FFD200">PRÓXIMO</span></div>
+        </div>
+      </div>
+      <div class="agent-card" style="opacity:0.5">
+        <div class="agent-dot" style="background:#00F0FF;animation:none;opacity:0.3"></div>
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:1px;margin-bottom:4px">🔮 Mindmap Agent</div>
+          <div style="font-size:11px;color:#444">Actualiza el universo map en tiempo real con tus nuevas ideas y conexiones.</div>
+          <div style="margin-top:8px"><span class="tag">PRÓXIMO</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="border:1px solid #00F0FF;padding:24px;background:rgba(0,240,255,0.02)">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#00F0FF;margin-bottom:12px">SETUP AGENTS</div>
+      <div style="font-size:13px;color:#555;line-height:1.7">Conecta tus plataformas, define tu voz, y los agentes hacen el resto. Tu universo crece mientras duermes.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: GATES ═══════════ -->
+<div id="screen-gates" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title">LAS PUERTAS</div>
+    <div class="tag">MEMBERSHIP</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">ACCESO AL UNIVERSO</div>
+    <div class="mega-text">PAGA<br>O FUERA.</div>
+    <p style="color:#555;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      No todo es para todos. La puerta abierta te deja ver. La puerta de adentro te deja participar. La puerta final te hace parte de esto.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="gate-tier" style="--accent:#555">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#555;margin-bottom:8px">TIER 01</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">CURIOSO</div>
+            <div style="font-size:13px;color:#444;margin-bottom:16px">Puedes ver la superficie. Arte, identidad, Vice OS public.</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:36px;font-weight:700">FREE</div>
+            <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:2px">SIEMPRE</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag">Arte público</span>
+          <span class="tag">Vice OS landing</span>
+          <span class="tag">Lore básico</span>
+          <span class="tag">Agentes preview</span>
+        </div>
+      </div>
+
+      <div class="gate-tier featured" style="--accent:#B84DFF;border-color:#B84DFF;background:rgba(184,77,255,0.03)">
+        <div class="tier-badge" style="background:#B84DFF">MÁS POPULAR</div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#B84DFF;margin-bottom:8px">TIER 02</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">OBSESIONADO</div>
+            <div style="font-size:13px;color:#555;margin-bottom:16px">Mis sistemas, procesos, frameworks. Notes crudas. Lore completo.</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:36px;font-weight:700;color:#B84DFF">$29</div>
+            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MES</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Todo de CURIOSO</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Sistemas & frameworks</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Notes sin filtro</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Vice OS Pro</span>
+          <span class="tag" style="border-color:#B84DFF;color:#B84DFF">Agent reports</span>
+        </div>
+      </div>
+
+      <div class="gate-tier" style="--accent:#FFD200;border-color:#333;background:#0A0900">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#FFD200;margin-bottom:8px">TIER 03</div>
+            <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">SOCIO</div>
+            <div style="font-size:13px;color:#555;margin-bottom:16px">Acceso directo. Part of the build. Influencia real.</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-size:36px;font-weight:700;color:#FFD200">$99</div>
+            <div style="font-size:10px;color:#555;font-family:'Space Mono',monospace;letter-spacing:2px">/ MES</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <span class="tag gold">Todo de OBSESIONADO</span>
+          <span class="tag gold">Direct access</span>
+          <span class="tag gold">Vice OS Elite</span>
+          <span class="tag gold">Co-create</span>
+          <span class="tag gold">Revenue share</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;border:1px solid #1A1A1A;padding:24px;text-align:center;cursor:pointer" onclick="goTo('trap')">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#2A2A2A;margin-bottom:8px">PUERTA ESPECIAL</div>
+      <div style="font-size:18px;font-weight:700;color:#2A2A2A">Para los que miran pero no entran.</div>
+      <div style="font-size:11px;color:#1A1A1A;margin-top:8px">Sé quién eres. → Click aquí.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: TRAP ═══════════ -->
+<div id="screen-trap" class="screen">
+  <div class="trap-content">
+    <div style="font-size:80px;margin-bottom:32px">🦉</div>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:6px;color:#333;margin-bottom:24px">THE OWL SEES YOU</div>
+    <div style="font-size:36px;font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:20px">
+      Llevas tiempo<br>mirando.
+    </div>
+    <p style="font-size:13px;color:#555;line-height:1.8;margin-bottom:32px">
+      Volviste. De nuevo. Tercera vez esta semana.<br>
+      Sabes lo que quieres. Solo no has pagado por ello.<br><br>
+      Está bien. Lo entiendo. Yo también fui curioso.<br>
+      Pero los curiosos que no actúan se quedan afuera.
+    </p>
+    <div style="border:1px solid var(--red);padding:24px;margin-bottom:24px">
+      <div style="font-size:11px;color:#555;margin-bottom:4px;font-family:'Space Mono',monospace;letter-spacing:2px">LA OFERTA DEL OWL</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:8px">Un mes de OBSESIONADO</div>
+      <div style="font-size:32px;font-weight:700;color:var(--red)">$29</div>
+      <div style="font-size:11px;color:#444;margin-top:4px">Sin excusas. Sin más vueltas.</div>
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center">
+      <button onclick="goTo('gates')" style="background:var(--red);color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">ENTRAR AHORA</button>
+      <button onclick="goTo('map')" style="background:none;color:#333;border:1px solid #1C1C1C;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer">VOLVER A MIRAR</button>
+    </div>
+    <div style="margin-top:32px;font-size:10px;color:#1A1A1A;font-family:'Space Mono',monospace">"El que paga respeta. El que no paga, consume."</div>
+  </div>
+</div>
+
+<!-- ═══════════ SCREEN: ECOSYSTEM ═══════════ -->
+<div id="screen-ecosystem" class="screen zone-screen">
+  <div class="zone-header">
+    <button class="zone-back" onclick="goTo('map')">← MAP</button>
+    <div class="zone-title" style="color:#F0EDE8">ECOSYSTEM</div>
+    <div class="tag live">HK23 CORE</div>
+  </div>
+  <div class="zone-body">
+    <div class="section-label">EL SISTEMA COMPLETO</div>
+    <div class="mega-text" style="color:#F0EDE8">HK23<br>STACK</div>
+    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
+      Un ecosistema vivo. Cada pieza alimenta a la otra. El arte genera lore. El lore genera proyectos. Los proyectos generan datos. Los datos generan contenido. El contenido genera comunidad. La comunidad genera dinero. El dinero genera libertad.
+    </p>
+
+    <div class="grid-2" style="--accent:#F0EDE8;margin-bottom:24px">
+      <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">PROYECTOS ACTIVOS</div>
+        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:10px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#AAFF00">⛳ ViceGolfer</div>
+              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Golf Performance OS</div>
+            </div>
+            <span class="tag live">LIVE</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:10px">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#00F0FF">🏉 Rugby Vice</div>
+              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Kick Tracker 2D</div>
+            </div>
+            <span class="tag" style="border-color:#00F0FF;color:#00F0FF">BUILD</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:13px;font-weight:700;color:#FFD200">⛏ La Iglesia</div>
+              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Gold · IV Región · 3,676ha</div>
+            </div>
+            <span class="tag gold">ACTIVO</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">CAPAS DEL UNIVERSO</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#FF3A1F;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">Arte & Identidad Visual</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#FFD200;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">Lore & Filosofía</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#AAFF00;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">Vice OS — Tech Sports</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#B84DFF;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">Systems & Frameworks</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#FFD200;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">$ Flow — Revenue Engine</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:6px;height:6px;border-radius:50%;background:#00F0FF;flex-shrink:0"></div>
+            <div style="font-size:12px;color:#666">Agents — AI 24/7</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="raw-card" style="--accent:#F0EDE8;margin-bottom:16px">
+      <div class="card-label">EL LOOP INFINITO</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">VIDA</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">IDEAS</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">PROYECTOS</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">DATOS</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">CONTENIDO</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">COMUNIDAD</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">$$$</span>
+        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#AAFF00;border:1px solid rgba(170,255,0,0.3);padding:6px 10px">LIBERTAD</span>
+      </div>
+    </div>
+
+    <div style="border:1px solid #1A1A1A;padding:24px;text-align:center">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#2A2A2A;margin-bottom:12px">AFIRMACIÓN MAESTRA</div>
+      <div style="font-size:20px;font-weight:700;line-height:1.4;color:#333">"Soy el arquitecto de mi realidad.<br>Ideas que nacen como nacen las estrellas."</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════ STATE ═══════════
+let currentScreen = 'portal';
+const SCREENS = ['portal','map','arte','lore','viceos','systems','flow','agents','gates','trap','ecosystem'];
+
+function goTo(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen-' + id);
+  if (target) {
+    target.classList.add('active');
+    currentScreen = id;
+    if (id === 'map') startMapCanvas();
+  }
+}
+
+// ═══════════ PORTAL CONSTELLATION ═══════════
+const bgCanvas = document.getElementById('constellation');
+const bgCtx = bgCanvas.getContext('2d');
+let bgParticles = [];
+
+function initBgCanvas() {
+  bgCanvas.width = window.innerWidth;
+  bgCanvas.height = window.innerHeight;
+  bgParticles = Array.from({length: 120}, () => ({
+    x: Math.random() * bgCanvas.width,
+    y: Math.random() * bgCanvas.height,
+    vx: (Math.random() - 0.5) * 0.15,
+    vy: (Math.random() - 0.5) * 0.15,
+    r: Math.random() * 1.2 + 0.2,
+    a: Math.random() * 0.6 + 0.1,
+  }));
+}
+
+function animateBg() {
+  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  bgParticles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = bgCanvas.width;
+    if (p.x > bgCanvas.width) p.x = 0;
+    if (p.y < 0) p.y = bgCanvas.height;
+    if (p.y > bgCanvas.height) p.y = 0;
+    bgCtx.beginPath();
+    bgCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    bgCtx.fillStyle = `rgba(255,255,255,${p.a})`;
+    bgCtx.fill();
+  });
+  for (let i = 0; i < bgParticles.length; i++) {
+    for (let j = i + 1; j < bgParticles.length; j++) {
+      const dx = bgParticles[i].x - bgParticles[j].x;
+      const dy = bgParticles[i].y - bgParticles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 80) {
+        bgCtx.beginPath();
+        bgCtx.moveTo(bgParticles[i].x, bgParticles[i].y);
+        bgCtx.lineTo(bgParticles[j].x, bgParticles[j].y);
+        bgCtx.strokeStyle = `rgba(255,255,255,${0.04 * (1 - dist/80)})`;
+        bgCtx.lineWidth = 0.3;
+        bgCtx.stroke();
+      }
+    }
+  }
+  requestAnimationFrame(animateBg);
+}
+
+// ═══════════ MAP DATA ═══════════
+const NODES = [
+  { id: 'arte',    label: 'ARTE',    sub: 'Visual Universe',      x: 0.22, y: 0.28, color: '#FF3A1F', size: 12 },
+  { id: 'lore',    label: 'LORE',    sub: 'Philosophy & Myth',    x: 0.50, y: 0.17, color: '#FFD200', size: 11 },
+  { id: 'viceos',  label: 'VICE OS', sub: 'Sports Tech Stack',    x: 0.78, y: 0.28, color: '#AAFF00', size: 13 },
+  { id: 'systems', label: 'SYSTEMS', sub: 'How I Build',          x: 0.22, y: 0.68, color: '#B84DFF', size: 10 },
+  { id: 'flow',    label: '$ FLOW',  sub: 'Everything Monetized', x: 0.50, y: 0.80, color: '#FFD200', size: 10 },
+  { id: 'agents',  label: 'AGENTS',  sub: '24/7 Content AI',      x: 0.78, y: 0.68, color: '#00F0FF', size: 11 },
+];
+
+const CONNECTIONS = [
+  ['arte','lore'],['arte','viceos'],['arte','systems'],
+  ['lore','systems'],['lore','flow'],
+  ['viceos','agents'],['viceos','flow'],
+  ['systems','flow'],['systems','agents'],
+  ['flow','agents'],
+];
+
+// ─── PROJECT ORBS (fractal planets) ───
+const PROJECTS = [
+  {
+    id: 'vicegolfer', label: 'VICEGOLFER', sub: 'Golf Performance OS',
+    x: 0.63, y: 0.33, color: '#AAFF00', size: 24,
+    universe: {
+      title: 'VICEGOLFER', color: '#AAFF00',
+      nodes: [
+        { label: 'PERFORMANCE\nDNA',   x: 0.50, y: 0.16, color: '#AAFF00', size: 16,
+          detail: { title: 'PERFORMANCE DNA', status: 'live', eyebrow: 'MÓDULO CORE',
+            desc: 'Tu radar de golf personalizado. 5 ejes construidos desde tus rondas reales: Driver, Hierros, Juego Corto, Putting y Mental.',
+            stats: [{ l:'DRIVER', v:'78' },{ l:'HIERROS', v:'65' },{ l:'JUEGO CORTO', v:'82' },{ l:'PUTTING', v:'71' },{ l:'MENTAL', v:'59' },{ l:'RONDAS', v:'23' }],
+            action: 'VER MI DNA →', actionColor: '#AAFF00' }},
+        { label: 'PUTTING\nPROTOCOL', x: 0.82, y: 0.38, color: '#AAFF00', size: 13,
+          detail: { title: 'PUTTING PROTOCOL', status: 'live', eyebrow: 'ENTRENAMIENTO',
+            desc: 'Protocolo diario de 100 putts dividido en 3 zonas. Cada sesión actualiza tu DNA de putting en tiempo real.',
+            stats: [{ l:'SESIÓN HOY', v:'67/100' },{ l:'MAKE RATE', v:'74%' },{ l:'DIST. MEDIA', v:'2.3m' },{ l:'RACHA', v:'5 días' }],
+            action: 'INICIAR SESIÓN →', actionColor: '#AAFF00' }},
+        { label: 'ANALYTICS',          x: 0.82, y: 0.64, color: '#B84DFF', size: 12,
+          detail: { title: 'ANALYTICS', status: 'build', eyebrow: 'DATOS Y TENDENCIAS',
+            desc: 'Tendencias de tu juego en el tiempo. Identifica qué parte de tu juego te está costando strokes reales.',
+            stats: [{ l:'RONDAS', v:'23' },{ l:'MEJOR GHI', v:'71' },{ l:'TENDENCIA', v:'↑ +2.1' },{ l:'HANDICAP', v:'8.3' }],
+            action: 'VER ANÁLISIS →', actionColor: '#B84DFF' }},
+        { label: 'RANKINGS',           x: 0.50, y: 0.84, color: '#00F0FF', size: 11,
+          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'COMPETENCIA',
+            desc: 'Leaderboard global de ViceGolfer. Sube de nivel, compite con tu handicap real y defiende tu posición.',
+            stats: [{ l:'TU POSICIÓN', v:'#12' },{ l:'JUGADORES', v:'847' },{ l:'VICE LEVEL', v:'14' },{ l:'PUNTOS', v:'2,340' }],
+            action: 'VER RANKING →', actionColor: '#00F0FF' }},
+        { label: 'CADDIE\nBOOKING',   x: 0.18, y: 0.64, color: '#FFD200', size: 11,
+          detail: { title: 'CADDIE BOOKING', status: 'soon', eyebrow: 'AI + HUMAN',
+            desc: 'Activa el AI Caddie para estrategia en tiempo real, o reserva un caddie humano verificado para tu próxima ronda.',
+            stats: [{ l:'AI MODEL', v:'GPT-4o' },{ l:'CADDIES', v:'12' },{ l:'CANCHAS', v:'8' },{ l:'HOY', v:'DISPONIBLE' }],
+            action: 'RESERVAR →', actionColor: '#FFD200' }},
+        { label: 'PODCASTS',          x: 0.18, y: 0.38, color: '#FF3A1F', size: 11,
+          detail: { title: 'VICE GOLF PODCAST', status: 'soon', eyebrow: 'CONTENT ENGINE',
+            desc: 'Tu rendimiento convertido en audio. El sistema genera episodios desde tus sesiones, tu DNA y tus mejores rondas.',
+            stats: [{ l:'EPISODIOS', v:'0' },{ l:'DURACIÓN', v:'~12 min' },{ l:'AI VOICE', v:'SÍ' },{ l:'PLATAFORMAS', v:'SPO/APC' }],
+            action: 'PRÓXIMAMENTE →', actionColor: '#FF3A1F' }},
+      ],
+      connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,5]]
+    }
+  },
+  {
+    id: 'rugbyvice', label: 'RUGBY VICE', sub: 'Kick Tracker 2D',
+    x: 0.37, y: 0.33, color: '#00F0FF', size: 21,
+    universe: {
+      title: 'RUGBY VICE', color: '#00F0FF',
+      nodes: [
+        { label: 'KICK\nTRACKER 2D',  x: 0.50, y: 0.16, color: '#00F0FF', size: 16,
+          detail: { title: 'KICK TRACKER 2D', status: 'live', eyebrow: 'MÓDULO CORE',
+            desc: 'Registra cada patada en un campo 2D interactivo. Zonas, ángulos, distancias y tasa de conversión en tiempo real.',
+            stats: [{ l:'SESIONES', v:'41' },{ l:'PATADAS', v:'1,240' },{ l:'CONVERSIÓN', v:'68%' },{ l:'MEJOR', v:'94%' }],
+            action: 'INICIAR TRACKING →', actionColor: '#00F0FF' }},
+        { label: 'DNA 7\nEJES',       x: 0.82, y: 0.38, color: '#00F0FF', size: 13,
+          detail: { title: 'PERFORMANCE DNA', status: 'build', eyebrow: 'RUGBY ESPECÍFICO',
+            desc: '7 ejes de rendimiento rugby: Patada, Tackle, Velocidad, Resistencia, Potencia, Mental y Posicionamiento.',
+            stats: [{ l:'PATADA', v:'81' },{ l:'TACKLE', v:'74' },{ l:'VELOCIDAD', v:'68' },{ l:'MENTAL', v:'77' }],
+            action: 'VER DNA →', actionColor: '#00F0FF' }},
+        { label: 'RUGBY CV',          x: 0.82, y: 0.64, color: '#B84DFF', size: 11,
+          detail: { title: 'RUGBY CV', status: 'soon', eyebrow: 'CARRERA PROFESIONAL',
+            desc: 'Tu perfil deportivo público. Estadísticas reales, videos, posición y historial para mostrar a clubes y scouts.',
+            stats: [{ l:'POSICIÓN', v:'FLY-HALF' },{ l:'CLUBES', v:'3' },{ l:'VIDEOS', v:'0' },{ l:'VISIBILIDAD', v:'PRIVADO' }],
+            action: 'CREAR CV →', actionColor: '#B84DFF' }},
+        { label: 'MENTAL\nPROTOCOLS', x: 0.50, y: 0.84, color: '#FF3A1F', size: 11,
+          detail: { title: 'PROTOCOLOS MENTALES', status: 'soon', eyebrow: 'RENDIMIENTO MENTAL',
+            desc: 'Rutinas pre-partido, ejercicios de concentración y protocolos de presión para el momento que más importa.',
+            stats: [{ l:'PROTOCOLOS', v:'8' },{ l:'DURACIÓN', v:'5-15 min' },{ l:'COMPLETADOS', v:'0' },{ l:'RACHA', v:'—' }],
+            action: 'EXPLORAR →', actionColor: '#FF3A1F' }},
+        { label: 'RANKINGS',          x: 0.18, y: 0.64, color: '#FFD200', size: 10,
+          detail: { title: 'RANKINGS', status: 'build', eyebrow: 'COMPETENCIA GLOBAL',
+            desc: 'Leaderboard de kickers por región, posición y nivel. Sube tu ranking con cada sesión registrada.',
+            stats: [{ l:'TU POSICIÓN', v:'#28' },{ l:'JUGADORES', v:'312' },{ l:'REGIÓN', v:'CHILE' },{ l:'NIVEL', v:'7' }],
+            action: 'VER RANKING →', actionColor: '#FFD200' }},
+        { label: 'COMMUNITY',         x: 0.18, y: 0.38, color: '#FFD200', size: 10,
+          detail: { title: 'COMMUNITY', status: 'soon', eyebrow: 'RED DE JUGADORES',
+            desc: 'Conecta con jugadores de tu posición, comparte sesiones y sigue el progreso de tu equipo.',
+            stats: [{ l:'MIEMBROS', v:'—' },{ l:'CLUBES', v:'—' },{ l:'PAÍSES', v:'—' },{ l:'POSTS', v:'—' }],
+            action: 'PRÓXIMAMENTE →', actionColor: '#FFD200' }},
+      ],
+      connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[2,4]]
+    }
+  },
+  {
+    id: 'laiglesia', label: 'LA IGLESIA', sub: 'Gold · IV Región · 3,676ha',
+    x: 0.50, y: 0.62, color: '#FFD200', size: 19,
+    universe: {
+      title: 'LA IGLESIA', color: '#FFD200',
+      nodes: [
+        { label: 'CONCESIÓN\n3,676 ha',    x: 0.50, y: 0.16, color: '#FFD200', size: 16,
+          detail: { title: 'CONCESIÓN MINERA', status: 'live', eyebrow: 'PROPIEDAD',
+            desc: '3,676 hectáreas en la IV Región de Chile. Concesión activa con anomalías geoquímicas de oro confirmadas.',
+            stats: [{ l:'HECTÁREAS', v:'3,676' },{ l:'REGIÓN', v:'IV — CHILE' },{ l:'MINERAL', v:'ORO' },{ l:'ESTADO', v:'ACTIVA' }],
+            action: 'VER DATOS →', actionColor: '#FFD200' }},
+        { label: 'DRILL\nPROGRAM',         x: 0.82, y: 0.38, color: '#FFD200', size: 13,
+          detail: { title: 'PROGRAMA DE PERFORACIÓN', status: 'build', eyebrow: 'EXPLORACIÓN',
+            desc: 'Programa de sondajes definiendo los cuerpos mineralizados. Muestras geoquímicas y datos de laboratorio integrados.',
+            stats: [{ l:'SONDAJES', v:'12' },{ l:'METROS', v:'2,400m' },{ l:'MUESTRAS', v:'840' },{ l:'LEY Au', v:'2.1 g/t' }],
+            action: 'VER PROGRAMA →', actionColor: '#FFD200' }},
+        { label: 'INVERSIÓN\nDECK',        x: 0.82, y: 0.64, color: '#FF3A1F', size: 12,
+          detail: { title: 'INVERSIÓN', status: 'live', eyebrow: 'CAPTACIÓN DE CAPITAL',
+            desc: 'Deck de inversión para capitalizar la etapa de exploración avanzada. Targets, valorización y plan de trabajo.',
+            stats: [{ l:'BUSCANDO', v:'USD 2M' },{ l:'EQUITY', v:'25%' },{ l:'ETAPA', v:'EXPLORACIÓN' },{ l:'ROI ESTIMADO', v:'8–12×' }],
+            action: 'VER DECK →', actionColor: '#FF3A1F' }},
+        { label: 'DATA\nENGINEERING',      x: 0.50, y: 0.84, color: '#AAFF00', size: 11,
+          detail: { title: 'DATA ENGINEERING', status: 'live', eyebrow: 'PIPELINE DE DATOS',
+            desc: 'Pipeline de datos geológicos: muestras → laboratorio → base de datos → visualización. Trazabilidad completa.',
+            stats: [{ l:'REGISTROS', v:'4,200' },{ l:'FORMATOS', v:'CSV/GIS' },{ l:'DASHBOARDS', v:'3' },{ l:'ACTUALIZACIÓN', v:'SEMANAL' }],
+            action: 'VER PIPELINE →', actionColor: '#AAFF00' }},
+        { label: 'GEOLOGÍA\nIV REGIÓN',    x: 0.18, y: 0.64, color: '#00F0FF', size: 11,
+          detail: { title: 'CONTEXTO GEOLÓGICO', status: 'live', eyebrow: 'MARCO REGIONAL',
+            desc: 'Franja metalogénica aurífera de la Cordillera de la Costa. Contexto geológico favorable comparado con depósitos vecinos.',
+            stats: [{ l:'FORMACIÓN', v:'PALEOZOICO' },{ l:'TIPO YACIMIENTO', v:'ORO OROGÉNICO' },{ l:'VECINOS', v:'EL INDIO' },{ l:'POTENCIAL', v:'ALTO' }],
+            action: 'VER GEOLOGÍA →', actionColor: '#00F0FF' }},
+        { label: 'EQUIPO\n& TIMELINE',     x: 0.18, y: 0.38, color: '#B84DFF', size: 10,
+          detail: { title: 'EQUIPO & TIMELINE', status: 'live', eyebrow: 'EJECUCIÓN',
+            desc: 'Equipo de geólogos certificados y timeline de exploración 2025–2026. Próxima entrega: informe de recursos.',
+            stats: [{ l:'GEÓLOGOS', v:'3' },{ l:'FASE ACTUAL', v:'2 DE 4' },{ l:'PRÓXIMO HITO', v:'Q3 2026' },{ l:'INFORME', v:'EN PROCESO' }],
+            action: 'VER EQUIPO →', actionColor: '#B84DFF' }},
+      ],
+      connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,4]]
+    }
+  },
+  {
+    id: 'arteworld', label: 'ARTE', sub: 'Visual Identity · Brands · Motion',
+    x: 0.22, y: 0.28, color: '#FF3A1F', size: 17,
+    universe: {
+      title: 'ARTE', color: '#FF3A1F',
+      nodes: [
+        { label: 'JAMES\nCRAIG ART',   x:0.50, y:0.16, color:'#FF3A1F', size:16,
+          detail:{ title:'JAMES CRAIG ART', status:'live', eyebrow:'FINE ART · BRAND',
+            desc:'Marca de arte original — prints limitados, obras sobre lienzo y comisiones. Todo nace de la práctica diaria.',
+            stats:[{l:'OBRAS',v:'47'},{l:'PRINTS',v:'12'},{l:'VENDIDAS',v:'8'},{l:'EXPOSICIÓN',v:'SANTIAGO'}],
+            action:'VER PORTFOLIO →', actionColor:'#FF3A1F' }},
+        { label: 'FALLOWOOD',          x:0.82, y:0.38, color:'#FFD200', size:13,
+          detail:{ title:'FALLOWOOD', status:'live', eyebrow:'STREETWEAR · BRAND',
+            desc:'Marca de ropa independiente. Diseños que cruzan el streetwear con referencias de cultura underground y arte generativo.',
+            stats:[{l:'DROPS',v:'3'},{l:'PIEZAS',v:'24'},{l:'COLECCIÓN',v:'SS26'},{l:'CANAL',v:'INSTAGRAM'}],
+            action:'VER COLECCIÓN →', actionColor:'#FFD200' }},
+        { label: 'MIDJOURNEY\nSTUDIO', x:0.82, y:0.64, color:'#B84DFF', size:12,
+          detail:{ title:'MIDJOURNEY STUDIO', status:'build', eyebrow:'AI ART · GENERATIVO',
+            desc:'Estudio de arte generativo con Midjourney. Referencia visual para productos, campañas y exploración estética del universo HK23.',
+            stats:[{l:'IMÁGENES',v:'2,400+'},{l:'ESTILOS',v:'12'},{l:'PROMPTS',v:'340'},{l:'USO',v:'INTERNO'}],
+            action:'VER ARCHIVO →', actionColor:'#B84DFF' }},
+        { label: 'BRAND\nIDENTITY',    x:0.50, y:0.84, color:'#FF3A1F', size:11,
+          detail:{ title:'BRAND IDENTITY', status:'live', eyebrow:'SISTEMA VISUAL',
+            desc:'El sistema visual completo de HK23: paleta, tipografías, tokens CSS y assets de marca para todos los productos del ecosistema.',
+            stats:[{l:'COLORES',v:'8'},{l:'TIPOGRAFÍAS',v:'2'},{l:'TOKENS',v:'34'},{l:'DOCUMENTADO',v:'SÍ'}],
+            action:'VER SYSTEM →', actionColor:'#FF3A1F' }},
+        { label: 'MOTION\nGRAPHICS',   x:0.18, y:0.64, color:'#00F0FF', size:10,
+          detail:{ title:'MOTION GRAPHICS', status:'soon', eyebrow:'ANIMACIÓN · VIDEO',
+            desc:'Animaciones de marca para social media, intros de video y el universo visual animado de VICE OS.',
+            stats:[{l:'PROYECTOS',v:'0'},{l:'HERRAMIENTA',v:'FIGMA/AE'},{l:'ESTADO',v:'DISEÑO'},{l:'ETA',v:'Q3 2026'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
+        { label: 'CONTENT\nENGINE',    x:0.18, y:0.38, color:'#AAFF00', size:10,
+          detail:{ title:'CONTENT ENGINE', status:'build', eyebrow:'PIPELINE VISUAL',
+            desc:'Pipeline de contenido visual: sesión → frame → post → branded. Cada acción en VICE OS genera contenido publicable.',
+            stats:[{l:'TEMPLATES',v:'7'},{l:'FORMATOS',v:'4'},{l:'PLATAFORMAS',v:'3'},{l:'AUTO',v:'SÍ'}],
+            action:'VER PIPELINE →', actionColor:'#AAFF00' }},
+      ],
+      connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,5]]
+    }
+  },
+  {
+    id: 'projects_pl', label: 'PROJECTS', sub: 'Historical · Pitches · Portfolio',
+    x: 0.50, y: 0.82, color: '#FF3A1F', size: 20,
+    universe: {
+      title: 'PROJECTS', color: '#FF3A1F',
+      nodes: [
+        { label: 'FALLOWOOD',        x:0.50, y:0.16, color:'#FFD200', size:16,
+          detail:{ title:'FALLOWOOD', status:'live', eyebrow:'MARCA · STREETWEAR',
+            desc:'Marca de ropa independiente fundada 2024. Diseños que mezclan streetwear con referencias culturales underground y arte digital.',
+            stats:[{l:'DROPS',v:'3'},{l:'PIEZAS',v:'24'},{l:'VENTAS',v:'USD 4.2k'},{l:'PLATAFORMA',v:'SHOPIFY'}],
+            action:'VER PROYECTO →', actionColor:'#FFD200' }},
+        { label: 'JAMES\nCRAIG ART', x:0.82, y:0.38, color:'#FF3A1F', size:13,
+          detail:{ title:'JAMES CRAIG ART', status:'live', eyebrow:'ARTE ORIGINAL · PRINTS',
+            desc:'Proyecto de arte original y prints limitados. Obras sobre lienzo, técnica mixta y serigrafía artesanal.',
+            stats:[{l:'OBRAS',v:'47'},{l:'PRINTS SOLD',v:'8'},{l:'EXPOSICIONES',v:'2'},{l:'CIUDAD',v:'SANTIAGO'}],
+            action:'VER PITCH →', actionColor:'#FF3A1F' }},
+        { label: 'LA PLAYA',         x:0.82, y:0.64, color:'#00F0FF', size:12,
+          detail:{ title:'LA PLAYA', status:'soon', eyebrow:'HOSPITALITY · CONCEPT',
+            desc:'Concepto de espacio social en la costa. Hostel, surf, arte y música. Un nodo cultural donde el ecosistema HK23 se materializa físicamente.',
+            stats:[{l:'UBICACIÓN',v:'CHILE'},{l:'ETAPA',v:'CONCEPTO'},{l:'INVERSIÓN',v:'TBD'},{l:'ETA',v:'2027'}],
+            action:'VER CONCEPTO →', actionColor:'#00F0FF' }},
+        { label: 'VICE OS',          x:0.50, y:0.84, color:'#AAFF00', size:14,
+          detail:{ title:'VICE OS', status:'build', eyebrow:'PLATAFORMA PRINCIPAL',
+            desc:'Sistema operativo modular para performance, identidad, memoria y comunidad. 4 verticales: Golf, Rugby, Crypto y HK23.',
+            stats:[{l:'SPRINT',v:'1 DE 6'},{l:'VERTICALES',v:'4'},{l:'STACK',v:'NEXT 15'},{l:'DB',v:'SUPABASE'}],
+            action:'ENTRAR AL OS →', actionColor:'#AAFF00' }},
+        { label: 'LA IGLESIA',       x:0.18, y:0.64, color:'#FFD200', size:13,
+          detail:{ title:'LA IGLESIA — MINA', status:'live', eyebrow:'MINERÍA · ORO · IV REGIÓN',
+            desc:'3,676 hectáreas en la IV Región de Chile. Concesión minera activa con anomalías geoquímicas de oro confirmadas.',
+            stats:[{l:'HECTÁREAS',v:'3,676'},{l:'LEY AU',v:'2.1 g/t'},{l:'CAPITAL',v:'USD 2M'},{l:'ROI',v:'8–12×'}],
+            action:'VER DECK →', actionColor:'#FFD200' }},
+        { label: 'HK23\nPLATFORM',  x:0.18, y:0.38, color:'#F0EDE8', size:11,
+          detail:{ title:'HK23 PLATFORM', status:'build', eyebrow:'ECOSISTEMA DIGITAL',
+            desc:'La plataforma digital completa del universo HK23. Hub de contenido, libros, guías y productos digitales.',
+            stats:[{l:'PROYECTOS',v:'6'},{l:'VERTICALES',v:'4'},{l:'USUARIOS',v:'—'},{l:'LANZAMIENTO',v:'2026'}],
+            action:'VER ROADMAP →', actionColor:'#F0EDE8' }},
+      ],
+      connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
+    }
+  },
+  {
+    id: 'cryptovice', label: 'CRYPTO VICE', sub: 'DeFi · Portfolio · On-chain',
+    x: 0.78, y: 0.62, color: '#B84DFF', size: 16,
+    universe: {
+      title: 'CRYPTO VICE', color: '#B84DFF',
+      nodes: [
+        { label: 'PORTFOLIO\nTRACKER',  x:0.50, y:0.16, color:'#B84DFF', size:16,
+          detail:{ title:'PORTFOLIO TRACKER', status:'soon', eyebrow:'ON-CHAIN · MULTI-WALLET',
+            desc:'Agregador de portfolio multi-chain. Visualiza tus activos crypto en tiempo real con métricas de rendimiento y DNA financiero.',
+            stats:[{l:'CHAINS',v:'12'},{l:'WALLETS',v:'∞'},{l:'MÉTRICAS',v:'18'},{l:'ETA',v:'FASE 3'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+        { label: 'TRADING\nDASHBOARD', x:0.82, y:0.38, color:'#B84DFF', size:13,
+          detail:{ title:'TRADING DASHBOARD', status:'soon', eyebrow:'ANÁLISIS · SEÑALES',
+            desc:'Dashboard de trading con indicadores técnicos, señales de entrada/salida y registro de operaciones para el DNA crypto.',
+            stats:[{l:'EXCHANGES',v:'TBD'},{l:'PARES',v:'TBD'},{l:'INDICADORES',v:'TBD'},{l:'ETA',v:'FASE 3'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+        { label: 'CHAIN\nANALYSIS',    x:0.82, y:0.64, color:'#00F0FF', size:12,
+          detail:{ title:'CHAIN ANALYSIS', status:'soon', eyebrow:'ON-CHAIN · FORENSICS',
+            desc:'Análisis on-chain: flujos de ballenas, distribución de holders, análisis de contratos y señales de mercado desde la blockchain.',
+            stats:[{l:'CHAINS',v:'ETH/SOL/BTC'},{l:'SEÑALES',v:'TBD'},{l:'ALERTAS',v:'TBD'},{l:'ETA',v:'FASE 3'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
+        { label: 'ALERTS &\nSIGNALS',  x:0.50, y:0.84, color:'#FFD200', size:11,
+          detail:{ title:'ALERTS & SIGNALS', status:'soon', eyebrow:'NOTIFICACIONES · AI',
+            desc:'Sistema de alertas inteligentes: precios, movimientos on-chain, oportunidades DeFi y señales generadas por IA.',
+            stats:[{l:'TIPOS',v:'TBD'},{l:'CANALES',v:'PUSH/EMAIL'},{l:'AI',v:'SÍ'},{l:'ETA',v:'FASE 3'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#FFD200' }},
+        { label: 'DeFi\nPROTOCOLS',    x:0.18, y:0.64, color:'#AAFF00', size:10,
+          detail:{ title:'DeFi PROTOCOLS', status:'soon', eyebrow:'YIELD · LIQUIDITY',
+            desc:'Integración con protocolos DeFi: yield farming, liquidity pools y estrategias de staking integradas al DNA financiero.',
+            stats:[{l:'PROTOCOLOS',v:'TBD'},{l:'APY TARGET',v:'TBD'},{l:'RIESGO',v:'CALIBRADO'},{l:'ETA',v:'FASE 4'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#AAFF00' }},
+        { label: 'COMMUNITY',          x:0.18, y:0.38, color:'#FF3A1F', size:10,
+          detail:{ title:'CRYPTO COMMUNITY', status:'soon', eyebrow:'RED · SEÑALES SOCIALES',
+            desc:'Red de traders y holders del ecosistema VICE OS. Comparte análisis, señales y construye tu DNA crypto público.',
+            stats:[{l:'MIEMBROS',v:'—'},{l:'SEÑALES',v:'—'},{l:'GRUPOS',v:'—'},{l:'ETA',v:'FASE 4'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#FF3A1F' }},
+      ],
+      connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[2,4]]
+    }
+  },
+  {
+    id: 'hk23hub', label: 'HK23 HUB', sub: 'Blog · Libros · Digital Store',
+    x: 0.35, y: 0.18, color: '#00F0FF', size: 17,
+    universe: {
+      title: 'HK23 HUB', color: '#00F0FF',
+      nodes: [
+        { label: 'BLOG &\nARTICLES',   x:0.50, y:0.16, color:'#00F0FF', size:16,
+          detail:{ title:'BLOG & ARTICLES', status:'build', eyebrow:'CONTENIDO · PUBLICACIONES',
+            desc:'Artículos sobre rendimiento, sistemas, arte y filosofía Heyoka. Contenido largo que alimenta el ecosistema y posiciona la marca.',
+            stats:[{l:'ARTÍCULOS',v:'0'},{l:'CATEGORÍAS',v:'5'},{l:'AI ASSIST',v:'SÍ'},{l:'FRECUENCIA',v:'SEMANAL'}],
+            action:'VER BLOG →', actionColor:'#00F0FF' }},
+        { label: 'LIBROS\nDIGITALES', x:0.82, y:0.38, color:'#00F0FF', size:13,
+          detail:{ title:'LIBROS DIGITALES', status:'soon', eyebrow:'PDF · EPUB · GUÍAS',
+            desc:'Libros digitales y guías de alto valor: sistemas de rendimiento, filosofía HK23, metodologías de entrenamiento.',
+            stats:[{l:'LIBROS',v:'0'},{l:'EN PROCESO',v:'2'},{l:'PRECIO',v:'USD 15–47'},{l:'PLATAFORMA',v:'VICE OS'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#00F0FF' }},
+        { label: 'GUÍAS &\nSISTEMAS', x:0.82, y:0.64, color:'#AAFF00', size:12,
+          detail:{ title:'GUÍAS & SISTEMAS', status:'soon', eyebrow:'TEMPLATES · FRAMEWORKS',
+            desc:'Guías accionables y frameworks de sistemas. Desde pautas de entrenamiento hasta estructuras de negocio.',
+            stats:[{l:'GUÍAS',v:'0'},{l:'TIPO',v:'PDF/HTML'},{l:'PRECIO',v:'GRATIS–47'},{l:'ETA',v:'Q4 2026'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#AAFF00' }},
+        { label: 'DIGITAL\nSTORE',    x:0.50, y:0.84, color:'#FFD200', size:13,
+          detail:{ title:'DIGITAL STORE', status:'soon', eyebrow:'TIENDA · PRODUCTOS DIGITALES',
+            desc:'Tienda de productos digitales: libros, guías, templates, prompts y acceso a sistemas exclusivos del ecosistema HK23.',
+            stats:[{l:'PRODUCTOS',v:'0'},{l:'CATEGORÍAS',v:'5'},{l:'PAGO',v:'STRIPE'},{l:'ETA',v:'FASE 3'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#FFD200' }},
+        { label: 'NEWSLETTER',        x:0.18, y:0.64, color:'#B84DFF', size:10,
+          detail:{ title:'NEWSLETTER', status:'soon', eyebrow:'EMAIL · COMUNIDAD',
+            desc:'Newsletter semanal del universo HK23. Insights de performance, sistemas, arte y actualización del ecosistema.',
+            stats:[{l:'SUSCRIPTORES',v:'0'},{l:'FRECUENCIA',v:'SEMANAL'},{l:'PLATAFORMA',v:'TBD'},{l:'ETA',v:'Q3 2026'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#B84DFF' }},
+        { label: 'PODCAST',           x:0.18, y:0.38, color:'#FF3A1F', size:10,
+          detail:{ title:'PODCAST HK23', status:'soon', eyebrow:'AUDIO · CONVERSACIONES',
+            desc:'Podcast del universo HK23. Episodios sobre rendimiento, sistemas, arte, minería y filosofía HK23.',
+            stats:[{l:'EPISODIOS',v:'0'},{l:'DURACIÓN',v:'30–60 min'},{l:'PLATAFORMAS',v:'SPO/APC'},{l:'ETA',v:'Q4 2026'}],
+            action:'PRÓXIMAMENTE →', actionColor:'#FF3A1F' }},
+      ],
+      connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
+    }
+  },
+];
+
+// ─── BLACK HOLES ───
+const BLACK_HOLES = [
+  {
+    id: 'void',
+    x: 0.05, y: 0.50,
+    negatives: ['MIEDO','DUDA','LÍMITES','EXCUSAS','RUIDO','COMPARACIÓN','VICTIMISMO','PASADO'],
+    affirmations: [
+      'Soy el arquitecto de mi realidad',
+      'Mi visión no tiene límites',
+      'Construyo desde el poder, no desde el miedo',
+      'El universo conspira a mi favor',
+      'Soy disciplina, visión y acción pura',
+    ],
+    color: '#FF3A1F',
+  },
+  {
+    id: 'nexus',
+    x: 0.95, y: 0.50,
+    negatives: ['POSTERGACIÓN','DISTRACCIÓN','QUEJA','MEDIOCIDAD','PARÁLISIS','CONFORMISMO'],
+    affirmations: [
+      'Lo que creo con mi mente, lo ejecuto con mis manos',
+      'Soy Heyoka — el espejo que rompe lo falso',
+      'Cada idea que nace en mí tiene poder real',
+      'El dinero fluye hacia quienes crean valor real',
+      'Soy la suma de todo lo que he leído, vivido y superado',
+    ],
+    color: '#AAFF00',
+  },
+];
+
+// ─── FLOATING QUOTE PORTALS ───
+const QUOTE_PORTALS = [
+  { text: 'La perfección está en el putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
+  { text: 'Domina la zona de patada.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
+  { text: 'Un vicio no es un hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
+  { text: 'La mina nunca miente.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
+  { text: 'Ideas que nacen como estrellas.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
+  { text: 'Sé impecable con tus palabras.', target: 'lore', color: '#FFD200', rarity: 'common' },
+  { text: 'Todo tiene precio.', target: 'flow', color: '#FFD200', rarity: 'common' },
+  { text: 'El sistema nunca duerme.', target: 'agents', color: '#00F0FF', rarity: 'rare' },
+  { text: 'Caos controlado es arte.', target: 'arte', color: '#FF3A1F', rarity: 'common' },
+  { text: 'El mapa no es el territorio.', target: 'systems', color: '#B84DFF', rarity: 'rare' },
+].map((q, i) => ({
+  ...q,
+  id: 'quote_' + i,
+  x: 0.08 + Math.random() * 0.84,
+  y: 0.08 + Math.random() * 0.80,
+  vx: (0.00006 + Math.random() * 0.0001) * (Math.random() > 0.5 ? 1 : -1),
+  vy: (0.00003 + Math.random() * 0.00005) * (Math.random() > 0.5 ? 1 : -1),
+  collected: false,
+  hovered: false,
+  width: 0, // computed at draw time
+}));
+
+// ─── FLYING KEYS ───
+const KEY_COLORS = ['#B84DFF','#FFD200','#FF3A1F','#AAFF00','#00F0FF'];
+const KEYS = Array.from({length: 5}, (_, i) => ({
+  id: 'key_' + i,
+  orbitCX: 0.15 + Math.random() * 0.70,
+  orbitCY: 0.18 + Math.random() * 0.64,
+  orbitRX: 0.05 + Math.random() * 0.08,
+  orbitRY: 0.025 + Math.random() * 0.04,
+  orbitAngle: Math.random() * Math.PI * 2,
+  speed: (0.006 + Math.random() * 0.006) * (Math.random() > 0.5 ? 1 : -1),
+  color: KEY_COLORS[i],
+  size: 11 + Math.random() * 7,
+  collected: false,
+  hovered: false,
+  cx: 0, cy: 0, // screen coords, updated per frame
+}));
+
+// ═══════════ ORBITAL SYSTEM ═══════════
+let _orW = 1, _orH = 1; // updated each frame
+
+// Orbital params for each project (around center sun)
+const ORBITAL_CONFIG = {
+  vicegolfer:  { r: 145, a: Math.PI * 0.22, speed: 0.00016  },
+  rugbyvice:   { r: 145, a: Math.PI * 1.22, speed: 0.00013  },
+  laiglesia:   { r: 272, a: Math.PI * 0.70, speed: 0.000090 },
+  arteworld:   { r: 272, a: Math.PI * 1.10, speed: 0.000075 },
+  projects_pl: { r: 272, a: Math.PI * 1.50, speed: 0.000060 },
+  cryptovice:  { r: 272, a: Math.PI * 1.90, speed: 0.000050 },
+  hk23hub:     { r: 272, a: Math.PI * 0.30, speed: 0.000070 },
+};
+
+// Nexus planets — shared systems at intermediate orbit
+const NEXUS_ORBITERS = [
+  { id: 'protocols', label: 'PROTOCOLS', r: 208, a: Math.PI * 0.52, speed: 0.000110, color: '#FF6600', size: 10, px: 0, py: 0 },
+  { id: 'dna',       label: 'DNA',       r: 208, a: Math.PI * 1.08, speed: 0.000095, color: '#AAFF00', size: 10, px: 0, py: 0 },
+  { id: 'rankings',  label: 'RANKINGS',  r: 208, a: Math.PI * 1.65, speed: 0.000115, color: '#FFD200', size: 9,  px: 0, py: 0 },
+  { id: 'content',   label: 'CONTENT',   r: 208, a: Math.PI * 0.07, speed: 0.000085, color: '#00F0FF', size: 9,  px: 0, py: 0 },
+  { id: 'vault',       label: 'VAULT',       r: 208, a: Math.PI * 2.15, speed: 0.000075, color: '#B84DFF', size: 9,  px: 0, py: 0 },
+  { id: 'marketplace', label: 'MARKETPLACE', r: 208, a: Math.PI * 1.38, speed: 0.000068, color: '#FFD200', size: 10, px: 0, py: 0 },
+];
+
+// Moons per project — orbit parent planet, some connect to nexus
+const ORBITAL_MOONS = {
+  vicegolfer: [
+    { label: 'PUTTING\nPROT.', mr: 52, ma: 0.80, ms: 0.0022, sz: 6, col: '#AAFF00', nexus: 'protocols', px:0, py:0 },
+    { label: 'GOLF DNA',       mr: 66, ma: 2.50, ms: 0.0015, sz: 7, col: '#AAFF00', nexus: 'dna',       px:0, py:0 },
+    { label: 'RANKINGS',       mr: 44, ma: 4.20, ms: 0.0028, sz: 5, col: '#00F0FF', nexus: 'rankings',  px:0, py:0 },
+    { label: 'ANALYTICS',      mr: 58, ma: 1.50, ms: 0.0018, sz: 5, col: '#B84DFF',                     px:0, py:0 },
+    { label: 'CONTENT',        mr: 70, ma: 5.00, ms: 0.0012, sz: 5, col: '#FF3A1F', nexus: 'content',   px:0, py:0 },
+  ],
+  rugbyvice: [
+    { label: 'KICK\nPROT.',    mr: 50, ma: 1.20, ms: 0.0024, sz: 6, col: '#00F0FF', nexus: 'protocols', px:0, py:0 },
+    { label: 'DNA 7',          mr: 63, ma: 3.50, ms: 0.0016, sz: 7, col: '#00F0FF', nexus: 'dna',       px:0, py:0 },
+    { label: 'RANKINGS',       mr: 44, ma: 5.50, ms: 0.0030, sz: 5, col: '#FFD200', nexus: 'rankings',  px:0, py:0 },
+    { label: 'RUGBY CV',       mr: 55, ma: 2.00, ms: 0.0020, sz: 5, col: '#B84DFF',                     px:0, py:0 },
+    { label: 'COMMUNITY',      mr: 68, ma: 0.20, ms: 0.0010, sz: 4, col: '#FFD200',                     px:0, py:0 },
+  ],
+  laiglesia: [
+    { label: 'CONCESIÓN',      mr: 46, ma: 0.50, ms: 0.0024, sz: 5, col: '#FFD200', px:0, py:0 },
+    { label: 'DRILL',          mr: 56, ma: 2.80, ms: 0.0017, sz: 5, col: '#FFD200', px:0, py:0 },
+    { label: 'INVERSIÓN',      mr: 40, ma: 4.80, ms: 0.0026, sz: 4, col: '#FF3A1F', px:0, py:0 },
+  ],
+  arteworld: [
+    { label: 'JC ART',         mr: 48, ma: 1.20, ms: 0.0020, sz: 6, col: '#FF3A1F', px:0, py:0 },
+    { label: 'FALLOWOOD',      mr: 60, ma: 3.00, ms: 0.0015, sz: 6, col: '#FFD200', px:0, py:0 },
+    { label: 'MIDJOURNEY',     mr: 40, ma: 5.00, ms: 0.0025, sz: 4, col: '#B84DFF', px:0, py:0 },
+  ],
+  projects_pl: [
+    { label: 'FALLOWOOD',      mr: 52, ma: 0.30, ms: 0.0022, sz: 6, col: '#FFD200', px:0, py:0 },
+    { label: 'JC ART',         mr: 44, ma: 2.20, ms: 0.0018, sz: 5, col: '#FF3A1F', px:0, py:0 },
+    { label: 'LA PLAYA',       mr: 60, ma: 4.00, ms: 0.0014, sz: 5, col: '#00F0FF', px:0, py:0 },
+    { label: 'VICE OS',        mr: 35, ma: 5.50, ms: 0.0030, sz: 4, col: '#AAFF00', px:0, py:0 },
+  ],
+  cryptovice: [
+    { label: 'PORTFOLIO',      mr: 48, ma: 0.80, ms: 0.0024, sz: 6, col: '#B84DFF', nexus: 'marketplace', px:0, py:0 },
+    { label: 'TRADING',        mr: 60, ma: 2.60, ms: 0.0016, sz: 6, col: '#B84DFF', nexus: 'marketplace', px:0, py:0 },
+    { label: 'ANALYSIS',       mr: 42, ma: 4.40, ms: 0.0028, sz: 4, col: '#00F0FF', px:0, py:0 },
+  ],
+  hk23hub: [
+    { label: 'BLOG',           mr: 46, ma: 1.00, ms: 0.0022, sz: 5, col: '#00F0FF', nexus: 'content',     px:0, py:0 },
+    { label: 'LIBROS',         mr: 58, ma: 3.20, ms: 0.0016, sz: 5, col: '#00F0FF', nexus: 'marketplace', px:0, py:0 },
+    { label: 'DIGITAL',        mr: 40, ma: 5.20, ms: 0.0024, sz: 4, col: '#AAFF00', nexus: 'marketplace', px:0, py:0 },
+  ],
+};
+
+function updateOrbitalPositions() {
+  const W = _orW, H = _orH;
+  const cx = W * 0.50, cy = H * 0.47;
+  const EY = 0.70;
+  PROJECTS.forEach(p => {
+    const cfg = ORBITAL_CONFIG[p.id];
+    if (!cfg) return;
+    cfg.a += cfg.speed;
+    p.x = (cx + Math.cos(cfg.a) * cfg.r) / W;
+    p.y = (cy + Math.sin(cfg.a) * cfg.r * EY) / H;
+  });
+  NEXUS_ORBITERS.forEach(n => {
+    n.a += n.speed;
+    n.px = cx + Math.cos(n.a) * n.r;
+    n.py = cy + Math.sin(n.a) * n.r * EY;
+  });
+  PROJECTS.forEach(p => {
+    const moons = ORBITAL_MOONS[p.id];
+    if (!moons) return;
+    const px = p.x * W, py = p.y * H;
+    moons.forEach(m => {
+      m.ma += m.ms;
+      m.px = px + Math.cos(m.ma) * m.mr;
+      m.py = py + Math.sin(m.ma) * m.mr * 0.65;
+    });
+  });
+}
+
+function drawOrbitalRings(ctx) {
+  const cx = _orW * 0.50, cy = _orH * 0.47, EY = 0.70;
+  const rings = [
+    { r: 145, col: '#AAFF00' },
+    { r: 208, col: '#FF6600' },
+    { r: 272, col: '#B84DFF' },
+  ];
+  rings.forEach(ring => {
+    ctx.save();
+    ctx.setLineDash([2, 14]);
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, ring.r, ring.r * EY, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = ring.col + '12';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.restore();
+  });
+}
+
+function drawDualOrbitArcs(ctx) {
+  PROJECTS.forEach(p => {
+    const moons = ORBITAL_MOONS[p.id];
+    if (!moons) return;
+    moons.forEach(m => {
+      if (!m.nexus) return;
+      const nex = NEXUS_ORBITERS.find(n => n.id === m.nexus);
+      if (!nex) return;
+      const dx = nex.px - m.px, dy = nex.py - m.py;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < 1) return;
+      const perpX = (-dy / dist) * dist * 0.22;
+      const perpY = (dx / dist) * dist * 0.22;
+      const cpX = (m.px + nex.px) * 0.5 + perpX;
+      const cpY = (m.py + nex.py) * 0.5 + perpY;
+      // Dashed arc
+      ctx.save();
+      ctx.setLineDash([3, 7]);
+      ctx.beginPath();
+      ctx.moveTo(m.px, m.py);
+      ctx.quadraticCurveTo(cpX, cpY, nex.px, nex.py);
+      ctx.strokeStyle = m.col + '25';
+      ctx.lineWidth = 0.7;
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.restore();
+      // Animated pulse along arc
+      const t = ((mapT * 0.35 + m.ma * 0.08) % 1 + 1) % 1;
+      const tx = (1-t)*(1-t)*m.px + 2*(1-t)*t*cpX + t*t*nex.px;
+      const ty = (1-t)*(1-t)*m.py + 2*(1-t)*t*cpY + t*t*nex.py;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = m.col + '55';
+      ctx.fill();
+    });
+  });
+}
+
+function drawNexusPlanets(ctx) {
+  NEXUS_ORBITERS.forEach(n => {
+    const pulse = Math.sin(mapT * 1.6 + n.a) * 1.5;
+    const r = n.size + pulse;
+    // Glow
+    const grd = ctx.createRadialGradient(n.px, n.py, 0, n.px, n.py, r * 4.5);
+    grd.addColorStop(0, n.color + '25');
+    grd.addColorStop(1, n.color + '00');
+    ctx.beginPath();
+    ctx.arc(n.px, n.py, r * 4.5, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+    // Ring
+    ctx.beginPath();
+    ctx.arc(n.px, n.py, r + 5, 0, Math.PI * 2);
+    ctx.strokeStyle = n.color + '20';
+    ctx.lineWidth = 0.5;
+    ctx.stroke();
+    // Core
+    ctx.beginPath();
+    ctx.arc(n.px, n.py, r, 0, Math.PI * 2);
+    ctx.fillStyle = n.color + 'AA';
+    ctx.fill();
+    // Label
+    ctx.font = `700 6px 'Space Mono', monospace`;
+    ctx.fillStyle = n.color + 'CC';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.label, n.px, n.py + r + 11);
+  });
+}
+
+function drawMoons(ctx) {
+  PROJECTS.forEach(p => {
+    const moons = ORBITAL_MOONS[p.id];
+    if (!moons) return;
+    moons.forEach(m => {
+      // Soft glow
+      const grd = ctx.createRadialGradient(m.px, m.py, 0, m.px, m.py, m.sz * 3.5);
+      grd.addColorStop(0, m.col + '28');
+      grd.addColorStop(1, m.col + '00');
+      ctx.beginPath();
+      ctx.arc(m.px, m.py, m.sz * 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+      // Body
+      ctx.beginPath();
+      ctx.arc(m.px, m.py, m.sz, 0, Math.PI * 2);
+      ctx.fillStyle = m.col + 'BB';
+      ctx.fill();
+      // Label
+      const lines = m.label.split('\n');
+      ctx.font = `400 5.5px 'Space Mono', monospace`;
+      ctx.fillStyle = m.col + '88';
+      ctx.textAlign = 'center';
+      lines.forEach((line, i) => ctx.fillText(line, m.px, m.py + m.sz + 8 + i * 7));
+    });
+  });
+}
+
+// ─── MALIGNANT ENTITIES ───
+let malignants = [];
+let lastMalignantTime = 0;
+const MALIGNANT_INTERVAL = 0.18; // seconds between spawns (mapT units)
+
+function spawnMalignant() {
+  const types = ['meteor','ufo','star','blob'];
+  // tricky=dodges sideways | curious=orbits cursor | bold=charges then bolts | erratic=random chaos
+  const personalities = ['tricky','curious','bold','erratic'];
+  const type  = types[Math.floor(Math.random() * types.length)];
+  const pers  = personalities[Math.floor(Math.random() * personalities.length)];
+  const baseSpeed = 0.0006 + Math.random() * 0.0018;
+  const edge  = Math.floor(Math.random() * 4);
+  const spread = (Math.random() - 0.5) * Math.PI * 0.72;
+  let x, y, initAngle;
+  if (edge === 0) { x = -0.05; y = 0.05 + Math.random() * 0.9; initAngle = spread; }
+  else if (edge === 1) { x = 1.05; y = 0.05 + Math.random() * 0.9; initAngle = Math.PI + spread; }
+  else if (edge === 2) { x = 0.05 + Math.random() * 0.9; y = -0.05; initAngle = Math.PI * 0.5 + spread; }
+  else { x = 0.05 + Math.random() * 0.9; y = 1.05; initAngle = -Math.PI * 0.5 + spread; }
+  malignants.push({
+    x, y,
+    vx: Math.cos(initAngle) * baseSpeed,
+    vy: Math.sin(initAngle) * baseSpeed,
+    type, personality: pers,
+    hue: Math.random() * 360,
+    hueSpeed: 3 + Math.random() * 9,
+    size: 3 + Math.random() * 5,
+    tail: [],
+    // behavior
+    state: 'enter',        // enter → wander → flee/curious/bold/erratic → grabbed → stunned
+    wanderAngle: initAngle,
+    wanderTimer: 0,
+    wanderTurnIn: 60 + Math.random() * 140,
+    stateTimer: 0,
+    stunnedTimer: 0,
+    baseSpeed,
+    speedPhase: Math.random() * Math.PI * 2,
+    speedAmp: 0.2 + Math.random() * 0.3,
+    pulsePhase: Math.random() * Math.PI * 2,
+    pulseSpeed: 0.8 + Math.random() * 1.4,
+    fleeDist: 0.09 + Math.random() * 0.09,
+    awarenessR: 0.20 + Math.random() * 0.18,
+    // visual state
+    grabbed: false,
+    grabGlow: 0,
+    fleeIntensity: 0,
+    spin: 0,
+  });
+}
+
+// ─── COLLECTIBLES TRACKING ───
+const collectedSet = new Set();
+let collectCount = 0;
+
+function addCollectible(id, rarity) {
+  if (collectedSet.has(id)) return;
+  collectedSet.add(id);
+  collectCount++;
+  const numEl = document.getElementById('collect-num');
+  numEl.textContent = collectCount;
+  numEl.classList.add('new');
+  setTimeout(() => numEl.classList.remove('new'), 1200);
+  const toast = document.getElementById('collect-toast');
+  const suffix = rarity === 'legendary' ? ' ✦ LEGENDARIO' : rarity === 'rare' ? ' ◆ RARO' : '';
+  toast.textContent = '✦ COLECCIONABLE DESBLOQUEADO' + suffix;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2800);
+}
+
+// ═══════════ MAP CANVAS ═══════════
+const mapCanvas = document.getElementById('map-canvas');
+const mapCtx = mapCanvas.getContext('2d');
+const tooltip = document.getElementById('node-tooltip');
+
+let mapAnimId = null;
+let mapT = 0;
+let hoveredNode = null;
+let hoveredProject = null;
+let hoveredBlackHole = null;
+let hoveredCenter = false;
+let hoveredKey = null;
+let hoveredQuote = null;
+
+function startMapCanvas() {
+  if (mapAnimId) cancelAnimationFrame(mapAnimId);
+  mapCanvas.width = window.innerWidth;
+  mapCanvas.height = window.innerHeight;
+  mapT = 0;
+  malignants = [];
+  lastMalignantTime = 0;
+  document.getElementById('collectibles-counter').style.display = 'flex';
+  animateMap();
+}
+
+function animateMap() {
+  mapT += 0.005;
+  mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+  const W = mapCanvas.width, H = mapCanvas.height;
+  _orW = W; _orH = H;
+
+  // ─── Orbital system update + base layers ───
+  updateOrbitalPositions();
+  drawOrbitalRings(mapCtx);
+  drawDualOrbitArcs(mapCtx);
+
+  // Draw connections between zone nodes
+  CONNECTIONS.forEach(([a, b]) => {
+    const na = NODES.find(n => n.id === a);
+    const nb = NODES.find(n => n.id === b);
+    const ax = na.x * W, ay = na.y * H;
+    const bx = nb.x * W, by = nb.y * H;
+    const isHighlit = hoveredNode && (hoveredNode === a || hoveredNode === b);
+    mapCtx.beginPath();
+    mapCtx.moveTo(ax, ay);
+    mapCtx.lineTo(bx, by);
+    mapCtx.strokeStyle = isHighlit ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)';
+    mapCtx.lineWidth = isHighlit ? 0.7 : 0.3;
+    mapCtx.stroke();
+    if (isHighlit) {
+      const t = (Math.sin(mapT * 3) + 1) / 2;
+      const px = ax + (bx - ax) * t;
+      const py = ay + (by - ay) * t;
+      mapCtx.beginPath();
+      mapCtx.arc(px, py, 2, 0, Math.PI * 2);
+      mapCtx.fillStyle = 'rgba(255,255,255,0.5)';
+      mapCtx.fill();
+    }
+  });
+
+  // Draw zone nodes
+  NODES.forEach(n => {
+    const x = n.x * W, y = n.y * H;
+    const isHovered = hoveredNode === n.id;
+    const pulse = Math.sin(mapT * 1.5 + n.x * 10) * 2;
+    const r = n.size + (isHovered ? 4 : pulse * 0.3);
+
+    const grd = mapCtx.createRadialGradient(x, y, 0, x, y, r * 3);
+    grd.addColorStop(0, n.color + '30');
+    grd.addColorStop(1, n.color + '00');
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r * 3, 0, Math.PI * 2);
+    mapCtx.fillStyle = grd;
+    mapCtx.fill();
+
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r + 4, 0, Math.PI * 2);
+    mapCtx.strokeStyle = n.color + (isHovered ? '70' : '18');
+    mapCtx.lineWidth = 0.5;
+    mapCtx.stroke();
+
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r, 0, Math.PI * 2);
+    mapCtx.fillStyle = isHovered ? n.color : n.color + 'BB';
+    mapCtx.fill();
+
+    mapCtx.font = `700 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
+    mapCtx.fillStyle = isHovered ? '#fff' : 'rgba(255,255,255,0.6)';
+    mapCtx.textAlign = 'center';
+    mapCtx.fillText(n.label, x, y + r + 16);
+
+    mapCtx.font = `400 8px 'Space Mono', monospace`;
+    mapCtx.fillStyle = isHovered ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)';
+    mapCtx.fillText(n.sub, x, y + r + 27);
+  });
+
+  // ─── Draw nexus planets ───
+  drawNexusPlanets(mapCtx);
+
+  // ─── Draw project orbs (large floating planets) ───
+  PROJECTS.forEach(p => {
+    const x = p.x * W, y = p.y * H;
+    const isHovered = hoveredProject === p.id;
+    const pulse = Math.sin(mapT * 0.9 + p.x * 7) * 3;
+    const r = p.size + (isHovered ? 7 : pulse * 0.4);
+
+    // Far glow
+    const farGrd = mapCtx.createRadialGradient(x, y, 0, x, y, r * 7);
+    farGrd.addColorStop(0, p.color + '18');
+    farGrd.addColorStop(0.4, p.color + '08');
+    farGrd.addColorStop(1, p.color + '00');
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r * 7, 0, Math.PI * 2);
+    mapCtx.fillStyle = farGrd;
+    mapCtx.fill();
+
+    // Orbit ring 2 (outer)
+    const orb2 = r + 18 + Math.sin(mapT * 1.3) * 2;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, orb2, 0, Math.PI * 2);
+    mapCtx.strokeStyle = p.color + (isHovered ? '20' : '0A');
+    mapCtx.lineWidth = 0.5;
+    mapCtx.stroke();
+
+    // Orbit ring 1
+    const orb1 = r + 9 + Math.sin(mapT * 2) * 1.5;
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, orb1, 0, Math.PI * 2);
+    mapCtx.strokeStyle = p.color + (isHovered ? '50' : '20');
+    mapCtx.lineWidth = isHovered ? 0.8 : 0.4;
+    mapCtx.stroke();
+
+    // Small orbiting dot
+    const dotAngle = mapT * 1.2 + p.x * 4;
+    const dotX = x + Math.cos(dotAngle) * orb1;
+    const dotY = y + Math.sin(dotAngle) * orb1 * 0.4;
+    mapCtx.beginPath();
+    mapCtx.arc(dotX, dotY, 2, 0, Math.PI * 2);
+    mapCtx.fillStyle = p.color + '80';
+    mapCtx.fill();
+
+    // Core glow
+    const coreGrd = mapCtx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
+    coreGrd.addColorStop(0, p.color + 'FF');
+    coreGrd.addColorStop(0.5, p.color + 'CC');
+    coreGrd.addColorStop(1, p.color + '55');
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r, 0, Math.PI * 2);
+    mapCtx.fillStyle = coreGrd;
+    mapCtx.fill();
+
+    // Surface ring
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, r, 0, Math.PI * 2);
+    mapCtx.strokeStyle = 'rgba(0,0,0,0.3)';
+    mapCtx.lineWidth = 1;
+    mapCtx.stroke();
+
+    // Label inside
+    mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
+    mapCtx.fillStyle = 'rgba(0,0,0,0.85)';
+    mapCtx.textAlign = 'center';
+    mapCtx.fillText(p.label, x, y + 3);
+
+    // Sub label below orb
+    mapCtx.font = `400 8px 'Space Mono', monospace`;
+    mapCtx.fillStyle = isHovered ? p.color : p.color + '70';
+    mapCtx.fillText(p.sub, x, y + r + 16);
+
+    if (isHovered) {
+      mapCtx.font = `700 8px 'Space Mono', monospace`;
+      mapCtx.fillStyle = p.color;
+      mapCtx.fillText('▶ ENTER UNIVERSE', x, y + r + 28);
+    }
+  });
+
+  // ─── Draw moons orbiting each planet ───
+  drawMoons(mapCtx);
+
+  // ─── CENTER: HK23 ecosystem node ───
+  const cx = W * 0.50, cy = H * 0.47;
+  const cr = 22 + Math.sin(mapT * 0.7) * 2;
+  const isCenter = hoveredCenter;
+
+  // Center glow
+  const centerFar = mapCtx.createRadialGradient(cx, cy, 0, cx, cy, cr * 5);
+  centerFar.addColorStop(0, 'rgba(240,237,232,0.06)');
+  centerFar.addColorStop(1, 'rgba(240,237,232,0)');
+  mapCtx.beginPath();
+  mapCtx.arc(cx, cy, cr * 5, 0, Math.PI * 2);
+  mapCtx.fillStyle = centerFar;
+  mapCtx.fill();
+
+  mapCtx.beginPath();
+  mapCtx.arc(cx, cy, cr + 10, 0, Math.PI * 2);
+  mapCtx.strokeStyle = isCenter ? 'rgba(240,237,232,0.12)' : 'rgba(255,255,255,0.04)';
+  mapCtx.lineWidth = 1;
+  mapCtx.stroke();
+
+  mapCtx.beginPath();
+  mapCtx.arc(cx, cy, cr + 4, 0, Math.PI * 2);
+  mapCtx.strokeStyle = isCenter ? 'rgba(240,237,232,0.25)' : 'rgba(255,255,255,0.07)';
+  mapCtx.lineWidth = 0.8;
+  mapCtx.stroke();
+
+  mapCtx.beginPath();
+  mapCtx.arc(cx, cy, cr, 0, Math.PI * 2);
+  mapCtx.fillStyle = '#0C0C0C';
+  mapCtx.fill();
+  mapCtx.strokeStyle = isCenter ? 'rgba(240,237,232,0.4)' : 'rgba(255,255,255,0.12)';
+  mapCtx.lineWidth = 1;
+  mapCtx.stroke();
+
+  mapCtx.font = `700 ${isCenter ? 12 : 11}px 'Space Grotesk', system-ui`;
+  mapCtx.fillStyle = isCenter ? '#F0EDE8' : 'rgba(240,237,232,0.55)';
+  mapCtx.textAlign = 'center';
+  mapCtx.fillText('HK23', cx, cy + 4);
+
+  if (isCenter) {
+    mapCtx.font = `400 7px 'Space Mono', monospace`;
+    mapCtx.fillStyle = 'rgba(240,237,232,0.3)';
+    mapCtx.fillText('ECOSYSTEM', cx, cy + cr + 16);
+  }
+
+  // Center → zone node lines
+  NODES.forEach(n => {
+    mapCtx.beginPath();
+    mapCtx.moveTo(cx, cy);
+    mapCtx.lineTo(n.x * W, n.y * H);
+    mapCtx.strokeStyle = 'rgba(255,255,255,0.02)';
+    mapCtx.lineWidth = 0.3;
+    mapCtx.stroke();
+  });
+
+  // ─── Draw black holes ───
+  BLACK_HOLES.forEach(bh => {
+    drawBlackHole(bh, W, H);
+  });
+
+  // ─── Draw flying KEYS ───
+  KEYS.forEach(k => {
+    if (k.collected) return;
+    k.orbitAngle += k.speed;
+    k.cx = (k.orbitCX + Math.cos(k.orbitAngle) * k.orbitRX) * W;
+    k.cy = (k.orbitCY + Math.sin(k.orbitAngle) * k.orbitRY) * H;
+    drawKey(k.cx, k.cy, k.size, k.orbitAngle * 0.4, k.color, k.hovered);
+  });
+
+  // ─── Draw QUOTE PORTALS ───
+  QUOTE_PORTALS.forEach(q => {
+    if (q.collected) return;
+    q.x += q.vx; q.y += q.vy;
+    if (q.x < 0.02 || q.x > 0.96) q.vx *= -1;
+    if (q.y < 0.04 || q.y > 0.93) q.vy *= -1;
+    const px = q.x * W, py = q.y * H;
+    const isHov = q.hovered;
+    const sz = isHov ? '500 10px' : '400 9px';
+    mapCtx.font = `${sz} 'Space Mono', monospace`;
+    const alpha = isHov ? 0.85 : (q.rarity === 'legendary' ? 0.45 : q.rarity === 'rare' ? 0.32 : 0.22);
+    mapCtx.fillStyle = q.color + Math.round(alpha * 255).toString(16).padStart(2,'0');
+    mapCtx.textAlign = 'left';
+    const prefix = q.rarity === 'legendary' ? '✦ ' : q.rarity === 'rare' ? '◆ ' : '❝ ';
+    mapCtx.fillText(prefix + q.text, px, py);
+    q.width = mapCtx.measureText(prefix + q.text).width;
+    if (isHov) {
+      mapCtx.font = `400 7px 'Space Mono', monospace`;
+      mapCtx.fillStyle = q.color + '66';
+      mapCtx.fillText('→ ' + (q.target === 'lore' || q.target === 'flow' || q.target === 'arte' || q.target === 'agents' || q.target === 'systems' ? 'ZONA' : 'UNIVERSO'), px, py + 13);
+    }
+  });
+
+  // ─── MALIGNANT ENTITIES ───
+  if (mapT - lastMalignantTime > MALIGNANT_INTERVAL) {
+    spawnMalignant();
+    lastMalignantTime = mapT;
+  }
+  // Remove only off-screen 'enter' or 'stunned' entities; wanderers bounce
+  malignants = malignants.filter(m =>
+    m.state === 'wander' || m.state === 'flee' || m.state === 'curious' ||
+    m.state === 'bold' || m.state === 'grabbed' ||
+    (m.x > -0.15 && m.x < 1.15 && m.y > -0.15 && m.y < 1.15)
+  );
+
+  malignants.forEach(m => {
+    if (m.grabbed) {
+      // ── GRABBED: follow cursor, spin, electric glow ──
+      m.x = mapMouseX; m.y = mapMouseY;
+      m.grabGlow = Math.min(1, m.grabGlow + 0.12);
+      m.spin += 0.18;
+      m.hue = (m.hue + 1.2) % 360;
+      m.tail.push({ x: m.x * W, y: m.y * H });
+      if (m.tail.length > 8) m.tail.shift();
+      drawMalignant(m, W, H);
+      return;
+    }
+
+    const mdx = mapMouseX - m.x, mdy = mapMouseY - m.y;
+    const cursorDist = mapMouseX > 0 ? Math.sqrt(mdx*mdx + mdy*mdy) : 99;
+
+    if (m.state === 'stunned') {
+      // ── STUNNED: tumble outward after throw ──
+      m.stunnedTimer--;
+      if (m.stunnedTimer <= 0) { m.state = 'wander'; m.wanderAngle = Math.atan2(m.vy, m.vx); }
+      m.spin += 0.25;
+      m.grabGlow = Math.max(0, m.grabGlow - 0.04);
+      m.fleeIntensity = Math.max(0, m.fleeIntensity - 0.03);
+
+    } else if (m.state === 'enter') {
+      // ── ENTER: straight in from edge, switch to wander once inside ──
+      m.stateTimer++;
+      if (m.stateTimer > 30 && m.x > 0.03 && m.x < 0.97 && m.y > 0.03 && m.y < 0.97) {
+        m.state = 'wander'; m.wanderAngle = Math.atan2(m.vy, m.vx); m.stateTimer = 0;
+      }
+      const spd = m.baseSpeed * (1 + Math.sin(mapT * 2 + m.speedPhase) * 0.3);
+      m.vx = Math.cos(m.wanderAngle) * spd;
+      m.vy = Math.sin(m.wanderAngle) * spd;
+
+    } else if (cursorDist < m.fleeDist) {
+      // ── FLEE ──
+      m.state = 'flee';
+      m.fleeIntensity = Math.min(1, m.fleeIntensity + 0.18);
+      const awayAngle = Math.atan2(m.y - mapMouseY, m.x - mapMouseX);
+      let target = awayAngle;
+      if (m.personality === 'tricky')   target = awayAngle + Math.sin(mapT * 6) * 1.4;
+      else if (m.personality === 'erratic') target = awayAngle + (Math.random() - 0.5) * Math.PI * 1.8;
+      else if (m.personality === 'bold')    target = awayAngle + (Math.random() > 0.5 ? 1 : -1) * Math.PI * 0.85;
+      m.wanderAngle = lerpAngle(m.wanderAngle, target, 0.22);
+      const spd = m.baseSpeed * (2.8 + m.fleeIntensity * 2.2);
+      m.vx = Math.cos(m.wanderAngle) * spd;
+      m.vy = Math.sin(m.wanderAngle) * spd;
+      m.spin += 0.08 + m.fleeIntensity * 0.12;
+
+    } else if (m.personality === 'curious' && cursorDist < m.awarenessR && cursorDist > m.fleeDist * 1.6) {
+      // ── CURIOUS: orbit slowly, peek at cursor ──
+      m.state = 'curious';
+      m.fleeIntensity = Math.max(0, m.fleeIntensity - 0.04);
+      const orbitA = Math.atan2(m.y - mapMouseY, m.x - mapMouseX) + 0.05;
+      const tgtX = mapMouseX + Math.cos(orbitA) * m.awarenessR * 0.55;
+      const tgtY = mapMouseY + Math.sin(orbitA) * m.awarenessR * 0.55;
+      m.wanderAngle = lerpAngle(m.wanderAngle, Math.atan2(tgtY - m.y, tgtX - m.x), 0.07);
+      const spd = m.baseSpeed * 0.65;
+      m.vx = Math.cos(m.wanderAngle) * spd;
+      m.vy = Math.sin(m.wanderAngle) * spd;
+
+    } else if (m.personality === 'bold' && cursorDist < m.awarenessR) {
+      // ── BOLD: charge toward cursor, then panic-flee at close range ──
+      m.state = 'bold';
+      m.fleeIntensity = Math.max(0, m.fleeIntensity - 0.03);
+      const chargeAngle = Math.atan2(mdy, mdx);
+      m.wanderAngle = lerpAngle(m.wanderAngle, chargeAngle, 0.10);
+      const spd = m.baseSpeed * 1.4;
+      m.vx = Math.cos(m.wanderAngle) * spd;
+      m.vy = Math.sin(m.wanderAngle) * spd;
+
+    } else {
+      // ── WANDER ──
+      if (m.state !== 'wander') { m.state = 'wander'; }
+      m.fleeIntensity = Math.max(0, m.fleeIntensity - 0.025);
+      m.grabGlow    = Math.max(0, m.grabGlow    - 0.04);
+      m.spin *= 0.92;
+      m.wanderTimer++;
+      if (m.wanderTimer >= m.wanderTurnIn) {
+        m.wanderTimer = 0;
+        m.wanderTurnIn = 50 + Math.random() * 160;
+        if (m.personality === 'erratic')     m.wanderAngle += (Math.random() - 0.5) * Math.PI * 2.2;
+        else if (m.personality === 'tricky') m.wanderAngle += (Math.random() > 0.5 ? 1 : -1) * (0.4 + Math.random() * 1.3);
+        else                                 m.wanderAngle += (Math.random() - 0.5) * Math.PI * 0.9;
+      }
+      // gentle drift
+      m.wanderAngle += (Math.random() - 0.5) * 0.018;
+      const pulse = 1 + Math.sin(mapT * 1.8 + m.speedPhase) * m.speedAmp * 0.45;
+      const spd = m.baseSpeed * pulse;
+      m.vx = Math.cos(m.wanderAngle) * spd;
+      m.vy = Math.sin(m.wanderAngle) * spd;
+    }
+
+    // ── EDGE BOUNCE (wanders, flee, curious, bold) ──
+    if (m.state !== 'enter' && !m.grabbed) {
+      if (m.x < 0.025) { m.x = 0.025; m.vx = Math.abs(m.vx); m.wanderAngle = Math.atan2(m.vy, m.vx); }
+      if (m.x > 0.975) { m.x = 0.975; m.vx = -Math.abs(m.vx); m.wanderAngle = Math.atan2(m.vy, m.vx); }
+      if (m.y < 0.030) { m.y = 0.030; m.vy = Math.abs(m.vy); m.wanderAngle = Math.atan2(m.vy, m.vx); }
+      if (m.y > 0.960) { m.y = 0.960; m.vy = -Math.abs(m.vy); m.wanderAngle = Math.atan2(m.vy, m.vx); }
+    }
+
+    m.x += m.vx; m.y += m.vy;
+    m.hue = (m.hue + m.hueSpeed * 0.02) % 360;
+    drawMalignant(m, W, H);
+  });
+
+  mapAnimId = requestAnimationFrame(animateMap);
+}
+
+function drawBlackHole(bh, W, H) {
+  const x = bh.x * W, y = bh.y * H;
+  const isHovered = hoveredBlackHole === bh.id;
+
+  // Gravitational field
+  for (let ring = 5; ring > 0; ring--) {
+    const fr = 30 + ring * 22;
+    const grd = mapCtx.createRadialGradient(x, y, fr * 0.4, x, y, fr);
+    const baseAlpha = (0.01 + ring * 0.005) * (isHovered ? 2.5 : 1);
+    grd.addColorStop(0, `rgba(80,10,0,${baseAlpha * 1.5})`);
+    grd.addColorStop(1, 'rgba(0,0,0,0)');
+    mapCtx.beginPath();
+    mapCtx.arc(x, y, fr, 0, Math.PI * 2);
+    mapCtx.fillStyle = grd;
+    mapCtx.fill();
+  }
+
+  // Accretion disk (rotating ellipses)
+  const diskAlpha = isHovered ? 0.55 : 0.22;
+  [
+    { r: 30, tilt: 0.25, speed: 0.7,  color: `rgba(255,80,0,${diskAlpha})`,  lw: 1.2 },
+    { r: 22, tilt: 0.22, speed: -0.5, color: `rgba(255,140,0,${diskAlpha * 0.7})`, lw: 0.8 },
+    { r: 16, tilt: 0.18, speed: 1.1,  color: `rgba(255,200,50,${diskAlpha * 0.4})`, lw: 0.5 },
+  ].forEach(d => {
+    mapCtx.save();
+    mapCtx.translate(x, y);
+    mapCtx.rotate(mapT * d.speed);
+    mapCtx.beginPath();
+    mapCtx.ellipse(0, 0, d.r, d.r * d.tilt, 0, 0, Math.PI * 2);
+    mapCtx.strokeStyle = d.color;
+    mapCtx.lineWidth = d.lw;
+    mapCtx.stroke();
+    mapCtx.restore();
+  });
+
+  // Event horizon
+  const ehGrd = mapCtx.createRadialGradient(x, y, 0, x, y, 16);
+  ehGrd.addColorStop(0, 'rgba(0,0,0,1)');
+  ehGrd.addColorStop(0.75, 'rgba(2,0,0,0.97)');
+  ehGrd.addColorStop(1, 'rgba(0,0,0,0)');
+  mapCtx.beginPath();
+  mapCtx.arc(x, y, 16, 0, Math.PI * 2);
+  mapCtx.fillStyle = ehGrd;
+  mapCtx.fill();
+
+  // Event horizon ring
+  mapCtx.beginPath();
+  mapCtx.arc(x, y, 14, 0, Math.PI * 2);
+  mapCtx.strokeStyle = isHovered ? `rgba(255,80,0,0.7)` : `rgba(255,40,0,0.25)`;
+  mapCtx.lineWidth = 0.8;
+  mapCtx.stroke();
+
+  // Label
+  mapCtx.font = `700 7px 'Space Mono', monospace`;
+  mapCtx.textAlign = 'center';
+  mapCtx.fillStyle = isHovered ? 'rgba(255,80,0,0.7)' : 'rgba(255,40,0,0.2)';
+  mapCtx.fillText(bh.id === 'void' ? '∅ VOID' : '⊕ NEXUS', x, y + 30);
+  if (isHovered) {
+    mapCtx.font = `400 7px 'Space Mono', monospace`;
+    mapCtx.fillStyle = 'rgba(255,80,0,0.45)';
+    mapCtx.fillText('ABSORBE LO NEGATIVO', x, y + 40);
+  }
+}
+
+// ─── DRAW KEY ───
+function drawKey(x, y, size, rotation, color, isHover) {
+  mapCtx.save();
+  mapCtx.translate(x, y);
+  mapCtx.rotate(rotation);
+  const alpha = isHover ? 0.95 : 0.5;
+  const strokeC = color + Math.round(alpha * 255).toString(16).padStart(2,'0');
+  mapCtx.strokeStyle = strokeC;
+  mapCtx.lineWidth = isHover ? 1.4 : 0.9;
+  if (isHover) { mapCtx.shadowColor = color; mapCtx.shadowBlur = 14; }
+
+  // Bow (circle)
+  mapCtx.beginPath();
+  mapCtx.arc(0, -size * 0.45, size * 0.32, 0, Math.PI * 2);
+  mapCtx.stroke();
+  // Inner hole
+  mapCtx.beginPath();
+  mapCtx.arc(0, -size * 0.45, size * 0.13, 0, Math.PI * 2);
+  mapCtx.stroke();
+  // Shaft
+  mapCtx.beginPath();
+  mapCtx.moveTo(0, -size * 0.13);
+  mapCtx.lineTo(0, size * 0.60);
+  mapCtx.stroke();
+  // Teeth
+  mapCtx.beginPath();
+  mapCtx.moveTo(0, size * 0.18);
+  mapCtx.lineTo(size * 0.22, size * 0.32);
+  mapCtx.stroke();
+  mapCtx.beginPath();
+  mapCtx.moveTo(0, size * 0.42);
+  mapCtx.lineTo(size * 0.22, size * 0.52);
+  mapCtx.stroke();
+
+  mapCtx.shadowBlur = 0;
+  mapCtx.restore();
+}
+
+// ─── HSL TO RGB STRING ───
+function hslStr(h) {
+  const s = 100, l = 60;
+  const sl = s / 100, ll = l / 100;
+  const k = n => (n + h / 30) % 12;
+  const a = sl * Math.min(ll, 1 - ll);
+  const f = n => Math.round((ll - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)))) * 255);
+  return `${f(0)},${f(8)},${f(4)}`;
+}
+
+function lerpAngle(a, b, t) {
+  const diff = ((b - a + Math.PI * 3) % (Math.PI * 2)) - Math.PI;
+  return a + diff * t;
+}
+
+// ─── GRAB STATE ───
+let mapMouseX = -1, mapMouseY = -1;
+let mapMouseVX = 0, mapMouseVY = 0;
+let grabbedMalignant = null;
+
+// ─── DRAW MALIGNANT ENTITY — minimal pulsating diamond ───
+function drawMalignant(m, W, H) {
+  const px = m.x * W, py = m.y * H;
+  const rgb = hslStr(m.hue);
+  const pulse = 0.5 + 0.5 * Math.sin(mapT * m.pulseSpeed + m.pulsePhase);
+  const sz = m.size * (0.75 + pulse * 0.5);
+
+  // Grab glow — only visual feedback kept
+  if (m.grabGlow > 0) {
+    const g = mapCtx.createRadialGradient(px, py, 0, px, py, sz * 5);
+    g.addColorStop(0, `rgba(255,255,200,${0.4 * m.grabGlow})`);
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    mapCtx.beginPath(); mapCtx.arc(px, py, sz * 5, 0, Math.PI * 2);
+    mapCtx.fillStyle = g; mapCtx.fill();
+  }
+
+  // Soft outer glow
+  const grd = mapCtx.createRadialGradient(px, py, 0, px, py, sz * 3.5);
+  grd.addColorStop(0, `rgba(${rgb},${0.12 + pulse * 0.08})`);
+  grd.addColorStop(1, 'rgba(0,0,0,0)');
+  mapCtx.beginPath(); mapCtx.arc(px, py, sz * 3.5, 0, Math.PI * 2);
+  mapCtx.fillStyle = grd; mapCtx.fill();
+
+  mapCtx.save();
+  mapCtx.translate(px, py);
+  mapCtx.rotate(Math.PI / 4 + m.spin);
+
+  // Outer diamond
+  mapCtx.beginPath();
+  mapCtx.moveTo(0, -sz); mapCtx.lineTo(sz * 0.58, 0);
+  mapCtx.lineTo(0,  sz); mapCtx.lineTo(-sz * 0.58, 0);
+  mapCtx.closePath();
+  mapCtx.fillStyle = `rgba(${rgb},${0.6 + pulse * 0.35})`;
+  mapCtx.fill();
+
+  // Inner highlight diamond
+  const is = sz * 0.38;
+  mapCtx.beginPath();
+  mapCtx.moveTo(0, -is); mapCtx.lineTo(is * 0.58, 0);
+  mapCtx.lineTo(0,  is); mapCtx.lineTo(-is * 0.58, 0);
+  mapCtx.closePath();
+  mapCtx.fillStyle = `rgba(255,255,255,${0.18 + pulse * 0.28})`;
+  mapCtx.fill();
+
+  mapCtx.restore();
+}
+
+// ═══════════ MAP INTERACTIONS ═══════════
+mapCanvas.addEventListener('mousemove', e => {
+  const W = mapCanvas.width, H = mapCanvas.height;
+  const nx = e.clientX / W, ny = e.clientY / H;
+  mapMouseVX = nx - mapMouseX; mapMouseVY = ny - mapMouseY;
+  mapMouseX = nx; mapMouseY = ny;
+  if (grabbedMalignant) { grabbedMalignant.x = nx; grabbedMalignant.y = ny; }
+
+  let foundNode = null, foundProj = null, foundBH = null;
+  let foundCenter = false, foundKey = null, foundQuote = null;
+
+  // Check center
+  const cx = W * 0.50, cy = H * 0.47;
+  if (Math.sqrt(Math.pow(e.clientX - cx, 2) + Math.pow(e.clientY - cy, 2)) < 30) foundCenter = true;
+
+  NODES.forEach(n => {
+    const dx = e.clientX - n.x * W, dy = e.clientY - n.y * H;
+    if (Math.sqrt(dx*dx + dy*dy) < n.size + 12) foundNode = n.id;
+  });
+  PROJECTS.forEach(p => {
+    const dx = e.clientX - p.x * W, dy = e.clientY - p.y * H;
+    if (Math.sqrt(dx*dx + dy*dy) < p.size + 14) foundProj = p.id;
+  });
+  BLACK_HOLES.forEach(bh => {
+    const dx = e.clientX - bh.x * W, dy = e.clientY - bh.y * H;
+    if (Math.sqrt(dx*dx + dy*dy) < 32) foundBH = bh.id;
+  });
+  // Keys (use screen coords stored per frame)
+  KEYS.forEach(k => {
+    if (k.collected) return;
+    const dx = e.clientX - k.cx, dy = e.clientY - k.cy;
+    const hit = Math.sqrt(dx*dx + dy*dy) < k.size + 14;
+    k.hovered = hit;
+    if (hit) foundKey = k.id;
+  });
+  // Quote portals
+  QUOTE_PORTALS.forEach(q => {
+    if (q.collected) return;
+    const px = q.x * W, py = q.y * H;
+    const hit = e.clientX >= px && e.clientX <= px + q.width && e.clientY >= py - 12 && e.clientY <= py + 4;
+    q.hovered = hit;
+    if (hit) foundQuote = q.id;
+  });
+
+  hoveredNode = foundNode;
+  hoveredProject = foundProj;
+  hoveredBlackHole = foundBH;
+  hoveredCenter = foundCenter && !foundNode && !foundProj && !foundBH && !foundKey && !foundQuote;
+  hoveredKey = foundKey;
+  hoveredQuote = foundQuote;
+
+  const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote;
+  mapCanvas.style.cursor = anyHovered ? 'pointer' : 'crosshair';
+
+  if (foundProj) {
+    const proj = PROJECTS.find(p => p.id === foundProj);
+    tooltip.style.display = 'block';
+    tooltip.textContent = '▶ FRACTAL UNIVERSE';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = proj.color;
+    tooltip.style.borderColor = proj.color + '40';
+  } else if (foundBH) {
+    tooltip.style.display = 'block';
+    tooltip.textContent = '∅ TRANSMUTA LO NEGATIVO';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = '#FF5500';
+    tooltip.style.borderColor = 'rgba(255,85,0,0.3)';
+  } else if (foundKey) {
+    const k = KEYS.find(k => k.id === foundKey);
+    tooltip.style.display = 'block';
+    tooltip.textContent = '⚿ PORTAL KEY — CLICK';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = k.color;
+    tooltip.style.borderColor = k.color + '40';
+  } else if (foundQuote) {
+    const q = QUOTE_PORTALS.find(q => q.id === foundQuote);
+    tooltip.style.display = 'block';
+    tooltip.textContent = '→ ' + q.target.toUpperCase();
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = q.color;
+    tooltip.style.borderColor = q.color + '40';
+  } else if (foundNode) {
+    const node = NODES.find(n => n.id === foundNode);
+    tooltip.style.display = 'block';
+    tooltip.textContent = node.sub;
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = node.color;
+    tooltip.style.borderColor = node.color + '40';
+  } else if (hoveredCenter) {
+    tooltip.style.display = 'block';
+    tooltip.textContent = 'ECOSYSTEM';
+    tooltip.style.left = (e.clientX + 16) + 'px';
+    tooltip.style.top = (e.clientY - 20) + 'px';
+    tooltip.style.color = '#F0EDE8';
+    tooltip.style.borderColor = 'rgba(240,237,232,0.2)';
+  } else {
+    tooltip.style.display = 'none';
+  }
+});
+
+// ─── GRAB / THROW MALIGNANT ───
+mapCanvas.addEventListener('mousedown', e => {
+  const W = mapCanvas.width, H = mapCanvas.height;
+  const nx = e.clientX / W, ny = e.clientY / H;
+  let closest = null, closestD = Infinity;
+  malignants.forEach(m => {
+    const d = Math.sqrt(Math.pow(nx - m.x, 2) + Math.pow(ny - m.y, 2));
+    const grabR = (m.size * 3.5) / W;
+    if (d < grabR && d < closestD) { closest = m; closestD = d; }
+  });
+  if (closest) {
+    grabbedMalignant = closest;
+    closest.grabbed = true;
+    closest.state = 'grabbed';
+    closest.tail = [];
+    mapMouseVX = 0; mapMouseVY = 0;
+    e.stopPropagation();
+  }
+});
+
+mapCanvas.addEventListener('mouseup', e => {
+  if (grabbedMalignant) {
+    const throwPower = 9;
+    grabbedMalignant.vx = mapMouseVX * throwPower;
+    grabbedMalignant.vy = mapMouseVY * throwPower;
+    grabbedMalignant.wanderAngle = Math.atan2(mapMouseVY, mapMouseVX);
+    grabbedMalignant.state = 'stunned';
+    grabbedMalignant.stunnedTimer = 55;
+    grabbedMalignant.grabbed = false;
+    // catching a malignant earns a rare collectible
+    const cid = 'catch_' + grabbedMalignant.type + '_' + grabbedMalignant.personality;
+    addCollectible(cid, grabbedMalignant.personality === 'erratic' ? 'legendary' : 'rare');
+    grabbedMalignant = null;
+    mapMouseVX = 0; mapMouseVY = 0;
+  }
+});
+
+// Touch support
+mapCanvas.addEventListener('touchstart', e => {
+  const t = e.touches[0];
+  const W = mapCanvas.width, H = mapCanvas.height;
+  const nx = t.clientX / W, ny = t.clientY / H;
+  mapMouseX = nx; mapMouseY = ny;
+  let closest = null, closestD = Infinity;
+  malignants.forEach(m => {
+    const d = Math.sqrt(Math.pow(nx - m.x, 2) + Math.pow(ny - m.y, 2));
+    const grabR = (m.size * 5) / W;
+    if (d < grabR && d < closestD) { closest = m; closestD = d; }
+  });
+  if (closest) {
+    grabbedMalignant = closest;
+    closest.grabbed = true; closest.state = 'grabbed'; closest.tail = [];
+    e.preventDefault();
+  }
+}, { passive: false });
+
+mapCanvas.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  const W = mapCanvas.width, H = mapCanvas.height;
+  const nx = t.clientX / W, ny = t.clientY / H;
+  mapMouseVX = nx - mapMouseX; mapMouseVY = ny - mapMouseY;
+  mapMouseX = nx; mapMouseY = ny;
+  if (grabbedMalignant) { grabbedMalignant.x = nx; grabbedMalignant.y = ny; }
+  e.preventDefault();
+}, { passive: false });
+
+mapCanvas.addEventListener('touchend', e => {
+  if (grabbedMalignant) {
+    grabbedMalignant.vx = mapMouseVX * 9; grabbedMalignant.vy = mapMouseVY * 9;
+    grabbedMalignant.wanderAngle = Math.atan2(mapMouseVY, mapMouseVX);
+    grabbedMalignant.state = 'stunned'; grabbedMalignant.stunnedTimer = 55;
+    grabbedMalignant.grabbed = false;
+    const cid = 'catch_' + grabbedMalignant.type + '_' + grabbedMalignant.personality;
+    addCollectible(cid, grabbedMalignant.personality === 'erratic' ? 'legendary' : 'rare');
+    grabbedMalignant = null;
+  }
+});
+
+mapCanvas.addEventListener('click', e => {
+  if (hoveredProject) {
+    const proj = PROJECTS.find(p => p.id === hoveredProject);
+    openFractalUniverse(proj);
+  } else if (hoveredBlackHole) {
+    const bh = BLACK_HOLES.find(b => b.id === hoveredBlackHole);
+    showAffirmation(bh, true);
+  } else if (hoveredKey) {
+    const k = KEYS.find(k => k.id === hoveredKey);
+    // Key acts as a portal-black-hole: pick random bh affirmation, mark collected
+    const randomBH = BLACK_HOLES[Math.floor(Math.random() * BLACK_HOLES.length)];
+    showAffirmation(randomBH, false, k.id);
+  } else if (hoveredQuote) {
+    const q = QUOTE_PORTALS.find(q => q.id === hoveredQuote);
+    addCollectible(q.id, q.rarity);
+    // Navigate to the target
+    const projTargets = ['vicegolfer','rugbyvice','laiglesia','arteworld','projects_pl','cryptovice','hk23hub'];
+    if (projTargets.includes(q.target)) {
+      const proj = PROJECTS.find(p => p.id === q.target);
+      if (proj) openFractalUniverse(proj);
+    } else {
+      goTo(q.target);
+    }
+  } else if (hoveredNode) {
+    goTo(hoveredNode);
+  } else if (hoveredCenter) {
+    goTo('ecosystem');
+  }
+});
+
+// ═══════════ FRACTAL UNIVERSE ═══════════
+let fractalAnimId = null;
+let fractalT = 0;
+
+function openFractalUniverse(project) {
+  const overlay = document.getElementById('fractal-overlay');
+  const canvas = document.getElementById('fractal-canvas');
+  const title = document.getElementById('fractal-title');
+  const status = document.getElementById('fractal-status');
+
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  title.textContent = project.universe.title;
+  title.style.color = project.color;
+  status.textContent = project.sub.toUpperCase();
+
+  overlay.style.display = 'block';
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
+  document.getElementById('fractal-back').onclick = closeFractalUniverse;
+  startFractalAnimation(project);
+}
+
+function closeFractalUniverse() {
+  const overlay = document.getElementById('fractal-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    if (fractalAnimId) { cancelAnimationFrame(fractalAnimId); fractalAnimId = null; }
+  }, 700);
+}
+
+let fractalHoveredNode = -1;
+let fractalMouseX = 0.5, fractalMouseY = 0.5; // normalized, for parallax
+
+function startFractalAnimation(project) {
+  if (fractalAnimId) cancelAnimationFrame(fractalAnimId);
+  fractalT = 0;
+  fractalHoveredNode = -1;
+
+  const canvas = document.getElementById('fractal-canvas');
+  const ctx = canvas.getContext('2d');
+  const uni = project.universe;
+  const color = project.color;
+  const nodePositions = [];
+
+  // ── 3D node positions: distribute around a sphere ──
+  const node3D = uni.nodes.map((n, i) => {
+    const phi   = (i / uni.nodes.length) * Math.PI * 2;
+    const theta = Math.PI * 0.35 + (i % 2 === 0 ? 0.3 : -0.3);
+    const radius = 0.30 + (i % 3) * 0.06;
+    return {
+      x0: Math.sin(theta) * Math.cos(phi) * radius,
+      y0: Math.cos(theta)                 * radius * 0.55,
+      z0: Math.sin(theta) * Math.sin(phi) * radius,
+    };
+  });
+
+  // 3D star field with depth
+  const stars3D = Array.from({length: 320}, () => {
+    const theta = Math.random() * Math.PI * 2;
+    const phi   = Math.acos(2 * Math.random() - 1);
+    const r = 0.55 + Math.random() * 0.45;
+    return {
+      x: Math.sin(phi) * Math.cos(theta) * r,
+      y: Math.cos(phi)                   * r,
+      z: Math.sin(phi) * Math.sin(theta) * r,
+      sz: 0.4 + Math.random() * 1.4,
+      a:  0.08 + Math.random() * 0.55,
+    };
+  });
+
+  // Floating nebula wisps
+  const wisps = Array.from({length: 6}, () => ({
+    x: (Math.random() - 0.5) * 0.8, y: (Math.random() - 0.5) * 0.5, z: (Math.random() - 0.5) * 0.6,
+    r: 0.10 + Math.random() * 0.14,
+    phase: Math.random() * Math.PI * 2,
+  }));
+
+  // Camera rotation state
+  let rotY = 0, rotX = 0;
+  let targetRotX = 0, targetRotY = 0;
+
+  // ── Perspective projection ──
+  function project3D(x3, y3, z3, W, H) {
+    // rotate around Y
+    const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+    const rx = x3 * cosY - z3 * sinY;
+    const rz = x3 * sinY + z3 * cosY;
+    // rotate around X
+    const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+    const ry = y3 * cosX - rz * sinX;
+    const fz = y3 * sinX + rz * cosX;
+    // perspective
+    const fov = 1.1;
+    const sc  = fov / (fov + fz + 0.001);
+    return { sx: W/2 + rx * sc * W * 0.46, sy: H/2 + ry * sc * H * 0.46, sc, fz };
+  }
+
+  // ── Event listeners ──
+  function onFractalMove(e) {
+    const rect = canvas.getBoundingClientRect();
+    fractalMouseX = (e.clientX - rect.left) / canvas.width;
+    fractalMouseY = (e.clientY - rect.top)  / canvas.height;
+    targetRotY =  (fractalMouseX - 0.5) * 0.55;
+    targetRotX = -(fractalMouseY - 0.5) * 0.38;
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    let found = -1;
+    nodePositions.forEach((np, i) => {
+      if (Math.hypot(mx - np.x, my - np.y) < np.r + 16) found = i;
+    });
+    fractalHoveredNode = found;
+    canvas.style.cursor = found >= 0 ? 'pointer' : 'default';
+  }
+  function onFractalClick(e) {
+    if (fractalHoveredNode >= 0) openFractalNodePanel(uni.nodes[fractalHoveredNode], color, project.label);
+  }
+  canvas.addEventListener('mousemove', onFractalMove);
+  canvas.addEventListener('click', onFractalClick);
+  document.getElementById('fractal-back').onclick = () => {
+    canvas.removeEventListener('mousemove', onFractalMove);
+    canvas.removeEventListener('click', onFractalClick);
+    document.getElementById('fractal-node-panel').classList.remove('visible');
+    closeFractalUniverse();
+  };
+
+  function loop() {
+    fractalT += 0.003;
+    const W = canvas.width, H = canvas.height;
+
+    // Smooth camera
+    rotY += (targetRotY + fractalT * 0.18 - rotY) * 0.04;
+    rotX += (targetRotX - rotX) * 0.04;
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#010103';
+    ctx.fillRect(0, 0, W, H);
+
+    // ── Depth-sorted render list ──
+    const renderItems = [];
+
+    // Stars
+    stars3D.forEach(s => {
+      const p = project3D(s.x, s.y, s.z, W, H);
+      renderItems.push({ type: 'star', p, s });
+    });
+
+    // Wisps
+    wisps.forEach(w => {
+      const pulse = 0.88 + Math.sin(fractalT * 0.5 + w.phase) * 0.12;
+      const p = project3D(w.x, w.y, w.z, W, H);
+      renderItems.push({ type: 'wisp', p, w, pulse });
+    });
+
+    // Nodes
+    node3D.forEach((n3, i) => {
+      const p = project3D(n3.x0, n3.y0, n3.z0, W, H);
+      renderItems.push({ type: 'node', p, i });
+    });
+
+    // Sort back-to-front by fz
+    renderItems.sort((a, b) => b.p.fz - a.p.fz);
+
+    // ── Center core glow (always behind) ──
+    const coreP = project3D(0, 0, 0, W, H);
+    const cr = (34 + Math.sin(fractalT * 0.7) * 3) * coreP.sc;
+    const cGlow = ctx.createRadialGradient(coreP.sx, coreP.sy, 0, coreP.sx, coreP.sy, cr * 6);
+    cGlow.addColorStop(0, color + '28'); cGlow.addColorStop(0.5, color + '0C'); cGlow.addColorStop(1, 'transparent');
+    ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, cr * 6, 0, Math.PI * 2);
+    ctx.fillStyle = cGlow; ctx.fill();
+
+    // ── Connection lines (depth-aware) ──
+    uni.connections.forEach(([a, b]) => {
+      const pa = project3D(node3D[a].x0, node3D[a].y0, node3D[a].z0, W, H);
+      const pb = project3D(node3D[b].x0, node3D[b].y0, node3D[b].z0, W, H);
+      const avgSc  = (pa.sc + pb.sc) * 0.5;
+      const isAct  = fractalHoveredNode === a || fractalHoveredNode === b;
+      ctx.setLineDash([3, 9]);
+      ctx.lineDashOffset = -fractalT * 14;
+      ctx.beginPath(); ctx.moveTo(pa.sx, pa.sy); ctx.lineTo(pb.sx, pb.sy);
+      ctx.strokeStyle = isAct ? color + '55' : color + '18';
+      ctx.lineWidth = avgSc * (isAct ? 1.0 : 0.45);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]); ctx.lineDashOffset = 0;
+
+    // ── Depth-sorted draw ──
+    nodePositions.length = 0;
+    renderItems.forEach(item => {
+      const { p } = item;
+
+      if (item.type === 'star') {
+        const depthAlpha = Math.max(0, Math.min(1, item.s.a * p.sc * 2.5));
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, item.s.sz * p.sc, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${depthAlpha})`;
+        ctx.fill();
+
+      } else if (item.type === 'wisp') {
+        const wr = item.w.r * p.sc * W * item.pulse;
+        const g = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, wr);
+        g.addColorStop(0, color + '09'); g.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, wr, 0, Math.PI * 2);
+        ctx.fillStyle = g; ctx.fill();
+
+      } else if (item.type === 'node') {
+        const i    = item.i;
+        const n    = uni.nodes[i];
+        const isHov = fractalHoveredNode === i;
+        const depthFade = 0.5 + p.sc * 0.8;
+        const pulse = Math.sin(fractalT * 1.6 + i * 1.1) * 1.5;
+        const nr = (n.size + pulse * 0.4 + (isHov ? 7 : 0)) * p.sc;
+        nodePositions.push({ x: p.sx, y: p.sy, r: nr });
+
+        // Spoke to center
+        ctx.beginPath(); ctx.moveTo(coreP.sx, coreP.sy); ctx.lineTo(p.sx, p.sy);
+        ctx.strokeStyle = `rgba(255,255,255,${isHov ? 0.06 : 0.025})`;
+        ctx.lineWidth = 0.3; ctx.stroke();
+
+        // Depth-scaled outer glow
+        const ng = ctx.createRadialGradient(p.sx, p.sy, 0, p.sx, p.sy, nr * 5);
+        ng.addColorStop(0, n.color + (isHov ? '55' : '25'));
+        ng.addColorStop(1, 'transparent');
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, nr * 5, 0, Math.PI * 2);
+        ctx.fillStyle = ng; ctx.fill();
+
+        // Rings
+        if (isHov) {
+          [nr + 9*p.sc, nr + 15*p.sc].forEach((r, ri) => {
+            ctx.beginPath(); ctx.arc(p.sx, p.sy, r, 0, Math.PI * 2);
+            ctx.strokeStyle = n.color + (ri === 0 ? '55' : '30');
+            ctx.lineWidth = 0.6; ctx.stroke();
+          });
+          // Spinning arc
+          ctx.save(); ctx.translate(p.sx, p.sy); ctx.rotate(fractalT * 2.5);
+          ctx.beginPath(); ctx.arc(0, 0, nr + 12*p.sc, 0, Math.PI * 1.4);
+          ctx.strokeStyle = n.color + '80'; ctx.lineWidth = 1.0; ctx.stroke();
+          ctx.restore();
+        } else {
+          ctx.beginPath(); ctx.arc(p.sx, p.sy, nr + 4*p.sc, 0, Math.PI * 2);
+          ctx.strokeStyle = n.color + '30'; ctx.lineWidth = 0.4; ctx.stroke();
+        }
+
+        // Core sphere — gradient for 3D feel
+        const sg = ctx.createRadialGradient(
+          p.sx - nr * 0.3, p.sy - nr * 0.3, nr * 0.05,
+          p.sx, p.sy, nr
+        );
+        sg.addColorStop(0, 'rgba(255,255,255,' + (isHov ? '0.55' : '0.30') + ')');
+        sg.addColorStop(0.4, n.color + (isHov ? 'EE' : 'BB'));
+        sg.addColorStop(1, n.color + '55');
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, nr, 0, Math.PI * 2);
+        ctx.fillStyle = sg; ctx.fill();
+
+        // Specular highlight dot
+        ctx.beginPath(); ctx.arc(p.sx - nr * 0.3, p.sy - nr * 0.3, nr * 0.22, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${isHov ? 0.45 : 0.20})`; ctx.fill();
+
+        // Label (depth-faded)
+        const labelAlpha = Math.max(0.25, depthFade) * (isHov ? 1 : 0.65);
+        const lines = n.label.split('\n');
+        ctx.font = `${isHov ? 700 : 600} ${Math.round((isHov ? 10 : 9) * p.sc + 7)}px Space Grotesk,system-ui`;
+        ctx.textAlign = 'center';
+        lines.forEach((line, li) => {
+          ctx.fillStyle = `rgba(255,255,255,${labelAlpha})`;
+          ctx.fillText(line, p.sx, p.sy + nr + (14 + li * 13) * p.sc);
+        });
+        if (isHov) {
+          ctx.font = `400 ${Math.round(7 * p.sc + 6)}px Space Mono,monospace`;
+          ctx.fillStyle = n.color + 'CC';
+          ctx.fillText('▶ PRESS', p.sx, p.sy + nr + (14 + lines.length * 13 + 3) * p.sc);
+        }
+      }
+    });
+
+    // ── Center core (always on top) ──
+    [cr*5.5, cr*3.5, cr*2].forEach((gr, gi) => {
+      const g = ctx.createRadialGradient(coreP.sx, coreP.sy, 0, coreP.sx, coreP.sy, gr);
+      g.addColorStop(0, color + ['20','18','12'][gi]);
+      g.addColorStop(1, 'transparent');
+      ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, gr, 0, Math.PI * 2);
+      ctx.fillStyle = g; ctx.fill();
+    });
+    [cr+10, cr+20, cr+32].forEach((or, i) => {
+      const oa = fractalT * (0.3 - i * 0.08) * (i % 2 ? -1 : 1);
+      ctx.save(); ctx.translate(coreP.sx, coreP.sy); ctx.rotate(oa);
+      ctx.beginPath(); ctx.ellipse(0, 0, or, or * (0.18 + i * 0.05), 0, 0, Math.PI * 2);
+      ctx.strokeStyle = color + ['30','18','0C'][i]; ctx.lineWidth = 0.6 - i*0.15; ctx.stroke();
+      ctx.restore();
+    });
+    // Core sphere gradient
+    const csg = ctx.createRadialGradient(coreP.sx - cr*0.3, coreP.sy - cr*0.3, cr*0.05, coreP.sx, coreP.sy, cr);
+    csg.addColorStop(0, 'rgba(255,255,255,0.4)');
+    csg.addColorStop(0.35, color + 'DD');
+    csg.addColorStop(1, color + '44');
+    ctx.beginPath(); ctx.arc(coreP.sx, coreP.sy, cr, 0, Math.PI * 2); ctx.fillStyle = csg; ctx.fill();
+    ctx.strokeStyle = color + 'AA'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.font = `800 ${Math.round(12 * coreP.sc + 4)}px Space Grotesk,system-ui`;
+    ctx.fillStyle = '#080808'; ctx.textAlign = 'center';
+    ctx.fillText(project.label, coreP.sx, coreP.sy + 5);
+
+    fractalAnimId = requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function openFractalNodePanel(node, projectColor, projectLabel) {
+  const d = node.detail;
+  const panel = document.getElementById('fractal-node-panel');
+  document.getElementById('fnp-eyebrow').textContent = d.eyebrow || 'MÓDULO';
+  document.getElementById('fnp-title').textContent = d.title;
+  document.getElementById('fnp-title').style.color = node.color;
+  const statusEl = document.getElementById('fnp-status');
+  statusEl.textContent = d.status === 'live' ? 'LIVE' : d.status === 'build' ? 'EN BUILD' : 'PRÓXIMO';
+  statusEl.className = 'fnp-status ' + (d.status === 'live' ? 'live' : d.status === 'build' ? 'build' : 'soon');
+  document.getElementById('fnp-desc').textContent = d.desc;
+  const statsEl = document.getElementById('fnp-stats');
+  statsEl.innerHTML = d.stats.map(s =>
+    `<div class="fnp-stat"><div class="fnp-stat-label">${s.l}</div><div class="fnp-stat-value" style="color:${node.color}">${s.v}</div></div>`
+  ).join('');
+  const btn = document.getElementById('fnp-action');
+  btn.textContent = d.action;
+  btn.style.background = node.color;
+  btn.style.color = '#080808';
+  document.getElementById('fnp-close').onclick = () => panel.classList.remove('visible');
+  panel.style.borderColor = node.color + '30';
+  panel.classList.add('visible');
+}
+
+// ═══════════ AFFIRMATION TRANSMUTATION ═══════════
+function showAffirmation(bh, fromBlackHole = true, keyId = null) {
+  const neg = bh.negatives[Math.floor(Math.random() * bh.negatives.length)];
+  const aff = bh.affirmations[Math.floor(Math.random() * bh.affirmations.length)];
+
+  const overlay = document.getElementById('affirmation-overlay');
+  const labelEl = document.getElementById('aff-label');
+  const absorbEl = document.getElementById('aff-absorb');
+  const transEl = document.getElementById('aff-transmute');
+  const textEl = document.getElementById('aff-text');
+  const closeEl = document.getElementById('aff-close');
+
+  // Reset state
+  [labelEl, absorbEl, transEl, closeEl].forEach(el => { el.style.opacity = '0'; });
+  textEl.style.opacity = '0';
+  textEl.style.transform = 'translateY(20px)';
+  absorbEl.style.transform = 'scale(1)';
+  absorbEl.textContent = neg;
+  textEl.textContent = aff;
+  textEl.style.color = bh.color;
+
+  overlay.style.display = 'flex';
+  overlay.style.opacity = '0';
+  requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+
+  // Generate unique collectible ID for this affirmation
+  const collectibleId = (keyId || bh.id) + '_' + bh.affirmations.indexOf(aff);
+  const isNew = !collectedSet.has(collectibleId);
+
+  // Sequence
+  setTimeout(() => { labelEl.style.opacity = '1'; }, 300);
+  setTimeout(() => { absorbEl.style.opacity = '1'; }, 700);
+  setTimeout(() => {
+    absorbEl.style.opacity = '0.15';
+    absorbEl.style.transform = 'scale(0.3)';
+  }, 1400);
+  setTimeout(() => { transEl.style.opacity = '0.6'; }, 1800);
+  setTimeout(() => {
+    textEl.style.opacity = '1';
+    textEl.style.transform = 'translateY(0)';
+    // Register collectible when affirmation appears
+    if (isNew) {
+      addCollectible(collectibleId, bh.id === 'void' ? 'rare' : 'common');
+    }
+    // Mark key as visually collected
+    if (keyId) {
+      const k = KEYS.find(k => k.id === keyId);
+      if (k) k.collected = true;
+    }
+  }, 2400);
+  setTimeout(() => { closeEl.style.opacity = '1'; }, 3800);
+}
+
+function closeAffirmation() {
+  const overlay = document.getElementById('affirmation-overlay');
+  overlay.style.opacity = '0';
+  setTimeout(() => {
+    overlay.style.display = 'none';
+    document.getElementById('aff-absorb').style.transform = 'scale(1)';
+  }, 500);
+}
+
+// ═══════════ RESIZE ═══════════
+window.addEventListener('resize', () => {
+  initBgCanvas();
+  if (currentScreen === 'map') startMapCanvas();
+});
+
+// ═══════════ KEYBOARD ═══════════
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const fractal = document.getElementById('fractal-overlay');
+    const affirmation = document.getElementById('affirmation-overlay');
+    if (fractal.style.opacity === '1') { closeFractalUniverse(); return; }
+    if (affirmation.style.opacity === '1') { closeAffirmation(); return; }
+    if (currentScreen !== 'portal' && currentScreen !== 'map') goTo('map');
+    else if (currentScreen === 'map') goTo('portal');
+  }
+});
+
+// ═══════════ INIT ═══════════
+initBgCanvas();
+animateBg();
+</script>
+</body>
+</html>
