@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer — Outdoor Putting Green · Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0c0a; --ink:#e9f5e0; --acid:#c6f432; --acid-dim:rgba(198,244,50,0.35);
+    --line:rgba(198,244,50,0.5); --grid:rgba(198,244,50,0.05); --muted:#6a7560;
+    --gold:#C6A15B; --mono:'Share Tech Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--mono); font-size:12px;
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:32px 32px; -webkit-font-smoothing:antialiased;
+  }
+  .sheet{max-width:1480px;margin:0 auto;padding:0 28px 80px;}
+  .titleblock{display:flex;justify-content:space-between;align-items:flex-start;padding:32px 0 20px;border-bottom:2px solid var(--acid);}
+  .tb-left .brand{font-family:'Bebas Neue';font-size:34px;letter-spacing:0.1em;color:var(--ink);line-height:0.9;}
+  .tb-left .title{font-family:'Bebas Neue';font-size:48px;letter-spacing:0.04em;color:var(--acid);line-height:0.9;}
+  .tb-left .sub{font-family:var(--mono);font-size:9px;letter-spacing:0.24em;color:var(--muted);margin-top:6px;text-transform:uppercase;}
+  .tb-right{text-align:right;font-size:9px;color:var(--muted);letter-spacing:0.1em;line-height:2;}
+  .tb-right b{color:var(--acid);}
+  .sec-label{font-family:'Bebas Neue';font-size:18px;letter-spacing:0.1em;color:var(--acid);margin:0 0 14px;display:flex;align-items:center;gap:10px;}
+  .sec-label .n{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--acid);padding:1px 7px;}
+  .grid2{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;margin-top:32px;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;margin-top:32px;}
+  .panel{border:1px solid rgba(198,244,50,0.12);background:rgba(198,244,50,0.015);padding:20px;}
+  svg{width:100%;height:auto;display:block;overflow:visible;}
+  .dim-text{font-family:var(--mono);font-size:11px;fill:var(--muted);}
+  .lead-text{font-family:var(--mono);font-size:9px;fill:var(--acid);letter-spacing:0.06em;}
+  .callout-line{stroke:var(--acid-dim);stroke-width:0.75;}
+  .spec-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(198,244,50,0.08);font-size:11px;}
+  .spec-row .k{color:var(--muted);letter-spacing:0.06em;}
+  .spec-row .v{color:var(--ink);text-align:right;}
+  .spec-row .v.hi{color:var(--acid);}
+  .feat{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:11px;color:var(--ink);}
+  .feat::before{content:'▸';color:var(--acid);flex-shrink:0;}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:18px;border-top:2px solid var(--acid);font-size:8px;color:var(--muted);letter-spacing:0.14em;}
+  .vg-mark{font-family:'Bebas Neue';font-size:22px;color:var(--acid);letter-spacing:0.12em;}
+  @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="titleblock">
+    <div class="tb-left">
+      <div class="brand">VICEGOLFER</div>
+      <div class="title">OUTDOOR PUTTING GREEN</div>
+      <div class="sub">BLUEPRINT · COMMUNITY + CONTENT SURFACE</div>
+    </div>
+    <div class="tb-right">
+      <div>ZONE <b>07</b></div>
+      <div>DWG <b>VG-OPG-001</b></div>
+      <div>SCALE <b>1:40</b></div>
+      <div>UNITS <b>cm / m²</b></div>
+      <div>REV <b>A · 2025</b></div>
+    </div>
+  </div>
+
+  <!-- ROW 1: PLAN + SPECS -->
+  <div class="grid2">
+    <!-- PLAN VIEW -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">01</span> PLAN VIEW · DIMENSIONED</div>
+      <svg viewBox="0 0 620 380">
+        <!-- top dim 195 -->
+        <line x1="120" y1="30" x2="500" y2="30" class="callout-line"/>
+        <line x1="120" y1="25" x2="120" y2="35" stroke="var(--acid-dim)"/>
+        <line x1="500" y1="25" x2="500" y2="35" stroke="var(--acid-dim)"/>
+        <text x="300" y="24" class="dim-text" text-anchor="middle">195 cm</text>
+
+        <!-- existing concrete edge (top right notch) -->
+        <rect x="300" y="55" width="280" height="35" fill="rgba(198,244,50,0.03)" stroke="var(--acid-dim)" stroke-width="0.5" stroke-dasharray="3,2"/>
+        <text x="370" y="76" class="dim-text" font-size="9">355 cm</text>
+        <text x="500" y="76" class="dim-text" font-size="9">355 cm</text>
+
+        <!-- outer boundary -->
+        <rect x="60" y="90" width="520" height="230" fill="rgba(198,244,50,0.02)" stroke="var(--acid-dim)" stroke-width="0.75"/>
+
+        <!-- rough ring (fringe) -->
+        <path d="M100 160
+                 Q120 110 220 115
+                 Q340 105 430 130
+                 Q540 140 545 200
+                 Q548 260 460 280
+                 Q320 300 200 290
+                 Q110 282 95 230
+                 Q88 195 100 160 Z"
+              fill="rgba(80,140,40,0.18)" stroke="var(--acid-dim)" stroke-width="1"/>
+
+        <!-- putting surface (inner) -->
+        <path d="M120 165
+                 Q140 130 230 135
+                 Q340 126 420 148
+                 Q515 158 518 200
+                 Q520 248 450 263
+                 Q320 280 210 272
+                 Q128 264 115 225
+                 Q108 192 120 165 Z"
+              fill="rgba(198,244,50,0.14)" stroke="var(--acid)" stroke-width="1.25"/>
+
+        <!-- holes (6) -->
+        <g>
+          <circle cx="180" cy="210" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+          <circle cx="280" cy="175" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+          <circle cx="310" cy="245" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+          <circle cx="400" cy="190" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+          <circle cx="460" cy="165" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+          <circle cx="470" cy="225" r="5" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+        </g>
+
+        <!-- area label -->
+        <text x="320" y="205" class="dim-text" text-anchor="middle" fill="var(--acid)">ÁREA ≈ 12.0 m²</text>
+
+        <!-- rough labels -->
+        <text x="150" y="148" class="dim-text" font-size="8">ROUGH 20–35 cm</text>
+        <text x="430" y="285" class="dim-text" font-size="8">ROUGH 30–40 mm</text>
+
+        <!-- left dim 142 -->
+        <line x1="40" y1="160" x2="40" y2="290" class="callout-line"/>
+        <line x1="35" y1="160" x2="45" y2="160" stroke="var(--acid-dim)"/>
+        <line x1="35" y1="290" x2="45" y2="290" stroke="var(--acid-dim)"/>
+        <text x="28" y="230" class="dim-text" transform="rotate(-90 28 230)">142 cm</text>
+
+        <!-- right dim 335 -->
+        <line x1="595" y1="90" x2="595" y2="320" class="callout-line"/>
+        <line x1="590" y1="90" x2="600" y2="90" stroke="var(--acid-dim)"/>
+        <line x1="590" y1="320" x2="600" y2="320" stroke="var(--acid-dim)"/>
+        <text x="610" y="210" class="dim-text" transform="rotate(90 610 210)">335 cm</text>
+
+        <!-- bottom dims -->
+        <line x1="60" y1="345" x2="160" y2="345" class="callout-line"/>
+        <text x="100" y="360" class="dim-text" font-size="9">40 cm</text>
+        <line x1="200" y1="345" x2="420" y2="345" class="callout-line"/>
+        <text x="300" y="360" class="dim-text" font-size="9">135 cm</text>
+        <line x1="440" y1="345" x2="580" y2="345" class="callout-line"/>
+        <text x="500" y="360" class="dim-text" font-size="9">335 cm</text>
+      </svg>
+    </div>
+
+    <!-- SPECS -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">02</span> SPECIFICATIONS</div>
+      <div class="spec-row"><span class="k">TOTAL AREA</span><span class="v hi">≈ 16.63 m²</span></div>
+      <div class="spec-row"><span class="k">PUTTING SURFACE</span><span class="v hi">≈ 12.0 m²</span></div>
+      <div class="spec-row"><span class="k">WIDTH (TOP)</span><span class="v">195 cm</span></div>
+      <div class="spec-row"><span class="k">LENGTH</span><span class="v">335 cm</span></div>
+      <div class="spec-row"><span class="k">HEIGHT (LEFT)</span><span class="v">142 cm</span></div>
+      <div class="spec-row"><span class="k">HOLES</span><span class="v hi">6 × Ø108mm</span></div>
+      <div class="spec-row"><span class="k">FRINGE / ROUGH</span><span class="v">20–40 mm</span></div>
+      <div class="spec-row"><span class="k">SURFACE</span><span class="v">ARTIFICIAL TURF</span></div>
+      <div class="spec-row"><span class="k">SLOPE</span><span class="v">NATURAL EXISTING</span></div>
+      <div class="spec-row"><span class="k">PURPOSE</span><span class="v hi">COMMUNITY · CONTENT</span></div>
+    </div>
+  </div>
+
+  <!-- ROW 2: SECTION + FEATURES + DESIGN -->
+  <div class="grid3">
+    <!-- SECTION -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">03</span> SECTION · BUILD-UP</div>
+      <svg viewBox="0 0 300 240">
+        <!-- layers -->
+        <rect x="30" y="60" width="240" height="14" fill="rgba(198,244,50,0.14)" stroke="var(--acid)" stroke-width="1"/>
+        <text x="280" y="70" class="dim-text" font-size="7" text-anchor="end" fill="var(--acid)">TURF</text>
+        <rect x="30" y="74" width="240" height="20" fill="rgba(198,244,50,0.06)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="280" y="88" class="dim-text" font-size="7" text-anchor="end">SAND / INFILL</text>
+        <rect x="30" y="94" width="240" height="26" fill="rgba(120,90,40,0.15)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="280" y="110" class="dim-text" font-size="7" text-anchor="end">CRUSHED BASE</text>
+        <rect x="30" y="120" width="240" height="30" fill="rgba(198,244,50,0.02)" stroke="var(--acid-dim)" stroke-width="0.5" stroke-dasharray="3,2"/>
+        <text x="280" y="138" class="dim-text" font-size="7" text-anchor="end">EXISTING GRADE</text>
+        <!-- hole cup -->
+        <rect x="140" y="60" width="14" height="50" fill="var(--bg)" stroke="var(--acid)" stroke-width="1"/>
+        <text x="147" y="125" class="dim-text" font-size="6" text-anchor="middle">CUP</text>
+        <!-- drainage arrow -->
+        <path d="M50 160 L50 175 M45 170 L50 175 L55 170" stroke="var(--acid-dim)" stroke-width="0.75" fill="none"/>
+        <text x="60" y="173" class="dim-text" font-size="7">DRAIN</text>
+      </svg>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">04</span> DESIGN INTENT</div>
+      <div class="feat">6 holes · varied distances 3–20ft</div>
+      <div class="feat">Designed for camera angles first</div>
+      <div class="feat">Built-in perimeter seating</div>
+      <div class="feat">Evening LED lighting for content</div>
+      <div class="feat">Brand backdrop wall</div>
+      <div class="feat">Natural slope retained</div>
+    </div>
+
+    <!-- DESIGN NOTE -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">05</span> NOT THE LAB</div>
+      <div style="font-size:11px;color:var(--muted);line-height:1.8;">
+        This is the <span style="color:var(--acid);">community + content</span> green — open, social, photogenic.
+        <br><br>
+        The Putting <span style="color:var(--acid);">Lab</span> (indoor, controlled, data-mandatory) is a separate system. The outdoor green <span style="color:var(--ink);">attracts</span> people. The lab <span style="color:var(--ink);">transforms</span> them.
+        <br><br>
+        Never design them the same way.
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>VICEGOLFER OUTDOOR PUTTING GREEN · ZONE 07 · VG-OPG-001</div>
+    <div>COMMUNITY + CONTENT SURFACE · LAS ROCAS · CHILE</div>
+    <div class="vg-mark">VG</div>
+  </div>
+
+</div>
+</body>
+</html>

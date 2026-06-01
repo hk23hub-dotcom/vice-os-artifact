@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer — Golfteiner Model 1 · Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0c0a; --ink:#e9f5e0; --acid:#c6f432; --acid-dim:rgba(198,244,50,0.35);
+    --line:rgba(198,244,50,0.5); --grid:rgba(198,244,50,0.05); --muted:#6a7560;
+    --gold:#C6A15B; --mono:'Share Tech Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--ink); font-family:var(--mono); font-size:12px;
+    background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+    background-size:32px 32px; -webkit-font-smoothing:antialiased;
+  }
+  .sheet{max-width:1480px;margin:0 auto;padding:0 28px 80px;}
+  .titleblock{display:flex;justify-content:space-between;align-items:flex-start;padding:32px 0 20px;border-bottom:2px solid var(--acid);}
+  .tb-left .brand{font-family:'Bebas Neue';font-size:34px;letter-spacing:0.1em;color:var(--ink);line-height:0.9;}
+  .tb-left .title{font-family:'Bebas Neue';font-size:48px;letter-spacing:0.04em;color:var(--acid);line-height:0.9;}
+  .tb-left .sub{font-family:var(--mono);font-size:9px;letter-spacing:0.24em;color:var(--muted);margin-top:6px;text-transform:uppercase;}
+  .tb-right{text-align:right;font-size:9px;color:var(--muted);letter-spacing:0.1em;line-height:2;}
+  .tb-right b{color:var(--acid);}
+  .sec-label{font-family:'Bebas Neue';font-size:18px;letter-spacing:0.1em;color:var(--acid);margin:0 0 14px;display:flex;align-items:center;gap:10px;}
+  .sec-label .n{font-family:var(--mono);font-size:11px;color:var(--bg);background:var(--acid);padding:1px 7px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:32px;}
+  .grid3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:24px;margin-top:32px;}
+  .panel{border:1px solid rgba(198,244,50,0.12);background:rgba(198,244,50,0.015);padding:20px;}
+  svg{width:100%;height:auto;display:block;overflow:visible;}
+  .dim-text{font-family:var(--mono);font-size:10px;fill:var(--muted);}
+  .lead-text{font-family:var(--mono);font-size:9px;fill:var(--acid);letter-spacing:0.06em;}
+  .callout-line{stroke:var(--acid-dim);stroke-width:0.75;}
+  .spec-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid rgba(198,244,50,0.08);font-size:11px;}
+  .spec-row .k{color:var(--muted);letter-spacing:0.06em;}
+  .spec-row .v{color:var(--ink);text-align:right;}
+  .spec-row .v.hi{color:var(--acid);}
+  .feat{display:flex;gap:8px;align-items:flex-start;padding:6px 0;font-size:11px;color:var(--ink);}
+  .feat::before{content:'▸';color:var(--acid);flex-shrink:0;}
+  .uses{display:flex;gap:32px;flex-wrap:wrap;padding:24px 0 0;border-top:1px solid rgba(198,244,50,0.1);margin-top:32px;}
+  .use{display:flex;align-items:center;gap:8px;}
+  .use .ut{font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:18px;border-top:2px solid var(--acid);font-size:8px;color:var(--muted);letter-spacing:0.14em;}
+  .vg-mark{font-family:'Bebas Neue';font-size:22px;color:var(--acid);letter-spacing:0.12em;}
+  @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="titleblock">
+    <div class="tb-left">
+      <div class="brand">VICEGOLFER</div>
+      <div class="title">GOLFTEINER · MODEL 1</div>
+      <div class="sub">BLUEPRINT · MODULAR GOLF CONTAINER SYSTEM</div>
+    </div>
+    <div class="tb-right">
+      <div>MODEL <b>GT-M1</b></div>
+      <div>DWG <b>VG-GT-001</b></div>
+      <div>SCALE <b>1:50</b></div>
+      <div>UNITS <b>mm [ft]</b></div>
+      <div>REV <b>A · 2025</b></div>
+    </div>
+  </div>
+
+  <!-- ROW 1: PERSPECTIVE + RIGHT ELEVATION -->
+  <div class="grid2">
+    <!-- PERSPECTIVE / CUTAWAY -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">01</span> CUTAWAY PERSPECTIVE</div>
+      <svg viewBox="0 0 480 340">
+        <!-- rooftop deck -->
+        <polygon points="60,70 360,70 410,95 110,95" fill="rgba(198,244,50,0.04)" stroke="var(--acid)" stroke-width="1"/>
+        <!-- deck railing -->
+        <line x1="60" y1="70" x2="60" y2="50" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="160" y1="70" x2="160" y2="50" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="260" y1="70" x2="260" y2="50" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="360" y1="70" x2="360" y2="50" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="60" y1="52" x2="360" y2="52" stroke="var(--acid)" stroke-width="0.75"/>
+        <!-- lounge on deck -->
+        <rect x="100" y="58" width="40" height="10" fill="rgba(198,244,50,0.08)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="200" y="44" class="dim-text" font-size="7">ROOFTOP DECK · LOUNGE</text>
+        <!-- container body -->
+        <rect x="60" y="95" width="300" height="180" fill="none" stroke="var(--acid)" stroke-width="1.5"/>
+        <!-- corrugation lines -->
+        <line x1="60" y1="120" x2="360" y2="120" stroke="var(--acid-dim)" stroke-width="0.4"/>
+        <line x1="60" y1="250" x2="360" y2="250" stroke="var(--acid-dim)" stroke-width="0.4"/>
+        <!-- open face interior -->
+        <rect x="80" y="120" width="200" height="130" fill="rgba(198,244,50,0.03)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <!-- impact screen -->
+        <rect x="95" y="135" width="160" height="90" fill="rgba(0,80,40,0.2)" stroke="var(--acid)" stroke-width="1"/>
+        <!-- projected course (simple) -->
+        <path d="M110 200 Q175 165 240 195" fill="none" stroke="var(--acid-dim)" stroke-width="0.75"/>
+        <line x1="175" y1="150" x2="175" y2="178" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="175" y="148" class="dim-text" font-size="6" text-anchor="middle">258</text>
+        <!-- hitting mat -->
+        <rect x="120" y="232" width="80" height="14" fill="rgba(198,244,50,0.1)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <!-- projector ceiling -->
+        <rect x="160" y="124" width="24" height="8" fill="none" stroke="var(--acid)" stroke-width="0.75"/>
+        <line class="callout-line" x1="172" y1="124" x2="172" y2="108"/>
+        <text x="178" y="116" class="dim-text" font-size="7">PROJECTOR</text>
+        <!-- golf bag + station -->
+        <rect x="290" y="200" width="30" height="40" fill="none" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="305" y="255" class="dim-text" font-size="6" text-anchor="middle">DATA STN</text>
+        <!-- staircase -->
+        <g stroke="var(--acid)" stroke-width="0.75" fill="none">
+          <line x1="20" y1="275" x2="60" y2="95"/>
+          <line x1="30" y1="275" x2="70" y2="95"/>
+          <line x1="22" y1="255" x2="32" y2="255"/>
+          <line x1="26" y1="235" x2="36" y2="235"/>
+          <line x1="30" y1="215" x2="40" y2="215"/>
+          <line x1="34" y1="195" x2="44" y2="195"/>
+        </g>
+        <text x="20" y="290" class="dim-text" font-size="7">STAIR ACCESS</text>
+        <!-- screen label -->
+        <line class="callout-line" x1="175" y1="180" x2="175" y2="300"/>
+        <text x="130" y="312" class="lead-text">IMPACT SCREEN 3660 × 2110mm</text>
+      </svg>
+    </div>
+
+    <!-- RIGHT SIDE ELEVATION -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">02</span> RIGHT SIDE ELEVATION</div>
+      <svg viewBox="0 0 480 340">
+        <!-- deck rail upper -->
+        <line x1="120" y1="70" x2="320" y2="70" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="120" y1="70" x2="120" y2="90" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="320" y1="70" x2="320" y2="90" stroke="var(--acid)" stroke-width="0.75"/>
+        <!-- lounge -->
+        <rect x="240" y="78" width="60" height="12" fill="rgba(198,244,50,0.08)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <!-- container side -->
+        <rect x="120" y="90" width="200" height="150" fill="none" stroke="var(--acid)" stroke-width="1.5"/>
+        <line x1="120" y1="115" x2="320" y2="115" stroke="var(--acid-dim)" stroke-width="0.4"/>
+        <line x1="120" y1="215" x2="320" y2="215" stroke="var(--acid-dim)" stroke-width="0.4"/>
+        <!-- staircase -->
+        <g stroke="var(--acid)" stroke-width="0.75" fill="none">
+          <line x1="40" y1="240" x2="120" y2="90"/>
+          <line x1="55" y1="240" x2="135" y2="90"/>
+        </g>
+        <!-- height dim 9'-6 -->
+        <line x1="350" y1="70" x2="350" y2="240" class="callout-line"/>
+        <line x1="345" y1="70" x2="355" y2="70" stroke="var(--acid-dim)"/>
+        <line x1="345" y1="240" x2="355" y2="240" stroke="var(--acid-dim)"/>
+        <text x="365" y="150" class="dim-text" transform="rotate(90 365 150)">2896mm · 9'-6"</text>
+        <!-- width dim -->
+        <line x1="120" y1="258" x2="320" y2="258" class="callout-line"/>
+        <line x1="120" y1="253" x2="120" y2="263" stroke="var(--acid-dim)"/>
+        <line x1="320" y1="253" x2="320" y2="263" stroke="var(--acid-dim)"/>
+        <text x="200" y="274" class="dim-text">2438mm · 8'-0"</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ROW 2: FRONT + FLOOR PLAN -->
+  <div class="grid2">
+    <!-- FRONT ELEVATION -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">03</span> FRONT ELEVATION</div>
+      <svg viewBox="0 0 480 320">
+        <!-- deck rail -->
+        <line x1="60" y1="60" x2="340" y2="60" stroke="var(--acid)" stroke-width="0.75"/>
+        <line x1="60" y1="60" x2="60" y2="80" stroke="var(--acid)" stroke-width="0.5"/>
+        <line x1="340" y1="60" x2="340" y2="80" stroke="var(--acid)" stroke-width="0.5"/>
+        <!-- container front (open) -->
+        <rect x="60" y="80" width="340" height="160" fill="none" stroke="var(--acid)" stroke-width="1.5"/>
+        <!-- open doors -->
+        <line x1="60" y1="80" x2="35" y2="70" stroke="var(--acid-dim)" stroke-width="1"/>
+        <line x1="60" y1="240" x2="35" y2="250" stroke="var(--acid-dim)" stroke-width="1"/>
+        <!-- screen inside -->
+        <rect x="120" y="105" width="200" height="115" fill="rgba(0,80,40,0.2)" stroke="var(--acid)" stroke-width="1"/>
+        <path d="M140 175 Q220 140 300 170" fill="none" stroke="var(--acid-dim)" stroke-width="0.75"/>
+        <!-- hitting mat -->
+        <rect x="170" y="225" width="100" height="12" fill="rgba(198,244,50,0.1)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <!-- width dim -->
+        <line x1="60" y1="258" x2="400" y2="258" class="callout-line"/>
+        <text x="200" y="274" class="dim-text">6058mm · 19'-10"</text>
+      </svg>
+    </div>
+
+    <!-- FLOOR PLAN -->
+    <div class="panel">
+      <div class="sec-label"><span class="n">04</span> FLOOR PLAN · TOP VIEW</div>
+      <svg viewBox="0 0 480 320">
+        <!-- container outline -->
+        <rect x="60" y="70" width="340" height="160" fill="none" stroke="var(--acid)" stroke-width="1.5"/>
+        <!-- screen end -->
+        <rect x="64" y="74" width="10" height="152" fill="rgba(0,80,40,0.25)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="78" y="150" class="dim-text" font-size="7" transform="rotate(90 78 150)">SCREEN</text>
+        <!-- hitting zone -->
+        <rect x="120" y="120" width="90" height="60" fill="rgba(198,244,50,0.08)" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <circle cx="165" cy="150" r="2" fill="var(--acid)"/>
+        <text x="165" y="195" class="dim-text" font-size="6" text-anchor="middle">HITTING AREA</text>
+        <!-- data station -->
+        <rect x="340" y="90" width="50" height="50" fill="none" stroke="var(--acid-dim)" stroke-width="0.5"/>
+        <text x="365" y="118" class="dim-text" font-size="6" text-anchor="middle">STATION</text>
+        <!-- golfer marker -->
+        <circle cx="365" cy="170" r="6" fill="none" stroke="var(--acid)" stroke-width="0.75"/>
+        <!-- stair -->
+        <g stroke="var(--acid-dim)" stroke-width="0.5">
+          <line x1="20" y1="80" x2="60" y2="80"/>
+          <line x1="20" y1="95" x2="60" y2="95"/>
+          <line x1="20" y1="110" x2="60" y2="110"/>
+          <line x1="20" y1="125" x2="60" y2="125"/>
+        </g>
+        <text x="38" y="145" class="dim-text" font-size="6">STAIR</text>
+        <!-- dims -->
+        <line x1="60" y1="248" x2="400" y2="248" class="callout-line"/>
+        <text x="200" y="264" class="dim-text">6058mm · 19'-10"</text>
+        <line x1="415" y1="70" x2="415" y2="230" class="callout-line"/>
+        <text x="428" y="155" class="dim-text" transform="rotate(90 428 155)">2438mm · 8'-0"</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ROW 3: SPECS + FEATURES + PRODUCT -->
+  <div class="grid3">
+    <div class="panel">
+      <div class="sec-label"><span class="n">05</span> SPECIFICATIONS</div>
+      <div class="spec-row"><span class="k">TYPE</span><span class="v hi">SIM CONTAINER</span></div>
+      <div class="spec-row"><span class="k">EXT DIMENSIONS</span><span class="v">6058 × 2438 × 2896</span></div>
+      <div class="spec-row"><span class="k">EXT (FT)</span><span class="v">19'-10" × 8'-0" × 9'-6"</span></div>
+      <div class="spec-row"><span class="k">INT DIMENSIONS</span><span class="v">5900 × 2300 × 2590</span></div>
+      <div class="spec-row"><span class="k">WEIGHT</span><span class="v">≈ 2900 kg</span></div>
+      <div class="spec-row"><span class="k">ROOF DECK LOAD</span><span class="v">350 kg/m² · 72 psf</span></div>
+      <div class="spec-row"><span class="k">IMPACT SCREEN</span><span class="v">3660 × 2110</span></div>
+      <div class="spec-row"><span class="k">POWER</span><span class="v">110V / 20A</span></div>
+      <div class="spec-row"><span class="k">REC. SPACE</span><span class="v hi">7000 × 4000 MIN</span></div>
+      <div class="spec-row"><span class="k">BASE</span><span class="v">20FT SHIPPING CTR</span></div>
+    </div>
+
+    <div class="panel">
+      <div class="sec-label"><span class="n">06</span> FEATURES</div>
+      <div class="feat">20ft shipping container structure</div>
+      <div class="feat">Professional golf simulator setup</div>
+      <div class="feat">Rooftop deck with lounge area</div>
+      <div class="feat">Interior sound & light insulation</div>
+      <div class="feat">Integrated projector + impact screen</div>
+      <div class="feat">Optimized ventilation system</div>
+      <div class="feat">Modular & transportable design</div>
+    </div>
+
+    <div class="panel">
+      <div class="sec-label"><span class="n">07</span> AS A PRODUCT</div>
+      <div class="feat" style="color:var(--acid);">Replicable</div>
+      <div class="feat" style="color:var(--acid);">Sellable</div>
+      <div class="feat" style="color:var(--acid);">Licensable</div>
+      <div class="feat" style="color:var(--acid);">Franchisable</div>
+      <div style="margin-top:14px;padding-top:14px;border-top:1px solid rgba(198,244,50,0.08);font-size:10px;color:var(--muted);line-height:1.7;">
+        First unit lives at ViceGolfer House. Long-term: standalone product sold to clubs, resorts, and developers across the Spanish-speaking market.
+      </div>
+    </div>
+  </div>
+
+  <!-- USES -->
+  <div class="uses">
+    <div class="use"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="4" y="8" width="16" height="10" fill="none" stroke="var(--acid)" stroke-width="1.5"/><path d="M20 11 L23 9 L23 17 L20 15" fill="none" stroke="var(--acid)" stroke-width="1.5"/></svg><span class="ut">Simulation</span></div>
+    <div class="use"><svg width="18" height="18" viewBox="0 0 24 24"><rect x="4" y="13" width="3" height="6" fill="var(--acid)"/><rect x="10" y="8" width="3" height="11" fill="var(--acid)"/><rect x="16" y="4" width="3" height="15" fill="var(--acid)"/></svg><span class="ut">Club & Ball Data</span></div>
+    <div class="use"><svg width="18" height="18" viewBox="0 0 24 24"><circle cx="12" cy="9" r="4" fill="none" stroke="var(--acid)" stroke-width="1.5"/><path d="M5 20 Q12 14 19 20" fill="none" stroke="var(--acid)" stroke-width="1.5"/></svg><span class="ut">Content Creation</span></div>
+    <div class="use"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M12 3 L4 7 V13 Q4 18 12 21 Q20 18 20 13 V7 Z" fill="none" stroke="var(--acid)" stroke-width="1.5"/></svg><span class="ut">Coaching Support</span></div>
+  </div>
+
+  <div class="footer">
+    <div>VICEGOLFER GOLFTEINER · MODEL 1 · VG-GT-001</div>
+    <div>MODULAR GOLF CONTAINER SYSTEM · LAS ROCAS · CHILE</div>
+    <div class="vg-mark">VG</div>
+  </div>
+
+</div>
+</body>
+</html>
