@@ -3377,6 +3377,37 @@ function addCollectible(id, rarity) {
   setTimeout(() => toast.classList.remove('show'), 2800);
 }
 
+// Route a quote (or its target id) to the right destination: drillable
+// planets open the fractal universe; zone screens use goTo().
+function navigateToQuoteTarget(q) {
+  if (QuoteUtils.resolveTargetKind(q.target) === 'planet') {
+    const proj = PROJECTS.find(p => p.id === q.target);
+    if (proj) openFractalUniverse(proj); else goTo(q.target);
+  } else {
+    goTo(q.target);
+  }
+}
+
+// On load, honor ?quote=<id> (fly + unlock collectible) or ?planet=<id> (fly).
+function handleDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const quoteId = params.get('quote');
+  const planetId = params.get('planet');
+  if (!quoteId && !planetId) return;
+
+  goTo('map');
+  setTimeout(function () {
+    if (quoteId) {
+      const q = QUOTE_PORTALS.find(x => x.id === quoteId);
+      if (q) { addCollectible(q.id, q.rarity); navigateToQuoteTarget(q); return; }
+    }
+    if (planetId) {
+      const proj = PROJECTS.find(p => p.id === planetId);
+      if (proj) openFractalUniverse(proj); else goTo(planetId);
+    }
+  }, 700); // let the map canvas spin up before navigating
+}
+
 // ═══════════ MAP CANVAS ═══════════
 const mapCanvas = document.getElementById('map-canvas');
 const mapCtx = mapCanvas.getContext('2d');
@@ -4204,14 +4235,7 @@ mapCanvas.addEventListener('click', e => {
   } else if (hoveredQuote) {
     const q = QUOTE_PORTALS.find(q => q.id === hoveredQuote);
     addCollectible(q.id, q.rarity);
-    // Navigate to the target
-    const projTargets = ['vicegolfer','rugbyvice','laiglesia','arteworld','projects_pl','cryptovice','hk23hub','teeclub','viceai','marketplace'];
-    if (projTargets.includes(q.target)) {
-      const proj = PROJECTS.find(p => p.id === q.target);
-      if (proj) openFractalUniverse(proj);
-    } else {
-      goTo(q.target);
-    }
+    navigateToQuoteTarget(q);
   } else if (hoveredIdeaMoonIdx >= 0) {
     openIdeaPanel(IDEAS_PLANET.ideas[hoveredIdeaMoonIdx]);
   } else if (hoveredIdeasPlanet) {
@@ -5542,6 +5566,9 @@ function animateSwarm() {
 // ═══════════ INIT ═══════════
 initBgCanvas();
 animateBg();
+
+// ─── MINDSET ENGINE: quotes + inbound deep-links ───
+loadQuotesThen(handleDeepLink);
 </script>
 </body>
 </html>
