@@ -2034,6 +2034,7 @@
   </div>
 </div>
 
+<script src="quote-utils.js"></script>
 <script>
 // ═══════════ STATE ═══════════
 let currentScreen = 'portal';
@@ -2130,6 +2131,10 @@ const CONNECTIONS = [
 // ViceGolfer app is deployed on Vercel. Swap this one line when the
 // custom domain (vicegolfer.com) goes live and routes resolve.
 const VICEGOLFER_URL = 'https://vicegolfer.vercel.app';
+
+// Public base URL of THIS universe. Used to build the deep-link a social
+// QR points back to. Swap when GitHub Pages (or a custom domain) goes live.
+const UNIVERSE_URL = 'https://hk23neo.github.io/vice-os';
 
 // ─── PROJECT ORBS (fractal planets) ───
 const PROJECTS = [
@@ -2668,28 +2673,49 @@ const BLACK_HOLES = [
 ];
 
 // ─── FLOATING QUOTE PORTALS ───
-const QUOTE_PORTALS = [
-  { text: 'Perfection lives in the putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
-  { text: 'Own the kick zone.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
-  { text: 'A vice is not a hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
-  { text: 'The mine never lies.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
-  { text: 'Ideas born like stars.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
-  { text: 'Be impeccable with your words.', target: 'lore', color: '#FFD200', rarity: 'common' },
-  { text: 'Everything has a price.', target: 'flow', color: '#FFD200', rarity: 'common' },
-  { text: 'The system never sleeps.', target: 'agents', color: '#00F0FF', rarity: 'rare' },
-  { text: 'Controlled chaos is art.', target: 'arte', color: '#FF3A1F', rarity: 'common' },
-  { text: 'The map is not the territory.', target: 'systems', color: '#B84DFF', rarity: 'rare' },
-].map((q, i) => ({
-  ...q,
-  id: 'quote_' + i,
-  x: 0.08 + Math.random() * 0.84,
-  y: 0.08 + Math.random() * 0.80,
-  vx: (0.00006 + Math.random() * 0.0001) * (Math.random() > 0.5 ? 1 : -1),
-  vy: (0.00003 + Math.random() * 0.00005) * (Math.random() > 0.5 ? 1 : -1),
-  collected: false,
-  hovered: false,
-  width: 0, // computed at draw time
-}));
+// Inline fallback used if quotes.json fails to load (e.g. opened via file://).
+// Ids MUST match quotes.json so deep-links resolve either way.
+const INLINE_QUOTE_DEFAULTS = [
+  { id: 'q01', text: 'Putting is like wisdom — partly a natural gift and partly the accumulation of experience.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
+  { id: 'q02', text: 'Perfection lives in the putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
+  { id: 'q03', text: 'Own the kick zone.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
+  { id: 'q04', text: 'A vice is not a hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
+  { id: 'q05', text: 'The mine never lies.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
+  { id: 'q06', text: 'Ideas born like stars.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
+  { id: 'q07', text: 'Be impeccable with your words.', target: 'lore', color: '#FFD200', rarity: 'common' },
+  { id: 'q08', text: 'Everything has a price.', target: 'flow', color: '#FFD200', rarity: 'common' },
+  { id: 'q09', text: 'The system never sleeps.', target: 'agents', color: '#00F0FF', rarity: 'rare' },
+  { id: 'q10', text: 'Controlled chaos is art.', target: 'arte', color: '#FF3A1F', rarity: 'common' },
+  { id: 'q11', text: 'The map is not the territory.', target: 'systems', color: '#B84DFF', rarity: 'rare' },
+];
+
+function buildQuotePortals(list) {
+  return list.map(function (q) {
+    return Object.assign({}, q, {
+      x: 0.08 + Math.random() * 0.84,
+      y: 0.08 + Math.random() * 0.80,
+      vx: (0.00006 + Math.random() * 0.0001) * (Math.random() > 0.5 ? 1 : -1),
+      vy: (0.00003 + Math.random() * 0.00005) * (Math.random() > 0.5 ? 1 : -1),
+      collected: false,
+      hovered: false,
+      width: 0, // computed at draw time
+    });
+  });
+}
+
+let QUOTE_PORTALS = buildQuotePortals(INLINE_QUOTE_DEFAULTS);
+
+// Load the canonical quotes; overwrite the portals, then run the deep-link
+// handler (defined later) once data has settled.
+function loadQuotesThen(cb) {
+  fetch('quotes.json')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (Array.isArray(data) && data.length) QUOTE_PORTALS = buildQuotePortals(data);
+    })
+    .catch(function () { /* keep inline defaults */ })
+    .finally(function () { if (typeof cb === 'function') cb(); });
+}
 
 // ─── FLYING KEYS ───
 const KEY_COLORS = ['#B84DFF','#FFD200','#FF3A1F','#AAFF00','#00F0FF'];
