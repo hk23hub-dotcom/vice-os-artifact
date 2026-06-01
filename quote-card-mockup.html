@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Quote Card Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background:#15151a; min-height:100vh;
+    display:flex; flex-direction:column; align-items:center; gap:28px;
+    padding:40px 20px; font-family:'Space Mono',monospace;
+  }
+  .hint { color:#666; font-size:11px; letter-spacing:3px; text-transform:uppercase; }
+  .hint b { color:#AAFF00; }
+  .stage { display:flex; gap:32px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+
+  /* ── THE CARD (1080x1080 IG square, scaled) ── */
+  .card {
+    position:relative;
+    width:540px; height:540px;       /* 1:1 — exports at 1080² */
+    background:#000;
+    overflow:hidden;
+    display:flex; flex-direction:column;
+    box-shadow:0 30px 80px rgba(0,0,0,0.6);
+  }
+  /* faint accent glow from the target planet color */
+  .card::before {
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(120% 80% at 50% 0%, color-mix(in srgb, var(--accent) 9%, transparent) 0%, transparent 55%);
+    pointer-events:none;
+  }
+
+  .card-header {
+    text-align:center; padding:48px 0 0;
+    display:flex; align-items:center; justify-content:center; gap:18px;
+  }
+  .card-header .line { width:46px; height:1px; background:#2a2a2a; }
+  .card-header .label {
+    font-family:'Space Mono',monospace; font-size:13px;
+    letter-spacing:6px; color:#777; font-weight:700;
+  }
+
+  .quote-mark {
+    text-align:center; font-family:'Space Grotesk',sans-serif;
+    font-weight:900; font-size:90px; color:var(--accent);
+    line-height:0.4; margin-top:26px; opacity:0.9;
+  }
+
+  .card-body { flex:1; display:flex; align-items:center; justify-content:center; padding:0 54px; }
+  .quote-text {
+    font-family:'Space Grotesk',sans-serif; font-weight:900;
+    font-size:38px; line-height:1.18; color:#fff; text-align:center;
+    text-transform:uppercase; letter-spacing:-0.5px;
+  }
+
+  .card-footer { text-align:center; padding:0 0 50px; }
+  .card-footer .divider { width:42px; height:2px; background:var(--accent); margin:0 auto 16px; }
+  .card-footer .author {
+    font-family:'Space Mono',monospace; font-size:15px;
+    letter-spacing:5px; color:#888; font-weight:700; text-transform:uppercase;
+  }
+
+  /* brand mark bottom-left */
+  .brand {
+    position:absolute; left:30px; bottom:26px;
+    font-family:'Space Grotesk',sans-serif; font-weight:900;
+    font-size:15px; letter-spacing:1px; color:#fff;
+  }
+  .brand span { color:var(--accent); }
+  .brand small {
+    display:block; font-family:'Space Mono',monospace; font-weight:400;
+    font-size:7px; letter-spacing:3px; color:#555; margin-top:1px;
+  }
+
+  /* QR bottom-right — the bridge to the universe */
+  .qr {
+    position:absolute; right:26px; bottom:22px;
+    width:74px; height:74px; padding:6px;
+    background:#fff; border-radius:3px;
+  }
+  .qr img { width:100%; height:100%; display:block; }
+  .qr-cap {
+    position:absolute; right:26px; bottom:8px;
+    font-family:'Space Mono',monospace; font-size:6px;
+    letter-spacing:2px; color:#444; width:74px; text-align:center;
+  }
+
+  /* ── caption preview panel ── */
+  .caption {
+    width:340px; background:#0c0c12; border:1px solid #1e1e2a;
+    border-radius:8px; padding:20px;
+  }
+  .caption h4 { font-size:9px; letter-spacing:3px; color:#555; margin-bottom:12px; }
+  .caption p { font-family:'Space Grotesk',sans-serif; color:#cfcfcf; font-size:13px; line-height:1.6; }
+  .caption .tags { color:var(--accent); margin-top:10px; font-size:12px; }
+  .caption .link { color:#6aa3ff; margin-top:12px; font-size:11px; word-break:break-all; }
+  .caption .note { color:#555; font-size:9px; margin-top:14px; line-height:1.5; letter-spacing:1px; }
+
+  .controls { display:flex; gap:10px; margin-top:6px; }
+  .controls button {
+    background:none; border:1px solid #333; color:#aaa;
+    font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px;
+    padding:9px 14px; cursor:pointer; border-radius:3px; transition:.15s;
+  }
+  .controls button:hover { border-color:var(--accent); color:var(--accent); }
+</style>
+</head>
+<body style="--accent:#AAFF00;">
+
+  <div class="hint">MOCKUP &nbsp;·&nbsp; así se vería la card que genera el <b>Quote Studio</b> &nbsp;·&nbsp; 1080×1080 para Instagram</div>
+
+  <div class="stage">
+
+    <!-- THE CARD -->
+    <div class="card" id="card">
+      <div class="card-header">
+        <div class="line"></div>
+        <div class="label">DAILY MINDSET</div>
+        <div class="line"></div>
+      </div>
+
+      <div class="quote-mark">&rdquo;</div>
+
+      <div class="card-body">
+        <div class="quote-text">Putting is like wisdom — partly a natural gift and partly the accumulation of experience.</div>
+      </div>
+
+      <div class="card-footer">
+        <div class="divider"></div>
+        <div class="author">Arnold Palmer</div>
+      </div>
+
+      <div class="brand">HK<span>23</span><small>VICE OS</small></div>
+
+      <!-- real scannable QR pointing at the universe deep-link -->
+      <div class="qr">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=0&data=https://hk23neo.github.io/vice-os/hk23-universe.html?quote=q01" alt="QR">
+      </div>
+      <div class="qr-cap">SCAN → UNIVERSE</div>
+    </div>
+
+    <!-- CAPTION PREVIEW -->
+    <div class="caption">
+      <h4>CAPTION (lista para copiar)</h4>
+      <p>Putting is like wisdom — partly a natural gift and partly the accumulation of experience. — Arnold Palmer</p>
+      <p class="tags">#golf #mindset #putting #performance #hk23 #viceos #dailymindset</p>
+      <p class="link">→ Escanea el QR o entra: hk23neo.github.io/vice-os ?quote=q01</p>
+      <p class="note">El QR abre el universo directo en el planeta VICEGOLFER y desbloquea esta quote como coleccionable. En LinkedIn el link va clicable; en IG/TikTok lo lleva el QR + link-in-bio.</p>
+      <div class="controls">
+        <button>↓ DESCARGAR PNG</button>
+        <button>⧉ COPIAR CAPTION</button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="hint" style="margin-top:14px;">el acento verde sale del color del planeta target (VICEGOLFER) — cada quote hereda el color de su planeta</div>
+
+</body>
+</html>
