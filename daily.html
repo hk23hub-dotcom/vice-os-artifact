@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>HK23 — Daily Mindset</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="quote-utils.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:#000; color:#fff; font-family:'Space Mono',monospace; min-height:100vh; padding:32px 20px 60px; }
+  .head { text-align:center; margin-bottom:8px; }
+  .head .logo { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:22px; letter-spacing:1px; }
+  .head .logo span { color:#AAFF00; }
+  .head .tag { font-size:9px; letter-spacing:4px; color:#555; margin-top:4px; }
+  .hero { max-width:520px; margin:34px auto 26px; text-align:center; border:1px solid #16161c; padding:34px 26px; }
+  .hero .h { font-size:11px; letter-spacing:5px; color:#666; margin-bottom:18px; }
+  .hero .q { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:26px; line-height:1.2; text-transform:uppercase; }
+  .hero .a { font-size:12px; letter-spacing:3px; color:#777; margin-top:16px; }
+  .hero a.enter, .grid a.enter { display:inline-block; margin-top:20px; padding:13px 26px; text-decoration:none;
+    font-size:11px; letter-spacing:3px; border:1px solid var(--c,#AAFF00); color:var(--c,#AAFF00); }
+  .glabel { text-align:center; font-size:9px; letter-spacing:4px; color:#444; margin:30px 0 14px; }
+  .grid { max-width:680px; margin:0 auto; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .cell { border:1px solid #16161c; padding:18px 16px; display:flex; flex-direction:column; }
+  .cell .q { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; line-height:1.3; text-transform:uppercase; flex:1; }
+  .cell .a { font-size:9px; letter-spacing:2px; color:#666; margin-top:10px; }
+  .cell a.enter { margin-top:12px; font-size:9px; letter-spacing:2px; text-align:center; }
+  @media(max-width:520px){ .grid{ grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <div class="head">
+    <div class="logo">HK<span>23</span></div>
+    <div class="tag">DAILY MINDSET</div>
+  </div>
+  <div id="hero" class="hero"></div>
+  <div class="glabel">ALL DROPS</div>
+  <div id="grid" class="grid"></div>
+
+<script>
+const UNIVERSE_URL = 'https://hk23neo.github.io/vice-os';
+
+function enterLink(q) { return QuoteUtils.quoteDeepLink(UNIVERSE_URL, q.id); }
+
+fetch('quotes.json').then(function (r) { return r.json(); }).then(function (data) {
+  const posted = data.filter(function (q) { return q.posted; }).reverse(); // newest first
+  if (!posted.length) { document.getElementById('hero').innerHTML = '<div class="h">NO DROPS YET</div>'; return; }
+
+  const top = posted[0];
+  document.getElementById('hero').style.setProperty('--c', top.color);
+  document.getElementById('hero').innerHTML =
+    '<div class="h">QUOTE OF THE DAY</div>' +
+    '<div class="q">' + top.text + '</div>' +
+    (top.author ? '<div class="a">— ' + top.author.toUpperCase() + '</div>' : '') +
+    '<a class="enter" href="' + enterLink(top) + '">ENTER THE UNIVERSE →</a>';
+
+  const grid = document.getElementById('grid');
+  posted.slice(1).forEach(function (q) {
+    const cell = document.createElement('div');
+    cell.className = 'cell'; cell.style.setProperty('--c', q.color);
+    cell.innerHTML =
+      '<div class="q">' + q.text + '</div>' +
+      (q.author ? '<div class="a">— ' + q.author.toUpperCase() + '</div>' : '') +
+      '<a class="enter" href="' + enterLink(q) + '">ENTER →</a>';
+    grid.appendChild(cell);
+  });
+});
+</script>
+</body>
+</html>
