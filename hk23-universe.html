@@ -5212,6 +5212,9 @@ function openSwarmArt() {
 }
 
 function captureUniverseAndExplode() {
+  // Push galaxy CTA out of the way
+  const cta = document.getElementById('galaxy-cta');
+  if (cta) cta.style.opacity = '0';
   // Show panel immediately (in modes state)
   const panel = document.getElementById('swarm-mini-panel');
   panel.style.display = 'block';
@@ -5236,6 +5239,9 @@ function captureUniverseAndExplode() {
 function closeSwarmArt() {
   document.getElementById('swarm-mini-panel').style.display = 'none';
   swarmActive = false;
+  // Restore galaxy CTA
+  const cta = document.getElementById('galaxy-cta');
+  if (cta && cta.classList.contains('visible')) cta.style.opacity = '1';
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
   swarmParticles = [];
   const c = document.getElementById('swarm-live-canvas');
