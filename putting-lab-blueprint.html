@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer Dynamic Putting Lab — Blueprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050e1a;--navy:#071528;--line:rgba(100,168,255,0.12);--grid:rgba(100,168,255,0.04);--gold:#C6A15B;--gold-d:rgba(198,161,91,0.5);--cyan:#64a8ff;--cyan-d:rgba(100,168,255,0.4);--green:#4ade80;--cream:#e8f0ff;--mono:'Share Tech Mono',monospace}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--cream);font-family:var(--mono);font-size:11px;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:30px 30px;padding:0 0 60px}
+.header{background:var(--navy);border-bottom:2px solid var(--gold);padding:16px 24px;display:flex;justify-content:space-between;align-items:flex-end;position:sticky;top:0;z-index:10}
+.header h1{font-family:'Bebas Neue';font-size:26px;color:var(--gold);letter-spacing:.1em}
+.header .sub{font-size:9px;color:var(--cyan-d);letter-spacing:.2em;text-transform:uppercase;margin-top:2px}
+.header .meta{text-align:right;font-size:8px;color:var(--cyan-d);letter-spacing:.14em;line-height:1.8}
+.header .meta strong{color:var(--gold)}
+
+.page{max-width:1100px;margin:0 auto;padding:28px 24px 0}
+.section-label{font-family:'Montserrat';font-size:8px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.card{background:var(--navy);border:1px solid var(--line);margin-bottom:16px;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.3)}
+.card-header h2{font-family:'Bebas Neue';font-size:20px;color:var(--cream);letter-spacing:.06em}
+.card-header .tag{font-size:7px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;border:1px solid var(--gold-d);padding:3px 8px}
+.card-body{padding:16px}
+
+svg text{font-family:var(--mono)}
+.dim-line{stroke:var(--cyan-d);stroke-width:.8;marker-end:url(#arrowC);marker-start:url(#arrowCS)}
+.dim-text{fill:var(--cyan);font-size:9px;letter-spacing:.08em}
+.label-text{fill:var(--gold);font-size:8px;letter-spacing:.12em;text-transform:uppercase}
+.spec-text{fill:rgba(100,168,255,.6);font-size:7.5px;letter-spacing:.06em}
+.outline{stroke:rgba(100,168,255,.25);stroke-width:1.2;fill:none}
+.surface{fill:rgba(74,222,128,.06);stroke:rgba(74,222,128,.3);stroke-width:1}
+.component{fill:rgba(198,161,91,.08);stroke:rgba(198,161,91,.4);stroke-width:.8}
+.axis-line{stroke:rgba(198,161,91,.3);stroke-width:.8;stroke-dasharray:4,3}
+.grid-minor{stroke:var(--grid);stroke-width:.5}
+
+.specs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:16px}
+.spec-item{background:rgba(0,0,0,.3);border:1px solid var(--line);padding:10px 12px}
+.spec-key{font-size:7px;color:var(--cyan-d);letter-spacing:.16em;text-transform:uppercase;margin-bottom:3px}
+.spec-val{font-family:'Bebas Neue';font-size:18px;color:var(--gold);letter-spacing:.04em}
+.spec-note{font-size:8px;color:rgba(100,168,255,.4);margin-top:2px}
+
+.components-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px;margin-top:12px}
+.comp-item{background:rgba(0,0,0,.25);border:1px solid var(--line);padding:10px;text-align:center}
+.comp-icon{font-size:20px;margin-bottom:4px}
+.comp-name{font-family:'Montserrat';font-size:8px;font-weight:700;color:var(--cream);letter-spacing:.1em;text-transform:uppercase}
+.comp-desc{font-size:7px;color:var(--cyan-d);margin-top:2px;letter-spacing:.06em}
+
+.footer{background:var(--navy);border-top:2px solid var(--gold);padding:14px 24px;display:flex;justify-content:space-between;font-size:8px;color:var(--cyan-d);letter-spacing:.14em;margin-top:28px}
+.footer .brand{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>DYNAMIC PUTTING LAB</h1>
+    <div class="sub">ViceGolfer Performance Ecosystem · Model VICE P1</div>
+  </div>
+  <div class="meta">
+    <div>MODEL: <strong>VICE P1</strong></div>
+    <div>SIZE: <strong>8ft × 12ft (2.44m × 3.65m)</strong></div>
+    <div>STATUS: <strong>BLUEPRINT</strong></div>
+    <div>DOC: <strong>BP-PLB-001</strong></div>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- ═══════ 1. PERSPECTIVE VIEW ═══════ -->
+<div class="section-label">1. OVERALL PERSPECTIVE</div>
+<div class="card">
+  <div class="card-header">
+    <h2>VICE P1 — 3/4 VIEW</h2>
+    <div class="tag">DYNAMIC MOTION PLATFORM</div>
+  </div>
+  <div class="card-body">
+    <svg viewBox="0 0 800 440" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <defs>
+        <marker id="arrowC" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="none" stroke="var(--cyan-d)" stroke-width=".8"/></marker>
+        <marker id="arrowCS" markerWidth="6" markerHeight="4" refX="1" refY="2" orient="auto"><path d="M6,0 L0,2 L6,4" fill="none" stroke="var(--cyan-d)" stroke-width=".8"/></marker>
+        <marker id="arrowG" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="none" stroke="var(--gold-d)" stroke-width=".8"/></marker>
+      </defs>
+
+      <!-- Platform base — isometric view -->
+      <!-- Back face -->
+      <polygon points="160,180 600,140 600,220 160,260" class="outline" style="fill:rgba(100,168,255,.03)"/>
+      <!-- Top surface (the green) -->
+      <polygon points="160,180 600,140 680,200 240,240" class="surface"/>
+      <!-- Side face -->
+      <polygon points="160,180 160,260 240,320 240,240" class="outline" style="fill:rgba(100,168,255,.03)"/>
+      <!-- Front face -->
+      <polygon points="240,240 680,200 680,280 240,320" class="outline" style="fill:rgba(100,168,255,.03)"/>
+
+      <!-- Turf lines on surface -->
+      <line x1="220" y1="218" x2="640" y2="178" style="stroke:rgba(74,222,128,.1);stroke-width:.5"/>
+      <line x1="230" y1="226" x2="660" y2="186" style="stroke:rgba(74,222,128,.1);stroke-width:.5"/>
+      <line x1="200" y1="210" x2="620" y2="170" style="stroke:rgba(74,222,128,.1);stroke-width:.5"/>
+
+      <!-- Hole on surface -->
+      <ellipse cx="420" cy="205" rx="8" ry="4" style="fill:rgba(0,0,0,.6);stroke:rgba(245,245,245,.2);stroke-width:.8"/>
+      <line x1="420" y1="198" x2="422" y2="180" style="stroke:rgba(245,245,245,.3);stroke-width:.8"/>
+      <!-- Flag -->
+      <polygon points="422,180 440,184 422,188" style="fill:rgba(198,161,91,.4);stroke:rgba(198,161,91,.5);stroke-width:.5"/>
+
+      <!-- Projector (overhead) -->
+      <rect x="380" y="60" width="60" height="30" rx="3" class="component"/>
+      <rect x="395" y="90" width="30" height="8" rx="2" class="component"/>
+      <!-- Projection beam -->
+      <line x1="410" y1="98" x2="280" y2="210" style="stroke:rgba(198,161,91,.15);stroke-width:.5;stroke-dasharray:4,4"/>
+      <line x1="410" y1="98" x2="540" y2="190" style="stroke:rgba(198,161,91,.15);stroke-width:.5;stroke-dasharray:4,4"/>
+      <text x="410" y="54" text-anchor="middle" class="label-text">4K SHORT THROW PROJECTOR</text>
+
+      <!-- Tablet stand (left side) -->
+      <rect x="120" y="200" width="30" height="45" rx="2" class="component"/>
+      <rect x="124" y="204" width="22" height="30" rx="1" style="fill:rgba(74,222,128,.1);stroke:rgba(74,222,128,.3);stroke-width:.5"/>
+      <text x="135" y="258" text-anchor="middle" class="label-text" style="font-size:7px">TABLET</text>
+
+      <!-- Camera (overhead, right) -->
+      <circle cx="620" cy="80" r="12" class="component"/>
+      <circle cx="620" cy="80" r="5" style="fill:rgba(100,168,255,.15);stroke:rgba(100,168,255,.3);stroke-width:.8"/>
+      <text x="620" y="62" text-anchor="middle" class="label-text" style="font-size:7px">OVERHEAD CAMERA</text>
+
+      <!-- Actuator symbols under platform -->
+      <rect x="200" y="280" width="16" height="30" rx="2" style="fill:rgba(198,161,91,.1);stroke:rgba(198,161,91,.25);stroke-width:.8"/>
+      <rect x="340" y="270" width="16" height="30" rx="2" style="fill:rgba(198,161,91,.1);stroke:rgba(198,161,91,.25);stroke-width:.8"/>
+      <rect x="480" y="260" width="16" height="30" rx="2" style="fill:rgba(198,161,91,.1);stroke:rgba(198,161,91,.25);stroke-width:.8"/>
+      <rect x="620" y="250" width="16" height="30" rx="2" style="fill:rgba(198,161,91,.1);stroke:rgba(198,161,91,.25);stroke-width:.8"/>
+      <text x="410" y="330" text-anchor="middle" class="label-text">DYNAMIC MOTION PLATFORM — DUAL AXIS</text>
+
+      <!-- Dimension lines -->
+      <!-- Width -->
+      <line x1="240" y1="350" x2="680" y2="350" class="dim-line"/>
+      <text x="460" y="366" text-anchor="middle" class="dim-text">12'-0" (3,650mm)</text>
+      <!-- Depth -->
+      <line x1="710" y1="200" x2="710" y2="280" class="dim-line"/>
+      <text x="750" y="244" text-anchor="middle" class="dim-text">8'-0"</text>
+      <text x="750" y="256" text-anchor="middle" class="spec-text">(2,440mm)</text>
+
+      <!-- Labels -->
+      <text x="400" y="218" text-anchor="middle" style="fill:rgba(74,222,128,.5);font-size:8px;letter-spacing:.14em">PREMIUM PUTTING SURFACE</text>
+      <text x="400" y="230" text-anchor="middle" style="fill:rgba(74,222,128,.3);font-size:7px;letter-spacing:.1em">TOUR-GRADE TURF</text>
+
+      <!-- VG Logo watermark -->
+      <text x="400" y="410" text-anchor="middle" style="fill:rgba(198,161,91,.12);font-family:'Bebas Neue';font-size:28px;letter-spacing:.2em">VICEGOLFER</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ 2. PLAN VIEW (TOP) ═══════ -->
+<div class="section-label">2. PLAN VIEW (TOP DOWN)</div>
+<div class="card">
+  <div class="card-header">
+    <h2>PLAN VIEW</h2>
+    <div class="tag">TOP DOWN · SCALE 1:25</div>
+  </div>
+  <div class="card-body">
+    <svg viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <!-- Platform outline -->
+      <rect x="80" y="40" width="440" height="260" rx="3" class="outline" style="stroke-width:1.5"/>
+
+      <!-- Green surface -->
+      <rect x="90" y="50" width="420" height="240" rx="2" class="surface"/>
+
+      <!-- Grid lines on surface -->
+      <line x1="90" y1="110" x2="510" y2="110" class="grid-minor"/>
+      <line x1="90" y1="170" x2="510" y2="170" class="grid-minor"/>
+      <line x1="90" y1="230" x2="510" y2="230" class="grid-minor"/>
+      <line x1="160" y1="50" x2="160" y2="290" class="grid-minor"/>
+      <line x1="230" y1="50" x2="230" y2="290" class="grid-minor"/>
+      <line x1="300" y1="50" x2="300" y2="290" class="grid-minor"/>
+      <line x1="370" y1="50" x2="370" y2="290" class="grid-minor"/>
+      <line x1="440" y1="50" x2="440" y2="290" class="grid-minor"/>
+
+      <!-- Hole -->
+      <circle cx="300" cy="100" r="6" style="fill:rgba(0,0,0,.5);stroke:rgba(245,245,245,.3);stroke-width:1"/>
+      <text x="300" y="84" text-anchor="middle" class="label-text" style="font-size:7px">HOLE (Ø108mm)</text>
+
+      <!-- Projector position -->
+      <rect x="275" y="14" width="50" height="20" rx="2" class="component"/>
+      <text x="300" y="28" text-anchor="middle" style="fill:rgba(198,161,91,.6);font-size:7px;letter-spacing:.1em">PROJECTOR</text>
+      <!-- Projection cone -->
+      <polygon points="300,34 90,50 510,50" style="fill:rgba(198,161,91,.03);stroke:none"/>
+      <line x1="300" y1="34" x2="90" y2="50" style="stroke:rgba(198,161,91,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+      <line x1="300" y1="34" x2="510" y2="50" style="stroke:rgba(198,161,91,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+
+      <!-- Distance markers on surface -->
+      <circle cx="300" cy="100" r="30" style="fill:none;stroke:rgba(74,222,128,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+      <text x="335" y="96" class="spec-text" style="fill:rgba(74,222,128,.3)">3ft</text>
+      <circle cx="300" cy="100" r="60" style="fill:none;stroke:rgba(74,222,128,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+      <text x="365" y="96" class="spec-text" style="fill:rgba(74,222,128,.3)">6ft</text>
+      <circle cx="300" cy="100" r="100" style="fill:none;stroke:rgba(74,222,128,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+      <text x="405" y="96" class="spec-text" style="fill:rgba(74,222,128,.3)">10ft</text>
+
+      <!-- Dimension lines -->
+      <line x1="80" y1="320" x2="520" y2="320" class="dim-line"/>
+      <text x="300" y="336" text-anchor="middle" class="dim-text">12'-0" (3,650mm)</text>
+      <line x1="550" y1="40" x2="550" y2="300" class="dim-line"/>
+      <text x="570" y="170" text-anchor="middle" class="dim-text" transform="rotate(90,570,170)">8'-0" (2,440mm)</text>
+
+      <!-- Center mark -->
+      <line x1="295" y1="165" x2="305" y2="175" style="stroke:rgba(198,161,91,.3);stroke-width:.6"/>
+      <line x1="305" y1="165" x2="295" y2="175" style="stroke:rgba(198,161,91,.3);stroke-width:.6"/>
+      <text x="300" y="188" text-anchor="middle" class="spec-text">PROJECTOR CENTER</text>
+
+      <!-- Labels -->
+      <text x="300" y="358" text-anchor="middle" style="fill:rgba(198,161,91,.15);font-family:'Bebas Neue';font-size:16px;letter-spacing:.2em">PLAN VIEW — VICE P1</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ 3. SIDE ELEVATION ═══════ -->
+<div class="section-label">3. SIDE ELEVATION</div>
+<div class="card">
+  <div class="card-header">
+    <h2>SIDE VIEW — DYNAMIC TILT</h2>
+    <div class="tag">MAX 3% UP/DOWN</div>
+  </div>
+  <div class="card-body">
+    <svg viewBox="0 0 600 240" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <!-- Platform side profile — level -->
+      <rect x="80" y="100" width="440" height="20" rx="1" class="outline" style="fill:rgba(74,222,128,.04)"/>
+      <!-- Base frame -->
+      <rect x="80" y="120" width="440" height="40" rx="1" class="outline" style="fill:rgba(100,168,255,.03)"/>
+      <!-- Actuators -->
+      <rect x="100" y="160" width="14" height="30" rx="2" class="component"/>
+      <rect x="250" y="160" width="14" height="30" rx="2" class="component"/>
+      <rect x="400" y="160" width="14" height="30" rx="2" class="component"/>
+      <!-- Ground line -->
+      <line x1="60" y1="190" x2="560" y2="190" style="stroke:rgba(100,168,255,.15);stroke-width:.8"/>
+
+      <!-- Tilt visualization -->
+      <!-- Tilted up -->
+      <line x1="80" y1="90" x2="520" y2="76" style="stroke:rgba(198,161,91,.25);stroke-width:1;stroke-dasharray:6,4"/>
+      <text x="530" y="78" class="spec-text" style="fill:var(--gold-d)">UP 3%</text>
+      <!-- Tilted down -->
+      <line x1="80" y1="110" x2="520" y2="124" style="stroke:rgba(198,161,91,.25);stroke-width:1;stroke-dasharray:6,4"/>
+      <text x="530" y="128" class="spec-text" style="fill:var(--gold-d)">DOWN 3%</text>
+
+      <!-- Arc indicator -->
+      <path d="M 520,76 A 60,60 0 0,1 520,124" style="fill:none;stroke:rgba(198,161,91,.2);stroke-width:.6"/>
+
+      <!-- Height dims -->
+      <line x1="40" y1="100" x2="40" y2="190" class="dim-line"/>
+      <text x="28" y="148" text-anchor="middle" class="dim-text" transform="rotate(-90,28,148)">2'-0" (610mm)</text>
+
+      <!-- Ceiling height -->
+      <line x1="40" y1="20" x2="40" y2="100" style="stroke:var(--cyan-d);stroke-width:.6;stroke-dasharray:4,4"/>
+      <text x="48" y="60" class="spec-text">MIN CEILING 7'-6"</text>
+      <text x="48" y="72" class="spec-text">(2,280mm)</text>
+
+      <!-- Width dim -->
+      <line x1="80" y1="210" x2="520" y2="210" class="dim-line"/>
+      <text x="300" y="226" text-anchor="middle" class="dim-text">12'-0" (3,650mm)</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ 4. FRONT ELEVATION ═══════ -->
+<div class="section-label">4. FRONT ELEVATION</div>
+<div class="card">
+  <div class="card-header">
+    <h2>FRONT VIEW — LEFT/RIGHT TILT</h2>
+    <div class="tag">MAX 5% LEFT/RIGHT</div>
+  </div>
+  <div class="card-body">
+    <svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <!-- Platform front profile -->
+      <rect x="100" y="80" width="300" height="16" rx="1" class="outline" style="fill:rgba(74,222,128,.04)"/>
+      <!-- Base -->
+      <rect x="100" y="96" width="300" height="34" rx="1" class="outline" style="fill:rgba(100,168,255,.03)"/>
+      <!-- Actuators -->
+      <rect x="120" y="130" width="14" height="24" rx="2" class="component"/>
+      <rect x="366" y="130" width="14" height="24" rx="2" class="component"/>
+      <!-- Ground -->
+      <line x1="80" y1="154" x2="420" y2="154" style="stroke:rgba(100,168,255,.15);stroke-width:.8"/>
+
+      <!-- Tilt left -->
+      <line x1="100" y1="68" x2="400" y2="82" style="stroke:rgba(198,161,91,.25);stroke-width:1;stroke-dasharray:6,4"/>
+      <text x="90" y="65" class="spec-text" style="fill:var(--gold-d)">LEFT 5%</text>
+      <!-- Tilt right -->
+      <line x1="100" y1="92" x2="400" y2="78" style="stroke:rgba(198,161,91,.25);stroke-width:1;stroke-dasharray:6,4"/>
+      <text x="404" y="75" class="spec-text" style="fill:var(--gold-d)">RIGHT 5%</text>
+
+      <!-- Width dim -->
+      <line x1="100" y1="174" x2="400" y2="174" class="dim-line"/>
+      <text x="250" y="190" text-anchor="middle" class="dim-text">8'-0" (2,440mm)</text>
+      <!-- Height dim -->
+      <line x1="430" y1="80" x2="430" y2="154" class="dim-line"/>
+      <text x="460" y="120" text-anchor="middle" class="dim-text">2'-0"</text>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ 5. DUAL AXIS MOTION ═══════ -->
+<div class="section-label">5. DYNAMIC MOTION SYSTEM</div>
+<div class="card">
+  <div class="card-header">
+    <h2>DUAL AXIS — ACTUATOR LAYOUT</h2>
+    <div class="tag">4 LINEAR ACTUATORS</div>
+  </div>
+  <div class="card-body">
+    <svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+      <!-- Platform top-down simplified -->
+      <rect x="100" y="40" width="300" height="200" rx="3" class="outline"/>
+
+      <!-- Actuator positions -->
+      <circle cx="130" cy="70" r="10" class="component" style="stroke-width:1.2"/>
+      <text x="130" y="74" text-anchor="middle" style="fill:var(--gold);font-size:8px;font-weight:700">A1</text>
+      <circle cx="370" cy="70" r="10" class="component" style="stroke-width:1.2"/>
+      <text x="370" y="74" text-anchor="middle" style="fill:var(--gold);font-size:8px;font-weight:700">A2</text>
+      <circle cx="130" cy="210" r="10" class="component" style="stroke-width:1.2"/>
+      <text x="130" y="214" text-anchor="middle" style="fill:var(--gold);font-size:8px;font-weight:700">A3</text>
+      <circle cx="370" cy="210" r="10" class="component" style="stroke-width:1.2"/>
+      <text x="370" y="214" text-anchor="middle" style="fill:var(--gold);font-size:8px;font-weight:700">A4</text>
+
+      <!-- Axes -->
+      <!-- Y axis -->
+      <line x1="250" y1="30" x2="250" y2="250" class="axis-line"/>
+      <polygon points="250,25 246,35 254,35" style="fill:rgba(198,161,91,.3)"/>
+      <polygon points="250,255 246,245 254,245" style="fill:rgba(198,161,91,.3)"/>
+      <text x="260" y="28" class="label-text" style="font-size:7px;fill:var(--gold-d)">Y AXIS (UP/DOWN)</text>
+      <text x="260" y="258" class="spec-text">MAX 3%</text>
+
+      <!-- X axis -->
+      <line x1="90" y1="140" x2="410" y2="140" class="axis-line"/>
+      <polygon points="85,140 95,136 95,144" style="fill:rgba(198,161,91,.3)"/>
+      <polygon points="415,140 405,136 405,144" style="fill:rgba(198,161,91,.3)"/>
+      <text x="85" y="130" text-anchor="end" class="label-text" style="font-size:7px;fill:var(--gold-d)">LEFT 5%</text>
+      <text x="415" y="130" class="label-text" style="font-size:7px;fill:var(--gold-d)">RIGHT 5%</text>
+
+      <!-- Center cross -->
+      <line x1="245" y1="140" x2="255" y2="140" style="stroke:var(--gold);stroke-width:1.2"/>
+      <line x1="250" y1="135" x2="250" y2="145" style="stroke:var(--gold);stroke-width:1.2"/>
+      <text x="250" y="158" text-anchor="middle" class="label-text" style="font-size:6px">LEVEL</text>
+
+      <!-- Sync controller -->
+      <rect x="180" y="268" width="140" height="24" rx="2" class="component"/>
+      <text x="250" y="284" text-anchor="middle" style="fill:rgba(198,161,91,.6);font-size:8px;letter-spacing:.12em">MOTION CONTROL BOX</text>
+      <!-- Lines to actuators -->
+      <line x1="200" y1="268" x2="130" y2="220" style="stroke:rgba(198,161,91,.15);stroke-width:.5;stroke-dasharray:3,3"/>
+      <line x1="300" y1="268" x2="370" y2="220" style="stroke:rgba(198,161,91,.15);stroke-width:.5;stroke-dasharray:3,3"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ═══════ 6. SYSTEM COMPONENTS ═══════ -->
+<div class="section-label">6. SYSTEM COMPONENTS</div>
+<div class="card">
+  <div class="card-header">
+    <h2>COMPONENTS</h2>
+    <div class="tag">FULL SYSTEM</div>
+  </div>
+  <div class="card-body">
+    <div class="components-grid">
+      <div class="comp-item"><div class="comp-icon">⚙️</div><div class="comp-name">Linear Actuators</div><div class="comp-desc">4 units · sync motion</div></div>
+      <div class="comp-item"><div class="comp-icon">🖥️</div><div class="comp-name">Motion Controller</div><div class="comp-desc">Sync box · real-time</div></div>
+      <div class="comp-item"><div class="comp-icon">💻</div><div class="comp-name">Industrial PC</div><div class="comp-desc">Data processing</div></div>
+      <div class="comp-item"><div class="comp-icon">📷</div><div class="comp-name">Overhead Camera</div><div class="comp-desc">Ball tracking</div></div>
+      <div class="comp-item"><div class="comp-icon">🎯</div><div class="comp-name">PuttView Projector</div><div class="comp-desc">4K short throw</div></div>
+      <div class="comp-item"><div class="comp-icon">📱</div><div class="comp-name">Touch Tablet</div><div class="comp-desc">Wireless control</div></div>
+      <div class="comp-item"><div class="comp-icon">🖥️</div><div class="comp-name">Impact Screen</div><div class="comp-desc">Projection surface</div></div>
+      <div class="comp-item"><div class="comp-icon">🔊</div><div class="comp-name">Speakers</div><div class="comp-desc">Audio feedback</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ 7. SPECIFICATIONS ═══════ -->
+<div class="section-label">7. SPECIFICATIONS</div>
+<div class="card">
+  <div class="card-header">
+    <h2>TECHNICAL SPECS</h2>
+    <div class="tag">VICE P1</div>
+  </div>
+  <div class="card-body">
+    <div class="specs-grid">
+      <div class="spec-item"><div class="spec-key">Green Size</div><div class="spec-val">8ft × 12ft</div><div class="spec-note">2.44m × 3.65m</div></div>
+      <div class="spec-item"><div class="spec-key">Real Hole</div><div class="spec-val">1 × Ø108mm</div><div class="spec-note">+ Unlimited virtual (PuttView)</div></div>
+      <div class="spec-item"><div class="spec-key">Max Slope</div><div class="spec-val">3% / 5%</div><div class="spec-note">Up/Down · Left/Right</div></div>
+      <div class="spec-item"><div class="spec-key">Actuators</div><div class="spec-val">4 Linear</div><div class="spec-note">Synchronized dual-axis</div></div>
+      <div class="spec-item"><div class="spec-key">Projector</div><div class="spec-val">4K Short Throw</div><div class="spec-note">PuttView compatible</div></div>
+      <div class="spec-item"><div class="spec-key">Camera</div><div class="spec-val">Overhead</div><div class="spec-note">Ball tracking + video</div></div>
+      <div class="spec-item"><div class="spec-key">Control</div><div class="spec-val">Wireless Tablet</div><div class="spec-note">ViceGolfer App integrated</div></div>
+      <div class="spec-item"><div class="spec-key">Power</div><div class="spec-val">110/220V</div><div class="spec-note">20A circuit required</div></div>
+      <div class="spec-item"><div class="spec-key">Min Ceiling</div><div class="spec-val">7'-6"</div><div class="spec-note">2,280mm clearance</div></div>
+      <div class="spec-item"><div class="spec-key">Weight</div><div class="spec-val">~2,900 kg</div><div class="spec-note">6,393 lbs approx</div></div>
+      <div class="spec-item"><div class="spec-key">Interface</div><div class="spec-val">Tablet + App</div><div class="spec-note">ViceGolfer ecosystem</div></div>
+      <div class="spec-item"><div class="spec-key">Floor Req</div><div class="spec-val">Level ±2mm</div><div class="spec-note">Over full platform area</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ 8. USES ═══════ -->
+<div class="section-label">8. USE CASES</div>
+<div class="card">
+  <div class="card-header">
+    <h2>BUILT FOR</h2>
+    <div class="tag">PERFORMANCE ECOSYSTEM</div>
+  </div>
+  <div class="card-body">
+    <div class="components-grid" style="grid-template-columns:repeat(auto-fill,minmax(160px,1fr))">
+      <div class="comp-item"><div class="comp-icon">🎯</div><div class="comp-name">Skill Development</div><div class="comp-desc">100 Putt Protocol · structured training</div></div>
+      <div class="comp-item"><div class="comp-icon">🔄</div><div class="comp-name">Consistency Training</div><div class="comp-desc">Repeatable conditions · data logging</div></div>
+      <div class="comp-item"><div class="comp-icon">🏆</div><div class="comp-name">Tour Preparation</div><div class="comp-desc">Pressure challenges · break reading</div></div>
+      <div class="comp-item"><div class="comp-icon">📊</div><div class="comp-name">Data & Analytics</div><div class="comp-desc">ViceGolfer app integration · progress</div></div>
+    </div>
+    <div style="margin-top:16px;padding:12px 16px;border:1px solid var(--line);background:rgba(0,0,0,.3)">
+      <div style="font-size:8px;color:var(--gold);letter-spacing:.18em;text-transform:uppercase;margin-bottom:6px">BUILT FOR</div>
+      <div style="font-size:10px;color:var(--cream);letter-spacing:.08em;line-height:1.8">
+        PLAYERS · COACHES · ACADEMIES · PRIVATE HOUSES · ANYONE SERIOUS ABOUT GETTING BETTER.
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end .page -->
+
+<div class="footer">
+  <div>VICEGOLFER · DYNAMIC PUTTING LAB · BP-PLB-001</div>
+  <div class="brand">PERFORMANCE ECOSYSTEM</div>
+  <div>UNITS: mm [INCHES] · SCALE 1:50</div>
+</div>
+
+</body>
+</html>
