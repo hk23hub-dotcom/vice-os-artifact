@@ -5194,9 +5194,7 @@ let swarmMode = 'attract';
 let swarmLoadedImages = [];
 
 function openSwarmArt() {
-  // Make sure we're on the map screen
   if (currentScreen !== 'map') goTo('map');
-  document.getElementById('swarm-mini-panel').style.display = 'block';
   swarmActive = true;
   // drag-over on mini drop zone
   const dz = document.getElementById('swarm-mini-drop');
@@ -5209,6 +5207,30 @@ function openSwarmArt() {
       if (e.dataTransfer.files.length) handleSwarmFiles(e.dataTransfer.files);
     });
   }
+  // Capture the live universe and explode it
+  captureUniverseAndExplode();
+}
+
+function captureUniverseAndExplode() {
+  // Show panel immediately (in modes state)
+  const panel = document.getElementById('swarm-mini-panel');
+  panel.style.display = 'block';
+  document.getElementById('swarm-mini-upload').style.display = 'none';
+  document.getElementById('swarm-mini-modes').style.display = 'flex';
+
+  // Snapshot the live universe canvas
+  const snapshot = new Image();
+  snapshot.onload = () => launchSwarm(snapshot, 'explode');
+  // Small delay so the canvas has a clean frame
+  requestAnimationFrame(() => {
+    try {
+      snapshot.src = mapCanvas.toDataURL('image/png');
+    } catch(e) {
+      // Cross-origin fallback — just open upload panel
+      document.getElementById('swarm-mini-upload').style.display = 'flex';
+      document.getElementById('swarm-mini-modes').style.display = 'none';
+    }
+  });
 }
 
 function closeSwarmArt() {
@@ -5230,10 +5252,8 @@ function clearSwarmArt() {
   const c = document.getElementById('swarm-live-canvas');
   c.style.display = 'none';
   if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
-  document.getElementById('swarm-mini-upload').style.display = 'flex';
-  document.getElementById('swarm-mini-modes').style.display = 'none';
-  document.getElementById('swarm-mini-thumbs').innerHTML = '';
-  swarmLoadedImages = [];
+  // Re-capture universe fresh
+  captureUniverseAndExplode();
 }
 
 function setSwarmMode(mode) {
@@ -5280,7 +5300,7 @@ function handleSwarmFiles(files) {
   });
 }
 
-function launchSwarm(img) {
+function launchSwarm(img, startMode) {
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
 
   const canvas = document.getElementById('swarm-live-canvas');
@@ -5289,38 +5309,58 @@ function launchSwarm(img) {
   canvas.style.display = 'block';
   swarmCtx = canvas.getContext('2d');
 
-  const sampleW = 160, sampleH = Math.round(160 * (img.height / img.width));
+  // For universe captures use full canvas resolution; for uploads use smaller sample
+  const isUniverseCapture = (img.width === window.innerWidth || img.naturalWidth === window.innerWidth);
+  const sampleW = isUniverseCapture ? 240 : 160;
+  const sampleH = Math.round(sampleW * (img.height / img.width));
+
   const off = document.createElement('canvas');
   off.width = sampleW; off.height = sampleH;
   const offCtx = off.getContext('2d');
   offCtx.drawImage(img, 0, 0, sampleW, sampleH);
   const data = offCtx.getImageData(0, 0, sampleW, sampleH).data;
 
-  // Fit image centered on canvas (upper 2/3 so mini panel doesn't cover it)
-  const aspect = sampleW / sampleH;
-  let fitW = canvas.width * 0.60;
-  let fitH = fitW / aspect;
-  if (fitH > canvas.height * 0.60) { fitH = canvas.height * 0.60; fitW = fitH * aspect; }
-  const ox = (canvas.width - fitW) / 2;
-  const oy = (canvas.height - fitH) / 2 - 40;
+  // Universe capture fills the screen exactly; photo gets centered
+  let fitW, fitH, ox, oy;
+  if (isUniverseCapture) {
+    fitW = canvas.width; fitH = canvas.height;
+    ox = 0; oy = 0;
+  } else {
+    const aspect = sampleW / sampleH;
+    fitW = canvas.width * 0.60;
+    fitH = fitW / aspect;
+    if (fitH > canvas.height * 0.60) { fitH = canvas.height * 0.60; fitW = fitH * aspect; }
+    ox = (canvas.width - fitW) / 2;
+    oy = (canvas.height - fitH) / 2 - 40;
+  }
 
   swarmParticles = [];
+  // Universe: skip dark/empty pixels for speed; photos: keep all
+  const density = isUniverseCapture ? 0.22 : 0.30;
+  const minBrightness = isUniverseCapture ? 0.04 : 0; // skip near-black universe bg
+
   for (let y = 0; y < sampleH; y++) {
     for (let x = 0; x < sampleW; x++) {
-      if (Math.random() > 0.30) continue;
+      if (Math.random() > density) continue;
       const i = (y * sampleW + x) * 4;
       if (data[i + 3] < 40) continue;
       const r = data[i], g = data[i+1], b = data[i+2];
       const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
+      if (brightness < minBrightness) continue; // skip universe background
       swarmParticles.push({
         tx: ox + (x / sampleW) * fitW,
         ty: oy + (y / sampleH) * fitH,
-        x:  Math.random() * canvas.width,
-        y:  Math.random() * canvas.height,
-        vx: 0, vy: 0,
+        x:  isUniverseCapture
+          ? ox + (x / sampleW) * fitW  // start at exact position (will explode out)
+          : Math.random() * canvas.width,
+        y:  isUniverseCapture
+          ? oy + (y / sampleH) * fitH
+          : Math.random() * canvas.height,
+        vx: isUniverseCapture ? (Math.random()-0.5)*16 : 0,
+        vy: isUniverseCapture ? (Math.random()-0.5)*16 : 0,
         r, g, b,
-        size: 1.0 + brightness * 2.0,
-        attract: 0.050 + Math.random() * 0.030,
+        size: isUniverseCapture ? (0.8 + brightness * 2.4) : (1.0 + brightness * 2.0),
+        attract: 0.045 + Math.random() * 0.030,
         dampen:  0.88  + Math.random() * 0.06,
         noise:   0.4   + Math.random() * 0.9,
       });
@@ -5329,13 +5369,12 @@ function launchSwarm(img) {
 
   // Hide upload area, show mode buttons
   document.getElementById('swarm-mini-upload').style.display = 'none';
-  const modes = document.getElementById('swarm-mini-modes');
-  modes.style.display = 'flex';
+  document.getElementById('swarm-mini-modes').style.display = 'flex';
 
-  swarmMode = 'attract';
+  swarmMode = startMode || 'attract';
   ['attract','explode','drift'].forEach(m => {
     const btn = document.getElementById('swarm-btn-' + m);
-    if (btn) btn.classList.toggle('active', m === 'attract');
+    if (btn) btn.classList.toggle('active', m === swarmMode);
   });
 
   animateSwarm();
