@@ -1416,11 +1416,22 @@
       </div>
       <div id="swarm-mini-thumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;"></div>
     </div>
-    <div id="swarm-mini-modes" style="display:none;padding:10px 16px;display:none;gap:6px;border-top:1px solid rgba(184,77,255,.15);">
+    <div id="swarm-mini-modes" style="display:none;padding:10px 16px;display:none;gap:6px;border-top:1px solid rgba(184,77,255,.15);flex-wrap:wrap;">
       <button class="swarm-btn active" id="swarm-btn-attract" onclick="setSwarmMode('attract')">ATTRACT</button>
       <button class="swarm-btn" id="swarm-btn-explode" onclick="setSwarmMode('explode')">EXPLODE</button>
       <button class="swarm-btn" id="swarm-btn-drift"   onclick="setSwarmMode('drift')">DRIFT</button>
       <button class="swarm-btn" onclick="clearSwarmArt()">CLEAR</button>
+      <div style="width:100%;display:flex;gap:0;margin-top:4px;">
+        <input id="swarm-word-input" type="text" maxlength="16" placeholder="TYPE A WORD →"
+          style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(184,77,255,.35);border-right:none;
+          color:#F0EDE8;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;padding:8px 10px;
+          outline:none;"
+          onkeydown="if(event.key==='Enter') morphToText(this.value)"
+          oninput="swarmWordPreview(this.value)">
+        <button onclick="morphToText(document.getElementById('swarm-word-input').value)"
+          style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;padding:8px 14px;
+          border:1px solid rgba(184,77,255,.35);color:#B84DFF;background:rgba(184,77,255,.1);cursor:pointer;">→</button>
+      </div>
     </div>
   </div>
   <div id="collectibles-counter">
@@ -5384,6 +5395,73 @@ function launchSwarm(img, startMode) {
   });
 
   animateSwarm();
+}
+
+let swarmWordTimer = null;
+function swarmWordPreview(val) {
+  // Debounce: morph after 600ms pause while typing
+  clearTimeout(swarmWordTimer);
+  if (val.trim().length >= 2) {
+    swarmWordTimer = setTimeout(() => morphToText(val), 600);
+  }
+}
+
+function morphToText(word) {
+  word = (word || '').trim().toUpperCase();
+  if (!word || !swarmParticles.length) return;
+
+  const canvas = document.getElementById('swarm-live-canvas');
+  const W = canvas.width, H = canvas.height;
+
+  // Render word to offscreen canvas using Space Mono
+  const off = document.createElement('canvas');
+  off.width = W; off.height = H;
+  const offCtx = off.getContext('2d');
+
+  // Auto-size font to fill ~80% of width
+  let fontSize = Math.floor(W * 0.75 / Math.max(word.length * 0.65, 1));
+  fontSize = Math.max(48, Math.min(260, fontSize));
+  offCtx.font = `700 ${fontSize}px 'Space Mono', monospace`;
+
+  // Measure and re-fit
+  let metrics = offCtx.measureText(word);
+  while (metrics.width > W * 0.88 && fontSize > 20) {
+    fontSize -= 4;
+    offCtx.font = `700 ${fontSize}px 'Space Mono', monospace`;
+    metrics = offCtx.measureText(word);
+  }
+
+  offCtx.fillStyle = '#ffffff';
+  offCtx.textAlign = 'center';
+  offCtx.textBaseline = 'middle';
+  offCtx.fillText(word, W / 2, H / 2);
+
+  // Sample bright pixels — step controls density
+  const step = Math.max(2, Math.floor(fontSize / 28));
+  const data = offCtx.getImageData(0, 0, W, H).data;
+  const targets = [];
+  for (let y = 0; y < H; y += step) {
+    for (let x = 0; x < W; x += step) {
+      if (data[(y * W + x) * 4 + 3] > 120) targets.push({ x, y });
+    }
+  }
+  if (!targets.length) return;
+
+  // Shuffle targets so particles don't clump
+  for (let i = targets.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [targets[i], targets[j]] = [targets[j], targets[i]];
+  }
+
+  // Assign each particle a target pixel — cycle if fewer targets than particles
+  swarmParticles.forEach((p, i) => {
+    const t = targets[i % targets.length];
+    p.tx = t.x + (Math.random() - 0.5) * step;
+    p.ty = t.y + (Math.random() - 0.5) * step;
+  });
+
+  // Switch to attract so they flow into the word
+  setSwarmMode('attract');
 }
 
 function animateSwarm() {

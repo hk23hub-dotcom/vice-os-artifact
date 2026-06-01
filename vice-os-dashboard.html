@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VICE OS — MISSION CONTROL</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --bg: #07070F;
+    --bg2: #0D0D1A;
+    --bg3: #12121F;
+    --border: rgba(255,255,255,0.07);
+    --green:  #AAFF00;
+    --cyan:   #00F0FF;
+    --purple: #B84DFF;
+    --yellow: #FFD200;
+    --red:    #FF3A1F;
+    --pink:   #FF2D78;
+    --indigo: #6366F1;
+    --emerald:#10B981;
+    --orange: #F97316;
+    --white:  #F0EDE8;
+    --dim:    rgba(240,237,232,0.45);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Space Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── STARFIELD ── */
+  #stars { position:fixed; inset:0; pointer-events:none; z-index:0; }
+
+  /* ── LAYOUT ── */
+  .shell { position:relative; z-index:1; max-width:1400px; margin:0 auto; padding:32px 24px 80px; }
+
+  /* ── HEADER ── */
+  .hdr {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:40px; padding-bottom:20px;
+    border-bottom:1px solid var(--border);
+  }
+  .hdr-left { display:flex; flex-direction:column; gap:4px; }
+  .hdr-title { font-size:22px; font-weight:700; letter-spacing:0.12em; color:var(--white); }
+  .hdr-sub { font-size:11px; color:var(--dim); letter-spacing:0.1em; }
+  .hdr-right { display:flex; align-items:center; gap:24px; }
+  .hdr-stat { text-align:right; }
+  .hdr-stat-val { font-size:26px; font-weight:700; color:var(--green); }
+  .hdr-stat-lbl { font-size:10px; color:var(--dim); letter-spacing:0.1em; margin-top:2px; }
+  .pulse { width:10px; height:10px; border-radius:50%; background:var(--green);
+    box-shadow:0 0 8px var(--green); animation:pulseAnim 1.8s ease-in-out infinite; }
+  @keyframes pulseAnim { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+
+  /* ── SECTION LABEL ── */
+  .sec-label {
+    font-size:10px; letter-spacing:0.18em; color:var(--dim);
+    margin-bottom:16px; display:flex; align-items:center; gap:10px;
+  }
+  .sec-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  /* ── TIMELINE ── */
+  .timeline-wrap { margin-bottom:48px; overflow-x:auto; padding-bottom:8px; }
+  .timeline {
+    display:flex; align-items:flex-start; gap:0;
+    min-width:600px; position:relative; padding:32px 0 24px;
+  }
+  .timeline::before {
+    content:''; position:absolute; top:48px; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--green), var(--cyan), var(--purple), var(--yellow), rgba(255,255,255,.1));
+  }
+  .tl-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; cursor:pointer; }
+  .tl-dot {
+    width:14px; height:14px; border-radius:50%; border:2px solid;
+    position:relative; z-index:2; transition:transform .2s, box-shadow .2s;
+    margin-top:0;
+  }
+  .tl-dot.done  { background:var(--green); border-color:var(--green); box-shadow:0 0 10px var(--green); }
+  .tl-dot.active{ background:var(--cyan);  border-color:var(--cyan);  box-shadow:0 0 14px var(--cyan); animation:pulseAnim 1.4s infinite; }
+  .tl-dot.next  { background:transparent; border-color:var(--yellow); }
+  .tl-dot.far   { background:transparent; border-color:rgba(255,255,255,.2); }
+  .tl-item:hover .tl-dot { transform:scale(1.4); }
+  .tl-label { font-size:9px; letter-spacing:.1em; color:var(--dim); text-align:center; max-width:80px; line-height:1.4; }
+  .tl-date  { font-size:8px; color:rgba(255,255,255,.25); letter-spacing:.05em; }
+  .tl-badge {
+    font-size:8px; padding:2px 6px; border-radius:2px; letter-spacing:.08em;
+    margin-top:2px;
+  }
+  .tl-badge.done   { background:rgba(170,255,0,.12); color:var(--green); }
+  .tl-badge.active { background:rgba(0,240,255,.12); color:var(--cyan); }
+  .tl-badge.next   { background:rgba(255,210,0,.1); color:var(--yellow); }
+  .tl-badge.far    { background:rgba(255,255,255,.05); color:var(--dim); }
+
+  /* ── PLANET GRID ── */
+  .planet-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:16px; margin-bottom:48px;
+  }
+  .planet-card {
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:4px; padding:20px;
+    cursor:pointer; transition:border-color .2s, transform .15s, box-shadow .2s;
+    position:relative; overflow:hidden;
+  }
+  .planet-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
+    transition:opacity .2s; opacity:.7;
+  }
+  .planet-card:hover { transform:translateY(-2px); }
+  .planet-card.expanded { border-color:rgba(255,255,255,.2); }
+
+  .pc-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+  .pc-dot { width:36px; height:36px; border-radius:50%; flex-shrink:0; position:relative; }
+  .pc-dot-ring {
+    position:absolute; inset:-3px; border-radius:50%;
+    border:2px solid; opacity:.3;
+  }
+  .pc-info { flex:1; min-width:0; }
+  .pc-name { font-size:12px; font-weight:700; letter-spacing:.1em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .pc-sub  { font-size:9px; color:var(--dim); letter-spacing:.08em; margin-top:2px; }
+
+  .pc-status {
+    font-size:8px; letter-spacing:.1em; padding:2px 7px; border-radius:2px;
+    margin-bottom:12px; display:inline-block;
+  }
+  .s-live  { background:rgba(170,255,0,.15); color:var(--green); border:1px solid rgba(170,255,0,.25); }
+  .s-build { background:rgba(0,240,255,.1);  color:var(--cyan);  border:1px solid rgba(0,240,255,.2); }
+  .s-spec  { background:rgba(255,210,0,.1);  color:var(--yellow);border:1px solid rgba(255,210,0,.2); }
+  .s-concept{background:rgba(255,255,255,.05);color:var(--dim);  border:1px solid rgba(255,255,255,.1); }
+
+  .pc-bar-wrap { margin-bottom:12px; }
+  .pc-bar-label { display:flex; justify-content:space-between; margin-bottom:5px; }
+  .pc-bar-label span { font-size:9px; color:var(--dim); letter-spacing:.06em; }
+  .pc-bar-label strong { font-size:9px; letter-spacing:.06em; }
+  .pc-bar-track { height:3px; background:rgba(255,255,255,.07); border-radius:2px; overflow:hidden; }
+  .pc-bar-fill  { height:100%; border-radius:2px; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+
+  .pc-tasks { display:none; margin-top:14px; border-top:1px solid var(--border); padding-top:12px; }
+  .pc-tasks.open { display:block; }
+  .pc-task-item {
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:9px; color:var(--dim); letter-spacing:.06em; line-height:1.5;
+    padding:4px 0; cursor:pointer; transition:color .15s;
+    border-bottom:1px solid rgba(255,255,255,.03);
+  }
+  .pc-task-item:last-child { border-bottom:none; }
+  .pc-task-item:hover { color:var(--white); }
+  .pc-task-item.done-task { color:rgba(240,237,232,.3); }
+  .pc-task-item.done-task .task-check { color:var(--green); }
+  .task-check { flex-shrink:0; font-size:10px; margin-top:1px; }
+  .pc-expand-btn {
+    font-size:8px; color:var(--dim); letter-spacing:.1em; cursor:pointer;
+    margin-top:8px; display:flex; align-items:center; gap:4px;
+    transition:color .15s;
+  }
+  .pc-expand-btn:hover { color:var(--white); }
+  .pc-expand-arrow { transition:transform .2s; }
+  .pc-expand-btn.open .pc-expand-arrow { transform:rotate(180deg); }
+
+  /* ── CHECKLIST PANEL ── */
+  .checklist-panel { margin-bottom:48px; }
+  .cl-tabs { display:flex; gap:2px; margin-bottom:20px; }
+  .cl-tab {
+    font-size:10px; letter-spacing:.12em; padding:8px 20px;
+    border:1px solid var(--border); background:transparent;
+    color:var(--dim); cursor:pointer; transition:all .15s; border-radius:2px;
+    font-family:'Space Mono',monospace;
+  }
+  .cl-tab.active { background:rgba(255,255,255,.06); color:var(--white); border-color:rgba(255,255,255,.2); }
+  .cl-body { display:none; }
+  .cl-body.active { display:block; }
+
+  .cl-section { margin-bottom:24px; }
+  .cl-section-title {
+    font-size:9px; letter-spacing:.15em; color:var(--dim); margin-bottom:10px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .cl-section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .cl-item {
+    display:flex; align-items:flex-start; gap:12px;
+    padding:10px 14px; margin-bottom:4px;
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:3px; cursor:pointer; transition:all .15s;
+  }
+  .cl-item:hover { border-color:rgba(255,255,255,.15); background:var(--bg3); }
+  .cl-item.checked { opacity:.5; }
+  .cl-item.checked .cl-item-text { text-decoration:line-through; color:var(--dim); }
+  .cl-checkbox {
+    width:14px; height:14px; border:1.5px solid rgba(255,255,255,.25);
+    border-radius:2px; flex-shrink:0; margin-top:1px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:9px; transition:all .15s;
+  }
+  .cl-item.checked .cl-checkbox { background:var(--green); border-color:var(--green); color:#000; }
+  .cl-item-content { flex:1; }
+  .cl-item-text { font-size:10px; letter-spacing:.06em; line-height:1.5; }
+  .cl-item-meta { font-size:8px; color:var(--dim); margin-top:3px; letter-spacing:.06em; }
+  .cl-tag {
+    font-size:8px; padding:1px 6px; border-radius:2px; margin-left:auto; flex-shrink:0;
+    letter-spacing:.08em; align-self:flex-start;
+  }
+  .tag-urgent { background:rgba(255,58,31,.15); color:var(--red); }
+  .tag-build  { background:rgba(0,240,255,.1);  color:var(--cyan); }
+  .tag-next   { background:rgba(255,210,0,.1);  color:var(--yellow); }
+  .tag-done   { background:rgba(170,255,0,.12); color:var(--green); }
+
+  /* ── PROGRESS RING ── */
+  .ring-wrap { display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .ring-label { font-size:9px; color:var(--dim); letter-spacing:.08em; }
+
+  /* ── SUMMARY ROW ── */
+  .summary-row { display:flex; gap:16px; margin-bottom:48px; flex-wrap:wrap; }
+  .sum-card {
+    flex:1; min-width:150px;
+    background:var(--bg2); border:1px solid var(--border);
+    border-radius:4px; padding:16px 20px;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .sum-val { font-size:28px; font-weight:700; }
+  .sum-lbl { font-size:9px; color:var(--dim); letter-spacing:.1em; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width:4px; height:4px; }
+  ::-webkit-scrollbar-track { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); border-radius:2px; }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<div class="shell">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="hdr-left">
+      <div class="hdr-title">VICE OS — MISSION CONTROL</div>
+      <div class="hdr-sub">2026-05-31 &nbsp;·&nbsp; 11 VERTICALS &nbsp;·&nbsp; ACTIVE BUILD</div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-stat">
+        <div class="hdr-stat-val" id="overall-pct">34%</div>
+        <div class="hdr-stat-lbl">OVERALL</div>
+      </div>
+      <div class="pulse"></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY ROW -->
+  <div class="sec-label">SNAPSHOT</div>
+  <div class="summary-row">
+    <div class="sum-card"><div class="sum-val" style="color:var(--green)">2</div><div class="sum-lbl">LIVE</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:var(--cyan)">4</div><div class="sum-lbl">BUILDING</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:var(--yellow)">5</div><div class="sum-lbl">SPEC / CONCEPT</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:var(--white)">11</div><div class="sum-lbl">PLANETS TOTAL</div></div>
+    <div class="sum-card"><div class="sum-val" style="color:var(--red)">1</div><div class="sum-lbl">BLOCKED (SSH)</div></div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="sec-label">TIMELINE</div>
+  <div class="timeline-wrap">
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">Universe v1<br>8 Planets</div>
+        <div class="tl-date">MAY 20</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">Fractal Drill-down</div>
+        <div class="tl-date">MAY 22</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">ViceGolfer Putting Protocol</div>
+        <div class="tl-date">MAY 24</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">Universe v2<br>IDEAS + CMDS</div>
+        <div class="tl-date">MAY 26</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">Membership System</div>
+        <div class="tl-date">MAY 28</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge done">DONE</div>
+        <div class="tl-dot done"></div>
+        <div class="tl-label">MVB Planet + English Pass</div>
+        <div class="tl-date">MAY 30</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge active">TODAY</div>
+        <div class="tl-dot active"></div>
+        <div class="tl-label">+3 Planets<br>+2 Enrichments</div>
+        <div class="tl-date">MAY 31</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge next">NEXT</div>
+        <div class="tl-dot next"></div>
+        <div class="tl-label">GitHub Pages<br>Deploy</div>
+        <div class="tl-date">JUN 1</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge next">NEXT</div>
+        <div class="tl-dot next"></div>
+        <div class="tl-label">Stripe + Payments</div>
+        <div class="tl-date">JUN 2–5</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge far">AHEAD</div>
+        <div class="tl-dot far"></div>
+        <div class="tl-label">Vice AI Agents Live</div>
+        <div class="tl-date">PHASE 2</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-badge far">AHEAD</div>
+        <div class="tl-dot far"></div>
+        <div class="tl-label">Marketplace Open</div>
+        <div class="tl-date">PHASE 3</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANET CARDS -->
+  <div class="sec-label">VERTICALS — CLICK TO EXPAND</div>
+  <div class="planet-grid" id="planet-grid"></div>
+
+  <!-- CHECKLIST -->
+  <div class="sec-label">CHECKLIST</div>
+  <div class="checklist-panel">
+    <div class="cl-tabs">
+      <button class="cl-tab active" onclick="switchTab('todo')">TO DO</button>
+      <button class="cl-tab" onclick="switchTab('done')">DONE</button>
+    </div>
+    <div class="cl-body active" id="tab-todo"></div>
+    <div class="cl-body" id="tab-done"></div>
+  </div>
+
+</div>
+
+<script>
+// ── STARFIELD ──
+const canvas = document.getElementById('stars');
+const ctx = canvas.getContext('2d');
+let W, H, stars = [];
+function initStars() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+  stars = Array.from({length:140}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.2, a: Math.random()*.6+.1,
+    sp: .2+Math.random()*.4
+  }));
+}
+function drawStars() {
+  ctx.clearRect(0,0,W,H);
+  stars.forEach(s => {
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(240,237,232,${s.a})`; ctx.fill();
+    s.a += (Math.random()-.5)*.02;
+    s.a = Math.max(.05, Math.min(.7, s.a));
+  });
+  requestAnimationFrame(drawStars);
+}
+window.addEventListener('resize', initStars);
+initStars(); drawStars();
+
+// ── DATA ──
+const planets = [
+  {
+    id:'universe', name:'HK23 UNIVERSE', sub:'Interactive OS Map',
+    color:'#F0EDE8', pct:90, status:'live',
+    tasks:{
+      done:['8 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version'],
+      todo:['Add SSH key → push to GitHub Pages','Wire questionnaire to real form endpoint','Mobile English pass']
+    }
+  },
+  {
+    id:'vicegolfer', name:'VICEGOLFER', sub:'Golf Performance OS',
+    color:'#AAFF00', pct:65, status:'build',
+    tasks:{
+      done:['Putting Protocol 100-putt tracker','Performance DNA 5-axis radar','3-tier membership system','Admin feature flags','Build board /build','Dashboard hero + daily mission','Tournaments + Challenge gated'],
+      todo:['Stripe payment integration','Analytics trends dashboard','Chipping + short game sessions','Mobile responsiveness pass']
+    }
+  },
+  {
+    id:'rugbyvice', name:'RUGBY VICE', sub:'Rugby Performance OS',
+    color:'#00F0FF', pct:10, status:'spec',
+    tasks:{
+      done:['Next.js shell scaffolded'],
+      todo:['Kick tracking session','Rugby DNA radar','Match log','Player profile']
+    }
+  },
+  {
+    id:'teeclub', name:'TEE CLUB', sub:'Golf Simulator Franchise',
+    color:'#10B981', pct:5, status:'spec',
+    tasks:{
+      done:['Universe planet + 6 fractal nodes'],
+      todo:['Booking system UI','Membership tier pages','Franchise info page','Vice OS sync API','Events + leaderboard']
+    }
+  },
+  {
+    id:'viceai', name:'VICE AI', sub:'24/7 Agent Network',
+    color:'#6366F1', pct:8, status:'build',
+    tasks:{
+      done:['Universe planet + 6 fractal nodes','Content Agent running 24/7'],
+      todo:['Vice Coach agent UI','OPS agent dashboard','HK23 Lines brand AI','Crypto Analyst integration','Market Agent commerce layer']
+    }
+  },
+  {
+    id:'marketplace', name:'MARKETPLACE', sub:'Everything is for Sale',
+    color:'#F97316', pct:5, status:'spec',
+    tasks:{
+      done:['Universe planet + 6 fractal nodes'],
+      todo:['Art store product pages','Digital products + downloads','Memberships page','Stripe checkout','Courses & coaching structure']
+    }
+  },
+  {
+    id:'hk23hub', name:'HK23 HUB', sub:'Blog · Books · Digital Store',
+    color:'#00F0FF', pct:20, status:'build',
+    tasks:{
+      done:['Blog & Articles live (3 topics)','Universe planet enriched'],
+      todo:['"The Vice System" book (writing)','Putting Protocol Guide PDF','Kick Tracking Playbook PDF','Digital Store + 5 SKUs','Newsletter setup','Podcast structure']
+    }
+  },
+  {
+    id:'cryptovice', name:'CRYPTO VICE', sub:'DeFi · Portfolio · On-chain',
+    color:'#B84DFF', pct:15, status:'build',
+    tasks:{
+      done:['Universe planet with 6 nodes','4 nodes enriched (Zerion/Dune/GPT-4o architecture)'],
+      todo:['Zerion API integration','Trading dashboard (signal model)','Chain analysis Dune setup','GPT-4o signal layer','DeFi protocols integration']
+    }
+  },
+  {
+    id:'mvb', name:'MVB', sub:'Music Vice Beats',
+    color:'#FF2D78', pct:10, status:'spec',
+    tasks:{
+      done:['Universe planet + 6 artist nodes'],
+      todo:['Thomas Holmes digital presence','Jean Christophe page','Vhontotumadre brand identity','Release pipeline setup','Distribution strategy']
+    }
+  },
+  {
+    id:'laiglesia', name:'LA IGLESIA', sub:'Chilean Gold Exploration',
+    color:'#FFD200', pct:10, status:'spec',
+    tasks:{
+      done:['Universe planet','Blueprint document'],
+      todo:['Investor deck final','Claim documentation','Drill program design','Data engineering layer']
+    }
+  },
+  {
+    id:'arteworld', name:'ARTE WORLD', sub:'Visual Universe',
+    color:'#FF3A1F', pct:12, status:'spec',
+    tasks:{
+      done:['Universe planet + moons','JC Art + Fallowood nodes'],
+      todo:['JC Art portfolio site','Fallowood project page','AI art gallery','Marketplace listing']
+    }
+  },
+];
+
+const statusMap = { live:'LIVE', build:'BUILDING', spec:'SPEC', concept:'CONCEPT' };
+const statusClass = { live:'s-live', build:'s-build', spec:'s-spec', concept:'s-concept' };
+
+// ── RENDER PLANETS ──
+const grid = document.getElementById('planet-grid');
+
+planets.forEach((p, idx) => {
+  const card = document.createElement('div');
+  card.className = 'planet-card';
+  card.style.cssText = `--pc:${p.color}`;
+  card.style.setProperty('--pc', p.color);
+
+  const doneCount = p.tasks.done.length;
+  const total = doneCount + p.tasks.todo.length;
+
+  card.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:2px;background:${p.color};opacity:.6"></div>
+    <div class="pc-top">
+      <div class="pc-dot" style="background:${p.color}20;border:2px solid ${p.color}">
+        <div style="position:absolute;inset:3px;border-radius:50%;background:${p.color};opacity:.8"></div>
+      </div>
+      <div class="pc-info">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-sub">${p.sub}</div>
+      </div>
+    </div>
+    <span class="pc-status ${statusClass[p.status]}">${statusMap[p.status]}</span>
+    <div class="pc-bar-wrap">
+      <div class="pc-bar-label">
+        <span>PROGRESS</span>
+        <strong style="color:${p.color}">${p.pct}%</strong>
+      </div>
+      <div class="pc-bar-track">
+        <div class="pc-bar-fill" style="width:0%;background:${p.color}" data-target="${p.pct}"></div>
+      </div>
+    </div>
+    <div class="pc-expand-btn" id="ebtn-${p.id}">
+      <span>TASKS (${doneCount}/${total})</span>
+      <span class="pc-expand-arrow">▼</span>
+    </div>
+    <div class="pc-tasks" id="tasks-${p.id}">
+      ${p.tasks.done.map(t=>`
+        <div class="pc-task-item done-task">
+          <span class="task-check">✓</span>
+          <span>${t}</span>
+        </div>`).join('')}
+      ${p.tasks.todo.map(t=>`
+        <div class="pc-task-item">
+          <span class="task-check" style="color:rgba(255,255,255,.2)">○</span>
+          <span>${t}</span>
+        </div>`).join('')}
+    </div>
+  `;
+
+  card.querySelector(`#ebtn-${p.id}`).addEventListener('click', e => {
+    e.stopPropagation();
+    const btn = card.querySelector(`#ebtn-${p.id}`);
+    const tasks = card.querySelector(`#tasks-${p.id}`);
+    btn.classList.toggle('open');
+    tasks.classList.toggle('open');
+    card.classList.toggle('expanded');
+  });
+
+  grid.appendChild(card);
+});
+
+// animate bars on load
+setTimeout(() => {
+  document.querySelectorAll('.pc-bar-fill').forEach(el => {
+    el.style.width = el.dataset.target + '%';
+  });
+}, 200);
+
+// ── CHECKLIST DATA ──
+const todoItems = [
+  { text:'Add SSH public key to github.com/settings/keys', meta:'vice-os-artifact → GitHub Pages', tag:'urgent', section:'DEPLOY' },
+  { text:'git push -u origin main in /vice-os-artifact', meta:'Run in terminal after SSH key added', tag:'urgent', section:'DEPLOY' },
+  { text:'Enable GitHub Pages → branch main / root /', meta:'github.com/hk23neo/vice-os-artifact/settings/pages', tag:'urgent', section:'DEPLOY' },
+  { text:'Wire galaxy questionnaire to real form endpoint', meta:'Formspree or Supabase — currently fakes submit', tag:'build', section:'UNIVERSE' },
+  { text:'Mobile universe English pass', meta:'hk23-universe-mobile.html has Spanish strings', tag:'build', section:'UNIVERSE' },
+  { text:'Stripe payment integration for ViceGolfer', meta:'Tier 2/3 memberships need real checkout', tag:'build', section:'VICEGOLFER' },
+  { text:'Analytics trends dashboard', meta:'Strokes gained, period comparison, auto insights', tag:'build', section:'VICEGOLFER' },
+  { text:'Chipping + short game sessions', meta:'Complete the 3-zone training protocol suite', tag:'next', section:'VICEGOLFER' },
+  { text:'Zerion API integration (Crypto Vice)', meta:'Multi-wallet aggregation + DNA financial layer', tag:'build', section:'CRYPTO VICE' },
+  { text:'Trading dashboard signal model', meta:'RSI/MACD/OI — model currently training', tag:'build', section:'CRYPTO VICE' },
+  { text:'"The Vice System" book — finish writing', meta:'Book 1 — HK23 philosophy codified', tag:'next', section:'HK23 HUB' },
+  { text:'Putting Protocol Guide PDF', meta:'First digital product SKU', tag:'next', section:'HK23 HUB' },
+  { text:'Rugby Vice tracking app', meta:'/rugbyvice shell exists — build kick + DNA sessions', tag:'next', section:'RUGBY VICE' },
+  { text:'Tee Club booking site', meta:'Standalone booking engine for simulator bays', tag:'next', section:'TEE CLUB' },
+  { text:'Marketplace + Stripe store', meta:'Art, digital products, memberships, checkout', tag:'next', section:'MARKETPLACE' },
+];
+
+const doneItems = [
+  { text:'8 orbital planets + fractal drill-down system', meta:'hk23-universe.html — fully working', section:'UNIVERSE' },
+  { text:'IDEAS planet + CMDS + Agent Base', meta:'Fase 2 complete', section:'UNIVERSE' },
+  { text:'Full English translation', meta:'Zero Spanish remaining in universe', section:'UNIVERSE' },
+  { text:'Galaxy questionnaire modal + shortcuts', meta:'G key opens galaxy mode', section:'UNIVERSE' },
+  { text:'Mobile universe (hk23-universe-mobile.html)', meta:'Lightweight orbital viewer', section:'UNIVERSE' },
+  { text:'Tee Club planet (emerald #10B981)', meta:'6 fractal nodes, orbital moons: BOOKINGS·MEMBERS·LOCATIONS·EVENTS', section:'UNIVERSE' },
+  { text:'Vice AI planet (indigo #6366F1)', meta:'6 fractal nodes, Content Agent live, moons: COACH·CONTENT·ANALYST·OPS', section:'UNIVERSE' },
+  { text:'Marketplace planet (orange #F97316)', meta:'6 fractal nodes, moons: ART·DIGITAL·COURSES·MERCH', section:'UNIVERSE' },
+  { text:'Crypto Vice enrichment — 4 nodes build', meta:'Zerion/Dune/GPT-4o architecture defined', section:'UNIVERSE' },
+  { text:'HK23 Hub enrichment — Blog live', meta:'Books, Guides, Store all building with real content', section:'UNIVERSE' },
+  { text:'Putting Protocol 100-putt tracker', meta:'Zone DNA, streak, real-time conversion rate', section:'VICEGOLFER' },
+  { text:'Performance DNA 5-axis radar', meta:'Driver, Irons, Short Game, Putting, Mental', section:'VICEGOLFER' },
+  { text:'3-tier membership system', meta:'Tokens + tiers + club B2B layer', section:'VICEGOLFER' },
+  { text:'Admin feature flags + build board /build', meta:'Full admin panel with feature toggles', section:'VICEGOLFER' },
+  { text:'Dashboard hero + daily mission + universe log', meta:'Main dashboard fully designed', section:'VICEGOLFER' },
+  { text:'MVP spec docs (Sprint 1, Architecture, Expansion)', meta:'3 design docs committed to vice-os-platform', section:'PLATFORM' },
+  { text:'SSH key configured locally', meta:'github_hk23neo ed25519 ready — just needs adding to GitHub', section:'PLATFORM' },
+];
+
+function buildChecklist(items, containerId) {
+  const container = document.getElementById(containerId);
+  const sections = {};
+  items.forEach(item => {
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push(item);
+  });
+
+  let html = '';
+  Object.entries(sections).forEach(([sec, its]) => {
+    html += `<div class="cl-section"><div class="cl-section-title">${sec}</div>`;
+    its.forEach((item, i) => {
+      const tagClass = item.tag ? `tag-${item.tag}` : 'tag-done';
+      const tagLabel = item.tag ? item.tag.toUpperCase() : 'DONE';
+      const isDone = containerId === 'tab-done';
+      html += `
+        <div class="cl-item${isDone?' checked':''}" onclick="toggleCheck(this)">
+          <div class="cl-checkbox">${isDone?'✓':''}</div>
+          <div class="cl-item-content">
+            <div class="cl-item-text">${item.text}</div>
+            <div class="cl-item-meta">${item.meta}</div>
+          </div>
+          ${item.tag || isDone ? `<span class="cl-tag ${tagClass}">${isDone?'DONE':tagLabel}</span>` : ''}
+        </div>`;
+    });
+    html += `</div>`;
+  });
+  container.innerHTML = html;
+}
+
+buildChecklist(todoItems, 'tab-todo');
+buildChecklist(doneItems, 'tab-done');
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  const cb = el.querySelector('.cl-checkbox');
+  cb.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.cl-tab').forEach((t,i) => {
+    t.classList.toggle('active', (i===0 && tab==='todo') || (i===1 && tab==='done'));
+  });
+  document.getElementById('tab-todo').classList.toggle('active', tab==='todo');
+  document.getElementById('tab-done').classList.toggle('active', tab==='done');
+}
+</script>
+</body>
+</html>
