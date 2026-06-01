@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer House — Complete Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#C6A15B;--gold-d:rgba(198,161,91,.5);--green:#0B3D2E;--bg:#050e1a;--navy:#071528;--cream:#e8f0ff;--muted:#5a5a52;--dim:rgba(100,168,255,.4);--line:rgba(100,168,255,.12);--grid:rgba(100,168,255,.04);--accent:#4ade80;--mono:'Share Tech Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--cream);font-family:'Inter',sans-serif;font-size:12px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:30px 30px}
+[id]{scroll-margin-top:70px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:100;background:rgba(7,21,40,.96);backdrop-filter:blur(12px);border-bottom:2px solid var(--gold);padding:12px 24px;display:flex;justify-content:space-between;align-items:center}
+.nav-logo{font-family:'Bebas Neue';font-size:20px;color:var(--gold);letter-spacing:.12em}
+.nav-links{display:flex;gap:16px;list-style:none}
+.nav-links a{font-family:'Montserrat';font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--cream)}
+.nav-tag{font-family:var(--mono);font-size:8px;color:var(--gold);letter-spacing:.16em;border:1px solid var(--gold-d);padding:4px 10px}
+@media(max-width:640px){.nav-links{display:none}}
+
+/* LAYOUT */
+.wrap{max-width:900px;margin:0 auto;padding:0 24px}
+.section{padding:64px 0;border-bottom:1px solid var(--line)}
+.section:last-child{border-bottom:none}
+
+/* TYPE */
+.label{font-family:'Montserrat';font-size:9px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;display:block}
+.h1{font-family:'Bebas Neue';font-size:clamp(48px,9vw,88px);letter-spacing:.02em;line-height:.9;color:var(--cream)}
+.h2{font-family:'Bebas Neue';font-size:clamp(32px,5vw,48px);letter-spacing:.03em;line-height:1;color:var(--cream);margin-bottom:12px}
+.h3{font-family:'Bebas Neue';font-size:24px;letter-spacing:.04em;color:var(--cream);line-height:1}
+.h4{font-family:'Montserrat';font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--cream)}
+.lead{font-size:14px;color:rgba(138,138,114,.9);line-height:1.75}
+.body{font-size:11px;color:var(--muted);line-height:1.7}
+.gold{color:var(--gold)}
+.green{color:var(--accent)}
+
+/* CARDS */
+.card{background:var(--navy);border:1px solid var(--line);margin-bottom:12px;overflow:hidden}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.3)}
+.card-body{padding:16px}
+
+/* CALLOUT */
+.callout{background:rgba(198,161,91,.04);border:1px solid rgba(198,161,91,.18);border-left:3px solid var(--gold);padding:16px 18px;margin:16px 0}
+.callout p{font-size:12px;color:rgba(138,138,114,.9);line-height:1.75}
+.callout strong{color:var(--cream)}
+.alert{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.18);border-left:3px solid #ef4444;padding:12px 16px;margin:12px 0}
+
+/* NOT/IS */
+.contrast{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);overflow:hidden}
+.contrast-col{padding:18px}
+.contrast-col:first-child{border-right:1px solid var(--line);background:rgba(239,68,68,.03)}
+.contrast-col:last-child{background:rgba(74,222,128,.03)}
+.contrast-col ul{list-style:none}
+.contrast-col li{font-size:11px;color:var(--muted);line-height:1.8;padding-left:12px;position:relative}
+.contrast-col li::before{content:'—';position:absolute;left:0}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:640px){.grid-2,.grid-3,.grid-4,.contrast{grid-template-columns:1fr}}
+
+/* STATS */
+.stats-row{display:flex;gap:0;border:1px solid var(--line)}
+.stat{flex:1;padding:16px;text-align:center;border-right:1px solid var(--line)}
+.stat:last-child{border-right:none}
+.stat-val{font-family:'Bebas Neue';font-size:32px;letter-spacing:.04em;line-height:1}
+.stat-key{font-family:'Montserrat';font-size:7px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+
+/* SPACE BLOCK — BLUEPRINT STYLE */
+.space{border:1px solid var(--line);border-top:2px solid;background:var(--navy);margin-bottom:14px;overflow:hidden}
+.space-head{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 18px;border-bottom:1px solid var(--line);background:rgba(0,0,0,.3)}
+.space-num{font-family:'Bebas Neue';font-size:42px;line-height:1;margin-right:14px;flex-shrink:0;opacity:.15}
+.space-name{font-family:'Bebas Neue';font-size:22px;letter-spacing:.06em;line-height:1;margin-bottom:3px}
+.space-tag{font-family:var(--mono);font-size:7px;letter-spacing:.18em;text-transform:uppercase;border:1px solid;padding:3px 8px;white-space:nowrap}
+.space-body{padding:16px 18px}
+
+/* PHOTO — BLUEPRINT FILTER */
+.bp-photo{position:relative;overflow:hidden}
+.bp-photo img{width:100%;display:block;aspect-ratio:16/10;object-fit:cover;
+  filter:grayscale(100%) brightness(.4) sepia(1) hue-rotate(190deg) saturate(6) contrast(1.1);transition:filter .3s}
+.bp-photo:hover img{filter:grayscale(80%) brightness(.55) sepia(.8) hue-rotate(190deg) saturate(4) contrast(1.05)}
+.bp-photo::before{content:'';position:absolute;inset:6px;border:1px solid rgba(100,168,255,.12);z-index:2;pointer-events:none}
+.bp-photo .photo-label{position:absolute;bottom:0;left:0;right:0;z-index:3;background:linear-gradient(transparent,rgba(5,14,26,.85));padding:14px 10px 5px;font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:.12em;text-transform:uppercase}
+/* Crosshair corners */
+.ch{position:absolute;z-index:4;width:10px;height:10px;pointer-events:none}
+.ch::before,.ch::after{content:'';position:absolute;background:rgba(100,168,255,.35)}
+.ch::before{width:1px;height:100%;left:50%}
+.ch::after{height:1px;width:100%;top:50%}
+.ch.tl{top:6px;left:6px}.ch.tr{top:6px;right:6px}.ch.bl{bottom:6px;left:6px}.ch.br{bottom:6px;right:6px}
+
+/* ANNOTATIONS */
+.ann{padding:10px 18px;display:flex;gap:20px;flex-wrap:wrap;border-top:1px solid var(--line);background:rgba(0,0,0,.2)}
+.ann-k{font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:.16em;text-transform:uppercase;margin-bottom:1px}
+.ann-v{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:.06em}
+
+/* NOTES */
+.notes{padding:10px 18px;border-top:1px solid var(--line);font-size:10px;color:var(--dim);line-height:1.7}
+.notes .note-h{font-family:var(--mono);font-size:7px;color:var(--gold);letter-spacing:.2em;text-transform:uppercase;margin-bottom:5px}
+.note{display:flex;gap:7px;margin-bottom:3px}
+.note::before{content:'→';color:var(--gold-d);flex-shrink:0}
+
+/* REQ */
+.req{display:flex;gap:7px;align-items:flex-start;margin-bottom:4px}
+.req-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.req-text{font-size:10px;color:var(--muted);line-height:1.6}
+
+/* SPEC GRID */
+.specs{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px}
+.spec{background:rgba(0,0,0,.3);border:1px solid var(--line);padding:10px 12px}
+.spec-k{font-family:var(--mono);font-size:7px;color:var(--dim);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+.spec-v{font-family:'Bebas Neue';font-size:18px;color:var(--gold);letter-spacing:.04em}
+.spec-n{font-family:var(--mono);font-size:7px;color:rgba(100,168,255,.3);margin-top:1px}
+
+/* COMPONENTS */
+.comps{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:6px}
+.comp{background:rgba(0,0,0,.25);border:1px solid var(--line);padding:10px;text-align:center}
+.comp-icon{font-size:18px;margin-bottom:3px}
+.comp-name{font-family:'Montserrat';font-size:8px;font-weight:700;color:var(--cream);letter-spacing:.1em;text-transform:uppercase}
+.comp-desc{font-family:var(--mono);font-size:7px;color:var(--dim);margin-top:2px}
+
+/* TIMELINE */
+.timeline{padding-left:24px;position:relative}
+.timeline::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:1px;background:var(--line)}
+.phase{position:relative;margin-bottom:24px}
+.phase-dot{position:absolute;left:-22px;top:5px;width:8px;height:8px;border-radius:50%;border:2px solid var(--bg)}
+.phase-label{font-family:'Montserrat';font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:2px}
+.phase-title{font-family:'Bebas Neue';font-size:20px;letter-spacing:.04em;margin-bottom:3px}
+.phase-body{font-size:10px;color:var(--muted);line-height:1.6}
+
+/* SVG */
+svg text{font-family:var(--mono)}
+.dim-line{stroke:var(--dim);stroke-width:.8;marker-end:url(#arrowC);marker-start:url(#arrowCS)}
+.dim-text{fill:rgba(100,168,255,.7);font-size:9px;letter-spacing:.08em}
+.label-text{fill:var(--gold);font-size:8px;letter-spacing:.12em;text-transform:uppercase}
+.spec-text{fill:rgba(100,168,255,.5);font-size:7px;letter-spacing:.06em}
+.outline{stroke:rgba(100,168,255,.25);stroke-width:1.2;fill:none}
+.surface{fill:rgba(74,222,128,.06);stroke:rgba(74,222,128,.3);stroke-width:1}
+.component{fill:rgba(198,161,91,.08);stroke:rgba(198,161,91,.4);stroke-width:.8}
+.axis-line{stroke:rgba(198,161,91,.3);stroke-width:.8;stroke-dasharray:4,3}
+
+/* FOOTER */
+.footer{border-top:2px solid var(--gold);padding:24px;text-align:center}
+.footer-q{font-family:'Bebas Neue';font-size:clamp(28px,5vw,44px);color:var(--cream);letter-spacing:.06em;line-height:1.1;margin-bottom:8px}
+.footer-sub{font-family:'Montserrat';font-size:9px;color:rgba(100,168,255,.2);letter-spacing:.22em;margin-bottom:20px}
+a.cta{display:inline-block;padding:12px 24px;font-family:'Montserrat';font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;margin:4px}
+a.cta-gold{background:var(--gold);color:var(--bg)}
+a.cta-ghost{background:transparent;color:var(--gold);border:1px solid var(--gold-d)}
+
+/* LIGHTBOX */
+.lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;align-items:center;justify-content:center}
+.lb.open{display:flex}
+.lb img{max-width:90vw;max-height:90vh;object-fit:contain}
+.lb-x{position:absolute;top:16px;right:24px;font-size:28px;color:#fff;cursor:pointer;background:none;border:none}
+</style>
+</head>
+<body>
+
+<div class="lb" id="lb" onclick="this.classList.remove('open')"><button class="lb-x">×</button><img id="lb-img"></div>
+
+<!-- SVG markers -->
+<svg style="position:absolute;width:0;height:0"><defs>
+  <marker id="arrowC" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto"><path d="M0,0 L6,2 L0,4" fill="none" stroke="var(--dim)" stroke-width=".8"/></marker>
+  <marker id="arrowCS" markerWidth="6" markerHeight="4" refX="1" refY="2" orient="auto"><path d="M6,0 L0,2 L6,4" fill="none" stroke="var(--dim)" stroke-width=".8"/></marker>
+</defs></svg>
+
+<nav>
+  <div class="nav-logo">VICEGOLFER HOUSE</div>
+  <ul class="nav-links">
+    <li><a href="#what">QUÉ ES</a></li>
+    <li><a href="#systems">SISTEMAS</a></li>
+    <li><a href="#spaces">ESPACIOS</a></li>
+    <li><a href="#lab">PUTTING LAB</a></li>
+    <li><a href="#business">NEGOCIO</a></li>
+    <li><a href="#partner">PARTNER</a></li>
+  </ul>
+  <div class="nav-tag">CONFIDENTIAL · COMPLETE BRIEF</div>
+</nav>
+
+<div class="wrap">
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- HERO -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" style="padding-top:72px;border-bottom:none">
+  <span class="label">ViceGolfer · Las Rocas, Chile · 2025</span>
+  <div class="h1" style="margin-bottom:18px">VICEGOLFER<br><span class="gold">HOUSE</span></div>
+  <div class="lead" style="max-width:540px;margin-bottom:28px">
+    Casa privada de performance. No es academia. No es público. <strong style="color:var(--cream)">Un ecosistema que produce elite golfers, contenido original, y un sistema replicable.</strong>
+  </div>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-val gold">4</div><div class="stat-key">Sistemas Core</div></div>
+    <div class="stat"><div class="stat-val">20</div><div class="stat-key">Founding Participants</div></div>
+    <div class="stat"><div class="stat-val gold">11</div><div class="stat-key">Espacios</div></div>
+    <div class="stat"><div class="stat-val">2030</div><div class="stat-key">Scratch Target</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- WHAT IT IS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="what">
+  <span class="label">01 — Qué Es Esto</span>
+  <div class="h2">Lee Esto Primero</div>
+
+  <div class="contrast" style="margin-bottom:20px">
+    <div class="contrast-col">
+      <div style="font-family:'Montserrat';font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#ef4444;margin-bottom:8px">ESTO NO ES</div>
+      <ul><li>Un negocio de simuladores</li><li>Una academia de golf</li><li>Un espacio público</li><li>Un driving range</li><li>Un clubhouse comercial</li></ul>
+    </div>
+    <div class="contrast-col">
+      <div style="font-family:'Montserrat';font-size:8px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#4ade80;margin-bottom:8px">ESTO SÍ ES</div>
+      <ul><li>La casa privada del founder</li><li>Headquarters de performance + creación</li><li>Ecosistema de miembros privados</li><li>Máquina de producción de contenido</li><li>Proof of concept viviente</li><li>El primer nodo de Vice OS</li></ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>Think: <strong>Performance House</strong>. Think: <strong>Creator House</strong>. Think: <strong>Startup Garage</strong>. Think: <strong>Fraternidad de Performance</strong>.<br><br>El producto real es el <strong>ViceGolfer Method</strong> — un sistema replicable de mejora medible. El activo real es <strong>Data + Resultados + Documentación</strong>. Cada miembro es un caso de estudio. Cada sesión es contenido. Cada mejora es prueba.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- 4 SYSTEMS -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="systems">
+  <span class="label">02 — Los 4 Sistemas</span>
+  <div class="h2">Lo Que Corre La Casa</div>
+
+  <!-- SYS 1: APP -->
+  <div class="card" style="border-left:3px solid var(--gold)">
+    <div class="card-header"><div class="h4" style="color:var(--gold)">SISTEMA 01 · VICEGOLFER APP</div><div class="space-tag" style="color:var(--accent);border-color:rgba(74,222,128,.3)">LIVE</div></div>
+    <div class="card-body">
+      <div class="body">El sistema operativo. Trackea todo: rondas, putting protocol, analytics, torneos, perfiles. Cada sesión física fluye hacia la app.</div>
+    </div>
+  </div>
+
+  <!-- SYS 2: PUTTING LAB -->
+  <div class="card" style="border-left:3px solid var(--accent);border:2px solid rgba(74,222,128,.3)">
+    <div class="card-header" style="background:rgba(74,222,128,.03)"><div class="h4" style="color:var(--accent)">SISTEMA 02 · PUTTING LAB ★ CROWN JEWEL</div><div class="space-tag" style="color:var(--accent);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.05)">BUILD FIRST</div></div>
+    <div class="card-body">
+      <div class="body" style="margin-bottom:10px">Laboratorio controlado de performance. <strong style="color:var(--cream)">NO es un practice green.</strong> Reserva obligatoria. Data mandatory. Video en cada sesión. Aquí es donde los handicaps bajan. Lo más difícil de replicar.</div>
+      <div class="grid-2">
+        <div><div class="h4" style="font-size:8px;color:var(--muted);margin-bottom:6px">QUÉ PASA ACÁ</div>
+          <div class="req"><div class="req-dot" style="background:var(--accent)"></div><div class="req-text">100 Putt Protocol — sesiones trackeadas</div></div>
+          <div class="req"><div class="req-dot" style="background:var(--accent)"></div><div class="req-text">PuttView projection (lines, break, targets)</div></div>
+          <div class="req"><div class="req-dot" style="background:var(--accent)"></div><div class="req-text">Pressure challenges — scored, benchmarked</div></div>
+          <div class="req"><div class="req-dot" style="background:var(--accent)"></div><div class="req-text">Video capture — every session</div></div>
+        </div>
+        <div><div class="h4" style="font-size:8px;color:var(--muted);margin-bottom:6px">REQS ESPACIALES</div>
+          <div class="req"><div class="req-dot"></div><div class="req-text">Min. 8m straight run for lag putting</div></div>
+          <div class="req"><div class="req-dot"></div><div class="req-text">Floor tolerance ±1mm — critical</div></div>
+          <div class="req"><div class="req-dot"></div><div class="req-text">Blackout capable — no ambient light</div></div>
+          <div class="req"><div class="req-dot"></div><div class="req-text">Climate control — 45–55% humidity</div></div>
+          <div class="req"><div class="req-dot"></div><div class="req-text">PuttView projector + iPad station</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYS 3: OUTDOOR GREEN -->
+  <div class="card" style="border-left:3px solid #60a5fa">
+    <div class="card-header"><div class="h4" style="color:#60a5fa">SISTEMA 03 · OUTDOOR PUTTING GREEN</div><div class="space-tag" style="color:#60a5fa;border-color:rgba(96,165,250,.3)">COMMUNITY + CONTENT</div></div>
+    <div class="card-body">
+      <div class="alert"><div class="h4" style="color:#ef4444;font-size:8px;margin-bottom:3px">NO ES LO MISMO QUE EL PUTTING LAB</div><p style="font-size:10px;color:var(--muted)">El green outdoor ATRAE gente. El lab indoor TRANSFORMA gente. Nunca confundirlos.</p></div>
+      <div class="body">Hub social y de contenido. Open, inviting, competitive. Donde pasan los challenges, donde ruedan las cámaras, donde se forma la comunidad.</div>
+    </div>
+  </div>
+
+  <!-- SYS 4: GOLFTEINER -->
+  <div class="card" style="border-left:3px solid var(--gold)">
+    <div class="card-header"><div class="h4" style="color:var(--gold)">SISTEMA 04 · GOLFTEINER</div><div class="space-tag" style="color:var(--gold);border-color:var(--gold-d)">MODULAR PRODUCT</div></div>
+    <div class="card-body">
+      <div class="callout" style="margin-top:0"><p><strong>Golfteiner es un producto, no el negocio.</strong> La primera unidad vive en ViceGolfer House. Long-term: se replica, se vende, se licencia, se franquicia.</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SPACES — BLUEPRINT SURVEY -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="spaces">
+  <span class="label">03 — Los Espacios · Blueprint Survey</span>
+  <div class="h2">Espacio por Espacio</div>
+  <div class="lead" style="margin-bottom:28px">Cada foto es el estado actual. Filtrada como plano técnico. Click para ver en color real.</div>
+
+  <!-- 01 GOLFTEINER -->
+  <div class="space" style="border-top-color:var(--gold)">
+    <div class="space-head"><div style="display:flex;align-items:flex-start"><div class="space-num" style="color:rgba(198,161,91,.15)">01</div><div><div class="space-name" style="color:var(--gold)">GOLFTEINER</div><div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:2px">P1 · TERRAZA → SIMULADOR</div></div></div><div class="space-tag" style="color:var(--gold);border-color:var(--gold-d)">PRODUCT MODULE</div></div>
+    <div class="grid-2" style="gap:2px">
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/golfteiner-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">TERRAZA — ESTADO ACTUAL</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/golfteiner-02.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">ZONA DE DROP DEL CONTAINER</div></div>
+    </div>
+    <div class="ann"><div><div class="ann-k">Container</div><div class="ann-v">20ft HIGH-CUBE</div></div><div><div class="ann-k">Tech</div><div class="ann-v">TRACKMAN · PROJECTOR</div></div><div><div class="ann-k">Future</div><div class="ann-v">FRANCHISABLE</div></div></div>
+  </div>
+
+  <!-- 08 PUTTING LAB -->
+  <div class="space" style="border-top-color:var(--accent);border:2px solid rgba(74,222,128,.35)">
+    <div class="space-head" style="background:rgba(74,222,128,.03)"><div style="display:flex;align-items:flex-start"><div class="space-num" style="color:rgba(74,222,128,.15)">02</div><div><div class="space-name" style="color:var(--accent)">PUTTING LAB ★</div><div style="font-family:var(--mono);font-size:8px;color:var(--accent);margin-top:2px">P0 — BUILD FIRST — CROWN JEWEL</div></div></div><div class="space-tag" style="color:var(--accent);border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.05)">INDOOR · LAB</div></div>
+    <div class="grid-2" style="gap:2px">
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/putting-lab-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">PUTTING LAB — ROOM VIEW 01</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/putting-lab-02.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">PUTTING LAB — FULL DIMENSION</div></div>
+    </div>
+    <div class="ann"><div><div class="ann-k">Floor</div><div class="ann-v green">±1mm TOLERANCE</div></div><div><div class="ann-k">Run</div><div class="ann-v">MIN 8m</div></div><div><div class="ann-k">Tech</div><div class="ann-v">PUTTVIEW PROJECTION</div></div><div><div class="ann-k">Access</div><div class="ann-v" style="color:#fbbf24">RESERVATION ONLY</div></div></div>
+  </div>
+
+  <!-- STUDIOS -->
+  <div class="space" style="border-top-color:var(--gold)">
+    <div class="space-head"><div style="display:flex;align-items:flex-start"><div class="space-num" style="color:rgba(198,161,91,.12)">03</div><div><div class="space-name" style="color:var(--gold)">CONTENT STUDIOS</div><div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:2px">P1 · PRIMERA CAPA DE REVENUE</div></div></div><div class="space-tag" style="color:var(--gold);border-color:var(--gold-d)">CONTENT ENGINE</div></div>
+    <div class="grid-3" style="gap:2px">
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/studio-1-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">STUDIO 1 — VIDEO</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/studio-2-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">STUDIO 2 — VIEW 1</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/studio-2-02.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">STUDIO 2 — VIEW 2</div></div>
+    </div>
+    <div class="ann"><div><div class="ann-k">Output</div><div class="ann-v">TIKTOK · YOUTUBE · PODCAST</div></div><div><div class="ann-k">Revenue</div><div class="ann-v">PRIMARY LAYER</div></div></div>
+  </div>
+
+  <!-- OUTDOOR GREEN -->
+  <div class="space" style="border-top-color:#60a5fa">
+    <div class="space-head"><div style="display:flex;align-items:flex-start"><div class="space-num" style="color:rgba(96,165,250,.12)">04</div><div><div class="space-name" style="color:#60a5fa">OUTDOOR PUTTING GREEN</div><div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:2px">P1 · COMMUNITY + CONTENT</div></div></div><div class="space-tag" style="color:#60a5fa;border-color:rgba(96,165,250,.3)">OUTDOOR</div></div>
+    <div class="grid-3" style="gap:2px">
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/putting-green-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">GREEN — VIEW 01</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/putting-green-03.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">GREEN — VIEW 02</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/putting-green-05.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">GREEN — VIEW 03</div></div>
+    </div>
+    <div class="ann"><div><div class="ann-k">Design for</div><div class="ann-v">CAMERA ANGLES</div></div><div><div class="ann-k">Function</div><div class="ann-v">EVENTS · TIKTOK · CHALLENGES</div></div></div>
+  </div>
+
+  <!-- GYM -->
+  <div class="space" style="border-top-color:var(--accent)">
+    <div class="space-head"><div style="display:flex;align-items:flex-start"><div class="space-num" style="color:rgba(74,222,128,.1)">05</div><div><div class="space-name" style="color:var(--accent)">GYM + PATIO</div><div style="font-family:var(--mono);font-size:8px;color:var(--dim);margin-top:2px">P2 · PERFORMANCE + CONTENT</div></div></div><div class="space-tag" style="color:var(--accent);border-color:rgba(74,222,128,.3)">OUTDOOR GYM</div></div>
+    <div class="grid-2" style="gap:2px">
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/gym-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">GYM PATIO</div></div>
+      <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/gym-02.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="ch bl"></div><div class="ch br"></div><div class="photo-label">BASKETBALL + GOLF TRAINING</div></div>
+    </div>
+  </div>
+
+  <!-- LIVING + KITCHEN + OFFICE + SAUNA -->
+  <div class="grid-2" style="gap:10px">
+    <div class="space" style="border-top-color:rgba(100,168,255,.5);margin-bottom:0">
+      <div class="space-head"><div><div class="space-name" style="font-size:18px">LIVING</div></div><div class="space-tag" style="color:var(--dim);border-color:var(--line)">P2</div></div>
+      <div class="bp-photo" onclick="zoom(this)" style="max-height:180px"><img src="assets/house/living-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="photo-label">COMMUNITY · RECOVERY</div></div>
+    </div>
+    <div class="space" style="border-top-color:rgba(100,168,255,.5);margin-bottom:0">
+      <div class="space-head"><div><div class="space-name" style="font-size:18px">KITCHEN</div></div><div class="space-tag" style="color:var(--dim);border-color:var(--line)">P2</div></div>
+      <div class="bp-photo" onclick="zoom(this)" style="max-height:180px"><img src="assets/house/kitchen-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="photo-label">FOOD · COFFEE · CULTURE</div></div>
+    </div>
+    <div class="space" style="border-top-color:#a855f7;margin-bottom:0">
+      <div class="space-head"><div><div class="space-name" style="font-size:18px;color:#a855f7">FOUNDER OFFICE</div></div><div class="space-tag" style="color:#ef4444;border-color:rgba(239,68,68,.3)">PRIVATE</div></div>
+      <div class="bp-photo" onclick="zoom(this)" style="max-height:180px"><img src="assets/house/office-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="photo-label">V-ROOF · RESTRICTED ACCESS</div></div>
+    </div>
+    <div class="space" style="border-top-color:#60a5fa;margin-bottom:0">
+      <div class="space-head"><div><div class="space-name" style="font-size:18px;color:#60a5fa">SAUNA</div></div><div class="space-tag" style="color:var(--dim);border-color:var(--line)">P2</div></div>
+      <div class="bp-photo" onclick="zoom(this)" style="max-height:180px"><img src="assets/house/sauna-01.jpg"><div class="ch tl"></div><div class="ch tr"></div><div class="photo-label">RECOVERY ZONE</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- DYNAMIC PUTTING LAB BLUEPRINT -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="lab">
+  <span class="label">04 — Dynamic Putting Lab · Blueprint</span>
+  <div class="h2">VICE P1 — Blueprint Técnico</div>
+
+  <!-- PERSPECTIVE SVG -->
+  <div class="card"><div class="card-header"><div class="h4">PERSPECTIVA 3/4</div><div class="space-tag" style="color:var(--gold);border-color:var(--gold-d)">VICE P1</div></div>
+    <div class="card-body">
+      <svg viewBox="0 0 800 380" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+        <polygon points="160,160 600,120 680,180 240,220" class="surface"/>
+        <polygon points="160,160 600,120 600,200 160,240" class="outline" style="fill:rgba(100,168,255,.02)"/>
+        <polygon points="160,160 160,240 240,280 240,220" class="outline" style="fill:rgba(100,168,255,.02)"/>
+        <polygon points="240,220 680,180 680,260 240,280" class="outline" style="fill:rgba(100,168,255,.02)"/>
+        <line x1="220" y1="198" x2="640" y2="158" style="stroke:rgba(74,222,128,.08);stroke-width:.5"/>
+        <line x1="230" y1="206" x2="660" y2="166" style="stroke:rgba(74,222,128,.08);stroke-width:.5"/>
+        <ellipse cx="400" cy="185" rx="7" ry="3.5" style="fill:rgba(0,0,0,.5);stroke:rgba(245,245,245,.2);stroke-width:.7"/>
+        <line x1="400" y1="178" x2="402" y2="162" style="stroke:rgba(245,245,245,.25);stroke-width:.7"/>
+        <polygon points="402,162 418,165 402,169" style="fill:rgba(198,161,91,.35)"/>
+        <rect x="370" y="46" width="56" height="26" rx="3" class="component"/>
+        <rect x="384" y="72" width="28" height="7" rx="2" class="component"/>
+        <line x1="398" y1="79" x2="280" y2="190" style="stroke:rgba(198,161,91,.1);stroke-width:.4;stroke-dasharray:3,3"/>
+        <line x1="398" y1="79" x2="520" y2="170" style="stroke:rgba(198,161,91,.1);stroke-width:.4;stroke-dasharray:3,3"/>
+        <text x="398" y="40" text-anchor="middle" class="label-text" style="font-size:7px">4K PROJECTOR</text>
+        <rect x="200" y="256" width="14" height="26" rx="2" class="component"/>
+        <rect x="340" y="248" width="14" height="26" rx="2" class="component"/>
+        <rect x="480" y="238" width="14" height="26" rx="2" class="component"/>
+        <rect x="620" y="228" width="14" height="26" rx="2" class="component"/>
+        <text x="400" y="302" text-anchor="middle" class="label-text">DYNAMIC MOTION PLATFORM — DUAL AXIS</text>
+        <line x1="240" y1="320" x2="680" y2="320" class="dim-line"/>
+        <text x="460" y="336" text-anchor="middle" class="dim-text">12'-0" (3,650mm)</text>
+        <line x1="710" y1="180" x2="710" y2="260" class="dim-line"/>
+        <text x="740" y="224" text-anchor="middle" class="dim-text">8'-0"</text>
+        <text x="400" y="198" text-anchor="middle" style="fill:rgba(74,222,128,.4);font-size:7px;letter-spacing:.12em">PREMIUM PUTTING SURFACE</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- PLAN VIEW SVG -->
+  <div class="card"><div class="card-header"><div class="h4">PLAN VIEW (TOP)</div><div class="space-tag" style="color:var(--dim);border-color:var(--line)">SCALE 1:25</div></div>
+    <div class="card-body">
+      <svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+        <rect x="80" y="30" width="440" height="250" rx="3" class="outline" style="stroke-width:1.5"/>
+        <rect x="90" y="40" width="420" height="230" rx="2" class="surface"/>
+        <line x1="90" y1="100" x2="510" y2="100" style="stroke:var(--grid);stroke-width:.5"/>
+        <line x1="90" y1="155" x2="510" y2="155" style="stroke:var(--grid);stroke-width:.5"/>
+        <line x1="90" y1="210" x2="510" y2="210" style="stroke:var(--grid);stroke-width:.5"/>
+        <line x1="230" y1="40" x2="230" y2="270" style="stroke:var(--grid);stroke-width:.5"/>
+        <line x1="370" y1="40" x2="370" y2="270" style="stroke:var(--grid);stroke-width:.5"/>
+        <circle cx="300" cy="90" r="6" style="fill:rgba(0,0,0,.4);stroke:rgba(245,245,245,.25);stroke-width:.8"/>
+        <circle cx="300" cy="90" r="28" style="fill:none;stroke:rgba(74,222,128,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+        <circle cx="300" cy="90" r="56" style="fill:none;stroke:rgba(74,222,128,.1);stroke-width:.5;stroke-dasharray:3,3"/>
+        <circle cx="300" cy="90" r="90" style="fill:none;stroke:rgba(74,222,128,.08);stroke-width:.5;stroke-dasharray:3,3"/>
+        <text x="332" y="88" class="spec-text" style="fill:rgba(74,222,128,.3)">3ft</text>
+        <text x="360" y="88" class="spec-text" style="fill:rgba(74,222,128,.3)">6ft</text>
+        <text x="394" y="88" class="spec-text" style="fill:rgba(74,222,128,.3)">10ft</text>
+        <line x1="80" y1="300" x2="520" y2="300" class="dim-line"/>
+        <text x="300" y="316" text-anchor="middle" class="dim-text">12'-0" (3,650mm)</text>
+        <line x1="545" y1="30" x2="545" y2="280" class="dim-line"/>
+        <text x="564" y="155" text-anchor="middle" class="dim-text" transform="rotate(90,564,155)">8'-0" (2,440mm)</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- SIDE + FRONT VIEWS -->
+  <div class="grid-2">
+    <div class="card"><div class="card-header"><div class="h4">SIDE ELEVATION</div><div style="font-family:var(--mono);font-size:7px;color:var(--dim)">±3% TILT</div></div>
+      <div class="card-body">
+        <svg viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <rect x="50" y="60" width="300" height="14" rx="1" class="outline" style="fill:rgba(74,222,128,.04)"/>
+          <rect x="50" y="74" width="300" height="28" rx="1" class="outline" style="fill:rgba(100,168,255,.02)"/>
+          <rect x="70" y="102" width="10" height="20" rx="2" class="component"/>
+          <rect x="190" y="102" width="10" height="20" rx="2" class="component"/>
+          <rect x="310" y="102" width="10" height="20" rx="2" class="component"/>
+          <line x1="40" y1="122" x2="370" y2="122" style="stroke:rgba(100,168,255,.1);stroke-width:.6"/>
+          <line x1="50" y1="52" x2="350" y2="44" style="stroke:rgba(198,161,91,.2);stroke-width:.8;stroke-dasharray:5,3"/>
+          <text x="355" y="46" class="spec-text" style="fill:var(--gold-d)">UP 3%</text>
+          <line x1="50" y1="68" x2="350" y2="76" style="stroke:rgba(198,161,91,.2);stroke-width:.8;stroke-dasharray:5,3"/>
+          <text x="355" y="80" class="spec-text" style="fill:var(--gold-d)">DOWN 3%</text>
+          <line x1="50" y1="140" x2="350" y2="140" class="dim-line"/>
+          <text x="200" y="154" text-anchor="middle" class="dim-text">12'-0"</text>
+        </svg>
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><div class="h4">FRONT ELEVATION</div><div style="font-family:var(--mono);font-size:7px;color:var(--dim)">±5% L/R</div></div>
+      <div class="card-body">
+        <svg viewBox="0 0 400 160" xmlns="http://www.w3.org/2000/svg" style="width:100%">
+          <rect x="80" y="60" width="240" height="12" rx="1" class="outline" style="fill:rgba(74,222,128,.04)"/>
+          <rect x="80" y="72" width="240" height="24" rx="1" class="outline" style="fill:rgba(100,168,255,.02)"/>
+          <rect x="96" y="96" width="10" height="18" rx="2" class="component"/>
+          <rect x="294" y="96" width="10" height="18" rx="2" class="component"/>
+          <line x1="70" y1="114" x2="340" y2="114" style="stroke:rgba(100,168,255,.1);stroke-width:.6"/>
+          <line x1="80" y1="52" x2="320" y2="62" style="stroke:rgba(198,161,91,.2);stroke-width:.8;stroke-dasharray:5,3"/>
+          <text x="72" y="50" class="spec-text" style="fill:var(--gold-d)">L 5%</text>
+          <line x1="80" y1="70" x2="320" y2="60" style="stroke:rgba(198,161,91,.2);stroke-width:.8;stroke-dasharray:5,3"/>
+          <text x="325" y="58" class="spec-text" style="fill:var(--gold-d)">R 5%</text>
+          <line x1="80" y1="136" x2="320" y2="136" class="dim-line"/>
+          <text x="200" y="150" text-anchor="middle" class="dim-text">8'-0"</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECS -->
+  <div class="card"><div class="card-header"><div class="h4">SPECIFICATIONS</div></div>
+    <div class="card-body">
+      <div class="specs">
+        <div class="spec"><div class="spec-k">Green Size</div><div class="spec-v">8' × 12'</div><div class="spec-n">2.44m × 3.65m</div></div>
+        <div class="spec"><div class="spec-k">Real Hole</div><div class="spec-v">1 × Ø108mm</div><div class="spec-n">+ unlimited virtual (PuttView)</div></div>
+        <div class="spec"><div class="spec-k">Max Slope</div><div class="spec-v">3% / 5%</div><div class="spec-n">up/down · left/right</div></div>
+        <div class="spec"><div class="spec-k">Actuators</div><div class="spec-v">4 Linear</div><div class="spec-n">synchronized dual-axis</div></div>
+        <div class="spec"><div class="spec-k">Projector</div><div class="spec-v">4K Short Throw</div><div class="spec-n">PuttView compatible</div></div>
+        <div class="spec"><div class="spec-k">Camera</div><div class="spec-v">Overhead</div><div class="spec-n">ball tracking + video</div></div>
+        <div class="spec"><div class="spec-k">Power</div><div class="spec-v">110/220V</div><div class="spec-n">20A circuit</div></div>
+        <div class="spec"><div class="spec-k">Min Ceiling</div><div class="spec-v">7'-6"</div><div class="spec-n">2,280mm</div></div>
+        <div class="spec"><div class="spec-k">Weight</div><div class="spec-v">~2,900 kg</div><div class="spec-n">6,393 lbs</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="card"><div class="card-header"><div class="h4">SYSTEM COMPONENTS</div></div>
+    <div class="card-body">
+      <div class="comps">
+        <div class="comp"><div class="comp-icon">⚙️</div><div class="comp-name">Actuators ×4</div><div class="comp-desc">Linear · sync motion</div></div>
+        <div class="comp"><div class="comp-icon">🖥️</div><div class="comp-name">Controller</div><div class="comp-desc">Motion sync box</div></div>
+        <div class="comp"><div class="comp-icon">💻</div><div class="comp-name">Industrial PC</div><div class="comp-desc">Data processing</div></div>
+        <div class="comp"><div class="comp-icon">📷</div><div class="comp-name">Camera</div><div class="comp-desc">Overhead tracking</div></div>
+        <div class="comp"><div class="comp-icon">🎯</div><div class="comp-name">PuttView</div><div class="comp-desc">4K projection</div></div>
+        <div class="comp"><div class="comp-icon">📱</div><div class="comp-name">Tablet</div><div class="comp-desc">Wireless control</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- BUSINESS MODEL -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="business">
+  <span class="label">05 — Modelo de Negocio</span>
+  <div class="h2">Revenue & Estructura</div>
+
+  <div class="callout">
+    <p><strong>Content es la primera capa de monetización.</strong> Cada sesión genera TikTok, YouTube, Reels. El contenido financia el crecimiento antes de cobrar una membresía.</p>
+  </div>
+
+  <div class="grid-2" style="margin:20px 0">
+    <div class="card" style="border-left:3px solid var(--gold)"><div class="card-body">
+      <div class="h4" style="color:var(--gold);margin-bottom:4px">20 FOUNDING PARTICIPANTS</div>
+      <div class="body">No son clientes — son parte del experimento. Sus resultados construyen el proof of concept. Cada mejora se documenta, se publica, se comparte.</div>
+    </div></div>
+    <div class="card" style="border-left:3px solid var(--accent)"><div class="card-body">
+      <div class="h4" style="color:var(--accent);margin-bottom:4px">CONTENT = THE PRODUCT</div>
+      <div class="body">Member improves → documented → TikTok → reaches 10K → 50 interested → 5 join. El contenido no es marketing. Es el producto.</div>
+    </div></div>
+  </div>
+
+  <div class="grid-3" style="gap:8px">
+    <div class="spec"><div class="spec-k">Arriendo/hora simulador</div><div class="spec-v">$50-60K CLP</div></div>
+    <div class="spec"><div class="spec-k">Membresía Básica</div><div class="spec-v">$170K CLP/mes</div></div>
+    <div class="spec"><div class="spec-k">Membresía Premium</div><div class="spec-v">$300K CLP/mes</div></div>
+    <div class="spec"><div class="spec-k">Análisis de datos</div><div class="spec-v">$40K CLP/sesión</div></div>
+    <div class="spec"><div class="spec-k">Eventos/torneos</div><div class="spec-v">$300K+ CLP</div></div>
+    <div class="spec"><div class="spec-k">Breakeven estimado</div><div class="spec-v">6-8 meses</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- ROADMAP -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section">
+  <span class="label">06 — Roadmap</span>
+  <div class="h2">Build Sequence</div>
+  <div class="timeline">
+    <div class="phase"><div class="phase-dot" style="background:var(--accent)"></div><div class="phase-label" style="color:var(--accent)">NOW</div><div class="phase-title">ViceGolfer House · Private</div><div class="phase-body">Casa del founder como primer nodo. Putting Lab construido. 20 founding participants. Content engine corriendo.</div></div>
+    <div class="phase"><div class="phase-dot" style="background:var(--gold)"></div><div class="phase-label" style="color:var(--gold)">2025</div><div class="phase-title">Golfteiner como Producto</div><div class="phase-body">Primera unidad probada. Producto empaquetado para replicación. Primera venta/licencia a un club.</div></div>
+    <div class="phase"><div class="phase-dot" style="background:var(--gold)"></div><div class="phase-label" style="color:var(--gold)">2026</div><div class="phase-title">RugbyVice Performance Node</div><div class="phase-body">Misma arquitectura para rugby. Segunda house. Mismo Vice OS. La red crece.</div></div>
+    <div class="phase"><div class="phase-dot" style="background:#60a5fa"></div><div class="phase-label" style="color:#60a5fa">2027+</div><div class="phase-title">Vice OS Physical Network</div><div class="phase-body">Múltiples nodos físicos. ViceGolfer escala a otras ubicaciones. Plataforma, no solo una casa.</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- PARTNER -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div class="section" id="partner">
+  <span class="label">07 — Para El Partner</span>
+  <div class="h2">Lo Que Construimos Juntos</div>
+  <div class="lead" style="margin-bottom:20px">No estás diseñando una instalación comercial. Estás diseñando headquarters privados de performance y creación que resultan ser la casa de alguien.</div>
+
+  <div class="callout"><p>El desafío: <strong>hacer que una casa privada se sienta como un entorno de alto rendimiento</strong> — sin perder la intimidad que lo hace funcionar.</p></div>
+
+  <div style="margin:20px 0">
+    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)"><div style="font-family:'Bebas Neue';font-size:20px;color:var(--gold);width:28px;flex-shrink:0">01</div><div><div class="h4" style="margin-bottom:3px">Putting Lab Primero</div><div class="body">La prioridad #1. Piso nivelado, ambiente controlado, tech integrada.</div></div></div>
+    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)"><div style="font-family:'Bebas Neue';font-size:20px;color:var(--gold);width:28px;flex-shrink:0">02</div><div><div class="h4" style="margin-bottom:3px">Content Studios</div><div class="body">Segunda prioridad. Acústica, iluminación, ángulos de cámara profesional.</div></div></div>
+    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)"><div style="font-family:'Bebas Neue';font-size:20px;color:var(--gold);width:28px;flex-shrink:0">03</div><div><div class="h4" style="margin-bottom:3px">Flow + Privacidad</div><div class="body">Miembros no acceden a espacios privados. Diseñar flujo Lab→Studios sin penetrar áreas privadas.</div></div></div>
+    <div style="display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--line)"><div style="font-family:'Bebas Neue';font-size:20px;color:var(--gold);width:28px;flex-shrink:0">04</div><div><div class="h4" style="margin-bottom:3px">Diseño para Cámara</div><div class="body">Green y gym son espacios de producción de contenido. Diseñar para ángulos de cámara, luz natural, brand.</div></div></div>
+    <div style="display:flex;gap:14px;padding:14px 0"><div style="font-family:'Bebas Neue';font-size:20px;color:var(--gold);width:28px;flex-shrink:0">05</div><div><div class="h4" style="margin-bottom:3px">Long Game</div><div class="body">Este es el primer nodo Vice OS. El arquitecto que lo construye se convierte en el design partner de todos los nodos futuros.</div></div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-q">"NOT GIVEN.<br>TAKEN."</div>
+  <div class="footer-sub">VICEGOLFER · LAS ROCAS · CHILE · 2025</div>
+  <div style="font-size:11px;color:rgba(100,168,255,.3);margin-bottom:20px;max-width:440px;margin-left:auto;margin-right:auto">Este es un brief de trabajo. Todo aquí es punto de partida. El partner correcto va a desafiar, mejorar, y dar forma a lo que esto se convierte.</div>
+  <div><a href="mailto:hk23hub@gmail.com" class="cta cta-gold">CONTACTAR HK23 →</a><a href="https://vicegolfer.vercel.app" target="_blank" class="cta cta-ghost">VER LA APP</a></div>
+</div>
+
+</div><!-- .wrap -->
+
+<script>
+function zoom(el){const i=el.querySelector('img');document.getElementById('lb-img').src=i.src;document.getElementById('lb-img').style.filter='none';document.getElementById('lb').classList.add('open')}
+</script>
+</body>
+</html>
