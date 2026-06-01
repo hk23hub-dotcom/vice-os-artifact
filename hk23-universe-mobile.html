@@ -216,7 +216,7 @@ canvas { position: fixed; top: 0; left: 0; touch-action: none; }
   <div class="hud-tag">VICE OS</div>
 </div>
 
-<div id="tap-hint">TOCA UN PLANETA</div>
+<div id="tap-hint">TAP A PLANET</div>
 <div id="cmd-toast"></div>
 
 <!-- Bottom drawer -->
@@ -231,7 +231,7 @@ canvas { position: fixed; top: 0; left: 0; touch-action: none; }
       <div class="dv-color-bar" id="dv-bar"></div>
       <div class="dv-title" id="dv-title">—</div>
       <div class="dv-sub" id="dv-sub">—</div>
-      <div class="dv-section" id="dv-section-label">MÓDULOS</div>
+      <div class="dv-section" id="dv-section-label">MODULES</div>
       <div id="dv-content"></div>
     </div>
 
@@ -239,21 +239,21 @@ canvas { position: fixed; top: 0; left: 0; touch-action: none; }
     <div id="module-view">
       <div class="mv-back" id="mv-back">
         <span class="mv-back-icon">←</span>
-        <span class="mv-back-label" id="mv-back-label">VOLVER</span>
+        <span class="mv-back-label" id="mv-back-label">BACK</span>
       </div>
-      <div class="mv-eyebrow" id="mv-eyebrow">MÓDULO</div>
+      <div class="mv-eyebrow" id="mv-eyebrow">MODULE</div>
       <div class="mv-header">
         <div class="mv-title" id="mv-title">—</div>
         <div class="status-badge" id="mv-status">LIVE</div>
       </div>
-      <div class="mv-section">PARA QUÉ SIRVE</div>
+      <div class="mv-section">WHAT IT DOES</div>
       <div class="mv-desc" id="mv-desc">—</div>
       <div id="mv-howto-wrap">
-        <div class="mv-section">CÓMO SE USA</div>
+        <div class="mv-section">HOW IT WORKS</div>
         <div class="mv-howto" id="mv-howto">—</div>
       </div>
       <div id="mv-benefits-wrap">
-        <div class="mv-section">BENEFICIOS</div>
+        <div class="mv-section">BENEFITS</div>
         <ul class="mv-benefits" id="mv-benefits"></ul>
       </div>
       <div id="mv-cta"></div>
@@ -270,32 +270,32 @@ const PLANETS = [
     id: 'vicegolfer', label: 'VICEGOLFER', sub: 'GOLF PERFORMANCE OS',
     color: '#AAFF00', orbit: 'inner', a: Math.PI * 0.3, speed: 0.00025, size: 16, px:0, py:0,
     modules: [
-      { label: 'Performance DNA', sub: 'Radar · 5 ejes · Rondas reales',
-        status: 'live', eyebrow: 'MÓDULO CORE',
-        desc: 'Tu radar de golf personalizado. 5 ejes construidos desde tus rondas reales: Driver, Hierros, Juego Corto, Putting y Mental.',
-        howTo: 'Registra rondas y sesiones de entrenamiento. El sistema calcula automáticamente tus 5 ejes y actualiza el radar con cada entrada.',
-        benefits: ['Identifica exactamente qué parte del juego te cuesta más strokes', 'Compara tu perfil contra el ranking global de ViceGolfer', 'El radar evoluciona con cada sesión — ves el progreso en tiempo real'],
-        link: 'https://vicegolfer.com', action: 'VER MI DNA →' },
-      { label: 'Putting Protocol', sub: 'Drills · Métricas · Sesiones',
-        status: 'live', eyebrow: 'ENTRENAMIENTO',
-        desc: 'Protocolo de putting estructurado. Drills medibles, métricas por sesión, y evolución semana a semana.',
-        howTo: 'Seleccioná un drill, ejecutá la sesión, registrá los resultados. El sistema trackea tu consistencia y tasa de mejora.',
-        benefits: ['Convierte el putting de punto débil a fortaleza medible', 'Los drills tienen metas claras — sabés exactamente si mejoraste', 'Historial completo de sesiones para ver la curva de progresión'],
-        link: 'https://vicegolfer.com', action: 'VER PROTOCOLO →' },
-      { label: 'Analytics', sub: 'Stats · Tendencias · Patrones',
-        status: 'build', eyebrow: 'ANÁLISIS',
-        desc: 'Dashboard de analytics profundo. Tendencias en el tiempo, patrones por tipo de campo, correlaciones entre métricas.',
-        benefits: ['Descubrí qué condiciones te hacen jugar mejor o peor', 'Correlaciones automáticas: lluvia, hora del día, días de descanso'] },
-      { label: 'Rankings', sub: 'Global · Por región · Por categoría',
-        status: 'build', eyebrow: 'COMPETENCIA',
-        desc: 'Leaderboards globales y por región. Tu DNA score te ubica en el ranking real entre todos los usuarios de ViceGolfer.',
-        benefits: ['Competís con golfistas reales usando datos reales', 'Rankings por categoría de hándicap — comparación justa'] },
-      { label: 'Caddie Booking', sub: 'AI Caddie + Humanos',
-        status: 'soon', eyebrow: 'SERVICIOS',
-        desc: 'Activá el AI Caddie para estrategia en tiempo real, o reservá un caddie humano verificado para tu próxima ronda.' },
+      { label: 'Performance DNA', sub: 'Radar · 5 axes · Real rounds',
+        status: 'live', eyebrow: 'CORE MODULE',
+        desc: 'Your personalized golf radar. 5 axes built from your real rounds: Driver, Irons, Short Game, Putting and Mental.',
+        howTo: 'Log rounds and training sessions. The system automatically calculates your 5 axes and updates the radar with each entry.',
+        benefits: ['Identifies exactly which part of your game costs you the most strokes', 'Compare your profile against the global ViceGolfer ranking', 'The radar evolves with each session — you see progress in real time'],
+        link: 'https://vicegolfer.com', action: 'SEE MY DNA →' },
+      { label: 'Putting Protocol', sub: 'Drills · Metrics · Sessions',
+        status: 'live', eyebrow: 'TRAINING',
+        desc: 'Structured putting protocol. Measurable drills, per-session metrics, and week-over-week evolution.',
+        howTo: 'Select a drill, run the session, log the results. The system tracks your consistency and improvement rate.',
+        benefits: ['Turns putting from a weak point into a measurable strength', 'Drills have clear goals — you know exactly if you improved', 'Full session history to track your progression curve'],
+        link: 'https://vicegolfer.com', action: 'SEE PROTOCOL →' },
+      { label: 'Analytics', sub: 'Stats · Trends · Patterns',
+        status: 'build', eyebrow: 'ANALYTICS',
+        desc: 'Deep analytics dashboard. Trends over time, patterns by course type, correlations between metrics.',
+        benefits: ['Discover what conditions make you play better or worse', 'Automatic correlations: rain, time of day, rest days'] },
+      { label: 'Rankings', sub: 'Global · By region · By category',
+        status: 'build', eyebrow: 'COMPETITION',
+        desc: 'Global and regional leaderboards. Your DNA score places you in the real ranking among all ViceGolfer users.',
+        benefits: ['Compete against real golfers using real data', 'Rankings by handicap category — fair comparison'] },
+      { label: 'Caddie Booking', sub: 'AI Caddie + Human Caddies',
+        status: 'soon', eyebrow: 'SERVICES',
+        desc: 'Activate the AI Caddie for real-time strategy, or book a verified human caddie for your next round.' },
       { label: 'Podcasts', sub: 'Golf · Performance · Mindset',
-        status: 'soon', eyebrow: 'CONTENIDO',
-        desc: 'Episodios de golf integrados al ecosistema. Coaches, jugadores, estrategia mental. Tu historial de escucha conectado a tu DNA.' },
+        status: 'soon', eyebrow: 'CONTENT',
+        desc: 'Golf episodes integrated into the ecosystem. Coaches, players, mental strategy. Your listening history connected to your DNA.' },
     ]
   },
   {
@@ -303,97 +303,167 @@ const PLANETS = [
     color: '#00F0FF', orbit: 'inner', a: Math.PI * 1.3, speed: 0.00020, size: 14, px:0, py:0,
     modules: [
       { label: 'Rugby DNA', sub: 'Tackle · Kick · Conditioning · IQ',
-        status: 'live', eyebrow: 'MÓDULO CORE',
-        desc: 'Tu perfil de rugby en 7 ejes: Tackle, Kick, Scrum, Conditioning, Game IQ, Recovery y Mental. Construido desde tus sesiones reales.',
-        howTo: 'Registrá cada sesión de entrenamiento o partido. El sistema construye tu DNA de rugby y lo compara contra tu posición.',
-        benefits: ['Perfil de rugby personalizado por posición', 'Compará tu evolución con otros jugadores', 'Identificá los ejes críticos para tu posición específica'],
-        link: null, action: 'VER DNA →' },
-      { label: 'Kick Protocol', sub: 'Patadas · Drills · Precisión',
-        status: 'live', eyebrow: 'ENTRENAMIENTO',
-        desc: 'Protocolo de pateo técnico. Desde lineouts hasta drop goals — drills medibles y métricas de precisión por sesión.',
-        howTo: 'Ejecutá los drills del protocolo, registrá resultados. El sistema trackea precisión y potencia por tipo de patada.',
-        benefits: ['Protocolos diseñados por coaches de alto rendimiento', 'Cada drill tiene métricas de éxito claras y medibles', 'Progresión visual semana a semana'],
-        link: null, action: 'VER PROTOCOLO →' },
-      { label: 'Team Tracker', sub: 'Equipo · Posiciones · Tácticas',
-        status: 'build', eyebrow: 'EQUIPO',
-        desc: 'Tracking de equipo completo. Posiciones, formaciones, análisis colectivo y comparación de DNA entre jugadores del plantel.',
-        benefits: ['Analizá el equipo como si fueras el coach', 'Identifica desequilibrios en el plantel por posición'] },
-      { label: 'Rankings', sub: 'Global · Por posición',
-        status: 'build', eyebrow: 'COMPETENCIA',
-        desc: 'Rankings globales de rugby. Tu DNA score te ubica entre jugadores de tu posición en todo el mundo.',
-        benefits: ['Competición real con datos reales', 'Rankings por posición — comparación justa y específica'] },
+        status: 'live', eyebrow: 'CORE MODULE',
+        desc: 'Your rugby profile across 7 axes: Tackle, Kick, Scrum, Conditioning, Game IQ, Recovery and Mental. Built from your real sessions.',
+        howTo: 'Log each training session or match. The system builds your rugby DNA and compares it against your position.',
+        benefits: ['Personalized rugby profile by position', 'Compare your evolution against other players', 'Identify the critical axes for your specific position'],
+        link: null, action: 'SEE DNA →' },
+      { label: 'Kick Protocol', sub: 'Kicks · Drills · Accuracy',
+        status: 'live', eyebrow: 'TRAINING',
+        desc: 'Technical kicking protocol. From lineouts to drop goals — measurable drills and accuracy metrics per session.',
+        howTo: 'Execute protocol drills, log results. The system tracks accuracy and power by kick type.',
+        benefits: ['Protocols designed by high-performance coaches', 'Each drill has clear, measurable success metrics', 'Visual week-over-week progression'],
+        link: null, action: 'SEE PROTOCOL →' },
+      { label: 'Team Tracker', sub: 'Team · Positions · Tactics',
+        status: 'build', eyebrow: 'TEAM',
+        desc: 'Complete team tracking. Positions, formations, collective analysis and DNA comparison between squad players.',
+        benefits: ['Analyze the team as if you were the coach', 'Identify squad imbalances by position'] },
+      { label: 'Rankings', sub: 'Global · By position',
+        status: 'build', eyebrow: 'COMPETITION',
+        desc: 'Global rugby rankings. Your DNA score places you among players in your position worldwide.',
+        benefits: ['Real competition with real data', 'Rankings by position — fair and specific comparison'] },
     ]
   },
   {
     id: 'laiglesia', label: 'LA IGLESIA', sub: 'GOLD · IV REGIÓN · 3,676HA',
     color: '#FFD200', orbit: 'outer', a: Math.PI * 0.7, speed: 0.000090, size: 13, px:0, py:0,
     modules: [
-      { label: 'Concesión Minera', sub: 'Estado legal · Permisos',
+      { label: 'Mining Concession', sub: 'Legal status · Permits',
         status: 'live', eyebrow: 'LEGAL',
-        desc: 'Concesión de exploración activa en IV Región, Chile. 3,676 hectáreas con potencial de oro en roca y aluvial.',
-        benefits: ['Títulos en regla y permisos de exploración vigentes', 'Zona de alto potencial aurífero con estudios previos'] },
-      { label: 'Drill Campaign', sub: 'Exploración · Muestras',
-        status: 'build', eyebrow: 'EXPLORACIÓN',
-        desc: 'Campaña de perforación exploratoria en sectores de mayor potencial. Análisis de muestras y modelado geológico.' },
-      { label: 'Inversión', sub: 'Cap · Partners · ROI',
+        desc: 'Active exploration concession in IV Región, Chile. 3,676 hectares with gold potential in rock and alluvial deposits.',
+        benefits: ['Clear titles and valid exploration permits', 'High gold potential zone with prior studies'] },
+      { label: 'Drill Campaign', sub: 'Exploration · Samples',
+        status: 'build', eyebrow: 'EXPLORATION',
+        desc: 'Exploratory drilling campaign in highest-potential sectors. Sample analysis and geological modeling.' },
+      { label: 'Investment Round', sub: 'Cap · Partners · ROI',
         status: 'soon', eyebrow: 'CAPITAL',
-        desc: 'Ronda de inversión para financiar exploración intensiva. Estructura de partnership y proyección de retorno.' },
+        desc: 'Investment round to fund intensive exploration. Partnership structure and return projection.' },
     ]
   },
   {
     id: 'arteworld', label: 'ARTE WORLD', sub: 'VISUAL IDENTITY · DESIGN',
     color: '#FF3A1F', orbit: 'outer', a: Math.PI * 1.1, speed: 0.000075, size: 12, px:0, py:0,
     modules: [
-      { label: 'James Craig Art', sub: 'Portfolio · Commissions', status: 'live', eyebrow: 'MARCA',
-        desc: 'Identidad visual HK23. Owls, mythology, chaos controlled. Arte crudo sin filtros — la imagen como filosofía.',
-        benefits: ['Portfolio activo con prints, commissions y piezas originales', 'Estética única — no genérica, no reproducible'] },
-      { label: 'Fallowood', sub: 'Brand · Product · Direction', status: 'build', eyebrow: 'MARCA',
-        desc: 'Marca de estilo de vida construida desde la identidad HK23. Ropa, accesorios, drops limitados.' },
+      { label: 'James Craig Art', sub: 'Portfolio · Commissions', status: 'live', eyebrow: 'BRAND',
+        desc: 'HK23 visual identity. Owls, mythology, chaos controlled. Raw art without filters — the image as philosophy.',
+        benefits: ['Active portfolio with prints, commissions and original pieces', 'Unique aesthetic — not generic, not reproducible'] },
+      { label: 'Fallowood', sub: 'Brand · Product · Direction', status: 'build', eyebrow: 'BRAND',
+        desc: 'Lifestyle brand built from the HK23 identity. Clothing, accessories, limited drops.' },
       { label: 'Midjourney Studio', sub: 'AI Art · Prompts · Catalog', status: 'build', eyebrow: 'STUDIO',
-        desc: 'Studio de generación AI. Catálogo de prompts propios y pipeline de producción para contenido visual.' },
+        desc: 'AI generation studio. Catalog of proprietary prompts and production pipeline for visual content.' },
     ]
   },
   {
-    id: 'projects', label: 'PROJECTS', sub: 'HISTÓRICOS · ACTIVOS · EN BUILD',
+    id: 'projects', label: 'PROJECTS', sub: 'HISTORICAL · ACTIVE · BUILDING',
     color: '#FF3A1F', orbit: 'outer', a: Math.PI * 1.5, speed: 0.000060, size: 13, px:0, py:0,
     modules: [
-      { label: 'Fallowood', sub: 'Brand · Lifestyle · Drops', status: 'build', eyebrow: 'PROYECTO', desc: 'Marca de lifestyle urbano. Drops limitados, identidad propia, expansión desde la base HK23.' },
-      { label: 'James Craig Art', sub: 'Fine Art · Portfolio · Sales', status: 'live', eyebrow: 'PROYECTO', desc: 'Portfolio activo de arte original. Commissions, prints, piezas únicas.' },
-      { label: 'La Playa', sub: 'Hospitality · Concept', status: 'soon', eyebrow: 'PROYECTO', desc: 'Concepto de hospitalidad experiencial. Diseño, atmósfera y operación como extensión de la identidad HK23.' },
-      { label: 'VICE OS', sub: 'Platform · OS · Universe', status: 'build', eyebrow: 'PROYECTO', desc: 'Este mismo sistema. El operating system de la identidad y performance HK23.' },
+      { label: 'Fallowood', sub: 'Brand · Lifestyle · Drops', status: 'build', eyebrow: 'PROJECT', desc: 'Urban lifestyle brand. Limited drops, own identity, expansion from the HK23 base.' },
+      { label: 'James Craig Art', sub: 'Fine Art · Portfolio · Sales', status: 'live', eyebrow: 'PROJECT', desc: 'Active portfolio of original art. Commissions, prints, unique pieces.' },
+      { label: 'La Playa', sub: 'Hospitality · Concept', status: 'soon', eyebrow: 'PROJECT', desc: 'Experiential hospitality concept. Design, atmosphere and operation as extension of HK23 identity.' },
+      { label: 'VICE OS', sub: 'Platform · OS · Universe', status: 'build', eyebrow: 'PROJECT', desc: 'This very system. The operating system for HK23 identity and performance.' },
     ]
   },
   {
     id: 'cryptovice', label: 'CRYPTO VICE', sub: 'PORTFOLIO · TRADING · ANALYSIS',
     color: '#B84DFF', orbit: 'outer', a: Math.PI * 1.9, speed: 0.000050, size: 13, px:0, py:0,
     modules: [
-      { label: 'Portfolio Tracker', sub: 'Holdings · P&L · Allocation', status: 'soon', eyebrow: 'FINANCE', desc: 'Tracking de portfolio crypto en tiempo real. P&L, allocation por activo, historial de posiciones.' },
-      { label: 'Trading Log', sub: 'Trades · Journal · Patterns', status: 'soon', eyebrow: 'TRADING', desc: 'Journal de trading estructurado. Registrá decisiones, analiza patrones, identificá sesgos.' },
-      { label: 'Market Analysis', sub: 'Charts · Signals · Research', status: 'soon', eyebrow: 'ANÁLISIS', desc: 'Dashboard de análisis de mercado integrado al vault. Guarda tesis, tracks signals, conecta con trading log.' },
+      { label: 'Portfolio Tracker', sub: 'Holdings · P&L · Allocation', status: 'soon', eyebrow: 'FINANCE', desc: 'Real-time crypto portfolio tracking. P&L, allocation by asset, position history.' },
+      { label: 'Trading Log', sub: 'Trades · Journal · Patterns', status: 'soon', eyebrow: 'TRADING', desc: 'Structured trading journal. Log decisions, analyze patterns, identify biases.' },
+      { label: 'Market Analysis', sub: 'Charts · Signals · Research', status: 'soon', eyebrow: 'ANALYTICS', desc: 'Market analysis dashboard integrated into the vault. Save theses, track signals, connect with trading log.' },
     ]
   },
   {
-    id: 'hk23hub', label: 'HK23 HUB', sub: 'BLOG · LIBROS · DIGITAL STORE',
+    id: 'hk23hub', label: 'HK23 HUB', sub: 'BLOG · BOOKS · DIGITAL STORE',
     color: '#00F0FF', orbit: 'outer', a: Math.PI * 0.3, speed: 0.000070, size: 12, px:0, py:0,
     modules: [
-      { label: 'Blog', sub: 'Artículos · Essays · Ideas', status: 'soon', eyebrow: 'CONTENIDO', desc: 'Publicaciones de largo aliento. Filosofía, performance, sistemas, identidad. El pensamiento HK23 en texto.' },
-      { label: 'Libros', sub: 'Guías · Playbooks · Manuales', status: 'soon', eyebrow: 'CONTENIDO', desc: 'Guías digitales y físicas. Playbooks de entrenamiento, filosofía de performance, sistemas propios.' },
-      { label: 'Digital Store', sub: 'Templates · Tools · Products', status: 'soon', eyebrow: 'COMERCIO', desc: 'Tienda de productos digitales: templates, herramientas, recursos. Todo lo que se puede empaquetar y vender.' },
+      { label: 'Blog', sub: 'Articles · Essays · Ideas', status: 'soon', eyebrow: 'CONTENT', desc: 'Long-form publications. Philosophy, performance, systems, identity. HK23 thinking in text.' },
+      { label: 'Books', sub: 'Guides · Playbooks · Manuals', status: 'soon', eyebrow: 'CONTENT', desc: 'Digital and physical guides. Training playbooks, performance philosophy, proprietary systems.' },
+      { label: 'Digital Store', sub: 'Templates · Tools · Products', status: 'soon', eyebrow: 'COMMERCE', desc: 'Digital products store: templates, tools, resources. Everything that can be packaged and sold.' },
+    ]
+  },
+  {
+    id: 'teeclub', label: 'TEE CLUB', sub: 'GOLF SIMULATOR FRANCHISE',
+    color: '#10B981', orbit: 'outer2', a: Math.PI * 0.67, speed: 0.000085, size: 14, px:0, py:0,
+    modules: [
+      { label: 'Booking System', sub: 'Online · Real-time · Stripe',
+        status: 'live', eyebrow: 'CORE PRODUCT',
+        desc: 'Live booking engine for Tee Club golf simulator bays. Real-time availability, online payment, and session management.',
+        howTo: 'Open the booking page, select a bay and time, pay online. Instant confirmation and session management handled automatically.',
+        benefits: ['Zero friction — phone to bay in under 60 seconds', 'Stripe fully integrated — no manual handling', 'Real-time availability across all bays'],
+        link: '#', action: 'VIEW SYSTEM →' },
+      { label: 'Membership Tiers', sub: 'Monthly · Unlimited · Vice OS',
+        status: 'build', eyebrow: 'REVENUE MODEL',
+        desc: 'Tiered membership structure for regular players. Monthly access packages, unlimited bay credits, and exclusive member benefits tied to Vice OS.',
+        benefits: ['3 tiers designed for casual, regular, and serious players', 'Vice OS integration — simulator data feeds directly into DNA'] },
+      { label: 'Franchise Model', sub: 'Blueprint · Ops · Multi-location',
+        status: 'build', eyebrow: 'SCALE PLAY',
+        desc: 'Tee Club franchise blueprint. Standardized operations, brand guidelines, booking software, and Vice OS integration for multi-location operators.',
+        benefits: ['Turnkey operations package — brand, software, and playbook', 'Vice OS as the connective tissue across all locations'] },
+      { label: 'Events & Boards', sub: 'Tournaments · Community · Content',
+        status: 'build', eyebrow: 'COMMUNITY',
+        desc: 'In-simulator tournaments, skills competitions, and leaderboards. Events that drive retention, brand loyalty, and social media content.',
+        benefits: ['Competitive format keeps members coming back weekly', 'Content machine — events generate organic social posts'] },
+    ]
+  },
+  {
+    id: 'viceai', label: 'VICE AI', sub: '24/7 AGENT NETWORK',
+    color: '#6366F1', orbit: 'outer2', a: Math.PI * 1.33, speed: -0.000060, size: 14, px:0, py:0,
+    modules: [
+      { label: 'Content Agent', sub: 'Running 24/7 · All channels',
+        status: 'live', eyebrow: 'RUNNING 24/7',
+        desc: 'Autonomous content agent running around the clock. Generates posts, captions, articles, and short-form content for all HK23 channels — no manual input required.',
+        howTo: 'The agent runs automatically. Review the daily output in the Vice AI dashboard and approve or adjust before publishing.',
+        benefits: ['Daily content across all HK23 channels — zero manual writing', 'Stays on-brand using the HK23 Lines voice model', 'Output available every morning for review'],
+        link: '#', action: 'VIEW AGENT →' },
+      { label: 'Vice Coach', sub: 'Golf + Rugby · Weekly plans',
+        status: 'build', eyebrow: 'AI COACH',
+        desc: 'AI performance coach for ViceGolfer and Rugby Vice. Analyzes your full session history, identifies patterns, and delivers personalized weekly training plans.',
+        benefits: ['Plans that evolve with your actual performance data', 'Cross-sport analysis — golf and rugby performance correlated', 'Available 24/7 — coaching whenever you need it'] },
+      { label: 'Crypto Analyst', sub: 'On-chain · Daily briefings',
+        status: 'soon', eyebrow: 'MARKET INTELLIGENCE',
+        desc: 'AI crypto analyst that monitors on-chain data, market signals, and whale activity. Produces daily briefings and translates complex market data into plain language.',
+        benefits: ['Daily briefings without spending hours on research', 'On-chain signals others miss — whale tracking and flow analysis'] },
+      { label: 'Ops Agent', sub: 'Tasks · Routing · Orchestration',
+        status: 'build', eyebrow: 'BACKBONE',
+        desc: 'The operational backbone of Vice AI. Manages task routing, system health, agent orchestration, and automated reporting across all active projects.',
+        benefits: ['Single system managing all agent operations', '24/7 uptime — the system never sleeps'] },
+    ]
+  },
+  {
+    id: 'marketplace', label: 'MARKETPLACE', sub: 'EVERYTHING IS FOR SALE',
+    color: '#F97316', orbit: 'outer2', a: Math.PI * 2.00, speed: 0.000067, size: 13, px:0, py:0,
+    modules: [
+      { label: 'Art Store', sub: 'Prints · Originals · Limited editions',
+        status: 'build', eyebrow: 'PRINTS · ORIGINALS',
+        desc: 'The HK23 art commerce engine. Prints, originals, and limited editions from JC Art and Arte World. Every piece connected to the creator\'s digital identity.',
+        benefits: ['Prints on demand — low overhead, high margin', 'Original pieces as collectibles with digital authenticity', 'Limited drops create urgency and collector demand'] },
+      { label: 'Digital Products', sub: 'Templates · Tools · Resources',
+        status: 'build', eyebrow: 'DIGITAL COMMERCE',
+        desc: 'Digital products store: performance templates, training tools, frameworks, and resources. Everything that can be packaged and downloaded.',
+        benefits: ['Zero inventory — pure digital margin', 'Templates built from real HK23 systems — proven value'] },
+      { label: 'Courses', sub: 'Golf · Rugby · Performance · Business',
+        status: 'soon', eyebrow: 'EDUCATION',
+        desc: 'Structured online courses across golf, rugby, business systems, and the HK23 operating model. Evergreen content that generates revenue around the clock.',
+        benefits: ['Course content from real Vice OS sessions — authentic value', 'Passive income — recorded once, sold indefinitely'] },
+      { label: 'Merch', sub: 'Fallowood · HK23 · Drops',
+        status: 'soon', eyebrow: 'PHYSICAL GOODS',
+        desc: 'Physical merchandise under the Fallowood and HK23 brands. Limited drops, premium quality, identity-first products.',
+        benefits: ['Limited drops create genuine scarcity', 'Brand extension — merch as a marketing and community tool'] },
     ]
   },
 ];
 
 const IDEAS_PLANET = {
-  label: 'IDEAS', sub: 'Todo lo que aún no tiene hogar',
+  label: 'IDEAS', sub: 'Everything without a home yet',
   color: '#FFD200', orbit: 'ideas', a: Math.PI * 0.55, speed: 0.000038, size: 18, px:0, py:0,
   ideas: [
-    { label: 'VICE OS MOBILE', desc: 'App nativa para tracking en campo — Golfer + Rugby desde el bolsillo.', col: '#FFD200' },
-    { label: 'NEURAL BRAIN',   desc: 'Grafo causal vivo de todas las decisiones, commits, sesiones e ideas.', col: '#B84DFF' },
-    { label: 'AI COACH',       desc: 'Coach de IA que diseña planes personalizados semana a semana.', col: '#AAFF00' },
-    { label: 'LIVE TOURNEY',   desc: 'Torneos en vivo con scoring compartido y leaderboard en tiempo real.', col: '#FF6600' },
-    { label: 'VAULT SEARCH',   desc: 'Búsqueda semántica en todo el vault — como buscar en tu propia mente.', col: '#00F0FF' },
+    { label: 'VICE OS MOBILE', desc: 'Native app for field tracking — Golfer + Rugby from your pocket.', col: '#FFD200' },
+    { label: 'NEURAL BRAIN',   desc: 'Live causal graph of all decisions, commits, sessions and ideas.', col: '#B84DFF' },
+    { label: 'AI COACH',       desc: 'AI coach that designs personalized plans week by week.', col: '#AAFF00' },
+    { label: 'LIVE TOURNEY',   desc: 'Live tournaments with shared scoring and real-time leaderboard.', col: '#FF6600' },
+    { label: 'VAULT SEARCH',   desc: 'Semantic search across the entire vault — like searching your own mind.', col: '#00F0FF' },
   ],
-  iMoons: [ // orbiting mini-ideas
+  iMoons: [
     { a: 0.5, speed: 0.0019, r: 52, sz: 5, col: '#FFD200', px:0, py:0 },
     { a: 2.0, speed: -0.0014, r: 66, sz: 6, col: '#B84DFF', px:0, py:0 },
     { a: 3.6, speed: 0.0022, r: 44, sz: 4, col: '#AAFF00', px:0, py:0 },
@@ -405,10 +475,10 @@ const IDEAS_PLANET = {
 const CMDS_PLANET = {
   label: 'CMDS', color: '#FF6600', orbit: 'nexus', a: Math.PI * 0.72, speed: 0.00014, size: 7, px:0, py:0,
   cmds: [
-    { icon: '∅', label: 'BLACK HOLE', sub: 'Transmuta lo negativo', action: 'blackhole', col: '#FF3A1F' },
-    { icon: '○', label: 'WHITE HOLE', sub: 'En build', action: 'wh', col: '#ffffff' },
-    { icon: '◈', label: 'AGENTS', sub: 'Ver base', action: 'agents', col: '#00F0FF' },
-    { icon: '◉', label: 'SWARM ART', sub: 'En build', action: 'swarm', col: '#B84DFF' },
+    { icon: '∅', label: 'BLACK HOLE', sub: 'Transmute the negative', action: 'blackhole', col: '#FF3A1F' },
+    { icon: '○', label: 'WHITE HOLE', sub: 'In build', action: 'wh', col: '#ffffff' },
+    { icon: '◈', label: 'AGENTS', sub: 'View base', action: 'agents', col: '#00F0FF' },
+    { icon: '◉', label: 'SWARM ART', sub: 'In build', action: 'swarm', col: '#B84DFF' },
   ],
 };
 
@@ -445,7 +515,7 @@ function setupCanvas() {
   ctx.scale(dpr, dpr);
   cx = W * 0.5; cy = H * 0.40;
   const S = Math.min(W, H);
-  orbits = { inner: S*0.19, nexus: S*0.28, outer: S*0.37, ideas: S*0.47 };
+  orbits = { inner: S*0.19, nexus: S*0.28, outer: S*0.37, outer2: S*0.44, ideas: S*0.52 };
 }
 setupCanvas();
 window.addEventListener('resize', () => { ctx.resetTransform(); setupCanvas(); });
@@ -510,10 +580,11 @@ function drawStars() {
 function drawRings() {
   const EY = 0.72;
   [
-    { r: orbits.inner, col: '#AAFF00' },
-    { r: orbits.nexus, col: '#FF6600' },
-    { r: orbits.outer, col: '#B84DFF' },
-    { r: orbits.ideas, col: '#FFD200' },
+    { r: orbits.inner,  col: '#AAFF00' },
+    { r: orbits.nexus,  col: '#FF6600' },
+    { r: orbits.outer,  col: '#B84DFF' },
+    { r: orbits.outer2, col: '#10B981' },
+    { r: orbits.ideas,  col: '#FFD200' },
   ].forEach(ring => {
     ctx.save();
     ctx.setLineDash([2, 12]);
@@ -725,7 +796,7 @@ function openPlanetDrawer(hit) {
     document.getElementById('dv-title').textContent = p.label;
     document.getElementById('dv-title').style.color = p.color;
     document.getElementById('dv-sub').textContent = p.sub;
-    document.getElementById('dv-section-label').textContent = 'MÓDULOS';
+    document.getElementById('dv-section-label').textContent = 'MODULES';
     document.getElementById('dv-content').innerHTML = p.modules.map((m, i) => `
       <div class="dv-module" onclick="openModuleDetail(${i},'${p.id}')">
         <div class="dv-module-left">
@@ -740,8 +811,8 @@ function openPlanetDrawer(hit) {
     document.getElementById('dv-bar').style.background = '#FFD200';
     document.getElementById('dv-title').textContent = 'IDEAS';
     document.getElementById('dv-title').style.color = '#FFD200';
-    document.getElementById('dv-sub').textContent = 'TODO LO QUE AÚN NO TIENE HOGAR';
-    document.getElementById('dv-section-label').textContent = 'EN ÓRBITA';
+    document.getElementById('dv-sub').textContent = 'EVERYTHING WITHOUT A HOME YET';
+    document.getElementById('dv-section-label').textContent = 'IN ORBIT';
     document.getElementById('dv-content').innerHTML = IDEAS_PLANET.ideas.map((idea, i) => `
       <div class="ideas-item" onclick="openIdeaDetail(${i})">
         <div class="ideas-dot" style="background:${idea.col}"></div>
@@ -775,8 +846,8 @@ function openPlanetDrawer(hit) {
     document.getElementById('dv-bar').style.background = '#00F0FF';
     document.getElementById('dv-title').textContent = 'AGENT BASE';
     document.getElementById('dv-title').style.color = '#00F0FF';
-    document.getElementById('dv-sub').textContent = '3 AGENTES DISPONIBLES — IDLE';
-    document.getElementById('dv-section-label').textContent = 'AGENTES';
+    document.getElementById('dv-sub').textContent = '3 AGENTS AVAILABLE — IDLE';
+    document.getElementById('dv-section-label').textContent = 'AGENTS';
     document.getElementById('dv-content').innerHTML = `
       <div class="agents-list">
         ${AGENT_BASE.agents.map(a => `
@@ -786,7 +857,7 @@ function openPlanetDrawer(hit) {
               <div class="agent-name">${a.label}</div>
               <div class="agent-status">● IDLE — BASE</div>
             </div>
-            <button class="agent-assign">ASIGNAR →</button>
+            <button class="agent-assign">ASSIGN →</button>
           </div>
         `).join('')}
       </div>
@@ -805,22 +876,22 @@ function openModuleDetail(idx, planetId) {
 
 function openIdeaDetail(idx) {
   const idea = IDEAS_PLANET.ideas[idx];
-  document.getElementById('mv-eyebrow').textContent = 'IDEA — UNIVERSO HK23';
+  document.getElementById('mv-eyebrow').textContent = 'IDEA — HK23 UNIVERSE';
   document.getElementById('mv-title').textContent = idea.label;
   document.getElementById('mv-title').style.color = idea.col;
   const statusEl = document.getElementById('mv-status');
-  statusEl.textContent = 'IDEA EN ÓRBITA';
+  statusEl.textContent = 'IDEA IN ORBIT';
   statusEl.className = 'status-badge soon';
   document.getElementById('mv-desc').textContent = idea.desc;
   document.getElementById('mv-howto-wrap').style.display = 'none';
   document.getElementById('mv-benefits-wrap').style.display = 'none';
   document.getElementById('mv-cta').innerHTML = `
-    <button onclick="showCmdToast('IDEA MARCADA PARA DESARROLLO ✦', '${idea.col}')" style="
+    <button onclick="showCmdToast('IDEA FLAGGED FOR DEVELOPMENT ✦', '${idea.col}')" style="
       width:100%; margin-top:18px; padding:14px;
       font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px;
       background:none; border:1px solid ${idea.col}; color:${idea.col}; cursor:pointer;
-    ">DESARROLLAR ESTA IDEA →</button>
-    <div class="mv-reward" style="margin-top:10px">✦ Las ideas desarrolladas se vuelven proyectos en el universo.</div>
+    ">DEVELOP THIS IDEA →</button>
+    <div class="mv-reward" style="margin-top:10px">✦ Ideas developed become projects in the universe.</div>
   `;
   document.getElementById('mv-back-label').textContent = 'IDEAS';
   document.getElementById('mv-back').onclick = backToPlanet;
@@ -831,11 +902,11 @@ function openIdeaDetail(idx) {
 }
 
 function _showModuleDetail(m, planetLabel, planetColor) {
-  document.getElementById('mv-eyebrow').textContent = m.eyebrow || 'MÓDULO';
+  document.getElementById('mv-eyebrow').textContent = m.eyebrow || 'MODULE';
   document.getElementById('mv-title').textContent = m.label;
   document.getElementById('mv-title').style.color = planetColor;
   const statusEl = document.getElementById('mv-status');
-  statusEl.textContent = m.status === 'live' ? 'LIVE' : m.status === 'build' ? 'EN BUILD' : 'PRÓXIMO';
+  statusEl.textContent = m.status === 'live' ? 'LIVE' : m.status === 'build' ? 'IN BUILD' : 'SOON';
   statusEl.className = 'status-badge ' + m.status;
   document.getElementById('mv-desc').textContent = m.desc;
   const howtoWrap = document.getElementById('mv-howto-wrap');
@@ -851,16 +922,16 @@ function _showModuleDetail(m, planetLabel, planetColor) {
   if (m.status === 'live') {
     document.getElementById('mv-cta').innerHTML = `
       <a href="${m.link || '#'}" target="_blank" class="mv-cta-live"
-        style="background:${planetColor};color:#080808">${m.action || 'ABRIR EN APP →'}</a>
+        style="background:${planetColor};color:#080808">${m.action || 'OPEN IN APP →'}</a>
     `;
   } else {
     document.getElementById('mv-cta').innerHTML = `
-      <div class="mv-cta-soon-label">¿QUERÉS SER EL PRIMERO EN PROBARLO?</div>
+      <div class="mv-cta-soon-label">WANT TO BE FIRST TO TRY IT?</div>
       <div class="mv-email-row">
         <input type="email" class="mv-email-input" placeholder="tu@email.com">
         <button class="mv-notify-btn" style="border-color:${planetColor};color:${planetColor}">AVISAR →</button>
       </div>
-      <div class="mv-reward">✦ Los aportes son premiados con descuentos y membresías de socio.</div>
+      <div class="mv-reward">✦ Contributors are rewarded with discounts and founding memberships.</div>
     `;
   }
   document.getElementById('mv-back-label').textContent = planetLabel;
@@ -892,8 +963,8 @@ function closeDrawer() {
 
 function execCmd(action) {
   if (action === 'agents') { closeDrawer(); setTimeout(() => openPlanetDrawer({ type: 'agents', data: AGENT_BASE }), 50); }
-  else if (action === 'blackhole') showCmdToast('∅ BLACK HOLE — EN BUILD', '#FF3A1F');
-  else showCmdToast('⌘ ' + action.toUpperCase() + ' — EN BUILD', '#FF6600');
+  else if (action === 'blackhole') showCmdToast('∅ BLACK HOLE — COMING SOON', '#FF3A1F');
+  else showCmdToast('⌘ ' + action.toUpperCase() + ' — COMING SOON', '#FF6600');
 }
 
 function showCmdToast(msg, col) {
