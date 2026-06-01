@@ -1425,6 +1425,7 @@
       <button class="swarm-btn" id="swarm-btn-explode" onclick="setSwarmMode('explode')">EXPLODE</button>
       <button class="swarm-btn" id="swarm-btn-drift"   onclick="setSwarmMode('drift')">DRIFT</button>
       <button class="swarm-btn" onclick="clearSwarmArt()">CLEAR</button>
+      <button class="swarm-btn" onclick="showSwarmPicker()">◈ IMG</button>
       <button class="swarm-btn" id="swarm-fidelity-btn" onclick="toggleSwarmFidelity()">FIDELITY: HI</button>
       <div style="width:100%;display:flex;gap:0;margin-top:4px;">
         <input id="swarm-word-input" type="text" maxlength="16" placeholder="TYPE A WORD →"
@@ -5272,6 +5273,12 @@ function toggleSwarmFidelity() {
   const b = document.getElementById('swarm-fidelity-btn');
   if (b) b.textContent = 'FIDELITY: ' + swarmFidelity.toUpperCase();
   if (swarmLastImg) launchSwarm(swarmLastImg, swarmMode, swarmFidelity);
+}
+
+// Re-open the upload + gallery panel mid-swarm so you can pick another image.
+function showSwarmPicker() {
+  document.getElementById('swarm-mini-upload').style.display = 'flex';
+  loadMidjourneyGallery();
 }
 
 // Populate the Midjourney gallery strip from the synced manifest.
