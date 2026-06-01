@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Quote Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="quote-utils.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0c0c12; color:#ddd; font-family:'Space Mono',monospace; padding:28px; }
+  h1 { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:20px; letter-spacing:1px; margin-bottom:4px; }
+  h1 span { color:#AAFF00; }
+  .sub { color:#555; font-size:10px; letter-spacing:3px; margin-bottom:22px; }
+  .wrap { display:flex; gap:28px; flex-wrap:wrap; align-items:flex-start; }
+  .left { width:540px; }
+  #card { width:540px; height:540px; background:#000; display:block; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .controls { display:flex; gap:10px; margin-top:14px; }
+  button { background:none; border:1px solid #333; color:#aaa; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:2px; padding:11px 16px; cursor:pointer; border-radius:3px; }
+  button:hover { border-color:#AAFF00; color:#AAFF00; }
+  .right { flex:1; min-width:300px; }
+  .qlabel { font-size:9px; letter-spacing:3px; color:#555; margin:0 0 10px; }
+  .queue { display:flex; flex-direction:column; gap:6px; max-height:300px; overflow:auto; }
+  .qitem { text-align:left; border:1px solid #1e1e2a; background:#0a0a12; padding:10px 12px; cursor:pointer; }
+  .qitem:hover { border-color:#444; }
+  .qitem.active { border-color:#AAFF00; }
+  .qitem .t { font-family:'Space Grotesk',sans-serif; color:#ccc; font-size:13px; }
+  .qitem .m { color:#555; font-size:9px; margin-top:3px; letter-spacing:1px; }
+  .caption { margin-top:20px; background:#08080e; border:1px solid #1e1e2a; border-radius:6px; padding:16px; }
+  .caption h4 { font-size:9px; letter-spacing:3px; color:#555; margin-bottom:10px; }
+  .caption pre { white-space:pre-wrap; font-family:'Space Grotesk',sans-serif; color:#cfcfcf; font-size:13px; line-height:1.6; }
+</style>
+</head>
+<body>
+  <h1>QUOTE <span>STUDIO</span></h1>
+  <div class="sub">MINDSET ENGINE · GENERATE → APPROVE → POST</div>
+
+  <div class="wrap">
+    <div class="left">
+      <canvas id="card" width="1080" height="1080"></canvas>
+      <div class="controls">
+        <button id="dl">↓ DOWNLOAD PNG</button>
+        <button id="cp">⧉ COPY CAPTION</button>
+      </div>
+      <div class="caption">
+        <h4>CAPTION</h4>
+        <pre id="caption-text"></pre>
+      </div>
+    </div>
+    <div class="right">
+      <p class="qlabel">QUEUE · click to render</p>
+      <div class="queue" id="queue"></div>
+    </div>
+  </div>
+
+<script>
+const UNIVERSE_URL = 'https://hk23neo.github.io/vice-os';
+const canvas = document.getElementById('card');
+const ctx = canvas.getContext('2d');
+let QUOTES = [];
+let current = null;
+
+function buildCaption(q) {
+  const author = q.author ? ' — ' + q.author : '';
+  const link = QuoteUtils.quoteDeepLink(UNIVERSE_URL, q.id);
+  return q.text + author + '\n\n' + q.hashtags.join(' ') + '\n\n→ ' + link;
+}
+
+// word-wrap helper: returns array of lines that fit maxWidth at the current font
+function wrapLines(text, maxWidth) {
+  const words = text.toUpperCase().split(' ');
+  const lines = []; let line = '';
+  for (const w of words) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxWidth && line) { lines.push(line); line = w; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawQR(url, x, y, size) {
+  return new Promise(function (resolve) {
+    let dataUrl;
+    try {
+      const qr = qrcode(0, 'M');    // auto type, medium error correction
+      qr.addData(url); qr.make();
+      dataUrl = qr.createDataURL(8, 0); // same-origin data URL (no canvas taint)
+    } catch (e) {
+      console.warn('QR generation failed; exporting card without QR:', e);
+      resolve(); return;            // spec: still allow PNG export without the QR
+    }
+    const img = new Image();
+    img.onload = function () {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(x - 12, y - 12, size + 24, size + 24);
+      ctx.drawImage(img, x, y, size, size);
+      resolve();
+    };
+    img.onerror = function () { console.warn('QR image failed to load; card exported without QR.'); resolve(); };
+    img.src = dataUrl;
+  });
+}
+
+async function render(q) {
+  current = q;
+  const W = 1080, H = 1080, accent = q.color || '#AAFF00';
+  ctx.clearRect(0, 0, W, H);
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+
+  // header: lines + label
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.font = "700 26px 'Space Mono', monospace";
+  ctx.fillStyle = '#777';
+  ctx.fillText((q.header || 'DAILY MINDSET').split('').join(' '), W/2, 150);
+  ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(330, 150); ctx.lineTo(420, 150); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(660, 150); ctx.lineTo(750, 150); ctx.stroke();
+
+  // quotation mark
+  ctx.font = "900 150px 'Space Grotesk', sans-serif";
+  ctx.fillStyle = accent;
+  ctx.fillText('”', W/2, 250);
+
+  // quote text — auto-size to fit
+  let fontSize = 78;
+  let lines;
+  do {
+    ctx.font = "900 " + fontSize + "px 'Space Grotesk', sans-serif";
+    lines = wrapLines(q.text, W - 200);
+    if (lines.length * (fontSize * 1.18) <= 460) break;
+    fontSize -= 4;
+  } while (fontSize > 30);
+
+  ctx.fillStyle = '#fff';
+  const lh = fontSize * 1.18;
+  const startY = H/2 - ((lines.length - 1) * lh) / 2;
+  lines.forEach(function (ln, i) { ctx.fillText(ln, W/2, startY + i * lh); });
+
+  // divider + author
+  ctx.strokeStyle = accent; ctx.lineWidth = 4;
+  ctx.beginPath(); ctx.moveTo(W/2 - 42, 860); ctx.lineTo(W/2 + 42, 860); ctx.stroke();
+  if (q.author) {
+    ctx.font = "700 30px 'Space Mono', monospace";
+    ctx.fillStyle = '#888';
+    ctx.fillText(q.author.toUpperCase().split('').join(' '), W/2, 910);
+  }
+
+  // brand mark bottom-left
+  ctx.textAlign = 'left';
+  ctx.font = "900 30px 'Space Grotesk', sans-serif";
+  ctx.fillStyle = '#fff'; ctx.fillText('HK', 60, 1000);
+  const hkw = ctx.measureText('HK').width;
+  ctx.fillStyle = accent; ctx.fillText('23', 60 + hkw, 1000);
+  ctx.font = "400 14px 'Space Mono', monospace";
+  ctx.fillStyle = '#555'; ctx.fillText('VICE OS', 60, 1028);
+
+  // QR bottom-right
+  await drawQR(QuoteUtils.quoteDeepLink(UNIVERSE_URL, q.id), W - 200, W - 200, 140);
+
+  // caption + queue highlight
+  document.getElementById('caption-text').textContent = buildCaption(q);
+  document.querySelectorAll('.qitem').forEach(function (el) {
+    el.classList.toggle('active', el.dataset.id === q.id);
+  });
+}
+
+function renderQueue() {
+  const box = document.getElementById('queue');
+  box.innerHTML = '';
+  QUOTES.forEach(function (q) {
+    const div = document.createElement('div');
+    div.className = 'qitem'; div.dataset.id = q.id;
+    div.innerHTML = '<div class="t">' + q.text + '</div>' +
+      '<div class="m">' + q.id + ' · ' + q.target + ' · ' + q.rarity +
+      (q.posted ? ' · POSTED' : '') + '</div>';
+    div.onclick = function () { render(q); };
+    box.appendChild(div);
+  });
+}
+
+document.getElementById('dl').onclick = function () {
+  if (!current) return;
+  const a = document.createElement('a');
+  a.download = 'hk23-' + current.id + '.png';
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+};
+document.getElementById('cp').onclick = function () {
+  if (!current) return;
+  navigator.clipboard.writeText(buildCaption(current));
+  const b = document.getElementById('cp'); const t = b.textContent;
+  b.textContent = '✓ COPIED'; setTimeout(function () { b.textContent = t; }, 1200);
+};
+
+// Fonts must be ready before first canvas render, else metrics are wrong.
+function boot() {
+  fetch('quotes.json').then(function (r) { return r.json(); }).then(function (data) {
+    QUOTES = data; renderQueue();
+    if (QUOTES.length) render(QUOTES[0]);
+  });
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(boot); else window.onload = boot;
+</script>
+</body>
+</html>
