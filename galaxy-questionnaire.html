@@ -767,16 +767,37 @@ function showFinal() {
     launchBtn.disabled = !valid;
   });
 
-  launchBtn.addEventListener('click', () => {
+  launchBtn.addEventListener('click', async () => {
     if (launchBtn.disabled) return;
+    const email = emailInput.value.trim();
     launchBtn.disabled = true;
     launchBtn.textContent = 'LAUNCHING...';
 
-    // Simulate submission (replace with real endpoint)
-    setTimeout(() => {
-      finalScreen.classList.remove('show');
-      showConfirmation();
-    }, 800);
+    const payload = {
+      email,
+      name:       answers[1] || '',
+      interests:  answers[2] || '',
+      superpower: answers[3] || '',
+      building:   answers[4] || '',
+      galaxy:     answers[5] ? answers[5].label : '',
+      source:     'galaxy-questionnaire',
+      _subject:   `New Galaxy Registration — ${answers[1] || email}`,
+    };
+
+    try {
+      const res = await fetch('https://formspree.io/f/xvgokwne', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('submit failed');
+    } catch (e) {
+      // Fail silently — don't block the UX flow
+      console.warn('[galaxy] form submit failed:', e);
+    }
+
+    finalScreen.classList.remove('show');
+    showConfirmation();
   });
 }
 

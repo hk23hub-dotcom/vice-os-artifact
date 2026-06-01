@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer Performance House — Partner Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --gold: #C6A15B;
+    --green: #0B3D2E;
+    --cream: #F5F5F5;
+    --muted: #5a5a52;
+    --bg: #0a0a0a;
+    --surface: #111110;
+    --border: rgba(245,245,245,0.07);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* ── Nav ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(10,10,10,0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 32px;
+  }
+  .nav-logo { font-family: 'Bebas Neue'; font-size: 18px; letter-spacing: 0.12em; color: var(--gold); }
+  .nav-links { display: flex; gap: 24px; list-style: none; }
+  .nav-links a { font-family: 'Montserrat'; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.15s; }
+  .nav-links a:hover { color: var(--cream); }
+  .nav-tag { font-family: 'Montserrat'; font-size: 8px; font-weight: 700; letter-spacing: 0.18em; color: var(--gold); border: 1px solid rgba(198,161,91,0.3); padding: 4px 10px; }
+
+  /* ── Layout ── */
+  .section { padding: 80px 32px; max-width: 900px; margin: 0 auto; }
+  .section-full { padding: 80px 32px; }
+  .divider { height: 1px; background: var(--border); margin: 0 32px; }
+
+  /* ── Typography ── */
+  .label { font-family: 'Montserrat'; font-size: 9px; font-weight: 700; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .h1 { font-family: 'Bebas Neue'; font-size: clamp(52px, 8vw, 96px); letter-spacing: 0.03em; line-height: 0.92; color: var(--cream); }
+  .h2 { font-family: 'Bebas Neue'; font-size: clamp(32px, 5vw, 52px); letter-spacing: 0.04em; color: var(--cream); line-height: 1; }
+  .h3 { font-family: 'Bebas Neue'; font-size: 26px; letter-spacing: 0.04em; color: var(--cream); }
+  .h4 { font-family: 'Montserrat'; font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream); }
+  .body-lg { font-size: 14px; color: #8a8a72; line-height: 1.75; }
+  .body { font-size: 12px; color: var(--muted); line-height: 1.7; }
+  .gold { color: var(--gold); }
+  .green-text { color: #4ade80; }
+
+  /* ── Hero ── */
+  .hero {
+    min-height: 100vh;
+    background: linear-gradient(165deg, #0B3D2E 0%, #071f17 40%, #0a0a0a 70%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 80px 32px 64px;
+    position: relative; overflow: hidden;
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(198,161,91,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(198,161,91,0.04) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .hero-glow { position: absolute; top: -200px; right: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(11,61,46,0.4) 0%, transparent 70%); pointer-events: none; }
+  .hero-content { position: relative; max-width: 900px; margin: 0 auto; width: 100%; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(198,161,91,0.08); border: 1px solid rgba(198,161,91,0.25);
+    padding: 6px 14px; margin-bottom: 28px;
+  }
+  .hero-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+  .hero-badge span { font-family: 'Montserrat'; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; color: var(--gold); }
+  .hero-meta { display: flex; gap: 32px; margin-top: 32px; flex-wrap: wrap; }
+  .hero-meta-item { }
+  .hero-meta-item .val { font-family: 'Bebas Neue'; font-size: 28px; color: var(--cream); letter-spacing: 0.04em; }
+  .hero-meta-item .key { font-family: 'Montserrat'; font-size: 8px; color: var(--muted); letter-spacing: 0.14em; text-transform: uppercase; margin-top: 2px; }
+  .hero-sub { font-size: 15px; color: #8a8a72; max-width: 560px; line-height: 1.7; margin-top: 16px; }
+
+  /* ── Cards ── */
+  .card { background: var(--surface); border: 1px solid var(--border); padding: 24px; }
+  .card-gold { border-left: 3px solid var(--gold); }
+  .card-green { border-left: 3px solid #4ade80; }
+  .card-blue { border-left: 3px solid #60a5fa; }
+  .card-purple { border-left: 3px solid #a855f7; }
+
+  /* ── Grid ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    nav { padding: 12px 16px; }
+    .nav-links { display: none; }
+    .section, .section-full { padding: 60px 20px; }
+    .hero { padding: 80px 20px 48px; }
+  }
+
+  /* ── Space card ── */
+  .space-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    position: relative;
+  }
+  .space-card-accent { position: absolute; top: 0; left: 0; width: 3px; height: 100%; }
+  .space-card-body { padding: 20px; }
+  .space-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .space-tag { font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; padding: 3px 8px; border: 1px solid; }
+  .space-dim { font-family: 'Bebas Neue'; font-size: 14px; letter-spacing: 0.08em; }
+  .req-list { margin-top: 12px; display: flex; flex-direction: column; gap: 4px; }
+  .req-item { display: flex; gap: 8px; align-items: flex-start; font-size: 11px; color: var(--muted); }
+  .req-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--muted); margin-top: 6px; flex-shrink: 0; }
+
+  /* ── Tech badge ── */
+  .tech-badge {
+    display: inline-block;
+    font-family: 'Montserrat'; font-size: 8px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(245,245,245,0.04); border: 1px solid var(--border);
+    padding: 4px 10px; margin: 3px 3px 3px 0;
+    color: var(--muted);
+  }
+
+  /* ── Phase timeline ── */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 6px; top: 6px; bottom: 6px; width: 1px; background: var(--border); }
+  .phase { position: relative; margin-bottom: 28px; }
+  .phase-dot { position: absolute; left: -25px; top: 4px; width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--bg); }
+  .phase-label { font-family: 'Montserrat'; font-size: 8px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 4px; }
+  .phase-title { font-family: 'Bebas Neue'; font-size: 20px; letter-spacing: 0.04em; margin-bottom: 4px; }
+  .phase-body { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  /* ── Stat block ── */
+  .stat-block { text-align: center; padding: 20px 12px; background: var(--surface); border: 1px solid var(--border); }
+  .stat-val { font-family: 'Bebas Neue'; font-size: 40px; letter-spacing: 0.04em; line-height: 1; }
+  .stat-key { font-family: 'Montserrat'; font-size: 8px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-top: 4px; }
+
+  /* ── Ecosystem node ── */
+  .eco-node { padding: 18px; background: var(--surface); border: 1px solid var(--border); position: relative; }
+  .eco-node.active { border-color: rgba(198,161,91,0.4); background: rgba(198,161,91,0.04); }
+  .eco-status { position: absolute; top: 14px; right: 14px; width: 7px; height: 7px; border-radius: 50%; }
+
+  /* ── Partner section ── */
+  .partner-row { display: flex; gap: 16px; align-items: flex-start; padding: 16px 0; border-bottom: 1px solid var(--border); }
+  .partner-num { font-family: 'Bebas Neue'; font-size: 28px; color: var(--gold); width: 32px; flex-shrink: 0; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 32px;
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 100%; flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo { font-family: 'Bebas Neue'; font-size: 22px; letter-spacing: 0.1em; color: var(--gold); }
+  .footer-meta { font-family: 'Montserrat'; font-size: 9px; color: #3a3a34; letter-spacing: 0.12em; }
+
+  /* ── Print ── */
+  @media print {
+    nav { display: none; }
+    .hero { min-height: auto; padding-top: 40px; }
+    .section, .section-full { padding: 40px 32px; }
+    body { background: white; color: black; }
+  }
+
+  /* ── Scroll margin for anchor links ── */
+  [id] { scroll-margin-top: 70px; }
+
+  /* ── Highlight box ── */
+  .highlight-box {
+    background: rgba(198,161,91,0.06);
+    border: 1px solid rgba(198,161,91,0.18);
+    border-left: 3px solid var(--gold);
+    padding: 16px 20px;
+  }
+  .highlight-box p { font-size: 13px; color: #8a8a72; line-height: 1.7; }
+  .highlight-box strong { color: var(--cream); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">ViceGolfer</div>
+  <ul class="nav-links">
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#spaces">Spaces</a></li>
+    <li><a href="#tech">Technology</a></li>
+    <li><a href="#business">Business</a></li>
+    <li><a href="#ecosystem">Ecosystem</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#partner">Partnership</a></li>
+  </ul>
+  <div class="nav-tag">CONFIDENTIAL — PARTNER BRIEF</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero" style="padding-top: 120px;">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div class="hero-badge">
+      <div class="hero-dot"></div>
+      <span>ViceGolfer Performance House · Las Rocas, Chile · Partner Brief 2025</span>
+    </div>
+    <div class="h1">PERFORMANCE<br>HOUSE</div>
+    <div class="hero-sub">
+      The first dedicated golf performance facility in the region. Data-driven training infrastructure — simulator, putting lab, short game, and clubhouse — integrated with a live digital platform tracking every session.
+    </div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <div class="val gold">4</div>
+        <div class="key">Training Zones</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="val">20</div>
+        <div class="key">Founder Members</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="val">2025</div>
+        <div class="key">Opening Target</div>
+      </div>
+      <div class="hero-meta-item">
+        <div class="val gold">LAS ROCAS</div>
+        <div class="key">IV Región, Chile</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- VISION -->
+<section class="section" id="vision">
+  <div class="label">01 — Vision</div>
+  <div class="h2" style="margin-bottom: 24px;">The Problem<br>We're Solving</div>
+
+  <div class="highlight-box" style="margin-bottom: 32px;">
+    <p>
+      Amateur golfers in Chile train without data, without structure, and without accountability.
+      <strong>90% of strokes are lost inside 100 yards</strong>, yet training happens at the range hitting drivers.
+      There is no premium, data-integrated performance facility between Santiago and La Serena.
+    </p>
+  </div>
+
+  <div class="grid-2" style="gap: 16px; margin-bottom: 32px;">
+    <div class="card card-gold">
+      <div class="h4" style="margin-bottom: 8px;">The Opportunity</div>
+      <div class="body">Las Rocas Golf Club has the location, the member base, and the land. ViceGolfer has the digital platform, the data model, and the training methodology. What's missing is the physical infrastructure.</div>
+    </div>
+    <div class="card card-gold">
+      <div class="h4" style="margin-bottom: 8px;">The Vision</div>
+      <div class="body">A physical space where every session is tracked, every putt is logged, and improvement is measured — not felt. Integrated with the ViceGolfer app from day one. Premium, intentional, limited.</div>
+    </div>
+  </div>
+
+  <div class="grid-3" style="gap: 10px;">
+    <div class="stat-block">
+      <div class="stat-val gold">72%</div>
+      <div class="stat-key">Amateur strokes lost inside 100 yards</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val">0</div>
+      <div class="stat-key">Data-integrated performance facilities in IV Region</div>
+    </div>
+    <div class="stat-block">
+      <div class="stat-val gold">2030</div>
+      <div class="stat-key">Target: scratch handicap for founding members</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BRAND -->
+<section class="section" id="brand">
+  <div class="label">02 — Brand & Identity</div>
+  <div class="h2" style="margin-bottom: 24px;">Who We Are</div>
+
+  <div class="grid-2" style="gap: 16px; margin-bottom: 28px;">
+    <div>
+      <div class="h3" style="margin-bottom: 10px;">ViceGolfer</div>
+      <div class="body-lg" style="margin-bottom: 14px;">"Not given. Taken."</div>
+      <div class="body">A golf performance platform and ecosystem for players who take improvement seriously. Built around daily data tracking — putting protocol (100 putts/day), strokes gained analysis, handicap progression — and now expanding into physical infrastructure.</div>
+    </div>
+    <div>
+      <div class="h3" style="margin-bottom: 10px;">Vice OS</div>
+      <div class="body-lg" style="margin-bottom: 14px;">The operating system behind the brand.</div>
+      <div class="body">Vice OS is the modular AI-powered ecosystem that powers ViceGolfer and will extend into RugbyVice, CryptoVice, and Performance Lab operations. Think: one intelligence layer that runs every product.</div>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+    <div class="label" style="margin-bottom: 14px;">Brand Principles</div>
+    <div class="grid-3" style="gap: 10px;">
+      <div>
+        <div class="h4" style="color: var(--gold); margin-bottom: 5px;">Data first</div>
+        <div class="body">Every claim is backed by numbers. No gut feel, no guessing.</div>
+      </div>
+      <div>
+        <div class="h4" style="color: var(--gold); margin-bottom: 5px;">Premium, not luxury</div>
+        <div class="body">Serious investment. No excess. Nothing that doesn't serve performance.</div>
+      </div>
+      <div>
+        <div class="h4" style="color: var(--gold); margin-bottom: 5px;">Not given. Taken.</div>
+        <div class="body">Scratch handicap by 2030 — earned, logged, and proven in the data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SPACES -->
+<section class="section" id="spaces">
+  <div class="label">03 — Physical Spaces</div>
+  <div class="h2" style="margin-bottom: 8px;">The Four Zones</div>
+  <div class="body-lg" style="margin-bottom: 32px;">Each zone has distinct spatial, structural, and technical requirements. The architect's brief covers all four.</div>
+
+  <!-- Zone 1: Golftainer -->
+  <div class="space-card" style="margin-bottom: 16px;">
+    <div class="space-card-accent" style="background: var(--gold);"></div>
+    <div class="space-card-body" style="padding-left: 24px;">
+      <div class="space-header">
+        <div>
+          <div class="label">Zone 01</div>
+          <div class="h3">Golftainer</div>
+          <div style="font-family: 'Montserrat'; font-size: 10px; color: var(--muted); margin-top: 3px;">Full-Swing Simulator Pod</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="space-dim gold">12m × 3m × 3m H</div>
+          <div class="space-tag" style="color: var(--gold); border-color: rgba(198,161,91,0.3); margin-top: 4px; display: inline-block;">Shipping Container</div>
+        </div>
+      </div>
+      <div class="body" style="margin-bottom: 14px;">
+        A converted high-cube shipping container housing a professional golf simulator. Launch monitor data. Video analysis. The ability to play any course in the world. Standalone module — can be relocated, expanded, or replicated.
+      </div>
+      <div class="grid-2" style="gap: 12px;">
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">STRUCTURAL REQUIREMENTS</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot"></div>High-cube container (9'6" height) — minimum 3m clear ceiling</div>
+            <div class="req-item"><div class="req-dot"></div>Reinforced floor for simulator platform + hitting mat (approx. 2×2m)</div>
+            <div class="req-item"><div class="req-dot"></div>Blackout: no ambient light. Full blackout interior</div>
+            <div class="req-item"><div class="req-dot"></div>Climate control: HVAC unit, 18–22°C maintained</div>
+            <div class="req-item"><div class="req-dot"></div>Vibration dampening: rubber floor underlayer</div>
+            <div class="req-item"><div class="req-dot"></div>3-phase power supply: minimum 20A circuit</div>
+            <div class="req-item"><div class="req-dot"></div>Projector mount point: ceiling reinforced at 2.8m+ height</div>
+          </div>
+        </div>
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">TECHNOLOGY INSIDE</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Launch monitor: Trackman 4 or Foresight GCQuad</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>4K short-throw projector (3.5m throw distance)</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Impact screen: 3m × 2.5m — premium enclosure net</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Side cameras: 2× for swing video capture</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Simulator software: E6 Connect or GSPro</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Display monitor: 55" side for data output</div>
+            <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>ViceGolfer API integration: auto-log sessions</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone 2: Putting Lab -->
+  <div class="space-card" style="margin-bottom: 16px;">
+    <div class="space-card-accent" style="background: #4ade80;"></div>
+    <div class="space-card-body" style="padding-left: 24px;">
+      <div class="space-header">
+        <div>
+          <div class="label">Zone 02</div>
+          <div class="h3">Putting Lab</div>
+          <div style="font-family: 'Montserrat'; font-size: 10px; color: var(--muted); margin-top: 3px;">The Protocol Room — 100 Putts Daily</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="space-dim green-text">8m × 6m</div>
+          <div class="space-tag" style="color: #4ade80; border-color: rgba(74,222,128,0.3); margin-top: 4px; display: inline-block;">Dedicated Room</div>
+        </div>
+      </div>
+      <div class="body" style="margin-bottom: 14px;">
+        The heart of the operation. The ViceGolfer Putting Protocol — 100 putts per day, 2ft to 6ft, logged and analyzed — lives here. Purpose-built surface. SAM PuttLab integration. The room where handicaps drop.
+      </div>
+      <div class="grid-2" style="gap: 12px;">
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">STRUCTURAL REQUIREMENTS</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot"></div>Minimum 8m straight run for lag putting (15–25ft)</div>
+            <div class="req-item"><div class="req-dot"></div>6m wide to allow 3 parallel station setup</div>
+            <div class="req-item"><div class="req-dot"></div>Level floor: tolerance ±1mm over 6m (critical for putting)</div>
+            <div class="req-item"><div class="req-dot"></div>Climate control: humidity 45–55%, temperature constant</div>
+            <div class="req-item"><div class="req-dot"></div>Diffused lighting: no shadows on putting surface. LED panels</div>
+            <div class="req-item"><div class="req-dot"></div>Acoustic treatment: low ambient noise</div>
+            <div class="req-item"><div class="req-dot"></div>Minimal 2.6m ceiling clearance</div>
+          </div>
+        </div>
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">TECHNOLOGY INSIDE</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>SAM PuttLab (Science & Motion) — stroke analysis</div>
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>Premium artificial putting surface — Stimpmeter 10–12</div>
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>Distance markers: 2ft, 3ft, 4ft, 5ft, 6ft, 10ft, 15ft, 20ft, 25ft</div>
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>Overhead camera + tripod points for video capture</div>
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>iPad mount: ViceGolfer app for live logging</div>
+            <div class="req-item"><div class="req-dot" style="background: #4ade80;"></div>Wall display: 32" for real-time stats output</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone 3: Short Game -->
+  <div class="space-card" style="margin-bottom: 16px;">
+    <div class="space-card-accent" style="background: #60a5fa;"></div>
+    <div class="space-card-body" style="padding-left: 24px;">
+      <div class="space-header">
+        <div>
+          <div class="label">Zone 03</div>
+          <div class="h3">Short Game Zone</div>
+          <div style="font-family: 'Montserrat'; font-size: 10px; color: var(--muted); margin-top: 3px;">Chipping · Bunker · Wedge Dial</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="space-dim" style="color: #60a5fa;">Outdoor / Semi-covered</div>
+          <div class="space-tag" style="color: #60a5fa; border-color: rgba(96,165,250,0.3); margin-top: 4px; display: inline-block;">400m² target area</div>
+        </div>
+      </div>
+      <div class="body" style="margin-bottom: 14px;">
+        Everything inside 100 yards. Chipping stations with target zones, a practice bunker, and a wedge distance dial protocol. Where the scoring shots are built.
+      </div>
+      <div class="grid-2" style="gap: 12px;">
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">SPATIAL REQUIREMENTS</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot"></div>Minimum 80m carry distance for wedge work (50–80 yard shots)</div>
+            <div class="req-item"><div class="req-dot"></div>3–4 chipping stations, surface: natural grass or artificial</div>
+            <div class="req-item"><div class="req-dot"></div>1 practice bunker: minimum 4×3m, depth 60cm, tour-quality sand</div>
+            <div class="req-item"><div class="req-dot"></div>Target areas: raised rings at 10m, 20m, 30m, 50m, 80m</div>
+            <div class="req-item"><div class="req-dot"></div>Covered hitting area: minimum 4m canopy for rain protection</div>
+            <div class="req-item"><div class="req-dot"></div>Lighting: LED spots for evening sessions</div>
+          </div>
+        </div>
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">TECHNOLOGY & EQUIPMENT</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot" style="background: #60a5fa;"></div>Trackman portable or FlightScope radar</div>
+            <div class="req-item"><div class="req-dot" style="background: #60a5fa;"></div>Distance markers at each target zone</div>
+            <div class="req-item"><div class="req-dot" style="background: #60a5fa;"></div>ViceGolfer app: chipping session log</div>
+            <div class="req-item"><div class="req-dot" style="background: #60a5fa;"></div>Shot zones for SVG dispersion mapping (in-app)</div>
+            <div class="req-item"><div class="req-dot" style="background: #60a5fa;"></div>Outdoor display stand for wind/data output</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone 4: Clubhouse -->
+  <div class="space-card">
+    <div class="space-card-accent" style="background: #a855f7;"></div>
+    <div class="space-card-body" style="padding-left: 24px;">
+      <div class="space-header">
+        <div>
+          <div class="label">Zone 04</div>
+          <div class="h3">Clubhouse</div>
+          <div style="font-family: 'Montserrat'; font-size: 10px; color: var(--muted); margin-top: 3px;">Operations · Strategy · Community</div>
+        </div>
+        <div style="text-align: right;">
+          <div class="space-dim" style="color: #a855f7;">60–80m²</div>
+          <div class="space-tag" style="color: #a855f7; border-color: rgba(168,85,247,0.3); margin-top: 4px; display: inline-block;">Hub Structure</div>
+        </div>
+      </div>
+      <div class="body" style="margin-bottom: 14px;">
+        The operations and community hub. Where members review sessions, plan training, and connect. Reception, lounge, analysis station, and admin. The face of the Performance House.
+      </div>
+      <div class="grid-2" style="gap: 12px;">
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">SPATIAL REQUIREMENTS</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot"></div>Reception / check-in desk: visible from entrance</div>
+            <div class="req-item"><div class="req-dot"></div>Members lounge: 4–6 seating positions, low tables</div>
+            <div class="req-item"><div class="req-dot"></div>Analysis station: 2 desks, wall-mounted 55" display</div>
+            <div class="req-item"><div class="req-dot"></div>Equipment storage: locker area for 20 members</div>
+            <div class="req-item"><div class="req-dot"></div>Bathroom: 1 WC + shower minimum</div>
+            <div class="req-item"><div class="req-dot"></div>Brand: dark walls, gold accents. ViceGolfer palette.</div>
+          </div>
+        </div>
+        <div>
+          <div class="h4" style="font-size: 9px; color: var(--muted); margin-bottom: 8px;">TECHNOLOGY & OPERATIONS</div>
+          <div class="req-list">
+            <div class="req-item"><div class="req-dot" style="background: #a855f7;"></div>Central admin: check-in, scheduling, member management</div>
+            <div class="req-item"><div class="req-dot" style="background: #a855f7;"></div>Wall display: live leaderboard + member stats dashboard</div>
+            <div class="req-item"><div class="req-dot" style="background: #a855f7;"></div>ViceGolfer admin panel: full app access on tablet</div>
+            <div class="req-item"><div class="req-dot" style="background: #a855f7;"></div>Content creation corner: tripod point + ring light mount</div>
+            <div class="req-item"><div class="req-dot" style="background: #a855f7;"></div>WiFi: dedicated fiber line, mesh throughout all zones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SITE LAYOUT -->
+<section class="section" id="layout">
+  <div class="label">04 — Site Concept</div>
+  <div class="h2" style="margin-bottom: 20px;">Spatial Relationship</div>
+  <div class="body-lg" style="margin-bottom: 28px;">All four zones within one connected facility. The flow: Clubhouse receives → Putting Lab warms up → Golftainer analyzes → Short Game executes.</div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px;">
+    <div style="display: grid; grid-template-columns: 1fr 3px 1fr; gap: 0; min-height: 200px;">
+      <!-- Left zone -->
+      <div style="display: grid; grid-rows: 1fr 1fr; gap: 8px;">
+        <div style="background: rgba(168,85,247,0.08); border: 1px solid rgba(168,85,247,0.2); padding: 16px;">
+          <div style="font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #a855f7; text-transform: uppercase; margin-bottom: 4px;">ZONE 04</div>
+          <div style="font-family: 'Bebas Neue'; font-size: 18px; color: var(--cream);">CLUBHOUSE</div>
+          <div style="font-family: 'Montserrat'; font-size: 8px; color: var(--muted);">60–80m² · Hub</div>
+        </div>
+        <div style="background: rgba(74,222,128,0.06); border: 1px solid rgba(74,222,128,0.2); padding: 16px;">
+          <div style="font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #4ade80; text-transform: uppercase; margin-bottom: 4px;">ZONE 02</div>
+          <div style="font-family: 'Bebas Neue'; font-size: 18px; color: var(--cream);">PUTTING LAB</div>
+          <div style="font-family: 'Montserrat'; font-size: 8px; color: var(--muted);">8×6m · Indoor</div>
+        </div>
+      </div>
+      <!-- Divider -->
+      <div style="background: var(--border); margin: 0 16px;"></div>
+      <!-- Right zone -->
+      <div style="display: grid; grid-rows: 2fr 1fr; gap: 8px;">
+        <div style="background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.2); padding: 16px;">
+          <div style="font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: #60a5fa; text-transform: uppercase; margin-bottom: 4px;">ZONE 03</div>
+          <div style="font-family: 'Bebas Neue'; font-size: 18px; color: var(--cream);">SHORT GAME ZONE</div>
+          <div style="font-family: 'Montserrat'; font-size: 8px; color: var(--muted);">400m² · Semi-outdoor · 80m run</div>
+        </div>
+        <div style="background: rgba(198,161,91,0.06); border: 1px solid rgba(198,161,91,0.25); padding: 16px;">
+          <div style="font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.18em; color: var(--gold); text-transform: uppercase; margin-bottom: 4px;">ZONE 01</div>
+          <div style="font-family: 'Bebas Neue'; font-size: 18px; color: var(--cream);">GOLFTAINER</div>
+          <div style="font-family: 'Montserrat'; font-size: 8px; color: var(--muted);">Container 12×3m · Standalone pod</div>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap;">
+      <div style="font-family: 'Montserrat'; font-size: 9px; color: var(--muted);"><span style="color: var(--gold);">↑</span> North — open toward Las Rocas course</div>
+      <div style="font-family: 'Montserrat'; font-size: 9px; color: var(--muted);">Covered walkway connects all indoor zones</div>
+      <div style="font-family: 'Montserrat'; font-size: 9px; color: var(--muted);">Golftainer: modular, can relocate independently</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p>
+      <strong>For the architect:</strong> the spatial concept is a connected campus, not a single building.
+      The Clubhouse + Putting Lab form one indoor structure. The Golftainer is a standalone module adjacent.
+      The Short Game Zone is semi-covered outdoor space. The challenge is circulation — members should flow
+      naturally between zones without friction.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- TECHNOLOGY -->
+<section class="section" id="tech">
+  <div class="label">05 — Technology Integration</div>
+  <div class="h2" style="margin-bottom: 20px;">Digital + Physical<br>One System</div>
+  <div class="body-lg" style="margin-bottom: 28px;">Every session in the facility feeds the ViceGolfer platform. Physical performance + digital intelligence = one loop.</div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 24px; margin-bottom: 20px;">
+    <div class="label" style="margin-bottom: 16px;">The Data Loop</div>
+    <div style="display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 8px;">
+      {/* Flow */}
+      {['Member arrives', 'App check-in', 'Session logged', 'Data analyzed', 'Insights sent'].map((step, i, arr) => `
+        <div style="flex-shrink: 0; text-align: center; padding: 0 12px;">
+          <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(198,161,91,0.1); border: 1px solid rgba(198,161,91,0.3); display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-family: 'Bebas Neue'; font-size: 20px; color: var(--gold);">${i+1}</div>
+          <div style="font-family: 'Montserrat'; font-size: 8px; font-weight: 700; color: var(--muted); white-space: nowrap; letter-spacing: 0.08em;">${step}</div>
+        </div>
+        ${i < arr.length-1 ? '<div style="font-size: 18px; color: rgba(198,161,91,0.3); flex-shrink: 0;">→</div>' : ''}
+      `).join('')}
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+    <div class="label" style="margin-bottom: 14px;">ViceGolfer App — Connected Features</div>
+    <div class="grid-2" style="gap: 10px;">
+      <div>
+        <div class="h4" style="font-size: 10px; color: #4ade80; margin-bottom: 6px;">Putting Protocol</div>
+        <div class="body">100 putts per day logged from the Lab. Distance breakdown (2ft–6ft). Rolling %. Streak tracking. Sends directly to member dashboard.</div>
+      </div>
+      <div>
+        <div class="h4" style="font-size: 10px; color: var(--gold); margin-bottom: 6px;">Simulator Sessions</div>
+        <div class="body">Trackman data auto-imports to app. Ball speed, club speed, smash factor, dispersion. Trends over time. Before/after coaching comparisons.</div>
+      </div>
+      <div>
+        <div class="h4" style="font-size: 10px; color: #60a5fa; margin-bottom: 6px;">Chipping Log</div>
+        <div class="body">SVG shot dispersion visualization per distance. Target hit rate. Wedge dialing: which club for which distance, tracked over weeks.</div>
+      </div>
+      <div>
+        <div class="h4" style="font-size: 10px; color: #a855f7; margin-bottom: 6px;">Analytics Dashboard</div>
+        <div class="body">Strokes gained by category. Period comparison. Best/worst rounds. Radar profile: Driving, Iron Play, Short Game, Putting, Mental, Course Mgmt.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 8px;"><span class="label" style="display: inline; margin-bottom: 0;">Technology Stack</span></div>
+  <div style="margin-top: 8px;">
+    <span class="tech-badge">Next.js 16</span>
+    <span class="tech-badge">React 19</span>
+    <span class="tech-badge">Supabase (PostgreSQL)</span>
+    <span class="tech-badge">Vercel</span>
+    <span class="tech-badge">Stripe Payments</span>
+    <span class="tech-badge">Trackman API</span>
+    <span class="tech-badge">SAM PuttLab</span>
+    <span class="tech-badge">Formspree</span>
+    <span class="tech-badge">TypeScript</span>
+    <span class="tech-badge">Zustand</span>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BUSINESS MODEL -->
+<section class="section" id="business">
+  <div class="label">06 — Business Model</div>
+  <div class="h2" style="margin-bottom: 24px;">Revenue &amp; Structure</div>
+
+  <div class="grid-2" style="gap: 12px; margin-bottom: 24px;">
+    <div style="background: rgba(198,161,91,0.06); border: 1px solid rgba(198,161,91,0.3); padding: 20px;">
+      <div class="label" style="margin-bottom: 6px;">Tier 1 — Founder</div>
+      <div style="font-family: 'Bebas Neue'; font-size: 40px; color: var(--gold); line-height: 1;">$149<span style="font-size: 18px; color: var(--muted)">/mo</span></div>
+      <div style="font-family: 'Montserrat'; font-size: 8px; font-weight: 700; color: var(--gold); letter-spacing: 0.16em; margin: 4px 0 12px;">LIMITED · 20 SPOTS · PRICE LOCKED FOREVER</div>
+      <div class="req-list">
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Unlimited simulator access</div>
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Daily putting lab (open sessions)</div>
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>1×1 weekly coaching review (30min)</div>
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Full app access — all features</div>
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Founding member badge (permanent)</div>
+        <div class="req-item"><div class="req-dot" style="background: var(--gold);"></div>Input on facility decisions</div>
+      </div>
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+      <div class="label" style="margin-bottom: 6px;">Tier 2 — Member</div>
+      <div style="font-family: 'Bebas Neue'; font-size: 40px; color: var(--cream); line-height: 1;">$89<span style="font-size: 18px; color: var(--muted)">/mo</span></div>
+      <div style="font-family: 'Montserrat'; font-size: 8px; font-weight: 700; color: var(--muted); letter-spacing: 0.16em; margin: 4px 0 12px;">OPENS AFTER FOUNDER PHASE</div>
+      <div class="req-list">
+        <div class="req-item"><div class="req-dot"></div>12 hours simulator per month</div>
+        <div class="req-item"><div class="req-dot"></div>Putting lab (scheduled sessions)</div>
+        <div class="req-item"><div class="req-dot"></div>Monthly performance review</div>
+        <div class="req-item"><div class="req-dot"></div>App access included</div>
+        <div class="req-item"><div class="req-dot"></div>Group coaching sessions</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 20px; margin-bottom: 16px;">
+    <div class="label" style="margin-bottom: 14px;">Revenue Projection — Year 1</div>
+    <div class="grid-4">
+      <div class="stat-block" style="background: transparent; border-color: rgba(198,161,91,0.2);">
+        <div class="stat-val gold">20</div>
+        <div class="stat-key">Founder members</div>
+      </div>
+      <div class="stat-block" style="background: transparent;">
+        <div class="stat-val">$2,980</div>
+        <div class="stat-key">Monthly MRR (founder phase)</div>
+      </div>
+      <div class="stat-block" style="background: transparent;">
+        <div class="stat-val gold">+$40</div>
+        <div class="stat-key">Avg per session (drop-in)</div>
+      </div>
+      <div class="stat-block" style="background: transparent;">
+        <div class="stat-val">$50k+</div>
+        <div class="stat-key">Year 1 revenue target</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: var(--surface); border: 1px solid var(--border); padding: 20px;">
+    <div class="label" style="margin-bottom: 12px;">Additional Revenue Streams</div>
+    <div class="grid-2" style="gap: 10px;">
+      {['Corporate golf days & team events', 'Club tournament hosting + scoring tech', 'Private coaching packages', 'Equipment fitting sessions (with Trackman)'].map(item => `
+        <div style="display: flex; gap: 10px; align-items: flex-start;">
+          <div style="color: var(--gold); font-size: 14px; flex-shrink: 0; margin-top: 1px;">→</div>
+          <div style="font-size: 12px; color: var(--muted);">${item}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ECOSYSTEM -->
+<section class="section" id="ecosystem">
+  <div class="label">07 — The Ecosystem</div>
+  <div class="h2" style="margin-bottom: 16px;">Vice OS — Bigger<br>Than Golf</div>
+  <div class="body-lg" style="margin-bottom: 28px;">Performance House is one node in the Vice OS network. Each product is independent but shares infrastructure, data, and brand.</div>
+
+  <div class="grid-2" style="gap: 12px; margin-bottom: 16px;">
+    <div class="eco-node active">
+      <div class="eco-status" style="background: var(--gold); box-shadow: 0 0 8px var(--gold);"></div>
+      <div class="label" style="margin-bottom: 4px;">ViceGolfer · Active</div>
+      <div class="h4" style="margin-bottom: 6px;">Performance Platform</div>
+      <div class="body">Golf tracking app live on Vercel. 100+ functions. Putting Protocol, rounds, tournaments, analytics. Performance House is its physical extension.</div>
+    </div>
+    <div class="eco-node active">
+      <div class="eco-status" style="background: var(--gold); box-shadow: 0 0 8px var(--gold);"></div>
+      <div class="label" style="margin-bottom: 4px;">Performance Lab · Building</div>
+      <div class="h4" style="margin-bottom: 6px;">Physical Infrastructure</div>
+      <div class="body">The four zones. Las Rocas. The physical home of the methodology. This brief is the blueprint.</div>
+    </div>
+    <div class="eco-node">
+      <div class="eco-status" style="background: #60a5fa;"></div>
+      <div class="label" style="margin-bottom: 4px;">RugbyVice · Next</div>
+      <div class="h4" style="margin-bottom: 6px;">Same Architecture, Rugby</div>
+      <div class="body">Same app platform. Same physical facility concept. Performance tracking for rugby athletes. Designed modular from day one — ViceGolfer is the template.</div>
+    </div>
+    <div class="eco-node">
+      <div class="eco-status" style="background: #6a6a6a;"></div>
+      <div class="label" style="margin-bottom: 4px;">CryptoVice · Concept</div>
+      <div class="h4" style="margin-bottom: 6px;">Market Intelligence</div>
+      <div class="body">Probabilistic market setups. Risk-first. Same Vice OS interface, different domain. Fund-able with Performance House revenue.</div>
+    </div>
+  </div>
+
+  <div class="highlight-box">
+    <p>
+      <strong>For the partner:</strong> the architect who builds Performance House is not just building a golf facility.
+      They are building the first <strong>physical node of Vice OS</strong>. The same modular approach
+      applies when RugbyVice wants a Performance House. Same zones, same brief, different sport.
+      The opportunity is to become the go-to design partner for all future nodes.
+    </p>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ROADMAP -->
+<section class="section" id="roadmap">
+  <div class="label">08 — Roadmap</div>
+  <div class="h2" style="margin-bottom: 28px;">Build Sequence</div>
+
+  <div class="timeline">
+    <div class="phase">
+      <div class="phase-dot" style="background: #4ade80;"></div>
+      <div class="phase-label" style="color: #4ade80;">Phase 0 — NOW</div>
+      <div class="phase-title">Foundation</div>
+      <div class="phase-body">ViceGolfer app live. 100+ features shipped. Putting Protocol in use. Founder members recruited. Partner brief drafted. You are here.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-dot" style="background: var(--gold);"></div>
+      <div class="phase-label" style="color: var(--gold);">Phase 1 — Q2 2025</div>
+      <div class="phase-title">Putting Lab + Clubhouse</div>
+      <div class="phase-body">Priority build: Putting Lab 6×3 + Clubhouse. Lowest cost, highest daily use. Founding members begin sessions. Data flow established. SAM PuttLab installed.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-dot" style="background: var(--gold);"></div>
+      <div class="phase-label" style="color: var(--gold);">Phase 2 — Q3 2025</div>
+      <div class="phase-title">Golftainer + Short Game</div>
+      <div class="phase-body">Container arrives. Simulator installed. Short game zone graded and surfaced. Bunker built. All four zones operational. Public launch.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-dot" style="background: #60a5fa;"></div>
+      <div class="phase-label" style="color: #60a5fa;">Phase 3 — Q4 2025</div>
+      <div class="phase-title">Member Growth + Revenue Optimization</div>
+      <div class="phase-body">Open member tier to public. Corporate packages. Drop-in sessions. Tournament hosting. Revenue target: $50k+ Year 1.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-dot" style="background: #a855f7;"></div>
+      <div class="phase-label" style="color: #a855f7;">Phase 4 — 2026</div>
+      <div class="phase-title">RugbyVice Performance Node</div>
+      <div class="phase-body">Apply same blueprint to rugby. Second facility. Same architect. Same tech stack. Vice OS physical network node #2.</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PARTNER BRIEF -->
+<section class="section" id="partner">
+  <div class="label">09 — Partnership</div>
+  <div class="h2" style="margin-bottom: 12px;">What We Need<br>From You</div>
+  <div class="body-lg" style="margin-bottom: 28px;">This is not a typical client-architect relationship. This is a founding partnership in a growing platform.</div>
+
+  <div style="margin-bottom: 24px;">
+    <div class="partner-row">
+      <div class="partner-num">01</div>
+      <div>
+        <div class="h4" style="margin-bottom: 4px;">Feasibility + Site Analysis</div>
+        <div class="body">Walk the Las Rocas site. Assess: soil, drainage, sun orientation, existing structures. Confirm what's buildable in Phase 1 vs Phase 2. Identify constraints early.</div>
+      </div>
+    </div>
+    <div class="partner-row">
+      <div class="partner-num">02</div>
+      <div>
+        <div class="h4" style="margin-bottom: 4px;">Concept Design — 4 Zones</div>
+        <div class="body">Floor plan concept with circulation. Each zone sized per this brief. Clubhouse + Putting Lab as one structure. Golftainer placement. Short game orientation.</div>
+      </div>
+    </div>
+    <div class="partner-row">
+      <div class="partner-num">03</div>
+      <div>
+        <div class="h4" style="margin-bottom: 4px;">Technical Specifications</div>
+        <div class="body">Material selections per zone. Structural requirements met. Level tolerances for putting surface. Climate control specs for simulator and lab. Lighting plan.</div>
+      </div>
+    </div>
+    <div class="partner-row">
+      <div class="partner-num">04</div>
+      <div>
+        <div class="h4" style="margin-bottom: 4px;">Permits + Regulatory</div>
+        <div class="body">Chilean construction permits. Club coordination with Las Rocas management. Phase sequencing to minimize disruption to active club operations.</div>
+      </div>
+    </div>
+    <div class="partner-row" style="border-bottom: none;">
+      <div class="partner-num">05</div>
+      <div>
+        <div class="h4" style="margin-bottom: 4px;">Long-term Partnership</div>
+        <div class="body">RugbyVice Performance House. Future expansion of this facility. Vice OS physical nodes. This is the first, not the last. The architect who builds this becomes the Vice OS infrastructure partner.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="background: rgba(198,161,91,0.06); border: 1px solid rgba(198,161,91,0.25); padding: 24px;">
+    <div class="label" style="margin-bottom: 10px;">Compensation Structure</div>
+    <div class="body-lg" style="margin-bottom: 14px;">Open to discussion — we can structure this as:</div>
+    <div class="grid-2" style="gap: 10px;">
+      <div style="padding: 14px; background: rgba(245,245,245,0.02); border: 1px solid var(--border);">
+        <div class="h4" style="color: var(--gold); margin-bottom: 6px;">Fee + Revenue Share</div>
+        <div class="body">Standard architectural fee + % of facility revenue for first 3 years. Skin in the game, shared upside.</div>
+      </div>
+      <div style="padding: 14px; background: rgba(245,245,245,0.02); border: 1px solid var(--border);">
+        <div class="h4" style="color: var(--gold); margin-bottom: 6px;">Equity Partnership</div>
+        <div class="body">Design work at reduced fee in exchange for founding partner stake. You build it, you own part of it.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CLOSING -->
+<section class="section" style="text-align: center;">
+  <div style="font-family: 'Bebas Neue'; font-size: clamp(36px, 8vw, 72px); letter-spacing: 0.06em; color: var(--cream); line-height: 1; margin-bottom: 12px;">"NOT GIVEN.<br>TAKEN."</div>
+  <div style="font-family: 'Montserrat'; font-size: 10px; color: var(--muted); letter-spacing: 0.2em; margin-bottom: 32px;">VICEGOLFER · LAS ROCAS · IV REGIÓN, CHILE</div>
+  <div style="max-width: 480px; margin: 0 auto;">
+    <div style="font-size: 13px; color: #8a8a72; line-height: 1.7; margin-bottom: 24px;">This document is a working brief — not a final spec. Everything here is a starting point for conversation. The right partner will challenge, improve, and shape what this becomes.</div>
+    <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+      <a href="mailto:hk23hub@gmail.com" style="display: inline-block; padding: 12px 24px; background: var(--gold); color: #0A0A0A; font-family: 'Montserrat'; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none;">CONTACT HK23 →</a>
+      <a href="https://vicegolfer.vercel.app" target="_blank" style="display: inline-block; padding: 12px 24px; background: transparent; color: var(--gold); font-family: 'Montserrat'; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; border: 1px solid rgba(198,161,91,0.4);">VIEW APP</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ViceGolfer</div>
+  <div class="footer-meta">Performance House · Las Rocas · Chile · 2025 · Confidential</div>
+  <div class="footer-meta">Vice OS Ecosystem · Not given. Taken.</div>
+</footer>
+
+<script>
+  // Smooth section highlighting in nav
+  const links = document.querySelectorAll('.nav-links a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        links.forEach(l => {
+          l.style.color = l.getAttribute('href') === '#'+id ? '#F5F5F5' : '';
+        });
+      }
+    });
+  }, { threshold: 0.3 });
+  document.querySelectorAll('[id]').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
