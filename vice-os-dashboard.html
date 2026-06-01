@@ -243,7 +243,7 @@
   <div class="hdr">
     <div class="hdr-left">
       <div class="hdr-title">VICE OS — MISSION CONTROL</div>
-      <div class="hdr-sub">2026-05-31 &nbsp;·&nbsp; 11 VERTICALS &nbsp;·&nbsp; ACTIVE BUILD</div>
+      <div class="hdr-sub">2026-06-01 &nbsp;·&nbsp; 11 VERTICALS &nbsp;·&nbsp; ACTIVE BUILD</div>
     </div>
     <div class="hdr-right">
       <div class="hdr-stat">
@@ -301,20 +301,20 @@
       <div class="tl-item">
         <div class="tl-badge done">DONE</div>
         <div class="tl-dot done"></div>
-        <div class="tl-label">MVB Planet + English Pass</div>
-        <div class="tl-date">MAY 30</div>
+        <div class="tl-label">+3 Planets<br>+2 Enrichments</div>
+        <div class="tl-date">MAY 31</div>
       </div>
       <div class="tl-item">
         <div class="tl-badge active">TODAY</div>
         <div class="tl-dot active"></div>
-        <div class="tl-label">+3 Planets<br>+2 Enrichments</div>
-        <div class="tl-date">MAY 31</div>
+        <div class="tl-label">Swarm Art + Morph<br>Mobile English Pass</div>
+        <div class="tl-date">JUN 1</div>
       </div>
       <div class="tl-item">
         <div class="tl-badge next">NEXT</div>
         <div class="tl-dot next"></div>
         <div class="tl-label">GitHub Pages<br>Deploy</div>
-        <div class="tl-date">JUN 1</div>
+        <div class="tl-date">JUN 2</div>
       </div>
       <div class="tl-item">
         <div class="tl-badge next">NEXT</div>
@@ -385,10 +385,10 @@ initStars(); drawStars();
 const planets = [
   {
     id:'universe', name:'HK23 UNIVERSE', sub:'Interactive OS Map',
-    color:'#F0EDE8', pct:90, status:'live',
+    color:'#F0EDE8', pct:94, status:'live',
     tasks:{
-      done:['8 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version'],
-      todo:['Add SSH key → push to GitHub Pages','Wire questionnaire to real form endpoint','Mobile English pass']
+      done:['10 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version','Mobile English pass + 3 new planets','Swarm Art — universe self-destruct (S)','Particle text morph — type a word'],
+      todo:['Add SSH key → push to GitHub Pages','Wire questionnaire to real form endpoint','Swarm Art photo upload polish']
     }
   },
   {
@@ -552,7 +552,7 @@ const todoItems = [
   { text:'git push -u origin main in /vice-os-artifact', meta:'Run in terminal after SSH key added', tag:'urgent', section:'DEPLOY' },
   { text:'Enable GitHub Pages → branch main / root /', meta:'github.com/hk23neo/vice-os-artifact/settings/pages', tag:'urgent', section:'DEPLOY' },
   { text:'Wire galaxy questionnaire to real form endpoint', meta:'Formspree or Supabase — currently fakes submit', tag:'build', section:'UNIVERSE' },
-  { text:'Mobile universe English pass', meta:'hk23-universe-mobile.html has Spanish strings', tag:'build', section:'UNIVERSE' },
+  { text:'Swarm Art photo upload polish', meta:'Drop-zone UX + multi-photo blend modes', tag:'next', section:'UNIVERSE' },
   { text:'Stripe payment integration for ViceGolfer', meta:'Tier 2/3 memberships need real checkout', tag:'build', section:'VICEGOLFER' },
   { text:'Analytics trends dashboard', meta:'Strokes gained, period comparison, auto insights', tag:'build', section:'VICEGOLFER' },
   { text:'Chipping + short game sessions', meta:'Complete the 3-zone training protocol suite', tag:'next', section:'VICEGOLFER' },
@@ -571,6 +571,9 @@ const doneItems = [
   { text:'Full English translation', meta:'Zero Spanish remaining in universe', section:'UNIVERSE' },
   { text:'Galaxy questionnaire modal + shortcuts', meta:'G key opens galaxy mode', section:'UNIVERSE' },
   { text:'Mobile universe (hk23-universe-mobile.html)', meta:'Lightweight orbital viewer', section:'UNIVERSE' },
+  { text:'Mobile English pass + 3 new planets', meta:'All Spanish → English; Tee Club, Vice AI, Marketplace added on outer2 ring', section:'UNIVERSE' },
+  { text:'Swarm Art — universe self-destruct (S key)', meta:'Captures live canvas, explodes all planets into particles', section:'UNIVERSE' },
+  { text:'Particle text morph — type a word', meta:'Swarm particles rearrange to spell any word', section:'UNIVERSE' },
   { text:'Tee Club planet (emerald #10B981)', meta:'6 fractal nodes, orbital moons: BOOKINGS·MEMBERS·LOCATIONS·EVENTS', section:'UNIVERSE' },
   { text:'Vice AI planet (indigo #6366F1)', meta:'6 fractal nodes, Content Agent live, moons: COACH·CONTENT·ANALYST·OPS', section:'UNIVERSE' },
   { text:'Marketplace planet (orange #F97316)', meta:'6 fractal nodes, moons: ART·DIGITAL·COURSES·MERCH', section:'UNIVERSE' },
