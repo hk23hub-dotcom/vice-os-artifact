@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vice Golf House — Private Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #090909;
+    --bg-card: #111111;
+    --bg-card2: #161616;
+    --white: #F0EDE8;
+    --off: #9A9590;
+    --muted: #555550;
+    --border: rgba(255,255,255,0.07);
+    --accent: #8DB87A;
+    --accent-dim: rgba(141,184,122,0.12);
+    --font-serif: 'EB Garamond', Georgia, serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-serif);
+    font-size: 18px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 1.25rem 2.5rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(9,9,9,0.92);
+    backdrop-filter: blur(10px);
+  }
+  .nav-logo {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--accent);
+    font-weight: 300;
+  }
+  .nav-badge {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 2.5rem;
+    padding-top: 8rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0;
+    width: 55%;
+    height: 100%;
+    background: radial-gradient(ellipse at 80% 40%, rgba(141,184,122,0.04) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+  .hero-title {
+    font-size: clamp(56px, 10vw, 110px);
+    line-height: 0.92;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    max-width: 900px;
+    margin-bottom: 1.5rem;
+  }
+  .hero-title em {
+    color: var(--accent);
+    font-style: italic;
+  }
+  .hero-sub {
+    font-size: 19px;
+    color: var(--off);
+    max-width: 520px;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+  }
+  .hero-cta {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    font-weight: 300;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 1rem 2.5rem;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .hero-cta:hover { opacity: 0.85; }
+  .hero-scroll {
+    margin-top: 5rem;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--muted);
+    padding-bottom: 2.5rem;
+  }
+
+  /* SECTIONS */
+  section {
+    padding: 7rem 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 60px;
+  }
+  .section-title {
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 400;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .section-body {
+    font-size: 18px;
+    color: var(--off);
+    max-width: 640px;
+    line-height: 1.75;
+  }
+
+  /* CONCEPT */
+  .concept-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    margin-top: 4rem;
+    border: 1px solid var(--border);
+  }
+  .concept-cell {
+    background: var(--bg-card);
+    padding: 2rem 2rem 2.5rem;
+  }
+  .concept-num {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.2rem;
+    font-weight: 300;
+  }
+  .concept-cell h3 {
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 0.75rem;
+  }
+  .concept-cell p {
+    font-size: 15px;
+    color: var(--off);
+    line-height: 1.7;
+  }
+
+  /* THE SPACE */
+  .space-section {
+    padding: 7rem 2.5rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .space-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .space-specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 3.5rem;
+  }
+  .spec-cell {
+    background: var(--bg-card2);
+    padding: 2rem;
+  }
+  .spec-val {
+    font-size: 38px;
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 0.4rem;
+  }
+  .spec-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* JOURNEY */
+  .journey-block {
+    margin-top: 3.5rem;
+  }
+  .hcp-row {
+    display: flex;
+    gap: 2rem;
+    align-items: flex-end;
+    margin-bottom: 3rem;
+  }
+  .hcp-item { flex: 1; }
+  .hcp-val {
+    font-size: 72px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .hcp-val.accent { color: var(--accent); }
+  .hcp-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    font-weight: 300;
+    margin-top: 0.5rem;
+  }
+  .progress-bar-wrap {
+    background: var(--bg-card);
+    height: 3px;
+    border: 1px solid var(--border);
+    margin-bottom: 1rem;
+  }
+  .progress-bar-fill {
+    background: var(--accent);
+    height: 100%;
+    width: 42%;
+  }
+  .progress-note {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    font-weight: 300;
+  }
+
+  /* ACCESS MODEL */
+  .access-section {
+    padding: 7rem 2.5rem;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .access-inner { max-width: 1100px; margin: 0 auto; }
+  .tiers {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-top: 3.5rem;
+  }
+  .tier {
+    background: var(--bg-card2);
+    padding: 2.5rem 2rem;
+    position: relative;
+  }
+  .tier.featured {
+    background: rgba(141,184,122,0.06);
+    border-top: 2px solid var(--accent);
+  }
+  .tier-tag {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+  }
+  .tier-name {
+    font-size: 28px;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+  }
+  .tier-price {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    font-weight: 300;
+  }
+  .tier-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .tier-list li {
+    font-size: 14px;
+    color: var(--off);
+    padding-left: 1.2rem;
+    position: relative;
+  }
+  .tier-list li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-size: 12px;
+  }
+
+  /* WHAT YOU GET */
+  .perks-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 3.5rem;
+  }
+  .perk-item {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    padding: 1.75rem;
+    border: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .perk-icon {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--accent);
+    font-weight: 300;
+    padding-top: 0.2rem;
+    white-space: nowrap;
+    letter-spacing: 0.1em;
+  }
+  .perk-text { flex: 1; }
+  .perk-title {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+  .perk-desc {
+    font-size: 14px;
+    color: var(--off);
+    line-height: 1.6;
+  }
+
+  /* SCARCITY */
+  .scarcity {
+    padding: 5rem 2.5rem;
+    text-align: center;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+  }
+  .scarcity-num {
+    font-size: clamp(72px, 12vw, 140px);
+    font-weight: 400;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .scarcity-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    font-weight: 300;
+    margin-top: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .scarcity-text {
+    font-size: 20px;
+    color: var(--off);
+    max-width: 480px;
+    margin: 0 auto;
+    line-height: 1.65;
+  }
+
+  /* CTA */
+  .cta-section {
+    padding: 9rem 2.5rem;
+    text-align: center;
+  }
+  .cta-title {
+    font-size: clamp(42px, 7vw, 80px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 1.5rem;
+  }
+  .cta-sub {
+    font-size: 18px;
+    color: var(--off);
+    margin-bottom: 3.5rem;
+    max-width: 440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .cta-btn {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    font-weight: 300;
+    color: var(--bg);
+    background: var(--accent);
+    padding: 1.2rem 3.5rem;
+    text-decoration: none;
+    transition: opacity 0.2s;
+    margin-bottom: 1.5rem;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+  .cta-note {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-logo {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    font-weight: 300;
+  }
+  .footer-right {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    font-weight: 300;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 1rem 1.5rem; }
+    .hero { padding: 1.5rem; padding-top: 7rem; }
+    section { padding: 5rem 1.5rem; }
+    .concept-grid, .space-specs, .tiers, .perks-grid { grid-template-columns: 1fr; }
+    .hcp-row { gap: 1rem; }
+    .hcp-val { font-size: 52px; }
+    .space-section, .access-section { padding: 5rem 1.5rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-logo">VICE GOLF HOUSE</span>
+  <span class="nav-badge">STAGE 1 · PRIVATE ACCESS</span>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eyebrow">Las Rocas de Santo Domingo · 2026</p>
+  <h1 class="hero-title">The private<br>golf studio.<br><em>Built in public.</em></h1>
+  <p class="hero-sub">A real journey from handicap to scratch. Documented, trained, and shared — with a small group of people who want in from the beginning.</p>
+  <a href="#join" class="hero-cta">REQUEST ACCESS</a>
+  <p class="hero-scroll">↓ Scroll to learn more</p>
+</div>
+
+<!-- CONCEPT -->
+<section>
+  <p class="section-label">01 · What this is</p>
+  <h2 class="section-title">Not a simulator rental.<br>A system you join.</h2>
+  <p class="section-body">Vice Golf House is a private golf studio and content system. One space. One goal — scratch by 2030. Every session, every round, every number documented and shared with members first.</p>
+
+  <div class="concept-grid">
+    <div class="concept-cell">
+      <p class="concept-num">PERFORMANCE</p>
+      <h3>Data-driven training</h3>
+      <p>A structured system built around real metrics — GIR, putts per round, driving accuracy, session logs. Nothing improvised.</p>
+    </div>
+    <div class="concept-cell">
+      <p class="concept-num">CONTENT</p>
+      <h3>Real process, real rounds</h3>
+      <p>No highlights. No tutorial fluff. Real training footage, real scores, real improvement — documented and distributed to members first.</p>
+    </div>
+    <div class="concept-cell">
+      <p class="concept-num">ACCESS</p>
+      <h3>Private simulator space</h3>
+      <p>Two premium simulators. Automated access. No staff, no waiting. Sessions are booked by members only.</p>
+    </div>
+    <div class="concept-cell">
+      <p class="concept-num">COMMUNITY</p>
+      <h3>Early supporter model</h3>
+      <p>Stage 1 is not a business. It's a proof of concept. Members who join now help shape what it becomes next.</p>
+    </div>
+  </div>
+</section>
+
+<!-- THE SPACE -->
+<div class="space-section">
+  <div class="space-inner">
+    <p class="section-label">02 · The space</p>
+    <h2 class="section-title">A house built for golf.</h2>
+    <p class="section-body">Located in Las Rocas de Santo Domingo — one of Chile's most exclusive coastal communities. The house is being transformed into a dedicated golf studio: simulators, filming setup, training space.</p>
+
+    <div class="space-specs">
+      <div class="spec-cell">
+        <div class="spec-val">2</div>
+        <div class="spec-label">PREMIUM SIMULATORS</div>
+      </div>
+      <div class="spec-cell">
+        <div class="spec-val">24/7</div>
+        <div class="spec-label">MEMBER ACCESS</div>
+      </div>
+      <div class="spec-cell">
+        <div class="spec-val">0</div>
+        <div class="spec-label">PUBLIC BOOKINGS</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JOURNEY -->
+<section>
+  <p class="section-label">03 · The journey</p>
+  <h2 class="section-title">Scratch by 2030.<br>Starting now.</h2>
+  <p class="section-body">Former rugby kicker. Current handicap 8.3 (official) — tracking 5.5 in real performance. The gap is closing. Members follow every step of the process before it reaches any public platform.</p>
+
+  <div class="journey-block">
+    <div class="hcp-row">
+      <div class="hcp-item">
+        <div class="hcp-val accent">5.5</div>
+        <div class="hcp-label">REAL PERFORMANCE HCP</div>
+      </div>
+      <div class="hcp-item">
+        <div class="hcp-val">8.3</div>
+        <div class="hcp-label">OFFICIAL HANDICAP</div>
+      </div>
+      <div class="hcp-item">
+        <div class="hcp-val">0</div>
+        <div class="hcp-label">THE TARGET</div>
+      </div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill"></div>
+    </div>
+    <p class="progress-note">42% OF THE WAY THERE · MEMBERS FOLLOW EVERY STEP</p>
+  </div>
+</section>
+
+<!-- ACCESS MODEL -->
+<div class="access-section">
+  <div class="access-inner">
+    <p class="section-label">04 · Early supporter access</p>
+    <h2 class="section-title">Three ways in.</h2>
+    <p class="section-body">Stage 1 runs on a Patreon-style model. No commercial pricing yet. Supporters fund the build. In return, they get exclusive access — and the lowest price they'll ever see.</p>
+
+    <div class="tiers">
+      <div class="tier">
+        <p class="tier-tag">SUPPORTER</p>
+        <h3 class="tier-name">Follow</h3>
+        <p class="tier-price">Early access pricing · TBD</p>
+        <ul class="tier-list">
+          <li>Full training content library</li>
+          <li>Progress updates before public release</li>
+          <li>Putting protocol system access</li>
+          <li>Private community</li>
+        </ul>
+      </div>
+      <div class="tier featured">
+        <p class="tier-tag">MEMBER · RECOMMENDED</p>
+        <h3 class="tier-name">Train</h3>
+        <p class="tier-price">Early access pricing · TBD</p>
+        <ul class="tier-list">
+          <li>Everything in Supporter</li>
+          <li>Simulator session hours</li>
+          <li>Performance data access</li>
+          <li>Direct feedback loop</li>
+        </ul>
+      </div>
+      <div class="tier">
+        <p class="tier-tag">FOUNDING · LIMITED SEATS</p>
+        <h3 class="tier-name">Build</h3>
+        <p class="tier-price">Limited — application only</p>
+        <ul class="tier-list">
+          <li>Full access to everything</li>
+          <li>Named as founding member</li>
+          <li>Input on what gets built next</li>
+          <li>Priority for Stage 2 access</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WHAT YOU GET -->
+<section>
+  <p class="section-label">05 · What supporters get</p>
+  <h2 class="section-title">Real access.<br>Real value.</h2>
+
+  <div class="perks-grid">
+    <div class="perk-item">
+      <span class="perk-icon">01</span>
+      <div class="perk-text">
+        <p class="perk-title">Simulator access</p>
+        <p class="perk-desc">Book time in the studio before it's open to anyone else. Two premium simulators. Automated entry.</p>
+      </div>
+    </div>
+    <div class="perk-item">
+      <span class="perk-icon">02</span>
+      <div class="perk-text">
+        <p class="perk-title">Full training system</p>
+        <p class="perk-desc">The complete ViceGolfer training protocol — putting system, range sessions, scoring strategy — yours to use.</p>
+      </div>
+    </div>
+    <div class="perk-item">
+      <span class="perk-icon">03</span>
+      <div class="perk-text">
+        <p class="perk-title">Private content first</p>
+        <p class="perk-desc">Every piece of content — training clips, round breakdowns, data analysis — goes to members before public platforms.</p>
+      </div>
+    </div>
+    <div class="perk-item">
+      <span class="perk-icon">04</span>
+      <div class="perk-text">
+        <p class="perk-title">Performance data</p>
+        <p class="perk-desc">Real handicap tracking, GIR trends, putting percentages — the numbers behind the journey, unfiltered.</p>
+      </div>
+    </div>
+    <div class="perk-item">
+      <span class="perk-icon">05</span>
+      <div class="perk-text">
+        <p class="perk-title">Priority in Stage 2</p>
+        <p class="perk-desc">When Vice Golf House opens commercially, Stage 1 members get first access, at Stage 1 pricing.</p>
+      </div>
+    </div>
+    <div class="perk-item">
+      <span class="perk-icon">06</span>
+      <div class="perk-text">
+        <p class="perk-title">You were there first</p>
+        <p class="perk-desc">The founding chapter is small by design. Once it's full — it's full. This access doesn't come back.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCARCITY -->
+<div class="scarcity">
+  <div class="scarcity-num">12</div>
+  <p class="scarcity-label">FOUNDING MEMBER SEATS AVAILABLE</p>
+  <p class="scarcity-text">Stage 1 is deliberately small. Limited access means higher quality for everyone inside. When it's full — Stage 1 closes.</p>
+</div>
+
+<!-- CTA -->
+<div class="cta-section" id="join">
+  <h2 class="cta-title">This is<br>the moment.</h2>
+  <p class="cta-sub">Join before the build is finished. Get the lowest price. Shape what comes next.</p>
+  <br>
+  <a href="#" class="cta-btn">APPLY FOR ACCESS</a>
+  <br>
+  <p class="cta-note">Applications reviewed manually · Limited availability</p>
+</div>
+
+<footer>
+  <span class="footer-logo">VICE GOLF HOUSE · STAGE 1</span>
+  <span class="footer-right">Las Rocas de Santo Domingo · Chile · 2026</span>
+</footer>
+
+</body>
+</html>
