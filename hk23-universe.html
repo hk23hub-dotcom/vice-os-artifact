@@ -1415,12 +1415,17 @@
         </div>
       </div>
       <div id="swarm-mini-thumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;"></div>
+      <div id="swarm-mj-section" style="width:100%;border-top:1px solid rgba(184,77,255,.15);margin-top:4px;padding-top:10px;">
+        <div style="font-size:8px;letter-spacing:.14em;color:rgba(240,237,232,.4);text-align:center;margin-bottom:8px;">◈ MIDJOURNEY GALLERY</div>
+        <div id="swarm-mj-strip" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;"></div>
+      </div>
     </div>
     <div id="swarm-mini-modes" style="display:none;padding:10px 16px;display:none;gap:6px;border-top:1px solid rgba(184,77,255,.15);flex-wrap:wrap;">
       <button class="swarm-btn active" id="swarm-btn-attract" onclick="setSwarmMode('attract')">ATTRACT</button>
       <button class="swarm-btn" id="swarm-btn-explode" onclick="setSwarmMode('explode')">EXPLODE</button>
       <button class="swarm-btn" id="swarm-btn-drift"   onclick="setSwarmMode('drift')">DRIFT</button>
       <button class="swarm-btn" onclick="clearSwarmArt()">CLEAR</button>
+      <button class="swarm-btn" id="swarm-fidelity-btn" onclick="toggleSwarmFidelity()">FIDELITY: HI</button>
       <div style="width:100%;display:flex;gap:0;margin-top:4px;">
         <input id="swarm-word-input" type="text" maxlength="16" placeholder="TYPE A WORD →"
           style="flex:1;background:rgba(255,255,255,.04);border:1px solid rgba(184,77,255,.35);border-right:none;
@@ -5258,6 +5263,47 @@ let swarmParticles = [];
 let swarmAnimId = null;
 let swarmMode = 'attract';
 let swarmLoadedImages = [];
+let swarmFidelity = 'hi';   // 'hi' = denser/more faithful, 'lo' = lighter
+let swarmLastImg = null;    // last photo/gallery image, for re-rendering on toggle
+
+// Toggle pixel fidelity and re-render the current photo/gallery image.
+function toggleSwarmFidelity() {
+  swarmFidelity = swarmFidelity === 'hi' ? 'lo' : 'hi';
+  const b = document.getElementById('swarm-fidelity-btn');
+  if (b) b.textContent = 'FIDELITY: ' + swarmFidelity.toUpperCase();
+  if (swarmLastImg) launchSwarm(swarmLastImg, swarmMode, swarmFidelity);
+}
+
+// Populate the Midjourney gallery strip from the synced manifest.
+function loadMidjourneyGallery() {
+  const strip = document.getElementById('swarm-mj-strip');
+  if (!strip) return;
+  fetch('midjourney.json')
+    .then(r => r.json())
+    .then(list => {
+      strip.innerHTML = '';
+      if (!Array.isArray(list) || !list.length) {
+        strip.innerHTML = '<div style="font-size:8px;letter-spacing:.06em;color:rgba(240,237,232,.3);text-align:center;line-height:1.5;max-width:260px;">No Midjourney images yet — drop them in your Drive folder and ask to refresh the gallery.</div>';
+        return;
+      }
+      list.forEach(item => {
+        const thumb = document.createElement('img');
+        thumb.src = item.file;
+        thumb.title = item.title || '';
+        thumb.style.cssText = 'width:44px;height:44px;object-fit:cover;border:1px solid ' + (item.color || 'rgba(184,77,255,.4)') + ';cursor:pointer;';
+        thumb.onerror = () => thumb.remove();
+        thumb.onclick = () => {
+          const img = new Image();
+          img.onload = () => launchSwarm(img, 'attract', 'hi');
+          img.src = item.file;
+        };
+        strip.appendChild(thumb);
+      });
+    })
+    .catch(() => {
+      strip.innerHTML = '<div style="font-size:8px;color:rgba(240,237,232,.3);text-align:center;">Gallery unavailable.</div>';
+    });
+}
 
 function openSwarmArt() {
   if (currentScreen !== 'map') goTo('map');
@@ -5273,6 +5319,8 @@ function openSwarmArt() {
       if (e.dataTransfer.files.length) handleSwarmFiles(e.dataTransfer.files);
     });
   }
+  // Populate the Midjourney gallery strip
+  loadMidjourneyGallery();
   // Capture the live universe and explode it
   captureUniverseAndExplode();
 }
@@ -5372,7 +5420,7 @@ function handleSwarmFiles(files) {
   });
 }
 
-function launchSwarm(img, startMode) {
+function launchSwarm(img, startMode, fidelity) {
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
 
   const canvas = document.getElementById('swarm-live-canvas');
@@ -5383,7 +5431,11 @@ function launchSwarm(img, startMode) {
 
   // For universe captures use full canvas resolution; for uploads use smaller sample
   const isUniverseCapture = (img.width === window.innerWidth || img.naturalWidth === window.innerWidth);
-  const sampleW = isUniverseCapture ? 240 : 160;
+  // Remember the source so the LO/HI toggle can re-render photos/gallery images.
+  swarmLastImg = isUniverseCapture ? null : img;
+  // HI fidelity: finer sampling grid + higher particle cap → closer to the pixels.
+  const hi = !isUniverseCapture && (fidelity || swarmFidelity) === 'hi';
+  const sampleW = isUniverseCapture ? 240 : (hi ? 260 : 160);
   const sampleH = Math.round(sampleW * (img.height / img.width));
 
   const off = document.createElement('canvas');
@@ -5407,8 +5459,10 @@ function launchSwarm(img, startMode) {
   }
 
   swarmParticles = [];
-  // Universe: skip dark/empty pixels for speed; photos: keep all
-  const density = isUniverseCapture ? 0.22 : 0.30;
+  // Universe: fixed light sampling. Photos/gallery: pick density to hit the
+  // particle cap (HI = denser/more faithful, capped for mobile performance).
+  const cap = isUniverseCapture ? Infinity : (hi ? 6500 : 4000);
+  const density = isUniverseCapture ? 0.22 : Math.min(1, cap / (sampleW * sampleH));
   const minBrightness = isUniverseCapture ? 0.04 : 0; // skip near-black universe bg
 
   for (let y = 0; y < sampleH; y++) {
