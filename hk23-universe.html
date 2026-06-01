@@ -1398,6 +1398,31 @@
     </div>
   </div>
   <canvas id="map-canvas"></canvas>
+  <canvas id="swarm-live-canvas" style="position:absolute;inset:0;pointer-events:none;display:none;"></canvas>
+  <!-- SWARM MINI PANEL -->
+  <div id="swarm-mini-panel" style="display:none;position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:300;background:rgba(7,7,15,.92);border:1px solid rgba(184,77,255,.4);padding:0;font-family:'Space Mono',monospace;">
+    <div style="display:flex;align-items:center;gap:0;border-bottom:1px solid rgba(184,77,255,.2);padding:10px 16px;">
+      <span style="font-size:10px;font-weight:700;letter-spacing:.18em;color:#B84DFF;">⬡ SWARM ART</span>
+      <button onclick="closeSwarmArt()" style="margin-left:auto;font-family:'Space Mono',monospace;font-size:9px;color:rgba(240,237,232,.4);background:none;border:none;cursor:pointer;letter-spacing:.1em;padding:0 0 0 16px;">✕</button>
+    </div>
+    <div id="swarm-mini-upload" style="padding:14px 16px;display:flex;flex-direction:column;align-items:center;gap:10px;">
+      <div id="swarm-mini-drop" style="width:280px;height:80px;border:2px dashed rgba(184,77,255,.4);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;gap:10px;transition:border-color .2s;">
+        <input type="file" id="swarm-file-input" accept="image/*" multiple onchange="handleSwarmFiles(this.files)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+        <span style="font-size:14px;opacity:.5">◈</span>
+        <div style="display:flex;flex-direction:column;gap:3px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:.14em;color:#B84DFF;">DROP PHOTOS</span>
+          <span style="font-size:8px;letter-spacing:.08em;color:rgba(240,237,232,.35);">O CLICK PARA BROWSE</span>
+        </div>
+      </div>
+      <div id="swarm-mini-thumbs" style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:280px;"></div>
+    </div>
+    <div id="swarm-mini-modes" style="display:none;padding:10px 16px;display:none;gap:6px;border-top:1px solid rgba(184,77,255,.15);">
+      <button class="swarm-btn active" id="swarm-btn-attract" onclick="setSwarmMode('attract')">ATTRACT</button>
+      <button class="swarm-btn" id="swarm-btn-explode" onclick="setSwarmMode('explode')">EXPLODE</button>
+      <button class="swarm-btn" id="swarm-btn-drift"   onclick="setSwarmMode('drift')">DRIFT</button>
+      <button class="swarm-btn" onclick="clearSwarmArt()">CLEAR</button>
+    </div>
+  </div>
   <div id="collectibles-counter">
     <div class="collect-badge">COLLECTIBLES</div>
     <div class="collect-count" id="collect-num">0</div>
@@ -5165,35 +5190,50 @@ let swarmActive = false;
 let swarmCtx = null;
 let swarmParticles = [];
 let swarmAnimId = null;
-let swarmMode = 'attract'; // attract | explode | drift
-let swarmLoadedImages = []; // { img, name }
-let swarmCurrentImg = null;
+let swarmMode = 'attract';
+let swarmLoadedImages = [];
 
 function openSwarmArt() {
-  document.getElementById('swarm-overlay').classList.add('active');
+  // Make sure we're on the map screen
+  if (currentScreen !== 'map') goTo('map');
+  document.getElementById('swarm-mini-panel').style.display = 'block';
   swarmActive = true;
+  // drag-over on mini drop zone
+  const dz = document.getElementById('swarm-mini-drop');
+  if (dz && !dz._swarmBound) {
+    dz._swarmBound = true;
+    dz.addEventListener('dragover', e => { e.preventDefault(); dz.style.borderColor='#B84DFF'; dz.style.background='rgba(184,77,255,.08)'; });
+    dz.addEventListener('dragleave', () => { dz.style.borderColor=''; dz.style.background=''; });
+    dz.addEventListener('drop', e => {
+      e.preventDefault(); dz.style.borderColor=''; dz.style.background='';
+      if (e.dataTransfer.files.length) handleSwarmFiles(e.dataTransfer.files);
+    });
+  }
 }
 
 function closeSwarmArt() {
-  document.getElementById('swarm-overlay').classList.remove('active');
+  document.getElementById('swarm-mini-panel').style.display = 'none';
   swarmActive = false;
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
   swarmParticles = [];
-  const c = document.getElementById('swarm-canvas');
-  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  const c = document.getElementById('swarm-live-canvas');
   c.style.display = 'none';
-  document.getElementById('swarm-upload').style.display = 'flex';
-  document.getElementById('swarm-controls').style.display = 'none';
+  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  // reset mini panel
+  document.getElementById('swarm-mini-upload').style.display = 'flex';
+  document.getElementById('swarm-mini-modes').style.display = 'none';
 }
 
 function clearSwarmArt() {
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
   swarmParticles = [];
-  const c = document.getElementById('swarm-canvas');
-  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  const c = document.getElementById('swarm-live-canvas');
   c.style.display = 'none';
-  document.getElementById('swarm-upload').style.display = 'flex';
-  document.getElementById('swarm-controls').style.display = 'none';
+  if (swarmCtx) swarmCtx.clearRect(0, 0, c.width, c.height);
+  document.getElementById('swarm-mini-upload').style.display = 'flex';
+  document.getElementById('swarm-mini-modes').style.display = 'none';
+  document.getElementById('swarm-mini-thumbs').innerHTML = '';
+  swarmLoadedImages = [];
 }
 
 function setSwarmMode(mode) {
@@ -5202,18 +5242,17 @@ function setSwarmMode(mode) {
     const btn = document.getElementById('swarm-btn-' + m);
     if (btn) btn.classList.toggle('active', m === mode);
   });
-  // scatter particles on explode
   if (mode === 'explode') {
     swarmParticles.forEach(p => {
-      p.vx = (Math.random() - 0.5) * 18;
-      p.vy = (Math.random() - 0.5) * 18;
+      p.vx = (Math.random() - 0.5) * 20;
+      p.vy = (Math.random() - 0.5) * 20;
     });
   }
 }
 
 function handleSwarmFiles(files) {
   if (!files || !files.length) return;
-  const strip = document.getElementById('swarm-thumb-strip');
+  const strip = document.getElementById('swarm-mini-thumbs');
   Array.from(files).forEach(file => {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
@@ -5221,20 +5260,17 @@ function handleSwarmFiles(files) {
       const img = new Image();
       img.onload = () => {
         swarmLoadedImages.push({ img, name: file.name });
-        // Add thumbnail
         const thumb = document.createElement('img');
         thumb.src = e.target.result;
-        thumb.className = 'swarm-thumb';
-        thumb.title = file.name;
+        thumb.style.cssText = 'width:44px;height:44px;object-fit:cover;border:1px solid rgba(184,77,255,.4);cursor:pointer;transition:border-color .15s;';
         thumb.onclick = () => {
-          strip.querySelectorAll('.swarm-thumb').forEach(t => t.classList.remove('selected'));
-          thumb.classList.add('selected');
+          strip.querySelectorAll('img').forEach(t => t.style.borderColor = 'rgba(184,77,255,.4)');
+          thumb.style.borderColor = '#B84DFF';
           launchSwarm(img);
         };
         strip.appendChild(thumb);
-        // Auto-launch first image
         if (swarmLoadedImages.length === 1) {
-          thumb.classList.add('selected');
+          thumb.style.borderColor = '#B84DFF';
           launchSwarm(img);
         }
       };
@@ -5245,15 +5281,14 @@ function handleSwarmFiles(files) {
 }
 
 function launchSwarm(img) {
-  swarmCurrentImg = img;
   if (swarmAnimId) { cancelAnimationFrame(swarmAnimId); swarmAnimId = null; }
 
-  const canvas = document.getElementById('swarm-canvas');
-  canvas.width  = canvas.offsetWidth  || window.innerWidth;
-  canvas.height = canvas.offsetHeight || window.innerHeight;
+  const canvas = document.getElementById('swarm-live-canvas');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+  canvas.style.display = 'block';
   swarmCtx = canvas.getContext('2d');
 
-  // Sample image into particles
   const sampleW = 160, sampleH = Math.round(160 * (img.height / img.width));
   const off = document.createElement('canvas');
   off.width = sampleW; off.height = sampleH;
@@ -5261,22 +5296,20 @@ function launchSwarm(img) {
   offCtx.drawImage(img, 0, 0, sampleW, sampleH);
   const data = offCtx.getImageData(0, 0, sampleW, sampleH).data;
 
-  // Fit image centered on canvas
+  // Fit image centered on canvas (upper 2/3 so mini panel doesn't cover it)
   const aspect = sampleW / sampleH;
-  let fitW = canvas.width * 0.65;
+  let fitW = canvas.width * 0.60;
   let fitH = fitW / aspect;
-  if (fitH > canvas.height * 0.70) { fitH = canvas.height * 0.70; fitW = fitH * aspect; }
-  const ox = (canvas.width  - fitW) / 2;
-  const oy = (canvas.height - fitH) / 2;
+  if (fitH > canvas.height * 0.60) { fitH = canvas.height * 0.60; fitW = fitH * aspect; }
+  const ox = (canvas.width - fitW) / 2;
+  const oy = (canvas.height - fitH) / 2 - 40;
 
   swarmParticles = [];
-  const density = 0.28; // sample fraction
   for (let y = 0; y < sampleH; y++) {
     for (let x = 0; x < sampleW; x++) {
-      if (Math.random() > density) continue;
+      if (Math.random() > 0.30) continue;
       const i = (y * sampleW + x) * 4;
-      const a = data[i + 3];
-      if (a < 40) continue;
+      if (data[i + 3] < 40) continue;
       const r = data[i], g = data[i+1], b = data[i+2];
       const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
       swarmParticles.push({
@@ -5286,20 +5319,18 @@ function launchSwarm(img) {
         y:  Math.random() * canvas.height,
         vx: 0, vy: 0,
         r, g, b,
-        size: 1.2 + brightness * 2.2,
-        attract: 0.055 + Math.random() * 0.03,
-        dampen: 0.88 + Math.random() * 0.06,
-        noise:  0.5  + Math.random() * 1.0,
+        size: 1.0 + brightness * 2.0,
+        attract: 0.050 + Math.random() * 0.030,
+        dampen:  0.88  + Math.random() * 0.06,
+        noise:   0.4   + Math.random() * 0.9,
       });
     }
   }
 
-  // Show canvas + controls
-  canvas.style.display = 'block';
-  document.getElementById('swarm-upload').style.display = 'none';
-  document.getElementById('swarm-controls').style.display = 'flex';
-  // Keep thumb strip visible on top
-  document.getElementById('swarm-upload').style.display = 'none';
+  // Hide upload area, show mode buttons
+  document.getElementById('swarm-mini-upload').style.display = 'none';
+  const modes = document.getElementById('swarm-mini-modes');
+  modes.style.display = 'flex';
 
   swarmMode = 'attract';
   ['attract','explode','drift'].forEach(m => {
@@ -5307,29 +5338,22 @@ function launchSwarm(img) {
     if (btn) btn.classList.toggle('active', m === 'attract');
   });
 
-  // Bring thumb strip to overlay body
-  const strip = document.getElementById('swarm-thumb-strip');
-  strip.style.cssText = 'position:absolute;bottom:70px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:4;flex-wrap:wrap;justify-content:center;max-width:600px;';
-  document.getElementById('swarm-body').appendChild(strip);
-
   animateSwarm();
 }
 
 function animateSwarm() {
   if (!swarmActive) return;
-  const canvas = document.getElementById('swarm-canvas');
-  if (!swarmCtx) return;
-
-  // Trail effect
-  swarmCtx.fillStyle = 'rgba(7,7,15,0.18)';
-  swarmCtx.fillRect(0, 0, canvas.width, canvas.height);
-
+  const canvas = document.getElementById('swarm-live-canvas');
+  if (!swarmCtx || !canvas) return;
   const W = canvas.width, H = canvas.height;
   const cx = W / 2, cy = H / 2;
 
+  // Subtle trail — semi-transparent wipe so particles leave a glow
+  swarmCtx.fillStyle = 'rgba(7,7,15,0.15)';
+  swarmCtx.fillRect(0, 0, W, H);
+
   swarmParticles.forEach(p => {
     let ax = 0, ay = 0;
-
     if (swarmMode === 'attract') {
       const dx = p.tx - p.x, dy = p.ty - p.y;
       ax = dx * p.attract + (Math.random() - 0.5) * p.noise;
@@ -5337,29 +5361,21 @@ function animateSwarm() {
     } else if (swarmMode === 'explode') {
       const dx = p.x - cx, dy = p.y - cy;
       const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      ax = (dx / dist) * 0.4 + (Math.random() - 0.5) * 1.5;
-      ay = (dy / dist) * 0.4 + (Math.random() - 0.5) * 1.5;
-    } else { // drift
+      ax = (dx / dist) * 0.5 + (Math.random() - 0.5) * 1.8;
+      ay = (dy / dist) * 0.5 + (Math.random() - 0.5) * 1.8;
+    } else {
       ax = (Math.random() - 0.5) * 1.2;
       ay = (Math.random() - 0.5) * 1.2;
-      // gentle pull toward target so they don't fly off screen
-      ax += (p.tx - p.x) * 0.004;
-      ay += (p.ty - p.y) * 0.004;
+      ax += (p.tx - p.x) * 0.003;
+      ay += (p.ty - p.y) * 0.003;
     }
-
     p.vx = (p.vx + ax) * p.dampen;
     p.vy = (p.vy + ay) * p.dampen;
-    p.x += p.vx;
-    p.y += p.vy;
-
-    // Wrap screen edges in explode/drift
+    p.x += p.vx; p.y += p.vy;
     if (swarmMode !== 'attract') {
-      if (p.x < -10) p.x = W + 10;
-      if (p.x > W + 10) p.x = -10;
-      if (p.y < -10) p.y = H + 10;
-      if (p.y > H + 10) p.y = -10;
+      if (p.x < -10) p.x = W+10; if (p.x > W+10) p.x = -10;
+      if (p.y < -10) p.y = H+10; if (p.y > H+10) p.y = -10;
     }
-
     swarmCtx.beginPath();
     swarmCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
     swarmCtx.fillStyle = `rgb(${p.r},${p.g},${p.b})`;
@@ -5368,19 +5384,6 @@ function animateSwarm() {
 
   swarmAnimId = requestAnimationFrame(animateSwarm);
 }
-
-// Drag-over highlight on drop zone
-(function() {
-  const dz = document.getElementById('swarm-drop-zone');
-  if (!dz) return;
-  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
-  dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
-  dz.addEventListener('drop', e => {
-    e.preventDefault();
-    dz.classList.remove('drag-over');
-    if (e.dataTransfer.files.length) handleSwarmFiles(e.dataTransfer.files);
-  });
-})();
 
 // ═══════════ INIT ═══════════
 initBgCanvas();
