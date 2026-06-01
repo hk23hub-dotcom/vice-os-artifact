@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer House — Blueprint Survey</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bp-bg:     #050e1a;
+    --bp-navy:   #071528;
+    --bp-blue:   #0a2444;
+    --bp-line:   rgba(100,160,255,0.15);
+    --bp-grid:   rgba(100,160,255,0.06);
+    --gold:      #C6A15B;
+    --gold-dim:  rgba(198,161,91,0.5);
+    --green:     #0B3D2E;
+    --cyan:      #64a8ff;
+    --cyan-dim:  rgba(100,168,255,0.4);
+    --cream:     #e8f0ff;
+    --mono:      'Share Tech Mono', 'Courier New', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bp-bg);
+    color: var(--cream);
+    font-family: var(--mono);
+    font-size: 12px;
+    -webkit-font-smoothing: antialiased;
+    background-image:
+      linear-gradient(var(--bp-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bp-grid) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-bottom: 2px solid var(--gold);
+    padding: 24px 32px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    background: var(--bp-navy);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .doc-title { font-family: 'Bebas Neue'; font-size: 28px; color: var(--gold); letter-spacing: 0.08em; }
+  .doc-sub { font-family: var(--mono); font-size: 9px; color: var(--cyan-dim); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 3px; }
+  .doc-meta { text-align: right; font-size: 9px; color: var(--cyan-dim); letter-spacing: 0.12em; line-height: 1.8; }
+  .doc-meta strong { color: var(--gold); }
+
+  /* ── SPACE BLOCK ── */
+  .space-block {
+    border: 1px solid var(--bp-line);
+    border-top: 2px solid;
+    margin: 32px 32px 0;
+    background: var(--bp-navy);
+    position: relative;
+  }
+  .space-block::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 1px;
+    opacity: 0.4;
+  }
+
+  /* ── SPACE HEADER ── */
+  .space-header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--bp-line);
+    background: rgba(0,0,0,0.3);
+  }
+  .space-num {
+    font-family: 'Bebas Neue'; font-size: 48px; color: var(--bp-blue);
+    line-height: 1; margin-right: 16px; flex-shrink: 0;
+    text-shadow: 0 0 40px currentColor;
+  }
+  .space-info { flex: 1; }
+  .space-name { font-family: 'Bebas Neue'; font-size: 26px; letter-spacing: 0.06em; line-height: 1; margin-bottom: 4px; }
+  .space-desc { font-size: 10px; color: var(--cyan-dim); line-height: 1.6; max-width: 500px; }
+  .space-tag {
+    font-family: 'Montserrat'; font-size: 7px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    border: 1px solid; padding: 4px 10px; align-self: flex-start; flex-shrink: 0;
+  }
+  .priority-badge {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em;
+    padding: 3px 8px; border: 1px solid; margin-top: 5px; display: inline-block;
+  }
+
+  /* ── PHOTO GRID ── */
+  .photo-grid {
+    display: grid;
+    gap: 3px;
+    padding: 3px;
+  }
+  .photo-grid.cols-1 { grid-template-columns: 1fr; }
+  .photo-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+  .photo-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+  /* Blueprint image treatment */
+  .bp-photo {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+  .bp-photo img {
+    width: 100%; display: block;
+    filter:
+      grayscale(100%)
+      brightness(0.45)
+      sepia(1)
+      hue-rotate(190deg)
+      saturate(6)
+      contrast(1.1);
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    transition: filter 0.3s;
+  }
+  .bp-photo:hover img {
+    filter:
+      grayscale(80%)
+      brightness(0.6)
+      sepia(0.8)
+      hue-rotate(190deg)
+      saturate(4)
+      contrast(1.05);
+  }
+  /* Blue overlay */
+  .bp-photo::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: rgba(5,14,26,0.35);
+    pointer-events: none;
+  }
+  /* Corner marks */
+  .bp-photo::before {
+    content: '';
+    position: absolute; inset: 6px;
+    border: 1px solid rgba(100,168,255,0.15);
+    z-index: 2; pointer-events: none;
+  }
+  /* Photo label */
+  .photo-label {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 3;
+    background: linear-gradient(transparent, rgba(5,14,26,0.85));
+    padding: 16px 10px 6px;
+    font-size: 8px; color: var(--cyan-dim); letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  /* Corner crosshairs */
+  .crosshair {
+    position: absolute; z-index: 4;
+    width: 12px; height: 12px;
+    pointer-events: none;
+  }
+  .crosshair::before, .crosshair::after {
+    content: ''; position: absolute; background: rgba(100,168,255,0.4);
+  }
+  .crosshair::before { width: 1px; height: 100%; left: 50%; }
+  .crosshair::after  { height: 1px; width: 100%; top: 50%; }
+  .crosshair.tl { top: 6px; left: 6px; }
+  .crosshair.tr { top: 6px; right: 6px; }
+  .crosshair.bl { bottom: 6px; left: 6px; }
+  .crosshair.br { bottom: 6px; right: 6px; }
+
+  /* ── ANNOTATIONS ROW ── */
+  .annotations {
+    padding: 12px 20px;
+    display: flex; gap: 24px; flex-wrap: wrap;
+    border-top: 1px solid var(--bp-line);
+    background: rgba(0,0,0,0.2);
+  }
+  .ann-item { }
+  .ann-key { font-size: 7px; color: var(--cyan-dim); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 2px; }
+  .ann-val { font-size: 11px; color: var(--gold); letter-spacing: 0.06em; }
+
+  /* ── DIMENSION LINE ── */
+  .dim-bar {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim), transparent);
+    margin: 0 20px;
+    position: relative;
+  }
+  .dim-bar::before, .dim-bar::after {
+    content: ''; position: absolute; top: -4px;
+    width: 1px; height: 11px; background: var(--gold-dim);
+  }
+  .dim-bar::before { left: 0; }
+  .dim-bar::after  { right: 0; }
+
+  /* ── NOTES ── */
+  .space-notes {
+    padding: 12px 20px;
+    border-top: 1px solid var(--bp-line);
+    font-size: 10px; color: var(--cyan-dim); line-height: 1.7;
+  }
+  .space-notes .note-label {
+    font-size: 7px; color: var(--gold); letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 5px;
+  }
+  .note-item { display: flex; gap: 8px; margin-bottom: 3px; }
+  .note-item::before { content: '→'; color: var(--gold-dim); flex-shrink: 0; }
+
+  /* ── TOC ── */
+  .toc {
+    margin: 24px 32px 0;
+    background: var(--bp-navy);
+    border: 1px solid var(--bp-line);
+    padding: 16px 20px;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px;
+  }
+  .toc-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 6px 0; border-bottom: 1px solid var(--bp-line);
+    text-decoration: none;
+  }
+  .toc-num { font-family: 'Bebas Neue'; font-size: 20px; width: 28px; flex-shrink: 0; }
+  .toc-name { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; }
+  .toc-priority { font-size: 7px; color: var(--cyan-dim); letter-spacing: 0.1em; margin-top: 1px; }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    margin: 32px 32px 0;
+    border-top: 2px solid var(--gold);
+    padding: 16px 20px;
+    display: flex; justify-content: space-between;
+    background: var(--bp-navy);
+    font-size: 8px; color: var(--cyan-dim); letter-spacing: 0.14em;
+  }
+
+  /* Lightbox */
+  .lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.92); z-index:999; align-items:center; justify-content:center; }
+  .lightbox.open { display:flex; }
+  .lightbox img { max-width:90vw; max-height:90vh; object-fit:contain; }
+  .lightbox-close { position:absolute; top:16px; right:24px; font-size:28px; color:#fff; cursor:pointer; background:none; border:none; }
+
+  @media (max-width:640px) {
+    .doc-header, .space-block, .toc, .doc-footer { margin-left: 12px; margin-right: 12px; }
+    .photo-grid.cols-2, .photo-grid.cols-3 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lb" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lb').classList.remove('open')">×</button>
+  <img id="lb-img" src="" alt="">
+</div>
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div>
+    <div class="doc-title">VICEGOLFER HOUSE</div>
+    <div class="doc-sub">EXISTING STATE SURVEY — BLUEPRINT DOCUMENTATION</div>
+  </div>
+  <div class="doc-meta">
+    <div>PROJECT: <strong>ViceGolfer Performance House</strong></div>
+    <div>LOCATION: <strong>Las Rocas, Chile</strong></div>
+    <div>DATE: <strong>2025</strong></div>
+    <div>STATUS: <strong>EXISTING → PROPOSED</strong></div>
+    <div>DOC: <strong>BP-001 / CONFIDENTIAL</strong></div>
+  </div>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc">
+  <div style="grid-column:1/-1;font-size:7px;color:var(--gold);letter-spacing:0.22em;text-transform:uppercase;margin-bottom:6px;">CONTENTS</div>
+  <a class="toc-item" href="#s01" style="color:var(--gold);">
+    <span class="toc-num" style="color:var(--gold);">01</span>
+    <div><div class="toc-name" style="color:var(--gold);">GOLFTEINER</div><div class="toc-priority" style="color:var(--gold);">P1 — TERRACE CONVERSION</div></div>
+  </a>
+  <a class="toc-item" href="#s02" style="color:var(--cream);">
+    <span class="toc-num" style="color:#a855f7;">02</span>
+    <div><div class="toc-name">FOUNDER OFFICE</div><div class="toc-priority">P1 — PRIVATE / V-ROOF</div></div>
+  </a>
+  <a class="toc-item" href="#s03" style="color:var(--cream);">
+    <span class="toc-num" style="color:var(--cyan);">03</span>
+    <div><div class="toc-name">LIVING ROOM</div><div class="toc-priority">P2 — COMMUNITY HUB</div></div>
+  </a>
+  <a class="toc-item" href="#s04" style="color:var(--cream);">
+    <span class="toc-num" style="color:var(--cyan);">04</span>
+    <div><div class="toc-name">KITCHEN</div><div class="toc-priority">P2 — COMMUNITY</div></div>
+  </a>
+  <a class="toc-item" href="#s05" style="color:var(--cream);">
+    <span class="toc-num" style="color:#60a5fa;">05</span>
+    <div><div class="toc-name">SAUNA</div><div class="toc-priority">P2 — RECOVERY</div></div>
+  </a>
+  <a class="toc-item" href="#s06" style="color:var(--cream);">
+    <span class="toc-num" style="color:#4ade80;">06</span>
+    <div><div class="toc-name">GYM / PATIO</div><div class="toc-priority">P2 — PERFORMANCE</div></div>
+  </a>
+  <a class="toc-item" href="#s07" style="color:var(--cream);">
+    <span class="toc-num" style="color:#4ade80;">07</span>
+    <div><div class="toc-name">OUTDOOR PUTTING GREEN</div><div class="toc-priority">P1 — COMMUNITY + CONTENT</div></div>
+  </a>
+  <a class="toc-item" href="#s08" style="color:#4ade80;">
+    <span class="toc-num" style="color:#4ade80;">08</span>
+    <div><div class="toc-name" style="color:#4ade80;">PUTTING LAB ★</div><div class="toc-priority" style="color:#4ade80;">P0 — CROWN JEWEL</div></div>
+  </a>
+  <a class="toc-item" href="#s09" style="color:var(--cream);">
+    <span class="toc-num" style="color:var(--gold);">09</span>
+    <div><div class="toc-name">STUDIO 1</div><div class="toc-priority">P1 — CONTENT ENGINE</div></div>
+  </a>
+  <a class="toc-item" href="#s10" style="color:var(--cream);">
+    <span class="toc-num" style="color:var(--gold);">10</span>
+    <div><div class="toc-name">STUDIO 2</div><div class="toc-priority">P1 — CONTENT ENGINE</div></div>
+  </a>
+  <a class="toc-item" href="#s11" style="color:var(--cream);">
+    <span class="toc-num" style="color:#3a3a3a;">11</span>
+    <div><div class="toc-name" style="color:#5a5a5a;">MINI GOLF</div><div class="toc-priority">P3 — LOW PRIORITY</div></div>
+  </a>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 01 GOLFTEINER -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s01" style="border-top-color:var(--gold);">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(198,161,91,0.15);">01</div>
+    <div class="space-info">
+      <div class="space-name" style="color:var(--gold);">GOLFTEINER</div>
+      <div class="space-desc">Terrace conversion → standalone simulator pod. Container module mounted on existing terrace structure. Open-face design. Deck expansion for social area around the module.</div>
+      <div class="priority-badge" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">P1 · TERRACE → SIMULATOR</div>
+    </div>
+    <div class="space-tag" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">PRODUCT MODULE</div>
+  </div>
+  <div class="photo-grid cols-2">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/golfteiner-01.jpg" alt="Golfteiner area 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div>
+      <div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · TERRACE — EXISTING STATE</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/golfteiner-02.jpg" alt="Golfteiner area 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div>
+      <div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02 · TERRACE — CONTAINER DROP ZONE</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">System</div><div class="ann-val">GOLFTEINER MODULE</div></div>
+    <div class="ann-item"><div class="ann-key">Container</div><div class="ann-val">40ft HIGH-CUBE</div></div>
+    <div class="ann-item"><div class="ann-key">Tech</div><div class="ann-val">TRACKMAN · PROJECTOR · SCREEN</div></div>
+    <div class="ann-item"><div class="ann-key">Priority</div><div class="ann-val" style="color:#fbbf24;">PHASE 1</div></div>
+    <div class="ann-item"><div class="ann-key">Future</div><div class="ann-val">FRANCHISABLE PRODUCT</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">Terrace must support container weight — structural assessment required</div>
+    <div class="note-item">3-phase power supply needed for simulator + projector</div>
+    <div class="note-item">Deck area around container = social zone, seating, lanterns</div>
+    <div class="note-item">Container open face orientation: privacy from street, view toward green</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 02 FOUNDER OFFICE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s02" style="border-top-color:#a855f7;">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(168,85,247,0.15);">02</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#a855f7;">FOUNDER OFFICE</div>
+      <div class="space-desc">Private upstairs room. V-shape roof structure. Restricted access — not accessible to members by default. Strategic headquarters of Vice OS.</div>
+      <div class="priority-badge" style="color:#a855f7;border-color:rgba(168,85,247,0.4);">P1 · PRIVATE · RESTRICTED</div>
+    </div>
+    <div class="space-tag" style="color:#a855f7;border-color:rgba(168,85,247,0.3);">PRIVATE / NO ACCESS</div>
+  </div>
+  <div class="photo-grid cols-1">
+    <div class="bp-photo" onclick="zoom(this)" style="max-height:420px;">
+      <img src="assets/house/office-01.jpg" alt="Founder office" style="aspect-ratio:16/7;">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div>
+      <div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · UPSTAIRS ROOM — V-SHAPE ROOF — EXISTING STATE</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Level</div><div class="ann-val">UPPER FLOOR</div></div>
+    <div class="ann-item"><div class="ann-key">Roof</div><div class="ann-val">V-SHAPE STRUCTURE</div></div>
+    <div class="ann-item"><div class="ann-key">Access</div><div class="ann-val" style="color:#ef4444;">RESTRICTED — FOUNDER ONLY</div></div>
+    <div class="ann-item"><div class="ann-key">Purpose</div><div class="ann-val">VICE OS HEADQUARTERS</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">Leverage V-shape roof — skylights or glass ridge for natural light</div>
+    <div class="note-item">Acoustic treatment — private calls, strategy sessions</div>
+    <div class="note-item">Private entrance / staircase that bypasses member areas</div>
+    <div class="note-item">Cable management for multiple monitors + studio setup</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 03 LIVING ROOM -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s03" style="border-top-color:var(--cyan);">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(100,168,255,0.12);">03</div>
+    <div class="space-info">
+      <div class="space-name" style="color:var(--cyan);">LIVING ROOM</div>
+      <div class="space-desc">Community hub. Member interaction, recovery, networking. Where the culture of the house is built between sessions.</div>
+      <div class="priority-badge" style="color:var(--cyan);border-color:rgba(100,168,255,0.3);">P2 · COMMUNITY HUB</div>
+    </div>
+    <div class="space-tag" style="color:var(--cyan);border-color:rgba(100,168,255,0.3);">SHARED SPACE</div>
+  </div>
+  <div class="photo-grid cols-2">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/living-01.jpg" alt="Living 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/living-02.jpg" alt="Living 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/living-03.jpg" alt="Living 03">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 03</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/living-04.jpg" alt="Living 04">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 04</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Function</div><div class="ann-val">COMMUNITY · RECOVERY</div></div>
+    <div class="ann-item"><div class="ann-key">Vibe</div><div class="ann-val">INTIMATE — NOT A LOUNGE</div></div>
+    <div class="ann-item"><div class="ann-key">Wall display</div><div class="ann-val">LIVE LEADERBOARD / STATS</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">Mount point for 55" display — live ViceGolfer dashboard</div>
+    <div class="note-item">Lighting: dim, warm. Performance house feel, not showroom</div>
+    <div class="note-item">Natural flow to kitchen and outdoor areas</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 04 KITCHEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s04" style="border-top-color:var(--cyan);">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(100,168,255,0.12);">04</div>
+    <div class="space-info">
+      <div class="space-name" style="color:var(--cyan);">KITCHEN</div>
+      <div class="space-desc">Food. Coffee. Community. Potentially operated with support from founder's family. Shared meals build culture and loyalty.</div>
+      <div class="priority-badge" style="color:var(--cyan);border-color:rgba(100,168,255,0.3);">P2 · COMMUNITY</div>
+    </div>
+    <div class="space-tag" style="color:var(--cyan);border-color:rgba(100,168,255,0.3);">KITCHEN</div>
+  </div>
+  <div class="photo-grid cols-1">
+    <div class="bp-photo" onclick="zoom(this)" style="max-height:380px;">
+      <img src="assets/house/kitchen-01.jpg" alt="Kitchen" style="aspect-ratio:16/7;">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · KITCHEN — EXISTING STATE</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Function</div><div class="ann-val">FOOD · COFFEE · CULTURE</div></div>
+    <div class="ann-item"><div class="ann-key">Operator</div><div class="ann-val">FAMILY-SUPPORTED</div></div>
+    <div class="ann-item"><div class="ann-key">Experience</div><div class="ann-val">PART OF MEMBERSHIP</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 05 SAUNA -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s05" style="border-top-color:#60a5fa;">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(96,165,250,0.15);">05</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#60a5fa;">SAUNA</div>
+      <div class="space-desc">Full recovery space. The entire area transforms into a premium sauna and recovery zone for members.</div>
+      <div class="priority-badge" style="color:#60a5fa;border-color:rgba(96,165,250,0.3);">P2 · RECOVERY</div>
+    </div>
+    <div class="space-tag" style="color:#60a5fa;border-color:rgba(96,165,250,0.3);">RECOVERY ZONE</div>
+  </div>
+  <div class="photo-grid cols-1">
+    <div class="bp-photo" onclick="zoom(this)" style="max-height:380px;">
+      <img src="assets/house/sauna-01.jpg" alt="Sauna" style="aspect-ratio:16/7;">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · SAUNA AREA — EXISTING STATE</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Function</div><div class="ann-val">SAUNA + RECOVERY</div></div>
+    <div class="ann-item"><div class="ann-key">Capacity</div><div class="ann-val">4–6 PERSONS</div></div>
+    <div class="ann-item"><div class="ann-key">Integration</div><div class="ann-val">MEMBER BENEFIT</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">Ventilation, drainage, and waterproofing are critical</div>
+    <div class="note-item">Cold plunge option if space allows</div>
+    <div class="note-item">Connect to outdoor area — sauna → outdoor shower → green</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 06 GYM / PATIO -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s06" style="border-top-color:#4ade80;">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(74,222,128,0.12);">06</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#4ade80;">GYM + PATIO</div>
+      <div class="space-desc">Outdoor performance patio. Basketball hoop + equipped for golf training. Multi-use athletic space for members.</div>
+      <div class="priority-badge" style="color:#4ade80;border-color:rgba(74,222,128,0.3);">P2 · PERFORMANCE + CONTENT</div>
+    </div>
+    <div class="space-tag" style="color:#4ade80;border-color:rgba(74,222,128,0.3);">OUTDOOR GYM</div>
+  </div>
+  <div class="photo-grid cols-2">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/gym-01.jpg" alt="Gym 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · GYM PATIO</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/gym-02.jpg" alt="Gym 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02 · BASKETBALL + GOLF TRAINING</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Equipment</div><div class="ann-val">BASKETBALL · GOLF TRAINING</div></div>
+    <div class="ann-item"><div class="ann-key">Lighting</div><div class="ann-val">LED SPOTS — EVENING SESSIONS</div></div>
+    <div class="ann-item"><div class="ann-key">Content</div><div class="ann-val">TRAINING FOOTAGE ZONE</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 07 OUTDOOR PUTTING GREEN -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s07" style="border-top-color:#4ade80;">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(74,222,128,0.12);">07</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#4ade80;">OUTDOOR PUTTING GREEN</div>
+      <div class="space-desc">Community + content anchor. Open challenges, competitions, live content. Attracts people to the ecosystem. Designed for camera angles and social energy — NOT precision training.</div>
+      <div class="priority-badge" style="color:#4ade80;border-color:rgba(74,222,128,0.3);">P1 · COMMUNITY + CONTENT</div>
+    </div>
+    <div class="space-tag" style="color:#4ade80;border-color:rgba(74,222,128,0.3);">OUTDOOR · SOCIAL</div>
+  </div>
+  <div class="photo-grid cols-3">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-green-01.jpg" alt="Green 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-green-02.jpg" alt="Green 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-green-03.jpg" alt="Green 03">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 03</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-green-04.jpg" alt="Green 04">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 04</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-green-05.jpg" alt="Green 05">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 05</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Function</div><div class="ann-val">COMMUNITY · EVENTS · TikTok</div></div>
+    <div class="ann-item"><div class="ann-key">Design for</div><div class="ann-val">CAMERA ANGLES FIRST</div></div>
+    <div class="ann-item"><div class="ann-key">Lighting</div><div class="ann-val">EVENING CONTENT SESSIONS</div></div>
+    <div class="ann-item"><div class="ann-key">Seating</div><div class="ann-val">SOCIAL PERIMETER</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">NOT the same as Putting Lab — different purpose entirely</div>
+    <div class="note-item">Multiple holes (4–6) with flags, varied distances 3ft–20ft</div>
+    <div class="note-item">Backdrop consideration: brand wall or natural green backdrop for content</div>
+    <div class="note-item">Seating integrated into design — built-in bench or retaining wall seating</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 08 PUTTING LAB ★ CROWN JEWEL -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s08" style="border-top-color:#4ade80; border: 2px solid rgba(74,222,128,0.4);">
+  <div class="space-header" style="background:rgba(74,222,128,0.04);">
+    <div class="space-num" style="color:rgba(74,222,128,0.2);">08</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#4ade80;">PUTTING LAB ★</div>
+      <div class="space-desc">THE CROWN JEWEL. Controlled performance laboratory. NOT a practice green. Data-mandatory. Reservation required. This is where measurable improvement happens. Hardest to replicate.</div>
+      <div class="priority-badge" style="color:#4ade80;border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.06);">P0 — BUILD FIRST — CROWN JEWEL</div>
+    </div>
+    <div class="space-tag" style="color:#4ade80;border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.06);">INDOOR · CONTROLLED · LAB</div>
+  </div>
+  <div class="photo-grid cols-2">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-lab-01.jpg" alt="Putting Lab 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · PUTTING LAB — EXISTING ROOM</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/putting-lab-02.jpg" alt="Putting Lab 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02 · PUTTING LAB — FULL DIMENSION VIEW</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Critical spec</div><div class="ann-val" style="color:#4ade80;">FLOOR ±1mm TOLERANCE</div></div>
+    <div class="ann-item"><div class="ann-key">Run length</div><div class="ann-val">MIN 8m STRAIGHT</div></div>
+    <div class="ann-item"><div class="ann-key">Light</div><div class="ann-val">DIFFUSED LED — NO SHADOWS</div></div>
+    <div class="ann-item"><div class="ann-key">Climate</div><div class="ann-val">45–55% HUMIDITY CONTROLLED</div></div>
+    <div class="ann-item"><div class="ann-key">Tech</div><div class="ann-val">SAM PUTTLAB · iPad STATION</div></div>
+    <div class="ann-item"><div class="ann-key">Access</div><div class="ann-val" style="color:#fbbf24;">RESERVATION REQUIRED</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES — CRITICAL</div>
+    <div class="note-item">Floor leveling is the single most important technical requirement in the house</div>
+    <div class="note-item">No natural light during sessions — blackout blinds or interior room preferred</div>
+    <div class="note-item">Distance markers embedded in floor: 2ft, 3ft, 4ft, 5ft, 6ft, 10ft, 15ft, 20ft, 25ft</div>
+    <div class="note-item">Wall-mounted display for live session data output</div>
+    <div class="note-item">iPad wall mount at one end for ViceGolfer app logging</div>
+    <div class="note-item">Camera mount points: overhead + side angle for stroke capture</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 09 STUDIO 1 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s09" style="border-top-color:var(--gold);">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(198,161,91,0.15);">09</div>
+    <div class="space-info">
+      <div class="space-name" style="color:var(--gold);">CONTENT STUDIO 1</div>
+      <div class="space-desc">Primary content production space. TikTok. Instagram. YouTube. The first monetization layer. This studio finances the entire operation.</div>
+      <div class="priority-badge" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">P1 · CONTENT ENGINE</div>
+    </div>
+    <div class="space-tag" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">STUDIO 1</div>
+  </div>
+  <div class="photo-grid cols-1">
+    <div class="bp-photo" onclick="zoom(this)" style="max-height:380px;">
+      <img src="assets/house/studio-1-01.jpg" alt="Studio 1" style="aspect-ratio:16/7;">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · STUDIO 1 — EXISTING STATE</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Output</div><div class="ann-val">TikTok · YouTube · Reels</div></div>
+    <div class="ann-item"><div class="ann-key">Acoustic</div><div class="ann-val">TREATMENT REQUIRED</div></div>
+    <div class="ann-item"><div class="ann-key">Lighting</div><div class="ann-val">LED PANELS · CONTROLLABLE</div></div>
+    <div class="ann-item"><div class="ann-key">Revenue</div><div class="ann-val">PRIMARY LAYER</div></div>
+  </div>
+  <div class="space-notes">
+    <div class="note-label">ARCHITECT NOTES</div>
+    <div class="note-item">Acoustic panels — wall and ceiling treatment</div>
+    <div class="note-item">Camera-facing wall: brand backdrop or neutral dark surface</div>
+    <div class="note-item">Power for: camera rigs, LED panels, monitors, audio equipment</div>
+    <div class="note-item">Teleprompter mount point + tripod positions marked on floor</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 10 STUDIO 2 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s10" style="border-top-color:var(--gold);">
+  <div class="space-header">
+    <div class="space-num" style="color:rgba(198,161,91,0.15);">10</div>
+    <div class="space-info">
+      <div class="space-name" style="color:var(--gold);">STUDIO 2</div>
+      <div class="space-desc">Secondary studio. Podcast recording, music production, overflow content. Part of the broader Vice creative ecosystem.</div>
+      <div class="priority-badge" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">P1 · PODCAST + MUSIC</div>
+    </div>
+    <div class="space-tag" style="color:var(--gold);border-color:rgba(198,161,91,0.4);">STUDIO 2</div>
+  </div>
+  <div class="photo-grid cols-2">
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/studio-2-01.jpg" alt="Studio 2 view 01">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 01 · STUDIO 2</div>
+    </div>
+    <div class="bp-photo" onclick="zoom(this)">
+      <img src="assets/house/studio-2-02.jpg" alt="Studio 2 view 02">
+      <div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div>
+      <div class="photo-label">VIEW 02 · STUDIO 2</div>
+    </div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Output</div><div class="ann-val">PODCAST · MUSIC · OVERFLOW</div></div>
+    <div class="ann-item"><div class="ann-key">Acoustic</div><div class="ann-val">ISOLATION REQUIRED</div></div>
+    <div class="ann-item"><div class="ann-key">Ecosystem</div><div class="ann-val">VICE CREATIVE LAYER</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- 11 MINI GOLF (LOW PRIORITY) -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="space-block" id="s11" style="border-top-color:#2a2a2a; opacity:0.7;">
+  <div class="space-header" style="background:rgba(0,0,0,0.4);">
+    <div class="space-num" style="color:rgba(60,60,60,0.4);">11</div>
+    <div class="space-info">
+      <div class="space-name" style="color:#4a4a4a;">MINI GOLF</div>
+      <div class="space-desc">Low priority. Potential future entertainment area. Not part of the core performance system.</div>
+      <div class="priority-badge" style="color:#3a3a3a;border-color:#2a2a2a;">P3 · LOW PRIORITY · FUTURE</div>
+    </div>
+    <div class="space-tag" style="color:#3a3a3a;border-color:#2a2a2a;">DEFERRED</div>
+  </div>
+  <div class="photo-grid cols-3">
+    <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/minigolf-01.jpg" alt="Mini golf 01"><div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div><div class="photo-label">VIEW 01</div></div>
+    <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/minigolf-02.jpg" alt="Mini golf 02"><div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div><div class="photo-label">VIEW 02</div></div>
+    <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/minigolf-03.jpg" alt="Mini golf 03"><div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div><div class="photo-label">VIEW 03</div></div>
+    <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/minigolf-04.jpg" alt="Mini golf 04"><div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div><div class="photo-label">VIEW 04</div></div>
+    <div class="bp-photo" onclick="zoom(this)"><img src="assets/house/minigolf-05.jpg" alt="Mini golf 05"><div class="crosshair tl"></div><div class="crosshair tr"></div><div class="crosshair bl"></div><div class="crosshair br"></div><div class="photo-label">VIEW 05</div></div>
+  </div>
+  <div class="annotations">
+    <div class="ann-item"><div class="ann-key">Priority</div><div class="ann-val" style="color:#3a3a3a;">DEFERRED — PHASE 3+</div></div>
+    <div class="ann-item"><div class="ann-key">Note</div><div class="ann-val" style="color:#3a3a3a;">FOCUS ON CORE SYSTEMS FIRST</div></div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="doc-footer">
+  <div>VICEGOLFER HOUSE · BLUEPRINT SURVEY · BP-001</div>
+  <div>LAS ROCAS, CHILE · 2025 · CONFIDENTIAL</div>
+  <div style="color:var(--gold);">"NOT GIVEN. TAKEN."</div>
+</div>
+<div style="height:40px;"></div>
+
+<script>
+function zoom(el) {
+  const img = el.querySelector('img');
+  const lb = document.getElementById('lb');
+  const lbImg = document.getElementById('lb-img');
+  lbImg.src = img.src;
+  // Show original (no filter)
+  lbImg.style.filter = 'none';
+  lb.classList.add('open');
+}
+</script>
+</body>
+</html>
