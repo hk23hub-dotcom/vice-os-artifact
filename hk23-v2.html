@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HK23</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:#070707; --s1:#111; --s2:#181818; --border:#222;
+  --r:#FF2800; --g:#AAFF00; --b:#00F0FF; --p:#C44DFF; --gold:#FFD000;
+  --w:#EDEBE6; --dim:#383838; --muted:#555;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg); color:var(--w);
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  overflow:hidden; height:100vh; width:100vw;
+}
+
+/* scan line */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+/* screens */
+.scr{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .4s;overflow:hidden;}
+.scr.on{opacity:1;pointer-events:all;}
+
+/* canvas bg */
+#bgc{position:fixed;inset:0;z-index:0;}
+
+/* ── PORTAL ── */
+#s-portal{z-index:10;display:flex;align-items:center;justify-content:center;}
+.p-wrap{position:relative;z-index:2;text-align:center;}
+.p-nums{
+  font-family:'Space Mono',monospace; font-size:11px; letter-spacing:8px;
+  color:var(--dim); margin-bottom:32px;
+}
+.p-nums span{color:var(--r);}
+.p-title{
+  font-size:clamp(88px,17vw,190px); font-weight:700;
+  letter-spacing:-6px; line-height:.85; color:var(--w); position:relative;
+}
+.p-title em{font-style:normal;color:var(--r);text-shadow:0 0 50px rgba(255,40,0,.35);}
+.p-title .ghost{
+  position:absolute;inset:0;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.06);
+  transform:translate(4px,4px);pointer-events:none;
+}
+.p-tag{
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:5px;
+  color:var(--muted); margin-top:12px; margin-bottom:40px; text-transform:uppercase;
+}
+.p-enter{
+  background:none; border:1px solid var(--r); color:var(--r);
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:6px;
+  padding:13px 44px; cursor:pointer; text-transform:uppercase; position:relative; overflow:hidden;
+  transition:color .25s;
+}
+.p-enter::before{
+  content:'';position:absolute;inset:0;background:var(--r);
+  transform:translateX(-101%);transition:transform .25s;z-index:-1;
+}
+.p-enter:hover{color:#000;}
+.p-enter:hover::before{transform:translateX(0);}
+.p-bottom{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:#1C1C1C;white-space:nowrap;
+}
+
+/* ── MAP ── */
+#s-map{z-index:5;}
+#mapc{position:absolute;inset:0;cursor:crosshair;}
+.map-bar{
+  position:absolute;top:0;left:0;right:0;padding:20px 28px;
+  display:flex;align-items:center;justify-content:space-between;z-index:10;
+}
+.map-logo{font-size:13px;font-weight:700;letter-spacing:3px;}
+.map-logo b{color:var(--r);}
+.map-nav{display:flex;gap:6px;}
+.nb{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
+  color:var(--muted);background:none;border:1px solid var(--dim);
+  padding:5px 11px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.nb:hover{color:var(--w);border-color:var(--w);}
+.nb.red{border-color:rgba(255,40,0,.4);color:rgba(255,40,0,.6);}
+.nb.red:hover{border-color:var(--r);color:var(--r);}
+
+/* tooltip */
+#tip{
+  position:fixed;background:var(--s2);border:1px solid var(--dim);
+  padding:6px 12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
+  pointer-events:none;display:none;z-index:20;white-space:nowrap;text-transform:uppercase;
+}
+
+/* ── ZONE base ── */
+.zone{z-index:6;display:flex;flex-direction:column;}
+.zhdr{
+  padding:20px 36px;border-bottom:1px solid var(--dim);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  background:rgba(7,7,7,.92);backdrop-filter:blur(8px);
+}
+.zback{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--muted);background:none;border:none;cursor:pointer;
+  text-transform:uppercase;transition:color .2s;
+}
+.zback:hover{color:var(--w);}
+.ztitle{font-size:11px;font-weight:700;letter-spacing:7px;text-transform:uppercase;}
+.zbody{flex:1;overflow-y:auto;padding:36px;scrollbar-width:none;}
+.zbody::-webkit-scrollbar{display:none;}
+
+/* ── grid ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+
+/* ── card ── */
+.c{
+  border:1px solid var(--dim);background:var(--s1);padding:20px;
+  position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s;
+}
+.c::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--ca,var(--r));}
+.c:hover{border-color:var(--ca,var(--r));}
+.cl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:7px;text-transform:uppercase;}
+.ct{font-size:17px;font-weight:700;letter-spacing:-.5px;line-height:1.2;margin-bottom:6px;}
+.cd{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* free/locked badges */
+.badge{
+  display:inline-block;font-family:'Space Mono',monospace;font-size:8px;
+  letter-spacing:2px;padding:2px 7px;border:1px solid;text-transform:uppercase;margin:2px;
+}
+.free{border-color:var(--g);color:var(--g);}
+.locked{border-color:var(--r);color:var(--r);}
+.gold-b{border-color:var(--gold);color:var(--gold);}
+.live{border-color:var(--g);color:var(--g);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* sec label */
+.sl{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:5px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.sl::after{content:'';flex:1;height:1px;background:var(--dim);}
+
+/* mega */
+.big{font-size:clamp(32px,5.5vw,72px);font-weight:700;letter-spacing:-2px;line-height:.9;margin-bottom:20px;}
+
+/* price tag */
+.price{font-size:32px;font-weight:700;letter-spacing:-1px;}
+
+/* agent dot */
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+
+/* ── ORACLE ── */
+#s-oracle{z-index:15;display:flex;flex-direction:column;}
+.oracle-body{flex:1;overflow-y:auto;padding:36px;scrollbar-width:none;}
+.oracle-body::-webkit-scrollbar{display:none;}
+
+.qbox{
+  border:1px solid var(--dim);background:var(--s1);
+  margin-bottom:12px;padding:20px;position:relative;
+}
+.qbox .q{font-size:13px;color:var(--w);margin-bottom:10px;line-height:1.6;}
+.qbox .a{font-size:12px;color:var(--muted);line-height:1.6;}
+.qbox .locked-a{
+  font-size:11px;color:var(--dim);border-top:1px solid var(--dim);
+  margin-top:10px;padding-top:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.qbox .locked-a:hover .aq{color:var(--r);}
+.aq{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--dim);transition:color .2s;}
+
+.oracle-input-wrap{
+  display:flex;gap:10px;margin-bottom:20px;
+}
+.oracle-input{
+  flex:1;background:var(--s1);border:1px solid var(--dim);
+  padding:12px 16px;font-size:13px;color:var(--w);outline:none;
+  font-family:'Space Grotesk',system-ui;
+}
+.oracle-input:focus{border-color:var(--dim);}
+.oracle-input::placeholder{color:var(--dim);}
+.oracle-send{
+  background:none;border:1px solid var(--r);color:var(--r);
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  padding:0 20px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.oracle-send:hover{background:var(--r);color:#000;}
+
+.price-meter{
+  border:1px solid var(--dim);padding:14px 20px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pm-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);}
+.pm-val{font-size:22px;font-weight:700;color:var(--r);}
+.pm-next{font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);}
+
+/* ── BOOK ── */
+.book-section{
+  border:1px solid var(--dim);padding:0;margin-bottom:10px;overflow:hidden;
+  transition:border-color .2s;
+}
+.book-section:hover{border-color:var(--dim);}
+.bs-hdr{
+  padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+}
+.bs-title{font-size:15px;font-weight:700;letter-spacing:-.5px;}
+.bs-price{font-family:'Space Mono',monospace;font-size:11px;color:var(--r);}
+.bs-preview{
+  padding:0 24px 20px;font-size:12px;color:var(--muted);line-height:1.7;
+  border-top:1px solid var(--dim);
+}
+
+/* ── AGENTS MACHINE ── */
+.agent-row{
+  border:1px solid var(--dim);background:var(--s1);padding:16px 20px;
+  display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;
+  transition:border-color .2s;
+}
+.agent-row:hover{border-color:var(--b);}
+.agent-info{flex:1;}
+.agent-name{font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.agent-status{font-size:11px;color:var(--muted);line-height:1.5;}
+.agent-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+
+/* counter */
+.counter-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px;
+}
+.counter-box{border:1px solid var(--dim);padding:16px 20px;text-align:center;}
+.counter-num{font-size:28px;font-weight:700;letter-spacing:-1px;}
+.counter-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+
+/* ── GATES ── */
+.tier{border:1px solid var(--dim);padding:28px;position:relative;margin-bottom:12px;transition:all .2s;}
+.tier:hover{border-color:var(--ca,var(--dim));transform:translateY(-1px);}
+.tier.hot{border-color:var(--ca);}
+.tier-chip{
+  position:absolute;top:-10px;left:18px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;
+  padding:2px 10px;font-weight:700;text-transform:uppercase;
+}
+
+@media(max-width:768px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .zbody{padding:20px;}
+  .counter-row{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="tip"></div>
+
+<!-- ═══ PORTAL ═══ -->
+<div id="s-portal" class="scr on">
+  <div class="p-wrap">
+    <div class="p-nums">33 · <span>23</span> · 5</div>
+    <div class="p-title">
+      <div class="ghost">HK<span>23</span></div>
+      HK<em>23</em>
+    </div>
+    <div class="p-tag">HEYOKA 23 — UNIVERSE</div>
+    <button class="p-enter" onclick="go('map')">ENTER</button>
+  </div>
+  <div class="p-bottom">NADA ES LIBRE · TIENES QUE TENER LAS LLAVES</div>
+</div>
+
+<!-- ═══ MAP ═══ -->
+<div id="s-map" class="scr">
+  <div class="map-bar">
+    <div class="map-logo"><b>HK</b>23</div>
+    <div class="map-nav">
+      <button class="nb" onclick="go('agents')">AGENTS</button>
+      <button class="nb" onclick="go('book')">LO QUE SÉ</button>
+      <button class="nb" onclick="go('gates')">KEYS</button>
+      <button class="nb red" onclick="go('oracle')">ORACLE 🔮</button>
+    </div>
+  </div>
+  <canvas id="mapc"></canvas>
+</div>
+
+<!-- ═══ ARTE ═══ -->
+<div id="s-arte" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">ARTE</div>
+    <span class="badge free">PUBLIC</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">VISUAL UNIVERSE</div>
+    <div class="big" style="color:var(--r)">HK23<br>FORGE</div>
+    <div class="g3">
+      <div class="c" style="--ca:var(--r)">
+        <div class="cl">IDENTITY</div>
+        <div class="ct">HK23 Visual System</div>
+        <div class="cd">Logo · palette · tag · símbología. Todo construido desde cero.</div>
+        <div style="margin-top:12px"><span class="badge free">FREE</span></div>
+      </div>
+      <div class="c" style="--ca:var(--r)">
+        <div class="cl">COLLAGE</div>
+        <div class="ct">Mixed Media</div>
+        <div class="cd">Graffiti + digital + mitología. Caos con intención.</div>
+        <div style="margin-top:12px"><span class="badge free">FREE</span></div>
+      </div>
+      <div class="c" style="--ca:var(--r)">
+        <div class="cl">PRINTS</div>
+        <div class="ct">Limited Editions</div>
+        <div class="cd">Cada pieza numerada. Nada en masa.</div>
+        <div style="margin-top:12px"><span class="badge gold-b">$</span></div>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="c" style="--ca:var(--r)">
+        <div class="cl">MIDJOURNEY ARCHIVE</div>
+        <div class="ct">El proceso visible</div>
+        <div class="cd">Cientos de generaciones. La evolución del estilo en tiempo real. Ver gratis. El método detrás — no.</div>
+        <div style="margin-top:12px"><span class="badge free">BROWSE FREE</span><span class="badge locked">METHOD LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--r)">
+        <div class="cl">COMMISSIONS</div>
+        <div class="ct">Tu idea. Mi visión.</div>
+        <div class="cd">No acepto todo. Si acepto, el precio lo pongo yo.</div>
+        <div style="margin-top:12px"><span class="badge gold-b">DM TO INQUIRE</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ FORGED ATHLETE ═══ -->
+<div id="s-athlete" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:#FF7A00">FORGED ATHLETE</div>
+    <span class="badge live">ACTIVE</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CUERPO Y RENDIMIENTO</div>
+    <div class="big" style="color:#FF7A00">FORGED<br>NOT BORN.</div>
+    <div class="g4">
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">GOLF</div>
+        <div class="ct">ViceGolfer</div>
+        <div class="cd">Performance DNA. 100 putts/día. Datos reales.</div>
+        <div style="margin-top:10px"><span class="badge live">LIVE APP</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">RUGBY</div>
+        <div class="ct">Rugby Vice</div>
+        <div class="cd">Kick Tracker 2D. Rugby CV. DNA 7 ejes.</div>
+        <div style="margin-top:10px"><span class="badge free">LAUNCHING</span></div>
+      </div>
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">TRAINING</div>
+        <div class="ct">Protocolos</div>
+        <div class="cd">Lo que entreno. Cómo lo estructuro.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">RECOVERY</div>
+        <div class="ct">Carga física</div>
+        <div class="cd">Tracking de recuperación. HRV. Sueño. Datos.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="c" style="--ca:#FF7A00">
+      <div class="cl">VICE OS CORE</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <div>
+          <div class="ct">Una identidad. Todos los deportes.</div>
+          <div class="cd">Rankings cross-sport. Content engine. Community privada.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:48px;font-weight:700;color:#FF7A00;opacity:.2">⚡</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CRYPTO ═══ -->
+<div id="s-crypto" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--b)">CRYPTO</div>
+    <span class="badge locked">GATEADO</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">SISTEMAS FINANCIEROS</div>
+    <div class="big" style="color:var(--b)">MONEY<br>MOVES.</div>
+    <div class="g2">
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">TRADING SETUP</div>
+        <div class="ct">El estudio</div>
+        <div class="cd">Pantallas. Herramientas. Flujo de trabajo. Lo que ves en la imagen — funciona.</div>
+        <div style="margin-top:12px"><span class="badge free">SETUP TOUR FREE</span><span class="badge locked">STRATEGY LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">SISTEMAS</div>
+        <div class="ct">Cómo opero</div>
+        <div class="cd">No doy señales. Enseño a pensar. Diferente.</div>
+        <div style="margin-top:12px"><span class="badge locked">OBSESIONADO+</span></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">WEB3</div>
+        <div class="ct">NFTs & Digital Assets</div>
+        <div class="cd">Arte como activo. HK23 en blockchain.</div>
+        <div style="margin-top:10px"><span class="badge free">COMING</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">TOOLS</div>
+        <div class="ct">Mi stack</div>
+        <div class="cd">Exactamente qué uso y para qué.</div>
+        <div style="margin-top:10px"><span class="badge locked">KEYS NEEDED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">ERRORES</div>
+        <div class="ct">Lo que perdí</div>
+        <div class="cd">Las lecciones que cuestan. Sin suavizar.</div>
+        <div style="margin-top:10px"><span class="badge locked">DARK VAULT</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MANIFESTOR ═══ -->
+<div id="s-manifestor" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--p)">MANIFESTOR</div>
+    <span class="badge locked">GATEADO</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CONSTRUIR REALIDAD</div>
+    <div class="big" style="color:var(--p)">33 · 23 · 5</div>
+    <div class="g2">
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">NUMEROLOGÍA</div>
+        <div class="ct">Los números que definen</div>
+        <div class="cd">33 — el maestro. 23 — el número. 5 — el camino. No es creencia. Es estructura.</div>
+        <div style="margin-top:12px"><span class="badge free">INTRO FREE</span><span class="badge locked">DEEP LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">ESTADO MENTAL</div>
+        <div class="ct">Cómo me programo</div>
+        <div class="cd">No meditación de app. Sistemas reales que uso antes de competir, crear, operar.</div>
+        <div style="margin-top:12px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">ASTROLOGY</div>
+        <div class="ct">Ciclos cósmicos</div>
+        <div class="cd">Cómo uso astrología para timing. En serio.</div>
+        <div style="margin-top:10px"><span class="badge locked">KEYS</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">DMT / ESTADOS</div>
+        <div class="ct">Lo que vi</div>
+        <div class="cd">Sin filtro. Sin romanticismo. Datos del otro lado.</div>
+        <div style="margin-top:10px"><span class="badge locked">DARK VAULT</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">HEYOKA</div>
+        <div class="ct">A los 33</div>
+        <div class="cd">Qué significa. Por qué cambió todo. Cómo lo descubrí.</div>
+        <div style="margin-top:10px"><span class="badge free">FREE INTRO</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SKILLS / MONEY ═══ -->
+<div id="s-skills" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--g)">SKILLS & MONEY</div>
+    <span class="badge gold-b">MONETIZABLE</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">LO QUE DOMINO</div>
+    <div class="big" style="color:var(--g)">TODO<br>VALE.</div>
+    <div class="g4">
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">DISEÑO</div>
+        <div class="ct">Visual</div>
+        <div class="cd">AI + Midjourney + diseño propio.</div>
+        <div style="margin-top:10px"><span class="badge free">TOUR FREE</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">BUILD</div>
+        <div class="ct">Tech & Apps</div>
+        <div class="cd">Vice OS. Sistemas. Productos digitales.</div>
+        <div style="margin-top:10px"><span class="badge locked">LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">TRADING</div>
+        <div class="ct">Crypto & Markets</div>
+        <div class="cd">Cómo pienso. No señales.</div>
+        <div style="margin-top:10px"><span class="badge locked">LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">ATLETISMO</div>
+        <div class="ct">Golf · Rugby</div>
+        <div class="cd">Performance data. Protocolos reales.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="c" style="--ca:var(--gold)">
+      <div class="cl">FILOSOFÍA DE PRECIO</div>
+      <div class="ct" style="font-size:20px;line-height:1.3">"No cobro porque necesito. Cobro porque mi tiempo tiene un precio — y si lo pagas, es porque sabes su valor."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AGENTS MACHINE ═══ -->
+<div id="s-agents" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--b)">AGENTS</div>
+    <span class="badge live">24/7 RUNNING</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">LA MÁQUINA TRABAJA SOLA</div>
+    <div class="big" style="color:var(--b)">NEVER<br>OFFLINE.</div>
+
+    <div class="counter-row">
+      <div class="counter-box">
+        <div class="counter-num" style="color:var(--r)" id="cnt-videos">247</div>
+        <div class="counter-label">Videos creados</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-num" style="color:var(--g)" id="cnt-posts">1.2K</div>
+        <div class="counter-label">Posts publicados</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-num" style="color:var(--gold)" id="cnt-rev">$4.8K</div>
+        <div class="counter-label">Revenue generado</div>
+      </div>
+      <div class="counter-box">
+        <div class="counter-num" style="color:var(--b)" id="cnt-reach">89K</div>
+        <div class="counter-label">Alcance total</div>
+      </div>
+    </div>
+
+    <div class="sl">AGENTES ACTIVOS</div>
+
+    <div class="agent-row">
+      <div class="dot" style="background:var(--r)"></div>
+      <div class="agent-info">
+        <div class="agent-name">🎥 YouTube Agent — HK23 Channel</div>
+        <div class="agent-status">Transforma tus ideas en scripts. Narrativa. Sube. Tu voz, su producción. Publica 3x por semana automático.</div>
+        <div class="agent-meta">
+          <span class="badge live">RUNNING</span>
+          <span class="badge free">PREVIEW FREE</span>
+          <span class="badge gold-b">MONETIZED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-row">
+      <div class="dot" style="background:var(--p)"></div>
+      <div class="agent-info">
+        <div class="agent-name">📱 TikTok Agent — @hk23neo</div>
+        <div class="agent-status">Clips cortos de todo — entrenamiento, trading, arte, ideas. 3-5 por día. Algoritmo alimentado. Hooks automáticos.</div>
+        <div class="agent-meta">
+          <span class="badge live">RUNNING</span>
+          <span class="badge gold-b">MONETIZED</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-row">
+      <div class="dot" style="background:var(--g)"></div>
+      <div class="agent-info">
+        <div class="agent-name">📊 Content Miner — Daily Scrape</div>
+        <div class="agent-status">Escarba tu universo todos los días. Toma lo que hiciste, lo que pensaste, lo que entrenaste. Lo convierte en contenido monetizable.</div>
+        <div class="agent-meta">
+          <span class="badge live">RUNNING</span>
+          <span class="badge locked">OUTPUT MEMBERS ONLY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-row">
+      <div class="dot" style="background:var(--gold)"></div>
+      <div class="agent-info">
+        <div class="agent-name">💰 Revenue Agent — Monetization</div>
+        <div class="agent-status">Identifica qué contenido convierte. Optimiza precios. Propone nuevos productos basados en lo que la gente pregunta más.</div>
+        <div class="agent-meta">
+          <span class="badge live">RUNNING</span>
+          <span class="badge gold-b">GENERATES $$$</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agent-row" style="opacity:.4">
+      <div class="dot" style="background:var(--b);animation:none;opacity:.3"></div>
+      <div class="agent-info">
+        <div class="agent-name">🔮 Mindmap Agent — Universe Updater</div>
+        <div class="agent-status">Actualiza el mapa del universo en tiempo real con nuevas ideas y conexiones.</div>
+        <div class="agent-meta"><span class="badge">PRÓXIMO</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOOK — LO QUE SÉ ═══ -->
+<div id="s-book" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">LO QUE SÉ</div>
+    <span class="badge locked">DARK VAULT</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CONOCIMIENTO SIN FILTRO</div>
+    <div class="big" style="color:var(--r)">EL<br>LIBRO.</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:580px;margin-bottom:32px">
+      Lo que aprendí viviendo. No teoría. No motivación. Lo que realmente funciona, lo que realmente pasa, y lo que nadie dice en voz alta.
+    </p>
+
+    <div id="book-sections"></div>
+
+    <div style="border:1px solid var(--r);padding:24px;text-align:center;margin-top:16px;background:rgba(255,40,0,.02)">
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:var(--r);margin-bottom:12px">EDICIÓN COMPLETA</div>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:8px">TODO EL LIBRO</div>
+      <div style="font-size:32px;font-weight:700;color:var(--r);margin-bottom:16px">$97</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:20px">Sin edición. Sin filtro. Sin lo que esperas escuchar.</div>
+      <button onclick="go('gates')" style="background:var(--r);color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">OBTENER ACCESO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ORACLE — HATER SECTION ═══ -->
+<div id="s-oracle" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">THE ORACLE</div>
+    <span class="badge free">PRIMERA GRATIS</span>
+  </div>
+  <div class="oracle-body">
+    <div class="sl">PREGUNTA LO QUE QUIERAS</div>
+    <div class="big" style="color:var(--r)">CADA<br>PREGUNTA<br>SUBE.</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:540px;margin-bottom:24px">
+      Primera pregunta libre. Cada respuesta que quieras después — sube el precio. Acumula. No hay techo.
+    </p>
+
+    <div class="price-meter">
+      <div>
+        <div class="pm-label">PRECIO ACTUAL</div>
+        <div class="pm-val" id="oracle-price">$0</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pm-label">PRÓXIMA PREGUNTA</div>
+        <div class="pm-next" id="oracle-next">→ $2</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pm-label">PREGUNTAS HECHAS</div>
+        <div style="font-size:22px;font-weight:700;" id="oracle-count">0</div>
+      </div>
+    </div>
+
+    <div class="oracle-input-wrap">
+      <input class="oracle-input" id="oracle-q" placeholder="Pregunta algo..." maxlength="200"/>
+      <button class="oracle-send" id="oracle-btn" onclick="submitQ()">PREGUNTAR</button>
+    </div>
+
+    <div id="oracle-feed"></div>
+
+    <div style="border-top:1px solid var(--dim);margin-top:24px;padding-top:24px;">
+      <div class="sl">TAMBIÉN DISPONIBLE</div>
+      <div class="g2">
+        <div class="c" style="--ca:var(--r);cursor:pointer" onclick="go('book')">
+          <div class="cl">DARK VAULT</div>
+          <div class="ct">Lo Que Sé</div>
+          <div class="cd">El libro. Sin filtro. Acceso completo con llave.</div>
+          <div style="margin-top:10px"><span class="badge locked">$97</span></div>
+        </div>
+        <div class="c" style="--ca:var(--r)">
+          <div class="cl">CONSULTA DIRECTA</div>
+          <div class="ct">1:1 con HK23</div>
+          <div class="cd">Mi tiempo. Mi atención. Mi respuesta real.</div>
+          <div style="margin-top:10px"><span class="badge gold-b">$200/hr</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GATES ═══ -->
+<div id="s-gates" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle">KEYS</div>
+    <span class="badge">MEMBERSHIP</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">ACCESO AL UNIVERSO</div>
+    <div class="big">LAS<br>LLAVES.</div>
+
+    <div id="tiers-wrap"></div>
+
+    <div style="margin-top:24px;border:1px solid #1A1A1A;padding:20px;text-align:center;cursor:pointer" onclick="go('oracle')">
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#1A1A1A;margin-bottom:6px">¿SOLO QUIERES ESPIAR?</div>
+      <div style="font-size:16px;font-weight:700;color:#222">→ Entra al Oracle. Primera pregunta libre.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ NAVIGATION ═══
+let current='portal';
+function go(id){
+  document.querySelectorAll('.scr').forEach(s=>s.classList.remove('on'));
+  const t=document.getElementById('s-'+id);
+  if(t){t.classList.add('on');current=id;}
+  if(id==='map')startMap();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&current!=='portal')go('map');
+});
+
+// ═══ BG PARTICLES ═══
+const bgc=document.getElementById('bgc');
+const bgx=bgc.getContext('2d');
+let pts=[];
+function initBg(){
+  bgc.width=innerWidth;bgc.height=innerHeight;
+  pts=Array.from({length:100},()=>({
+    x:Math.random()*bgc.width,y:Math.random()*bgc.height,
+    vx:(Math.random()-.5)*.12,vy:(Math.random()-.5)*.12,
+    r:Math.random()*1+.2,a:Math.random()*.5+.05
+  }));
+}
+function animBg(){
+  bgx.clearRect(0,0,bgc.width,bgc.height);
+  pts.forEach(p=>{
+    p.x+=p.vx;p.y+=p.vy;
+    if(p.x<0)p.x=bgc.width;if(p.x>bgc.width)p.x=0;
+    if(p.y<0)p.y=bgc.height;if(p.y>bgc.height)p.y=0;
+    bgx.beginPath();bgx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    bgx.fillStyle=`rgba(255,255,255,${p.a})`;bgx.fill();
+  });
+  for(let i=0;i<pts.length;i++)for(let j=i+1;j<pts.length;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<70){
+      bgx.beginPath();bgx.moveTo(pts[i].x,pts[i].y);bgx.lineTo(pts[j].x,pts[j].y);
+      bgx.strokeStyle=`rgba(255,255,255,${.035*(1-d/70)})`;bgx.lineWidth=.3;bgx.stroke();
+    }
+  }
+  requestAnimationFrame(animBg);
+}
+
+// ═══ MAP CANVAS ═══
+const mc=document.getElementById('mapc');
+const mx=mc.getContext('2d');
+const tip=document.getElementById('tip');
+
+const NODES=[
+  {id:'arte',     label:'ARTE',       sub:'Visual & Identity',    x:.14,y:.25,color:'#FF2800',sz:13},
+  {id:'athlete',  label:'FORGED',     sub:'Athlete & Vice OS',    x:.38,y:.13,color:'#FF7A00',sz:14},
+  {id:'manifestor',label:'MANIFESTOR',sub:'33·23·5 / Heyoka',    x:.62,y:.13,color:'#C44DFF',sz:12},
+  {id:'crypto',   label:'CRYPTO',     sub:'Trading & Web3',       x:.84,y:.28,color:'#00F0FF',sz:12},
+  {id:'skills',   label:'$ FLOW',     sub:'Skills & Money',       x:.88,y:.55,color:'#FFD000',sz:11},
+  {id:'agents',   label:'AGENTS',     sub:'Content Machine 24/7', x:.72,y:.75,color:'#00F0FF',sz:13},
+  {id:'book',     label:'LO QUE SÉ', sub:'Dark Vault',           x:.50,y:.82,color:'#FF2800',sz:11},
+  {id:'oracle',   label:'ORACLE',     sub:'Ask. Price Rises.',    x:.28,y:.75,color:'#FF2800',sz:10},
+  {id:'gates',    label:'KEYS',       sub:'Membership Access',    x:.14,y:.55,color:'#FFD000',sz:10},
+];
+
+const EDGES=[
+  ['arte','athlete'],['arte','oracle'],['arte','manifestor'],
+  ['athlete','crypto'],['athlete','skills'],['athlete','manifestor'],
+  ['manifestor','crypto'],['manifestor','book'],
+  ['crypto','skills'],['crypto','agents'],
+  ['skills','agents'],['skills','book'],
+  ['agents','book'],['book','oracle'],
+  ['oracle','gates'],['gates','arte'],
+];
+
+let mt=0,hov=null,mapAnim=null;
+
+function startMap(){
+  if(mapAnim)cancelAnimationFrame(mapAnim);
+  mc.width=innerWidth;mc.height=innerHeight;
+  drawMap();
+}
+function drawMap(){
+  mt+=.004;
+  mx.clearRect(0,0,mc.width,mc.height);
+  const W=mc.width,H=mc.height;
+
+  EDGES.forEach(([a,b])=>{
+    const na=NODES.find(n=>n.id===a),nb=NODES.find(n=>n.id===b);
+    const ax=na.x*W,ay=na.y*H,bx=nb.x*W,by=nb.y*H;
+    const hi=hov&&(hov===a||hov===b);
+    mx.beginPath();mx.moveTo(ax,ay);mx.lineTo(bx,by);
+    mx.strokeStyle=hi?'rgba(255,255,255,.18)':'rgba(255,255,255,.035)';
+    mx.lineWidth=hi?.8:.4;mx.stroke();
+    if(hi){
+      const t=(Math.sin(mt*4)+1)/2;
+      mx.beginPath();mx.arc(ax+(bx-ax)*t,ay+(by-ay)*t,2,0,Math.PI*2);
+      mx.fillStyle='rgba(255,255,255,.7)';mx.fill();
+    }
+  });
+
+  NODES.forEach(n=>{
+    const x=n.x*W,y=n.y*H,isH=hov===n.id;
+    const r=n.sz+(isH?5:Math.sin(mt*1.5+n.x*8)*.4);
+    const g=mx.createRadialGradient(x,y,0,x,y,r*4);
+    g.addColorStop(0,n.color+'35');g.addColorStop(1,n.color+'00');
+    mx.beginPath();mx.arc(x,y,r*4,0,Math.PI*2);mx.fillStyle=g;mx.fill();
+    mx.beginPath();mx.arc(x,y,r+5,0,Math.PI*2);
+    mx.strokeStyle=n.color+(isH?'60':'18');mx.lineWidth=.5;mx.stroke();
+    mx.beginPath();mx.arc(x,y,r,0,Math.PI*2);
+    mx.fillStyle=isH?n.color:n.color+'CC';mx.fill();
+    mx.font=`700 ${isH?12:10}px 'Space Grotesk',system-ui`;
+    mx.fillStyle=isH?'#fff':'rgba(255,255,255,.75)';
+    mx.textAlign='center';mx.fillText(n.label,x,y+r+17);
+    mx.font=`400 8.5px 'Space Mono',monospace`;
+    mx.fillStyle=isH?'rgba(255,255,255,.45)':'rgba(255,255,255,.18)';
+    mx.fillText(n.sub,x,y+r+28);
+  });
+
+  // center HK23
+  const cx=W*.5,cy=H*.47,cr=26+Math.sin(mt*.7)*2;
+  mx.beginPath();mx.arc(cx,cy,cr+10,0,Math.PI*2);
+  mx.strokeStyle='rgba(255,255,255,.04)';mx.lineWidth=1;mx.stroke();
+  mx.beginPath();mx.arc(cx,cy,cr,0,Math.PI*2);
+  mx.fillStyle='#0D0D0D';mx.fill();
+  mx.strokeStyle='rgba(255,255,255,.08)';mx.lineWidth=1;mx.stroke();
+  NODES.forEach(n=>{
+    mx.beginPath();mx.moveTo(cx,cy);mx.lineTo(n.x*W,n.y*H);
+    mx.strokeStyle='rgba(255,255,255,.02)';mx.lineWidth=.3;mx.stroke();
+  });
+  mx.font='700 10px Space Grotesk,system-ui';mx.fillStyle='rgba(255,255,255,.5)';
+  mx.textAlign='center';mx.fillText('HK23',cx,cy+3);
+  mx.font='400 8px Space Mono,monospace';mx.fillStyle='rgba(255,255,255,.2)';
+  mx.fillText('33 · 23 · 5',cx,cy+14);
+
+  mapAnim=requestAnimationFrame(drawMap);
+}
+
+mc.addEventListener('mousemove',e=>{
+  const W=mc.width,H=mc.height;let f=null;
+  NODES.forEach(n=>{
+    const dx=e.clientX-n.x*W,dy=e.clientY-n.y*H;
+    if(Math.sqrt(dx*dx+dy*dy)<n.sz+12)f=n.id;
+  });
+  hov=f;mc.style.cursor=f?'pointer':'crosshair';
+  if(f){
+    const nd=NODES.find(n=>n.id===f);
+    tip.style.display='block';tip.textContent=nd.sub;
+    tip.style.left=(e.clientX+14)+'px';tip.style.top=(e.clientY-18)+'px';
+    tip.style.color=nd.color;tip.style.borderColor=nd.color+'40';
+  }else{tip.style.display='none';}
+});
+mc.addEventListener('click',()=>{if(hov)go(hov);});
+
+// ═══ ORACLE LOGIC ═══
+const PRICES=[0,2,5,12,25,50,100,200,500];
+const FREE_ANSWERS=[
+  "Hay cosas que puedes ver gratis. Hay cosas que cuestan verlas. Esta es de las que cuestan.",
+  "La respuesta existe. Está en el vault. Tiene precio.",
+  "Interesante pregunta. El que paga escucha la respuesta completa.",
+];
+const HOOKS=[
+  "De eso sé bastante. Más de lo que imaginas.",
+  "Esta pregunta toca algo que escribí en el libro. Capítulo 3.",
+  "Tengo una respuesta para eso. No es la que esperas escuchar.",
+  "Esa es buena. El 90% no llega a hacer esa pregunta.",
+  "Sé exactamente de qué hablas. La respuesta te cambia algo.",
+];
+let qCount=0,qList=[];
+
+function getPrice(n){return PRICES[Math.min(n,PRICES.length-1)];}
+function getNextPrice(n){
+  const idx=Math.min(n+1,PRICES.length-1);
+  return PRICES[idx]*2||PRICES[idx];
+}
+function updateMeter(){
+  document.getElementById('oracle-price').textContent=qCount===0?'$0':'$'+getPrice(qCount);
+  document.getElementById('oracle-next').textContent='→ $'+getPrice(qCount+1);
+  document.getElementById('oracle-count').textContent=qCount;
+  document.getElementById('oracle-btn').textContent=qCount===0?'PREGUNTAR — FREE':`PREGUNTAR — $${getPrice(qCount+1)}`;
+}
+function submitQ(){
+  const inp=document.getElementById('oracle-q');
+  const q=inp.value.trim();
+  if(!q)return;
+  inp.value='';
+  const isFree=qCount===0;
+  const price=getPrice(qCount+1);
+  qCount++;
+  updateMeter();
+  const hook=HOOKS[Math.floor(Math.random()*HOOKS.length)];
+  const feed=document.getElementById('oracle-feed');
+  const el=document.createElement('div');
+  el.className='qbox';
+  el.innerHTML=`
+    <div class="q">— "${q}"</div>
+    ${isFree?`<div class="a">${hook} <span style="color:var(--r);font-size:11px">↗ Pregunta seguida.</span></div>`
+    :`<div class="locked-a" onclick="unlockAnswer(this,${price})">
+        <span>Ver respuesta completa</span>
+        <span class="aq">$${price} para desbloquear →</span>
+      </div>`}
+  `;
+  feed.insertBefore(el,feed.firstChild);
+}
+function unlockAnswer(el,price){
+  el.parentElement.innerHTML+=`
+    <div style="margin-top:10px;padding:10px;background:rgba(255,40,0,.05);border:1px solid rgba(255,40,0,.15);font-size:11px;color:var(--muted)">
+      <span style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--r);display:block;margin-bottom:6px">ACCESO — $${price}</span>
+      Esta respuesta está en el vault. Obtén acceso completo con membership OBSESIONADO o paga por respuesta individual.
+      <br><br>
+      <button onclick="go('gates')" style="background:var(--r);color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 16px;cursor:pointer;font-weight:700;margin-top:4px">VER OPCIONES</button>
+    </div>
+  `;
+  el.style.display='none';
+}
+updateMeter();
+
+// ═══ BOOK SECTIONS ═══
+const BOOK=[
+  {title:'Lo que sé de las personas',price:'$19',preview:'Cómo leo a alguien en 60 segundos. Patrones que la gente repite sin darse cuenta. Por qué ciertos tipos de personas siempre hacen lo mismo.'},
+  {title:'Lo que sé del dinero',price:'$19',preview:'Lo que aprendí perdiendo. Lo que aprendí ganando. El patrón que tiene todo el que tiene dinero real — y el que no tiene nada.'},
+  {title:'Lo que sé de los sistemas',price:'$29',preview:'Cómo construyo. Cómo pienso. Por qué todo lo que hago termina siendo un sistema con precio.'},
+  {title:'Lo que sé de la oscuridad',price:'$39',preview:'DMT. Noches sin dormir. Momentos de quiebre. Lo que está al otro lado y cómo volver de ahí con algo útil.'},
+  {title:'Lo que nunca debería saber nadie',price:'PRECIO PRIVADO',preview:'Existe. Tiene precio. Lo negocias directo conmigo.'},
+];
+document.getElementById('book-sections').innerHTML=BOOK.map(b=>`
+  <div class="book-section">
+    <div class="bs-hdr">
+      <div class="bs-title">${b.title}</div>
+      <div class="bs-price">${b.price}</div>
+    </div>
+    <div class="bs-preview">${b.preview}</div>
+  </div>
+`).join('');
+
+// ═══ MEMBERSHIP TIERS ═══
+const TIERS=[
+  {
+    name:'CURIOSO',num:'01',price:'FREE',period:'',
+    desc:'Lo que es público es tuyo.',ca:'#555',
+    inc:['Arte & visual identity','Vice OS landing','Agentes preview','Oracle — primera pregunta','Intro Heyoka 23']
+  },
+  {
+    name:'OBSESIONADO',num:'02',price:'$29',period:'/mes',
+    desc:'Lo que hago, cómo pienso, qué uso.',ca:'#C44DFF',hot:true,
+    inc:['Todo de CURIOSO','Sistemas & procesos','Crypto & trading setup','Forged Athlete protocols','Oracle ilimitado','Vice OS Pro','Content exclusivo']
+  },
+  {
+    name:'SOCIO',num:'03',price:'$99',period:'/mes',
+    desc:'Acceso directo. Parte del build.',ca:'#FFD000',
+    inc:['Todo de OBSESIONADO','Acceso 1:1 mensual','Vice OS Elite','Co-crear conmigo','Revenue share posible','Lo Que Sé — libro completo']
+  },
+];
+document.getElementById('tiers-wrap').innerHTML=TIERS.map(t=>`
+  <div class="tier${t.hot?' hot':''}" style="--ca:${t.ca};${t.hot?`border-color:${t.ca};background:${t.ca}08`:''};margin-bottom:12px">
+    ${t.hot?`<div class="tier-chip" style="background:${t.ca};color:#000">MÁS ELEGIDO</div>`:''}
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:${t.ca};margin-bottom:6px">TIER ${t.num}</div>
+        <div style="font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${t.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${t.desc}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:32px;font-weight:700;color:${t.ca}">${t.price}<span style="font-size:12px;font-weight:400;color:var(--muted)">${t.period}</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${t.inc.map(i=>`<span class="badge" style="border-color:${t.ca}40;color:${t.ca}99">${i}</span>`).join('')}
+    </div>
+  </div>
+`).join('');
+
+// ═══ COUNTER ANIMATION ═══
+function animCounters(){
+  const targets={videos:[0,247],posts:[0,1200],rev:[0,4800],reach:[0,89000]};
+  // just run quietly, live data would replace these
+}
+
+// ═══ RESIZE ═══
+window.addEventListener('resize',()=>{
+  initBg();
+  if(current==='map')startMap();
+});
+
+// ═══ INIT ═══
+initBg();animBg();
+</script>
+</body>
+</html>

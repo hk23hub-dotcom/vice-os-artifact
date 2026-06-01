@@ -1,0 +1,1785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>HK23</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg:#070707; --s1:#111; --s2:#181818; --border:#222;
+  --r:#FF2800; --g:#AAFF00; --b:#00F0FF; --p:#C44DFF; --gold:#FFD000;
+  --w:#EDEBE6; --dim:#383838; --muted:#555;
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+  background:var(--bg); color:var(--w);
+  font-family:'Space Grotesk',system-ui,sans-serif;
+  overflow:hidden; height:100vh; width:100vw;
+}
+
+/* scanlines */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9998;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+}
+
+/* screens */
+.scr{position:fixed;inset:0;opacity:0;pointer-events:none;transition:opacity .4s;overflow:hidden;}
+.scr.on{opacity:1;pointer-events:all;}
+
+/* cosmos canvas - always behind everything */
+#bgc{position:fixed;inset:0;z-index:0;pointer-events:none;}
+
+/* subtle zone overlay so cosmos doesn't fight text */
+.zone{background:rgba(7,7,7,.62);}
+
+/* ── PORTAL ── */
+#s-portal{z-index:10;display:flex;align-items:center;justify-content:center;}
+.p-wrap{position:relative;z-index:2;text-align:center;}
+.p-nums{
+  font-family:'Space Mono',monospace; font-size:11px; letter-spacing:8px;
+  color:var(--dim); margin-bottom:32px;
+}
+.p-nums span{color:var(--r);}
+.p-title{
+  font-size:clamp(88px,17vw,190px); font-weight:700;
+  letter-spacing:-6px; line-height:.85; color:var(--w); position:relative;
+}
+.p-title em{font-style:normal;color:var(--r);text-shadow:0 0 50px rgba(255,40,0,.35);}
+.p-title .ghost{
+  position:absolute;inset:0;color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.06);
+  transform:translate(4px,4px);pointer-events:none;
+}
+.p-tag{
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:5px;
+  color:var(--muted); margin-top:12px; margin-bottom:40px; text-transform:uppercase;
+}
+.p-enter{
+  background:none; border:1px solid var(--r); color:var(--r);
+  font-family:'Space Mono',monospace; font-size:10px; letter-spacing:6px;
+  padding:13px 44px; cursor:pointer; text-transform:uppercase; position:relative; overflow:hidden;
+  transition:color .25s;
+}
+.p-enter::before{
+  content:'';position:absolute;inset:0;background:var(--r);
+  transform:translateX(-101%);transition:transform .25s;z-index:-1;
+}
+.p-enter:hover{color:#000;}
+.p-enter:hover::before{transform:translateX(0);}
+.p-bottom{
+  position:absolute;bottom:28px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:#1C1C1C;white-space:nowrap;
+}
+
+/* ── MAP ── */
+#s-map{z-index:5;}
+#mapc{position:absolute;inset:0;cursor:crosshair;}
+.map-bar{
+  position:absolute;top:0;left:0;right:0;padding:20px 28px;
+  display:flex;align-items:center;justify-content:space-between;z-index:10;
+}
+.map-logo{font-size:13px;font-weight:700;letter-spacing:3px;}
+.map-logo b{color:var(--r);}
+.map-nav{display:flex;gap:6px;}
+.nb{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
+  color:var(--muted);background:none;border:1px solid var(--dim);
+  padding:5px 11px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.nb:hover{color:var(--w);border-color:var(--w);}
+.nb.red{border-color:rgba(255,40,0,.4);color:rgba(255,40,0,.6);}
+.nb.red:hover{border-color:var(--r);color:var(--r);}
+
+/* tooltip */
+#tip{
+  position:fixed;background:var(--s2);border:1px solid var(--dim);
+  padding:6px 12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
+  pointer-events:none;display:none;z-index:300;white-space:nowrap;text-transform:uppercase;
+}
+
+/* ── ZONE base ── */
+.zone{z-index:6;display:flex;flex-direction:column;}
+.zhdr{
+  padding:20px 36px;border-bottom:1px solid var(--dim);
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+  background:rgba(7,7,7,.92);backdrop-filter:blur(8px);
+}
+.zback{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  color:var(--muted);background:none;border:none;cursor:pointer;
+  text-transform:uppercase;transition:color .2s;
+}
+.zback:hover{color:var(--w);}
+.ztitle{font-size:11px;font-weight:700;letter-spacing:7px;text-transform:uppercase;}
+.zbody{flex:1;overflow-y:auto;padding:36px;scrollbar-width:none;}
+.zbody::-webkit-scrollbar{display:none;}
+
+/* ── grid ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+
+/* ── card ── */
+.c{
+  border:1px solid var(--dim);background:var(--s1);padding:20px;
+  position:relative;overflow:hidden;cursor:pointer;transition:border-color .2s;
+}
+.c::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--ca,var(--r));}
+.c:hover{border-color:var(--ca,var(--r));}
+.cl{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:7px;text-transform:uppercase;}
+.ct{font-size:17px;font-weight:700;letter-spacing:-.5px;line-height:1.2;margin-bottom:6px;}
+.cd{font-size:12px;color:var(--muted);line-height:1.6;}
+
+/* free/locked badges */
+.badge{
+  display:inline-block;font-family:'Space Mono',monospace;font-size:8px;
+  letter-spacing:2px;padding:2px 7px;border:1px solid;text-transform:uppercase;margin:2px;
+}
+.free{border-color:var(--g);color:var(--g);}
+.locked{border-color:var(--r);color:var(--r);}
+.gold-b{border-color:var(--gold);color:var(--gold);}
+.live{border-color:var(--g);color:var(--g);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* sec label */
+.sl{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:5px;color:var(--muted);
+  text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:10px;
+}
+.sl::after{content:'';flex:1;height:1px;background:var(--dim);}
+
+/* mega */
+.big{font-size:clamp(32px,5.5vw,72px);font-weight:700;letter-spacing:-2px;line-height:.9;margin-bottom:20px;}
+
+/* price tag */
+.price{font-size:32px;font-weight:700;letter-spacing:-1px;}
+
+/* agent dot */
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:5px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.8)}}
+
+/* ── ORACLE ── */
+#s-oracle{z-index:15;display:flex;flex-direction:column;}
+.oracle-body{flex:1;overflow-y:auto;padding:36px;scrollbar-width:none;}
+.oracle-body::-webkit-scrollbar{display:none;}
+
+.qbox{
+  border:1px solid var(--dim);background:var(--s1);
+  margin-bottom:12px;padding:20px;position:relative;
+}
+.qbox .q{font-size:13px;color:var(--w);margin-bottom:10px;line-height:1.6;}
+.qbox .a{font-size:12px;color:var(--muted);line-height:1.6;}
+.qbox .locked-a{
+  font-size:11px;color:var(--dim);border-top:1px solid var(--dim);
+  margin-top:10px;padding-top:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.qbox .locked-a:hover .aq{color:var(--r);}
+.aq{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--dim);transition:color .2s;}
+
+.oracle-input-wrap{
+  display:flex;gap:10px;margin-bottom:20px;
+}
+.oracle-input{
+  flex:1;background:var(--s1);border:1px solid var(--dim);
+  padding:12px 16px;font-size:13px;color:var(--w);outline:none;
+  font-family:'Space Grotesk',system-ui;
+}
+.oracle-input:focus{border-color:var(--dim);}
+.oracle-input::placeholder{color:var(--dim);}
+.oracle-send{
+  background:none;border:1px solid var(--r);color:var(--r);
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:3px;
+  padding:0 20px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.oracle-send:hover{background:var(--r);color:#000;}
+
+.price-meter{
+  border:1px solid var(--dim);padding:14px 20px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.pm-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);}
+.pm-val{font-size:22px;font-weight:700;color:var(--r);}
+.pm-next{font-family:'Space Mono',monospace;font-size:9px;color:var(--dim);}
+
+/* ── BOOK ── */
+.book-section{
+  border:1px solid var(--dim);padding:0;margin-bottom:10px;overflow:hidden;
+  transition:border-color .2s;
+}
+.bs-hdr{
+  padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+}
+.bs-title{font-size:15px;font-weight:700;letter-spacing:-.5px;}
+.bs-price{font-family:'Space Mono',monospace;font-size:11px;color:var(--r);}
+.bs-preview{
+  padding:0 24px 20px;font-size:12px;color:var(--muted);line-height:1.7;
+  border-top:1px solid var(--dim);
+}
+
+/* ── AGENTS MACHINE ── */
+.agent-row{
+  border:1px solid var(--dim);background:var(--s1);padding:16px 20px;
+  display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;
+  transition:border-color .2s;
+}
+.agent-row:hover{border-color:var(--b);}
+.agent-info{flex:1;}
+.agent-name{font-size:12px;font-weight:700;letter-spacing:.5px;margin-bottom:3px;}
+.agent-status{font-size:11px;color:var(--muted);line-height:1.5;}
+.agent-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+
+/* counter */
+.counter-row{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px;
+}
+.counter-box{border:1px solid var(--dim);background:var(--s1);padding:16px 20px;text-align:center;}
+.counter-num{font-size:28px;font-weight:700;letter-spacing:-1px;}
+.counter-label{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-top:4px;}
+
+/* ── GATES ── */
+.tier{border:1px solid var(--dim);padding:28px;position:relative;margin-bottom:12px;transition:all .2s;}
+.tier:hover{border-color:var(--ca,var(--dim));transform:translateY(-1px);}
+.tier.hot{border-color:var(--ca);}
+.tier-chip{
+  position:absolute;top:-10px;left:18px;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;
+  padding:2px 10px;font-weight:700;text-transform:uppercase;
+}
+
+/* ── COSMOS HUD ── */
+#cosmos-hud{
+  position:fixed;top:18px;right:18px;z-index:400;
+  display:flex;align-items:center;gap:8px;pointer-events:all;
+}
+.hud-pill{
+  font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;
+  color:var(--muted);border:1px solid var(--dim);padding:5px 12px;
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  transition:all .3s;background:rgba(7,7,7,.85);
+}
+.hud-pill:hover{color:var(--w);border-color:#555;}
+.hud-pill.flash{border-color:var(--g);color:var(--g);}
+.hud-live{width:5px;height:5px;border-radius:50%;background:var(--g);animation:pulse 2s infinite;flex-shrink:0;}
+
+/* ── DISCOVERY POPUP ── */
+#discovery-popup{
+  position:fixed;z-index:350;width:290px;
+  background:var(--s2);border:1px solid var(--dim);padding:22px 22px 18px;
+  pointer-events:all;display:none;
+}
+#discovery-popup .disc-bar{
+  position:absolute;top:0;left:0;right:0;height:2px;
+}
+
+/* ── BACKROOMS ── */
+#s-backrooms{
+  z-index:25;display:flex;flex-direction:column;
+  background:#080700;
+}
+#s-backrooms::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:26;
+  background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 6px);
+}
+.br-hdr{
+  padding:20px 36px;display:flex;align-items:center;justify-content:space-between;
+  background:rgba(8,7,0,.95);border-bottom:1px solid #181400;flex-shrink:0;
+  position:relative;z-index:27;
+}
+.br-body{flex:1;overflow-y:auto;padding:48px 36px;scrollbar-width:none;position:relative;z-index:27;}
+.br-body::-webkit-scrollbar{display:none;}
+.br-frag{
+  border:1px solid #1A1600;padding:24px;margin-bottom:10px;
+  transition:border-color .3s;cursor:pointer;
+}
+.br-frag:hover{border-color:#333000;}
+.br-frag-title{font-size:15px;font-weight:700;color:#777700;margin-bottom:8px;letter-spacing:-.3px;}
+.br-frag-desc{font-size:12px;color:#383400;line-height:1.7;margin-bottom:14px;}
+.br-frag-btn{
+  background:none;border:1px solid #222000;color:#444200;
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:2px;
+  padding:7px 16px;cursor:pointer;text-transform:uppercase;
+  transition:all .2s;
+}
+.br-frag-btn:hover{border-color:#555000;color:#888000;}
+
+/* ── AFFIRMATION FLASH ── */
+#aff-flash{
+  position:fixed;inset:0;z-index:600;display:none;flex-direction:column;
+  align-items:center;justify-content:center;gap:16px;
+  background:rgba(0,0,0,.92);backdrop-filter:blur(8px);
+  cursor:pointer;opacity:0;transition:opacity .3s;
+}
+.aff-big{
+  font-size:clamp(26px,5.5vw,70px);font-weight:700;
+  letter-spacing:-2px;line-height:1.08;text-align:center;
+  max-width:860px;padding:0 40px;
+}
+.aff-sub{
+  font-family:'Space Mono',monospace;font-size:9px;
+  letter-spacing:5px;color:var(--dim);text-transform:uppercase;
+}
+.aff-hint{
+  position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;
+  color:#1A1A1A;white-space:nowrap;
+}
+
+/* ── BOOK TABS ── */
+.btabs{display:flex;gap:6px;}
+.btab{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;
+  color:var(--muted);background:none;border:1px solid var(--dim);
+  padding:5px 14px;cursor:pointer;text-transform:uppercase;transition:all .2s;
+}
+.btab:hover{color:var(--w);}
+.btab.on{border-color:var(--w);color:var(--w);}
+
+/* ── ART GALLERY ── */
+.art-grid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  gap:10px;margin-bottom:32px;
+}
+.art-card{
+  position:relative;overflow:hidden;cursor:pointer;
+  border:1px solid var(--dim);aspect-ratio:1;
+  background:var(--s1);transition:border-color .2s;
+}
+.art-card:hover{border-color:#444;}
+.art-card img{width:100%;height:100%;object-fit:cover;transition:transform .4s;display:block;}
+.art-card:hover img{transform:scale(1.05);}
+.art-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(transparent 40%,rgba(0,0,0,.88));
+  opacity:0;transition:opacity .2s;display:flex;flex-direction:column;
+  justify-content:flex-end;padding:14px;
+}
+.art-card:hover .art-overlay{opacity:1;}
+.art-cat{font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+.art-title{font-size:12px;font-weight:700;color:var(--w);}
+
+/* ── PRODUCT CARDS ── */
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:768px){.prod-grid{grid-template-columns:1fr;}}
+.prod-card{
+  border:1px solid var(--dim);background:var(--s1);padding:22px;
+  position:relative;overflow:hidden;transition:border-color .2s;
+}
+.prod-card::before{content:'';position:absolute;top:0;left:0;width:2px;height:100%;background:var(--pc,var(--r));}
+.prod-card:hover{border-color:var(--pc,var(--r));}
+
+/* ── LIGHTBOX ── */
+#lightbox{
+  position:fixed;inset:0;z-index:700;
+  background:rgba(0,0,0,.96);display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:14px;
+  cursor:pointer;
+}
+#lightbox.open{display:flex;}
+#lightbox-img{max-width:88vw;max-height:82vh;object-fit:contain;}
+#lightbox-cap{
+  font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;
+  color:var(--muted);text-transform:uppercase;
+}
+#lightbox-close{
+  position:absolute;top:20px;right:24px;font-size:22px;color:var(--muted);
+  cursor:pointer;background:none;border:none;line-height:1;transition:color .2s;
+}
+#lightbox-close:hover{color:var(--w);}
+/* ── flash animation ── */
+@keyframes flashRed{0%{filter:brightness(1)}50%{filter:brightness(2) saturate(3)}100%{filter:brightness(1)}}
+@keyframes glitch{
+  0%,100%{clip-path:inset(50% 0 30% 0);transform:translate(-3px,0)}
+  50%{clip-path:inset(20% 0 60% 0);transform:translate(3px,0)}
+}
+@media(max-width:768px){
+  .g2,.g3,.g4{grid-template-columns:1fr;}
+  .zbody,.br-body{padding:20px;}
+  .counter-row{grid-template-columns:1fr 1fr;}
+  #cosmos-hud{top:12px;right:12px;}
+}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="tip"></div>
+
+<!-- ═══ AFFIRMATION FLASH ═══ -->
+<div id="aff-flash" onclick="closeAff()">
+  <div class="aff-big" id="aff-text"></div>
+  <div class="aff-sub" id="aff-sub"></div>
+  <div class="aff-hint">CLICK PARA CONTINUAR</div>
+</div>
+
+<!-- ═══ LIGHTBOX ═══ -->
+<div id="lightbox" onclick="closeLightbox()">
+  <button id="lightbox-close" onclick="closeLightbox()">×</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-cap"></div>
+</div>
+
+<!-- ═══ COSMOS HUD ═══ -->
+<div id="cosmos-hud" style="display:none">
+  <div class="hud-pill" id="hud-pill" onclick="showCollectedPanel()">
+    <div class="hud-live"></div>
+    <span id="hud-count">0</span>&nbsp;ENCONTRADO<span id="hud-s"></span>
+  </div>
+</div>
+
+<!-- ═══ DISCOVERY POPUP ═══ -->
+<div id="discovery-popup">
+  <div class="disc-bar" id="disc-bar"></div>
+</div>
+
+<!-- ═══ PORTAL ═══ -->
+<div id="s-portal" class="scr on">
+  <div class="p-wrap">
+    <div class="p-nums">33 · <span>23</span> · 5</div>
+    <div class="p-title">
+      <div class="ghost">HK<span>23</span></div>
+      HK<em>23</em>
+    </div>
+    <div class="p-tag">HEYOKA 23 — UNIVERSE</div>
+    <button class="p-enter" onclick="go('map')">ENTER</button>
+  </div>
+  <div class="p-bottom">NADA ES LIBRE · TIENES QUE TENER LAS LLAVES</div>
+</div>
+
+<!-- ═══ MAP ═══ -->
+<div id="s-map" class="scr">
+  <div class="map-bar">
+    <div class="map-logo"><b>HK</b>23</div>
+    <div class="map-nav">
+      <button class="nb" onclick="go('agents')">AGENTS</button>
+      <button class="nb" onclick="go('arte')">HK23 BOOK</button>
+      <button class="nb" onclick="go('book')">LO QUE SÉ</button>
+      <button class="nb" onclick="go('gates')">KEYS</button>
+      <button class="nb red" onclick="go('oracle')">ORACLE 🔮</button>
+    </div>
+  </div>
+  <canvas id="mapc"></canvas>
+</div>
+
+<!-- ═══ ARTE / HK23 BOOK ═══ -->
+<div id="s-arte" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">HK23 BOOK</div>
+    <div class="btabs">
+      <button class="btab on" data-tab="arte" onclick="bookTab('arte')">ARTE DIGITAL</button>
+      <button class="btab" data-tab="productos" onclick="bookTab('productos')">PRODUCTOS</button>
+      <button class="btab" data-tab="sistemas" onclick="bookTab('sistemas')">SISTEMAS</button>
+    </div>
+  </div>
+  <div class="zbody" id="book-body">
+    <!-- rendered by JS -->
+  </div>
+</div>
+
+<!-- ═══ FORGED ATHLETE ═══ -->
+<div id="s-athlete" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:#FF7A00">FORGED ATHLETE</div>
+    <span class="badge live">ACTIVE</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CUERPO Y RENDIMIENTO</div>
+    <div class="big" style="color:#FF7A00">FORGED<br>NOT BORN.</div>
+    <div class="g4">
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">GOLF</div>
+        <div class="ct">ViceGolfer</div>
+        <div class="cd">Performance DNA. 100 putts/día. Datos reales.</div>
+        <div style="margin-top:10px"><span class="badge live">LIVE APP</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">RUGBY</div>
+        <div class="ct">Rugby Vice</div>
+        <div class="cd">Kick Tracker 2D. Rugby CV. DNA 7 ejes.</div>
+        <div style="margin-top:10px"><span class="badge free">LAUNCHING</span></div>
+      </div>
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">TRAINING</div>
+        <div class="ct">Protocolos</div>
+        <div class="cd">Lo que entreno. Cómo lo estructuro.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+      <div class="c" style="--ca:#FF7A00">
+        <div class="cl">RECOVERY</div>
+        <div class="ct">Carga física</div>
+        <div class="cd">Tracking de recuperación. HRV. Sueño. Datos.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="c" style="--ca:#FF7A00">
+      <div class="cl">VICE OS CORE</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <div>
+          <div class="ct">Una identidad. Todos los deportes.</div>
+          <div class="cd">Rankings cross-sport. Content engine. Community privada.</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:48px;font-weight:700;color:#FF7A00;opacity:.2">⚡</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CRYPTO ═══ -->
+<div id="s-crypto" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--b)">CRYPTO</div>
+    <span class="badge locked">GATEADO</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">SISTEMAS FINANCIEROS</div>
+    <div class="big" style="color:var(--b)">MONEY<br>MOVES.</div>
+    <div class="g2">
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">TRADING SETUP</div>
+        <div class="ct">El estudio</div>
+        <div class="cd">Pantallas. Herramientas. Flujo de trabajo. Lo que ves en la imagen — funciona.</div>
+        <div style="margin-top:12px"><span class="badge free">SETUP TOUR FREE</span><span class="badge locked">STRATEGY LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">SISTEMAS</div>
+        <div class="ct">Cómo opero</div>
+        <div class="cd">No doy señales. Enseño a pensar. Diferente.</div>
+        <div style="margin-top:12px"><span class="badge locked">OBSESIONADO+</span></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">WEB3</div>
+        <div class="ct">NFTs & Digital Assets</div>
+        <div class="cd">Arte como activo. HK23 en blockchain.</div>
+        <div style="margin-top:10px"><span class="badge free">COMING</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">TOOLS</div>
+        <div class="ct">Mi stack</div>
+        <div class="cd">Exactamente qué uso y para qué.</div>
+        <div style="margin-top:10px"><span class="badge locked">KEYS NEEDED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--b)">
+        <div class="cl">ERRORES</div>
+        <div class="ct">Lo que perdí</div>
+        <div class="cd">Las lecciones que cuestan. Sin suavizar.</div>
+        <div style="margin-top:10px"><span class="badge locked">DARK VAULT</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MANIFESTOR ═══ -->
+<div id="s-manifestor" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--p)">MANIFESTOR</div>
+    <span class="badge locked">GATEADO</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CONSTRUIR REALIDAD</div>
+    <div class="big" style="color:var(--p)">33 · 23 · 5</div>
+    <div class="g2">
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">NUMEROLOGÍA</div>
+        <div class="ct">Los números que definen</div>
+        <div class="cd">33 — el maestro. 23 — el número. 5 — el camino. No es creencia. Es estructura.</div>
+        <div style="margin-top:12px"><span class="badge free">INTRO FREE</span><span class="badge locked">DEEP LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">ESTADO MENTAL</div>
+        <div class="ct">Cómo me programo</div>
+        <div class="cd">No meditación de app. Sistemas reales que uso antes de competir, crear, operar.</div>
+        <div style="margin-top:12px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">ASTROLOGY</div>
+        <div class="ct">Ciclos cósmicos</div>
+        <div class="cd">Cómo uso astrología para timing. En serio.</div>
+        <div style="margin-top:10px"><span class="badge locked">KEYS</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">DMT / ESTADOS</div>
+        <div class="ct">Lo que vi</div>
+        <div class="cd">Sin filtro. Sin romanticismo. Datos del otro lado.</div>
+        <div style="margin-top:10px"><span class="badge locked">DARK VAULT</span></div>
+      </div>
+      <div class="c" style="--ca:var(--p)">
+        <div class="cl">HEYOKA</div>
+        <div class="ct">A los 33</div>
+        <div class="cd">Qué significa. Por qué cambió todo. Cómo lo descubrí.</div>
+        <div style="margin-top:10px"><span class="badge free">FREE INTRO</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ SKILLS / MONEY ═══ -->
+<div id="s-skills" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--g)">SKILLS & MONEY</div>
+    <span class="badge gold-b">MONETIZABLE</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">LO QUE DOMINO</div>
+    <div class="big" style="color:var(--g)">TODO<br>VALE.</div>
+    <div class="g4">
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">DISEÑO</div>
+        <div class="ct">Visual</div>
+        <div class="cd">AI + Midjourney + diseño propio.</div>
+        <div style="margin-top:10px"><span class="badge free">TOUR FREE</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">BUILD</div>
+        <div class="ct">Tech & Apps</div>
+        <div class="cd">Vice OS. Sistemas. Productos digitales.</div>
+        <div style="margin-top:10px"><span class="badge locked">LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">TRADING</div>
+        <div class="ct">Crypto & Markets</div>
+        <div class="cd">Cómo pienso. No señales.</div>
+        <div style="margin-top:10px"><span class="badge locked">LOCKED</span></div>
+      </div>
+      <div class="c" style="--ca:var(--g)">
+        <div class="cl">ATLETISMO</div>
+        <div class="ct">Golf · Rugby</div>
+        <div class="cd">Performance data. Protocolos reales.</div>
+        <div style="margin-top:10px"><span class="badge locked">MEMBERS</span></div>
+      </div>
+    </div>
+    <div class="c" style="--ca:var(--gold)">
+      <div class="cl">PRECIO</div>
+      <div class="ct" style="font-size:18px;line-height:1.4">"No cobro porque necesito. Cobro porque mi tiempo tiene un precio — y si lo pagas, es porque sabes su valor."</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AGENTS MACHINE ═══ -->
+<div id="s-agents" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--b)">AGENTS</div>
+    <span class="badge live">24/7 RUNNING</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">LA MÁQUINA TRABAJA SOLA</div>
+    <div class="big" style="color:var(--b)">NEVER<br>OFFLINE.</div>
+    <div class="counter-row">
+      <div class="counter-box"><div class="counter-num" style="color:var(--r)" id="cnt-videos">247</div><div class="counter-label">Videos creados</div></div>
+      <div class="counter-box"><div class="counter-num" style="color:var(--g)" id="cnt-posts">1.2K</div><div class="counter-label">Posts publicados</div></div>
+      <div class="counter-box"><div class="counter-num" style="color:var(--gold)" id="cnt-rev">$4.8K</div><div class="counter-label">Revenue generado</div></div>
+      <div class="counter-box"><div class="counter-num" style="color:var(--b)" id="cnt-reach">89K</div><div class="counter-label">Alcance total</div></div>
+    </div>
+    <div class="sl">AGENTES ACTIVOS</div>
+    <div class="agent-row">
+      <div class="dot" style="background:var(--r)"></div>
+      <div class="agent-info">
+        <div class="agent-name">🎥 YouTube Agent — HK23 Channel</div>
+        <div class="agent-status">Transforma ideas en scripts. Narrativa. Sube. Tu voz, su producción. Publica 3x semana automático.</div>
+        <div class="agent-meta"><span class="badge live">RUNNING</span><span class="badge free">PREVIEW FREE</span><span class="badge gold-b">MONETIZED</span></div>
+      </div>
+    </div>
+    <div class="agent-row">
+      <div class="dot" style="background:var(--p)"></div>
+      <div class="agent-info">
+        <div class="agent-name">📱 TikTok Agent — @hk23neo</div>
+        <div class="agent-status">Clips cortos de todo — entrenamiento, trading, arte, ideas. 3-5 por día. Algoritmo alimentado.</div>
+        <div class="agent-meta"><span class="badge live">RUNNING</span><span class="badge gold-b">MONETIZED</span></div>
+      </div>
+    </div>
+    <div class="agent-row">
+      <div class="dot" style="background:var(--g)"></div>
+      <div class="agent-info">
+        <div class="agent-name">📊 Content Miner — Daily Scrape</div>
+        <div class="agent-status">Escarba tu universo todos los días. Toma lo que hiciste, lo que pensaste, lo que entrenaste. Lo convierte en contenido monetizable.</div>
+        <div class="agent-meta"><span class="badge live">RUNNING</span><span class="badge locked">OUTPUT MEMBERS ONLY</span></div>
+      </div>
+    </div>
+    <div class="agent-row">
+      <div class="dot" style="background:var(--gold)"></div>
+      <div class="agent-info">
+        <div class="agent-name">💰 Revenue Agent — Monetization</div>
+        <div class="agent-status">Identifica qué contenido convierte. Optimiza precios. Propone nuevos productos basados en lo que la gente pregunta más.</div>
+        <div class="agent-meta"><span class="badge live">RUNNING</span><span class="badge gold-b">GENERATES $$$</span></div>
+      </div>
+    </div>
+    <div class="agent-row" style="opacity:.35">
+      <div class="dot" style="background:var(--b);animation:none;opacity:.3"></div>
+      <div class="agent-info">
+        <div class="agent-name">🔮 Mindmap Agent — Universe Updater</div>
+        <div class="agent-status">Actualiza el mapa del universo en tiempo real con nuevas ideas y conexiones. Agrega estrellas al cosmos.</div>
+        <div class="agent-meta"><span class="badge">PRÓXIMO</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOOK — LO QUE SÉ ═══ -->
+<div id="s-book" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">LO QUE SÉ</div>
+    <span class="badge locked">DARK VAULT</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">CONOCIMIENTO SIN FILTRO</div>
+    <div class="big" style="color:var(--r)">EL<br>LIBRO.</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:580px;margin-bottom:32px">
+      Lo que aprendí viviendo. No teoría. No motivación. Lo que realmente funciona, lo que realmente pasa, y lo que nadie dice en voz alta.
+    </p>
+    <div id="book-sections"></div>
+    <div style="border:1px solid var(--r);padding:24px;text-align:center;margin-top:16px;background:rgba(255,40,0,.02)">
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:var(--r);margin-bottom:12px">EDICIÓN COMPLETA</div>
+      <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:8px">TODO EL LIBRO</div>
+      <div style="font-size:32px;font-weight:700;color:var(--r);margin-bottom:16px">$97</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:20px">Sin edición. Sin filtro. Sin lo que esperas escuchar.</div>
+      <button onclick="go('gates')" style="background:var(--r);color:#000;border:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;padding:12px 32px;cursor:pointer;font-weight:700">OBTENER ACCESO</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ORACLE ═══ -->
+<div id="s-oracle" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle" style="color:var(--r)">THE ORACLE</div>
+    <span class="badge free">PRIMERA GRATIS</span>
+  </div>
+  <div class="oracle-body">
+    <div class="sl">PREGUNTA LO QUE QUIERAS</div>
+    <div class="big" style="color:var(--r)">CADA<br>PREGUNTA<br>SUBE.</div>
+    <p style="font-size:13px;color:var(--muted);line-height:1.8;max-width:540px;margin-bottom:24px">
+      Primera pregunta libre. Cada respuesta que quieras después — sube el precio. Acumula. No hay techo.
+    </p>
+    <div class="price-meter">
+      <div><div class="pm-label">PRECIO ACTUAL</div><div class="pm-val" id="oracle-price">$0</div></div>
+      <div style="text-align:right"><div class="pm-label">PRÓXIMA PREGUNTA</div><div class="pm-next" id="oracle-next">→ $2</div></div>
+      <div style="text-align:right"><div class="pm-label">PREGUNTAS HECHAS</div><div style="font-size:22px;font-weight:700;" id="oracle-count">0</div></div>
+    </div>
+    <div class="oracle-input-wrap">
+      <input class="oracle-input" id="oracle-q" placeholder="Pregunta algo..." maxlength="200"/>
+      <button class="oracle-send" id="oracle-btn" onclick="submitQ()">PREGUNTAR — FREE</button>
+    </div>
+    <div id="oracle-feed"></div>
+    <div style="border-top:1px solid var(--dim);margin-top:24px;padding-top:24px;">
+      <div class="sl">TAMBIÉN DISPONIBLE</div>
+      <div class="g2">
+        <div class="c" style="--ca:var(--r);cursor:pointer" onclick="go('book')">
+          <div class="cl">DARK VAULT</div>
+          <div class="ct">Lo Que Sé</div>
+          <div class="cd">El libro. Sin filtro. Acceso completo con llave.</div>
+          <div style="margin-top:10px"><span class="badge locked">$97</span></div>
+        </div>
+        <div class="c" style="--ca:var(--r)">
+          <div class="cl">CONSULTA DIRECTA</div>
+          <div class="ct">1:1 con HK23</div>
+          <div class="cd">Mi tiempo. Mi atención. Mi respuesta real.</div>
+          <div style="margin-top:10px"><span class="badge gold-b">$200/hr</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GATES ═══ -->
+<div id="s-gates" class="scr zone">
+  <div class="zhdr">
+    <button class="zback" onclick="go('map')">← MAP</button>
+    <div class="ztitle">KEYS</div>
+    <span class="badge">MEMBERSHIP</span>
+  </div>
+  <div class="zbody">
+    <div class="sl">ACCESO AL UNIVERSO</div>
+    <div class="big">LAS<br>LLAVES.</div>
+    <div id="tiers-wrap"></div>
+    <div style="margin-top:24px;border:1px solid #1A1A1A;padding:20px;text-align:center;cursor:pointer" onclick="go('oracle')">
+      <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#1A1A1A;margin-bottom:6px">¿SOLO QUIERES ESPIAR?</div>
+      <div style="font-size:16px;font-weight:700;color:#222">→ Entra al Oracle. Primera pregunta libre.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BACKROOMS ═══ -->
+<div id="s-backrooms" class="scr">
+  <div class="br-hdr">
+    <button class="zback" onclick="go('map')" style="color:#444">← SALIR</button>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:7px;color:#333300;text-transform:uppercase">ACCESO NO AUTORIZADO</div>
+    <div style="font-family:'Space Mono',monospace;font-size:9px;color:#1A1A00">◉ NIVEL —1</div>
+  </div>
+  <div class="br-body">
+    <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:5px;color:#1A1800;margin-bottom:48px">COORDENADAS — OSCURIDAD PROFUNDA</div>
+    <div style="font-size:clamp(30px,7vw,80px);font-weight:700;letter-spacing:-3px;line-height:.88;color:#666600;margin-bottom:48px;opacity:.55">
+      ENCONTRASTE<br>ALGO QUE<br>NO DEBÍAS.
+    </div>
+    <p style="font-size:13px;color:#3A3800;line-height:1.9;max-width:520px;margin-bottom:48px">
+      Estás en el nivel —1 del hub. Las cosas que están acá existen porque necesitan existir. Sin contexto suficiente para entenderlas solas. Sin fecha. Sin nombre completo.
+    </p>
+    <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#222000;margin-bottom:20px">FRAGMENTOS FILTRADOS</div>
+
+    <div class="br-frag">
+      <div style="font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;color:#2A2800;margin-bottom:12px">FRAGMENTO 01 — VERIFICADO</div>
+      <div class="br-frag-title">Lo que vi y no debería contar</div>
+      <div class="br-frag-desc">El momento exacto. El estado. La cosa que cambió el mapa de lo que es posible. No DMT. Algo más directo.</div>
+      <button class="br-frag-btn">LEER — $5 O LO QUE CREES QUE VALE</button>
+    </div>
+
+    <div class="br-frag" style="opacity:.75">
+      <div style="font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;color:#222000;margin-bottom:12px">FRAGMENTO 02 — SIN VERIFICAR</div>
+      <div class="br-frag-title">La conversación que cambió todo</div>
+      <div class="br-frag-desc">Un diálogo. No con una persona. La única vez que escuché algo que no venía de adentro.</div>
+      <button class="br-frag-btn">ACCESO — DONACIÓN LIBRE</button>
+    </div>
+
+    <div class="br-frag" style="opacity:.35">
+      <div style="font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;color:#1A1800;margin-bottom:12px">FRAGMENTO 03 — CLASIFICADO</div>
+      <div class="br-frag-title" style="color:#333">████████████████████</div>
+      <div class="br-frag-desc" style="color:#1A1800">██████████████████████████████████████████████████</div>
+      <button class="br-frag-btn" style="opacity:.4;pointer-events:none">NIVEL DE ACCESO INSUFICIENTE</button>
+    </div>
+
+    <div style="margin-top:60px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:3px;color:#111000;text-align:center">
+      SI LLEGASTE ACÁ SABÍAS QUE IBAS A LLEGAR ACÁ
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ NAVIGATION ═══
+let current = 'portal';
+function go(id) {
+  document.querySelectorAll('.scr').forEach(s => s.classList.remove('on'));
+  const t = document.getElementById('s-' + id);
+  if (t) { t.classList.add('on'); current = id; }
+  document.getElementById('cosmos-hud').style.display = 'flex';
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && current !== 'portal') go('map');
+});
+
+// ═══ COSMOS ENGINE ═══
+let W = innerWidth, H = innerHeight;
+const bgc = document.getElementById('bgc');
+const bgx = bgc.getContext('2d');
+
+// Star types: w=weight, sz=base radius, spd=speed, col=color, glow=blur px
+// int=interactive, label=inner char, rar=rarity name, rc=rarity color, gravity=black hole
+const CT = {
+  noise:  { w:48, sz:1.2, spd:.18, col:'#ffffff', glow:0,  int:false },
+  star:   { w:10, sz:1.8, spd:.24, col:'#ffffff', glow:0,  int:false, tw:true },
+  drift:  { w:12, sz:2.6, spd:.20, col:'#2A2A2A', glow:0,  int:false },
+  key:    { w:7,  sz:7,   spd:.48, col:'#AAFF00', glow:14, int:true, label:'⬡', rar:'LLAVE',       rc:'#AAFF00' },
+  free:   { w:7,  sz:6,   spd:.62, col:'#00F0FF', glow:11, int:true, label:'○', rar:'FREE GIFT',   rc:'#00F0FF' },
+  dark:   { w:5,  sz:8,   spd:.36, col:'#FF2800', glow:9,  int:true, label:'◉', rar:'⚠ MALIGNA',  rc:'#FF2800' },
+  nft:    { w:3.5,sz:9,   spd:.40, col:'#C44DFF', glow:18, int:true, label:'◈', rar:'NFT DROP',    rc:'#C44DFF' },
+  secret: { w:2,  sz:11,  spd:.20, col:'#FFD000', glow:22, int:true, label:'✦', rar:'LEGENDARIO',  rc:'#FFD000' },
+  member: { w:.4, sz:14,  spd:.13, col:'#EDEBE6', glow:32, int:true, label:'∞', rar:'ULTRA RARO',  rc:'#EDEBE6' },
+  bhole:  { w:2,  sz:22,  spd:.05, col:'#050505', glow:0,  int:true, label:'',  rar:'PORTAL NEGRO',rc:'#A040FF', gravity:true },
+  aff:    { w:5,  sz:9,   spd:.14, col:'#FFD000', glow:20, int:true, label:'✦', rar:'AFIRMACIÓN',   rc:'#FFD000' },
+  comet:  { w:6,  sz:2.2, spd:2.8, col:'#ffffff', glow:0,  int:false },
+};
+
+const CKEYS = Object.keys(CT);
+const CTOTAL = CKEYS.reduce((s, k) => s + CT[k].w, 0);
+
+function pickType() {
+  let r = Math.random() * CTOTAL;
+  for (const k of CKEYS) { r -= CT[k].w; if (r <= 0) return k; }
+  return 'noise';
+}
+
+let bodies = [];
+let hoveredBody = null;
+let collectedCount = 0;
+let nodeClickLock = false;
+
+function makeBody(spread) {
+  const tid = pickType();
+  const t = CT[tid];
+  const ang = Math.random() * Math.PI * 2;
+  const spd = t.spd * (.6 + Math.random() * .8);
+  const b = {
+    tid, t,
+    x: spread ? Math.random() * W : (Math.random() < .5 ? -40 : W + 40),
+    y: Math.random() * H,
+    vx: Math.cos(ang) * spd,
+    vy: Math.sin(ang) * spd,
+    sz: t.sz * (.75 + Math.random() * .5),
+    alpha: spread ? Math.random() * .6 + .3 : 0,
+    pulse: Math.random() * Math.PI * 2,
+    tr: Math.random() * .05 + .012,
+    collected: false,
+    consumed: false,
+    seed: Math.random(),
+  };
+  // make sure it drifts across screen, not just vertical
+  if (Math.abs(b.vx) < .04) b.vx += .05 * (Math.random() < .5 ? 1 : -1);
+  // comets: strong directional speed + tail storage
+  if (tid === 'comet') {
+    const ca = Math.random() * Math.PI * 2;
+    b.vx = Math.cos(ca) * t.spd * (.8 + Math.random() * .4);
+    b.vy = Math.sin(ca) * t.spd * (.8 + Math.random() * .4);
+    b.tail = [];
+  }
+  // aff diamonds: very slow drift, random spin
+  if (tid === 'aff') {
+    b.spin = 0;
+    b.spinSpeed = (Math.random() - .5) * .012;
+    b.vx *= .4; b.vy *= .4;
+  }
+  return b;
+}
+
+function initCosmos() {
+  W = innerWidth; H = innerHeight;
+  bgc.width = W; bgc.height = H;
+  const n = Math.min(Math.floor(W * H / 7500), 140);
+  bodies = [];
+  for (let i = 0; i < n; i++) bodies.push(makeBody(true));
+}
+
+function updateCosmos() {
+  const bholes = bodies.filter(b => b.tid === 'bhole' && !b.consumed && !b.collected);
+
+  bodies.forEach(b => {
+    if (b.consumed) return;
+    b.pulse += b.tr;
+
+    // fade in
+    const maxA = b.t.int ? .92 : (b.tid === 'noise' ? .28 : .42);
+    if (!b.collected && b.alpha < maxA) b.alpha = Math.min(maxA, b.alpha + .005);
+
+    // fade out collected
+    if (b.collected) {
+      b.alpha -= .012;
+      if (b.alpha <= 0) { b.consumed = true; return; }
+    }
+
+    // gravity (non-blackhole interactive objects only, for perf)
+    if (b.t.int && b.tid !== 'bhole') {
+      bholes.forEach(bh => {
+        const dx = bh.x - b.x, dy = bh.y - b.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const range = bh.sz * 15;
+        if (dist < range && dist > 1) {
+          const force = (bh.sz * .0014) / Math.max(dist * .055, 1);
+          b.vx += (dx / dist) * force;
+          b.vy += (dy / dist) * force;
+          const sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+          if (sp > 4.5) { b.vx *= 4.5 / sp; b.vy *= 4.5 / sp; }
+          if (dist < bh.sz + b.sz * .7) { b.consumed = true; return; }
+        }
+      });
+    }
+
+    // aff spin
+    if (b.tid === 'aff' && b.spin !== undefined) b.spin += b.spinSpeed;
+
+    // comet tail
+    if (b.tid === 'comet' && b.tail) {
+      b.tail.push({ x: b.x, y: b.y });
+      if (b.tail.length > 22) b.tail.shift();
+    }
+
+    b.x += b.vx;
+    b.y += b.vy;
+
+    // wrap around
+    const m = b.sz + 32;
+    if (b.x < -m) b.x = W + m;
+    else if (b.x > W + m) b.x = -m;
+    if (b.y < -m) b.y = H + m;
+    else if (b.y > H + m) b.y = -m;
+  });
+
+  // remove consumed, maintain count
+  bodies = bodies.filter(b => !b.consumed);
+  const target = Math.min(Math.floor(W * H / 7500), 140);
+  while (bodies.length < target) bodies.push(makeBody(false));
+}
+
+function drawBody(b) {
+  if (b.alpha <= .01) return;
+  bgx.save();
+  const pf = 1 + Math.sin(b.pulse) * .1;
+  const sz = b.sz * pf;
+
+  if (b.tid === 'noise') {
+    bgx.globalAlpha = b.alpha;
+    bgx.fillStyle = '#fff';
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2); bgx.fill();
+  } else if (b.tid === 'star') {
+    const tw = (Math.sin(b.pulse * 1.8) + 1) / 2;
+    bgx.globalAlpha = b.alpha * (.08 + tw * .3);
+    bgx.fillStyle = '#fff';
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2); bgx.fill();
+  } else if (b.tid === 'drift') {
+    bgx.globalAlpha = b.alpha * .38;
+    bgx.fillStyle = b.t.col;
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2); bgx.fill();
+  } else if (b.tid === 'comet') {
+    if (b.tail && b.tail.length > 1) {
+      for (let i = 1; i < b.tail.length; i++) {
+        const t0 = b.tail[i - 1], t1 = b.tail[i];
+        const ta = (i / b.tail.length) * b.alpha * .55;
+        bgx.globalAlpha = ta;
+        bgx.strokeStyle = '#fff';
+        bgx.lineWidth = sz * (i / b.tail.length);
+        bgx.beginPath(); bgx.moveTo(t0.x, t0.y); bgx.lineTo(t1.x, t1.y); bgx.stroke();
+      }
+    }
+    bgx.globalAlpha = b.alpha * .9;
+    bgx.fillStyle = '#fff';
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2); bgx.fill();
+  } else if (b.tid === 'aff') {
+    const pulse = (Math.sin(b.pulse * 1.4) + 1) / 2;
+    const isHov = b === hoveredBody && !b.collected;
+    const dsz = sz * (.85 + pulse * .3);
+    // outer glow
+    const ag = bgx.createRadialGradient(b.x, b.y, 0, b.x, b.y, dsz * 5);
+    ag.addColorStop(0, '#FFD000' + (isHov ? '40' : '1A'));
+    ag.addColorStop(1, '#FFD00000');
+    bgx.globalAlpha = b.alpha;
+    bgx.beginPath(); bgx.arc(b.x, b.y, dsz * 5, 0, Math.PI * 2);
+    bgx.fillStyle = ag; bgx.fill();
+    // diamond shape
+    bgx.save(); bgx.translate(b.x, b.y); bgx.rotate(Math.PI / 4 + (b.spin || 0));
+    bgx.shadowBlur = isHov ? 28 : 14; bgx.shadowColor = '#FFD000';
+    bgx.globalAlpha = b.alpha * (.7 + pulse * .25);
+    bgx.fillStyle = '#FFD000';
+    bgx.beginPath();
+    bgx.moveTo(0, -dsz); bgx.lineTo(dsz * .58, 0);
+    bgx.lineTo(0, dsz); bgx.lineTo(-dsz * .58, 0);
+    bgx.closePath(); bgx.fill();
+    // inner highlight
+    const is = dsz * .4;
+    bgx.shadowBlur = 0;
+    bgx.globalAlpha = b.alpha * (.22 + pulse * .3);
+    bgx.fillStyle = '#fff';
+    bgx.beginPath();
+    bgx.moveTo(0, -is); bgx.lineTo(is * .58, 0);
+    bgx.lineTo(0, is); bgx.lineTo(-is * .58, 0);
+    bgx.closePath(); bgx.fill();
+    bgx.restore();
+    // rarity label on hover
+    if (isHov) {
+      bgx.globalAlpha = b.alpha * .8;
+      bgx.font = `700 7.5px 'Space Mono',monospace`;
+      bgx.fillStyle = '#FFD000'; bgx.textAlign = 'center'; bgx.textBaseline = 'top';
+      bgx.fillText('AFIRMACIÓN', b.x, b.y + dsz + 10);
+    }
+  } else if (b.tid === 'bhole') {
+    bgx.globalAlpha = b.alpha;
+    // accretion disk
+    const g = bgx.createRadialGradient(b.x, b.y, sz * .15, b.x, b.y, sz * 5);
+    g.addColorStop(0, 'rgba(0,0,0,.99)');
+    g.addColorStop(.6, 'rgba(60,0,140,.18)');
+    g.addColorStop(.82, 'rgba(140,0,255,.07)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz * 5, 0, Math.PI * 2);
+    bgx.fillStyle = g; bgx.fill();
+    // core
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2);
+    bgx.fillStyle = '#000'; bgx.fill();
+    // event horizon
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz + 2 + Math.sin(b.pulse) * 2, 0, Math.PI * 2);
+    bgx.strokeStyle = 'rgba(140,0,255,.5)'; bgx.lineWidth = 1; bgx.stroke();
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz * 2.4, 0, Math.PI * 2);
+    bgx.strokeStyle = 'rgba(80,0,180,.1)'; bgx.lineWidth = .5; bgx.stroke();
+  } else {
+    // interactive star
+    const isHov = b === hoveredBody && !b.collected;
+    // nebula glow
+    const ng = bgx.createRadialGradient(b.x, b.y, 0, b.x, b.y, sz * (isHov ? 7 : 4.5));
+    ng.addColorStop(0, b.t.col + '28');
+    ng.addColorStop(1, b.t.col + '00');
+    bgx.globalAlpha = b.alpha * (isHov ? .7 : .45);
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz * (isHov ? 7 : 4.5), 0, Math.PI * 2);
+    bgx.fillStyle = ng; bgx.fill();
+
+    // orbit ring
+    bgx.globalAlpha = b.alpha * (isHov ? .45 : .18);
+    bgx.beginPath();
+    bgx.arc(b.x, b.y, sz + 4 + Math.sin(b.pulse) * 1.5, 0, Math.PI * 2);
+    bgx.strokeStyle = b.t.col; bgx.lineWidth = isHov ? .8 : .4; bgx.stroke();
+
+    // glow + core
+    if (b.t.glow > 0) {
+      bgx.shadowBlur = b.t.glow * (isHov ? 2 : 1) * (1 + Math.sin(b.pulse) * .2);
+      bgx.shadowColor = b.t.col;
+    }
+    bgx.globalAlpha = b.alpha * (b.collected ? .15 : 1);
+    bgx.beginPath(); bgx.arc(b.x, b.y, sz, 0, Math.PI * 2);
+    bgx.fillStyle = b.collected ? '#1A1A1A' : b.t.col; bgx.fill();
+    bgx.shadowBlur = 0;
+
+    // label char
+    if (b.t.label && !b.collected) {
+      bgx.globalAlpha = b.alpha * .88;
+      bgx.font = `700 ${Math.max(sz * .9, 5.5)}px 'Space Grotesk',sans-serif`;
+      bgx.fillStyle = b.tid === 'dark' ? '#fff' : '#000';
+      bgx.textAlign = 'center'; bgx.textBaseline = 'middle';
+      bgx.fillText(b.t.label, b.x, b.y);
+    }
+
+    // rarity label on hover
+    if (isHov) {
+      bgx.shadowBlur = 0;
+      bgx.globalAlpha = b.alpha * .8;
+      bgx.font = `700 7.5px 'Space Mono',monospace`;
+      bgx.fillStyle = b.t.rc;
+      bgx.textAlign = 'center'; bgx.textBaseline = 'top';
+      bgx.fillText(b.t.rar, b.x, b.y + sz + 9);
+    }
+  }
+  bgx.restore();
+}
+
+function drawCosmos() {
+  bgx.clearRect(0, 0, W, H);
+  bodies.forEach(drawBody);
+}
+
+// ═══ MAP CANVAS ═══
+const mc = document.getElementById('mapc');
+const mx = mc.getContext('2d');
+const tip = document.getElementById('tip');
+
+const NODES = [
+  { id:'arte',       label:'ARTE',        sub:'Visual & Identity',    x:.14,y:.25,color:'#FF2800',sz:13 },
+  { id:'athlete',    label:'FORGED',      sub:'Athlete & Vice OS',    x:.38,y:.13,color:'#FF7A00',sz:14 },
+  { id:'manifestor', label:'MANIFESTOR',  sub:'33·23·5 / Heyoka',     x:.62,y:.13,color:'#C44DFF',sz:12 },
+  { id:'crypto',     label:'CRYPTO',      sub:'Trading & Web3',       x:.84,y:.28,color:'#00F0FF',sz:12 },
+  { id:'skills',     label:'$ FLOW',      sub:'Skills & Money',       x:.88,y:.55,color:'#FFD000',sz:11 },
+  { id:'agents',     label:'AGENTS',      sub:'Content Machine 24/7', x:.72,y:.75,color:'#00F0FF',sz:13 },
+  { id:'book',       label:'LO QUE SÉ',   sub:'Dark Vault',           x:.50,y:.82,color:'#FF2800',sz:11 },
+  { id:'oracle',     label:'ORACLE',      sub:'Ask. Price Rises.',    x:.28,y:.75,color:'#FF2800',sz:10 },
+  { id:'gates',      label:'KEYS',        sub:'Membership Access',    x:.14,y:.55,color:'#FFD000',sz:10 },
+];
+
+const EDGES = [
+  ['arte','athlete'],['arte','oracle'],['arte','manifestor'],
+  ['athlete','crypto'],['athlete','skills'],['athlete','manifestor'],
+  ['manifestor','crypto'],['manifestor','book'],
+  ['crypto','skills'],['crypto','agents'],
+  ['skills','agents'],['skills','book'],
+  ['agents','book'],['book','oracle'],
+  ['oracle','gates'],['gates','arte'],
+];
+
+let mt = 0, hovNode = null;
+
+function startMap() {
+  mc.width = innerWidth; mc.height = innerHeight;
+}
+
+function drawMap() {
+  if (current !== 'map') return;
+  mt += .004;
+  mx.clearRect(0, 0, mc.width, mc.height);
+  const mW = mc.width, mH = mc.height;
+
+  EDGES.forEach(([a, b]) => {
+    const na = NODES.find(n => n.id === a), nb = NODES.find(n => n.id === b);
+    const ax = na.x * mW, ay = na.y * mH, bx = nb.x * mW, by = nb.y * mH;
+    const hi = hovNode && (hovNode === a || hovNode === b);
+    mx.beginPath(); mx.moveTo(ax, ay); mx.lineTo(bx, by);
+    mx.strokeStyle = hi ? 'rgba(255,255,255,.2)' : 'rgba(255,255,255,.04)';
+    mx.lineWidth = hi ? .9 : .4; mx.stroke();
+    if (hi) {
+      const t = (Math.sin(mt * 4) + 1) / 2;
+      mx.beginPath(); mx.arc(ax + (bx - ax) * t, ay + (by - ay) * t, 2, 0, Math.PI * 2);
+      mx.fillStyle = 'rgba(255,255,255,.75)'; mx.fill();
+    }
+  });
+
+  NODES.forEach(n => {
+    const x = n.x * mW, y = n.y * mH, isH = hovNode === n.id;
+    const r = n.sz + (isH ? 5 : Math.sin(mt * 1.5 + n.x * 8) * .4);
+    const g = mx.createRadialGradient(x, y, 0, x, y, r * 4);
+    g.addColorStop(0, n.color + '38'); g.addColorStop(1, n.color + '00');
+    mx.beginPath(); mx.arc(x, y, r * 4, 0, Math.PI * 2); mx.fillStyle = g; mx.fill();
+    mx.beginPath(); mx.arc(x, y, r + 5, 0, Math.PI * 2);
+    mx.strokeStyle = n.color + (isH ? '65' : '1C'); mx.lineWidth = .5; mx.stroke();
+    mx.beginPath(); mx.arc(x, y, r, 0, Math.PI * 2);
+    mx.fillStyle = isH ? n.color : n.color + 'CC'; mx.fill();
+    mx.font = `700 ${isH ? 12 : 10}px 'Space Grotesk',system-ui`;
+    mx.fillStyle = isH ? '#fff' : 'rgba(255,255,255,.78)';
+    mx.textAlign = 'center'; mx.fillText(n.label, x, y + r + 18);
+    mx.font = `400 8.5px 'Space Mono',monospace`;
+    mx.fillStyle = isH ? 'rgba(255,255,255,.48)' : 'rgba(255,255,255,.18)';
+    mx.fillText(n.sub, x, y + r + 29);
+  });
+
+  // center HK23
+  const cx = mW * .5, cy = mH * .47, cr = 26 + Math.sin(mt * .7) * 2;
+  mx.beginPath(); mx.arc(cx, cy, cr + 10, 0, Math.PI * 2);
+  mx.strokeStyle = 'rgba(255,255,255,.04)'; mx.lineWidth = 1; mx.stroke();
+  mx.beginPath(); mx.arc(cx, cy, cr, 0, Math.PI * 2);
+  mx.fillStyle = '#0D0D0D'; mx.fill();
+  mx.strokeStyle = 'rgba(255,255,255,.1)'; mx.lineWidth = 1; mx.stroke();
+  NODES.forEach(n => {
+    mx.beginPath(); mx.moveTo(cx, cy); mx.lineTo(n.x * mW, n.y * mH);
+    mx.strokeStyle = 'rgba(255,255,255,.022)'; mx.lineWidth = .3; mx.stroke();
+  });
+  mx.font = '700 10px Space Grotesk,system-ui'; mx.fillStyle = 'rgba(255,255,255,.5)';
+  mx.textAlign = 'center'; mx.fillText('HK23', cx, cy + 3);
+  mx.font = '400 8px Space Mono,monospace'; mx.fillStyle = 'rgba(255,255,255,.22)';
+  mx.fillText('33 · 23 · 5', cx, cy + 14);
+}
+
+mc.addEventListener('mousemove', e => {
+  const mW = mc.width, mH = mc.height; let f = null;
+  NODES.forEach(n => {
+    const dx = e.clientX - n.x * mW, dy = e.clientY - n.y * mH;
+    if (Math.sqrt(dx * dx + dy * dy) < n.sz + 12) f = n.id;
+  });
+  hovNode = f;
+  if (f) {
+    mc.style.cursor = 'pointer';
+    const nd = NODES.find(n => n.id === f);
+    tip.style.display = 'block'; tip.textContent = nd.sub;
+    tip.style.left = (e.clientX + 14) + 'px'; tip.style.top = (e.clientY - 18) + 'px';
+    tip.style.color = nd.color; tip.style.borderColor = nd.color + '40';
+  } else {
+    mc.style.cursor = 'crosshair';
+  }
+});
+
+mc.addEventListener('click', () => {
+  if (hovNode) {
+    nodeClickLock = true;
+    go(hovNode);
+    setTimeout(() => { nodeClickLock = false; }, 120);
+  }
+});
+
+// ═══ COSMOS REWARDS ═══
+const REWARDS = {
+  key: [
+    { title:'LLAVE #7',  desc:'Acceso a canal privado. Discord: #llaves-ocultas. Válida 24 horas.', act:'RECLAMAR EN DISCORD' },
+    { title:'LLAVE #13', desc:'Desbloquea un capítulo de LO QUE SÉ. Solo este link.', act:'VER CONTENIDO' },
+    { title:'LLAVE #23', desc:'Invitación directa al grupo de fundadores. Solo 23 lugares.', act:'UNIRSE — GRATIS' },
+  ],
+  free: [
+    { title:'TEXTO SIN FILTRO',  desc:'Uno de los fragmentos que escribo y no publico. Es tuyo ahora.', act:'TOMAR' },
+    { title:'AUDIO SECRETO',     desc:'4 minutos de lo que no digo en público. Desaparece en 24h.', act:'ESCUCHAR' },
+    { title:'NOTA PERSONAL',     desc:'Una cosa aprendida que cambió cómo pienso el dinero.', act:'LEER — FREE' },
+  ],
+  nft: [
+    { title:'NFT — SERIE 23',    desc:'Uno de 23. Único. Irreproducible. Primero en reclamarlo lo tiene.', act:'RECLAMAR — GRATIS' },
+    { title:'NFT #∞ — LIBRE',   desc:'No tiene precio porque no está en venta. Donación libre. Tú decides qué vale.', act:'DONAR LO QUE VALE' },
+  ],
+  secret: [
+    { title:'FRAGMENTO OCULTO',  desc:'Uno de 5 fragmentos del mapa. Colecciónalos todos para ver qué revelan juntos.', act:'GUARDAR FRAGMENTO' },
+    { title:'SECRETO SIN NOMBRE',desc:'Una historia real. Una vez que la lees no puedes desleerla.', act:'LEER — $1' },
+  ],
+  member: [
+    { title:'∞ MEMBRESÍA LIBRE', desc:'Una sola persona hoy. Para siempre. El universo decidió que eras tú.', act:'RECLAMAR AHORA — $0' },
+  ],
+  bhole: [
+    { title:'PORTAL ACTIVADO',   desc:'Agujero negro detectado. Al otro lado existe algo que no estaba en el mapa original.', act:'ENTRAR AL PORTAL' },
+  ],
+};
+
+function handleStarClick(b, cx, cy) {
+  if (b.collected) return;
+  b.collected = true;
+
+  if (b.tid === 'aff') {
+    collectedCount++;
+    updateHUD();
+    const a = AFFIRMATIONS[Math.floor(b.seed * AFFIRMATIONS.length)];
+    showAff(a);
+    return;
+  }
+
+  if (b.tid === 'dark') {
+    collectedCount++;
+    updateHUD();
+    document.body.style.animation = 'flashRed .5s';
+    setTimeout(() => { document.body.style.animation = ''; }, 500);
+    setTimeout(() => go('backrooms'), 280);
+    return;
+  }
+
+  const pool = REWARDS[b.tid];
+  if (!pool) return;
+  const reward = pool[Math.floor(b.seed * pool.length)];
+
+  collectedCount++;
+  updateHUD();
+  showDiscovery(b, cx, cy, reward);
+}
+
+function showDiscovery(b, cx, cy, reward) {
+  const pop = document.getElementById('discovery-popup');
+  const isPortal = b.tid === 'bhole';
+  const col = b.t.rc || b.t.col;
+
+  document.getElementById('disc-bar').style.background = col;
+  pop.innerHTML = `
+    <div class="disc-bar" style="background:${col}"></div>
+    <div style="font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:4px;color:${col};margin-bottom:10px;text-transform:uppercase">${b.t.rar} — ENCONTRADO</div>
+    <div style="font-size:16px;font-weight:700;letter-spacing:-.4px;line-height:1.25;margin-bottom:9px">${reward.title}</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:16px">${reward.desc}</div>
+    <button
+      onclick="${isPortal ? "closeDiscovery();go('backrooms')" : 'closeDiscovery()'}"
+      style="width:100%;background:none;border:1px solid ${col};color:${col};
+      font-family:'Space Mono',monospace;font-size:8.5px;letter-spacing:2px;
+      padding:9px 0;cursor:pointer;text-transform:uppercase;font-weight:700;transition:all .18s"
+      onmouseover="this.style.background='${col}';this.style.color='#000'"
+      onmouseout="this.style.background='none';this.style.color='${col}'"
+    >${reward.act}</button>
+    <button onclick="closeDiscovery()" style="position:absolute;top:10px;right:13px;
+      background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;line-height:1;padding:0">×</button>
+  `;
+
+  // position — keep inside viewport
+  const pw = 290, ph = 180;
+  let lx = Math.min(cx + 22, W - pw - 12);
+  let ty = Math.max(12, Math.min(cy - 60, H - ph - 12));
+  pop.style.cssText = `display:block;left:${lx}px;top:${ty}px;opacity:0;transform:scale(.94) translateY(8px)`;
+
+  requestAnimationFrame(() => {
+    pop.style.transition = 'opacity .22s,transform .22s';
+    pop.style.opacity = 1;
+    pop.style.transform = 'scale(1) translateY(0)';
+  });
+
+  if (pop._t) clearTimeout(pop._t);
+  pop._t = setTimeout(closeDiscovery, 9000);
+}
+
+function closeDiscovery() {
+  const pop = document.getElementById('discovery-popup');
+  pop.style.opacity = 0;
+  pop.style.transform = 'scale(.94) translateY(8px)';
+  setTimeout(() => { pop.style.display = 'none'; }, 230);
+}
+
+function updateHUD() {
+  const hud = document.getElementById('cosmos-hud');
+  const pill = document.getElementById('hud-pill');
+  document.getElementById('hud-count').textContent = collectedCount;
+  document.getElementById('hud-s').textContent = collectedCount !== 1 ? 'S' : '';
+  hud.style.display = 'flex';
+  pill.classList.add('flash');
+  setTimeout(() => pill.classList.remove('flash'), 800);
+}
+
+// ═══ DOCUMENT-LEVEL COSMOS INTERACTION ═══
+document.addEventListener('mousemove', e => {
+  const prev = hoveredBody;
+  hoveredBody = bodies.find(b => {
+    if (!b.t.int || b.collected) return false;
+    const dx = e.clientX - b.x, dy = e.clientY - b.y;
+    return Math.sqrt(dx * dx + dy * dy) < b.sz + 14;
+  }) || null;
+
+  if (hoveredBody && hoveredBody !== prev) {
+    // show tip
+    tip.style.display = 'block';
+    tip.textContent = hoveredBody.t.rar;
+    tip.style.left = (e.clientX + 16) + 'px';
+    tip.style.top = (e.clientY - 22) + 'px';
+    tip.style.color = hoveredBody.t.rc;
+    tip.style.borderColor = hoveredBody.t.rc + '40';
+  } else if (!hoveredBody) {
+    if (current !== 'map') tip.style.display = 'none';
+  } else if (hoveredBody) {
+    tip.style.left = (e.clientX + 16) + 'px';
+    tip.style.top = (e.clientY - 22) + 'px';
+  }
+});
+
+document.addEventListener('click', e => {
+  if (nodeClickLock) return;
+  const tag = e.target.tagName.toLowerCase();
+  // skip clicks on actual UI elements
+  if (['button','input','a','select','textarea'].includes(tag)) return;
+  if (e.target.closest('.c') || e.target.closest('.oracle-input-wrap') || e.target.closest('.br-frag')) return;
+
+  const clicked = bodies.find(b => {
+    if (!b.t.int || b.collected) return false;
+    const dx = e.clientX - b.x, dy = e.clientY - b.y;
+    return Math.sqrt(dx * dx + dy * dy) < b.sz + 16;
+  });
+  if (clicked) handleStarClick(clicked, e.clientX, e.clientY);
+});
+
+// ═══ HK23 BOOK ═══
+const BOOK_ART = {
+  identity: [
+    { src:'assets/art/identity/jc-psychedelic-1.png', cat:'IDENTITY', title:'JC Logo — Psychedelic I' },
+    { src:'assets/art/identity/jc-psychedelic-2.png', cat:'IDENTITY', title:'JC Logo — Psychedelic II' },
+    { src:'assets/art/identity/jc-psychedelic-3.png', cat:'IDENTITY', title:'JC Logo — Psychedelic III' },
+    { src:'assets/art/identity/jc-tag-1.png',         cat:'IDENTITY · TAG', title:'Jean-Christophe Graffiti Tag I' },
+    { src:'assets/art/identity/jc-tag-2.png',         cat:'IDENTITY · TAG', title:'Jean-Christophe Graffiti Tag II' },
+    { src:'assets/art/identity/jc-tag-3.png',         cat:'IDENTITY · TAG', title:'Jean-Christophe Graffiti Tag III' },
+    { src:'assets/art/identity/jc-raw-1.png',         cat:'IDENTITY · RAW', title:'Jean-Christophe Grafiti I' },
+    { src:'assets/art/identity/jc-raw-2.png',         cat:'IDENTITY · RAW', title:'Jean-Christophe Grafiti II' },
+    { src:'assets/art/identity/jc-raw-3.png',         cat:'IDENTITY · RAW', title:'Jean-Christophe Grafiti III' },
+    { src:'assets/art/identity/jc-raw-4.png',         cat:'IDENTITY · RAW', title:'Jean-Christophe Grafiti IV' },
+    { src:'assets/art/identity/jc-rap-1.png',         cat:'IDENTITY · RAP', title:'JC Rap Logo I' },
+    { src:'assets/art/identity/jc-rap-2.png',         cat:'IDENTITY · RAP', title:'JC Rap Logo II' },
+    { src:'assets/art/identity/jc-graffiti-typo.png', cat:'IDENTITY', title:'Graffiti Typography' },
+    { src:'assets/art/identity/jc-japanese.png',      cat:'IDENTITY · JAPANESE', title:'Clean Japanese Graffiti' },
+    { src:'assets/art/identity/graffiti-logos.png',   cat:'IDENTITY', title:'Graffiti Logos Sheet' },
+  ],
+  arte: [
+    { src:'assets/art/arte/collage-1.png',    cat:'ARTE DIGITAL', title:'Digital Collage I' },
+    { src:'assets/art/arte/collage-2.png',    cat:'ARTE DIGITAL', title:'Digital Collage II' },
+    { src:'assets/art/arte/collage-3.png',    cat:'ARTE DIGITAL', title:'Digital Collage III' },
+    { src:'assets/art/arte/collage-4.png',    cat:'ARTE DIGITAL', title:'Digital Collage IV' },
+    { src:'assets/art/arte/street-art-1.png', cat:'ARTE · STREET', title:'Heyoka Street Art — Multi-Eye' },
+    { src:'assets/art/arte/mj3-1.png',        cat:'ARTE · VAULT', title:'HK23 Vault — MJ3' },
+  ],
+  golf: [
+    { src:'assets/art/golf/golf-logo-1.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo I' },
+    { src:'assets/art/golf/golf-logo-2.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo II' },
+    { src:'assets/art/golf/golf-logo-3.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo III' },
+    { src:'assets/art/golf/golf-logo-4.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo IV' },
+    { src:'assets/art/golf/golf-logo-5.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo V' },
+    { src:'assets/art/golf/golf-logo-6.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo VI' },
+    { src:'assets/art/golf/golf-logo-7.png', cat:'VICEGOLFER · BRAND', title:'Golf Club Logo VII' },
+  ],
+  crypto: [
+    { src:'assets/art/crypto/crypto-studio-1.png', cat:'CRYPTO VICE', title:'Trading Studio — Neon Blue' },
+  ],
+};
+
+const BOOK_PRODUCTOS = [
+  { name:'VICEGOLFER',   sub:'Golf Performance OS',       color:'#AAFF00', status:'LIVE',   desc:'DNA de rendimiento. 100 putts/día. Analytics reales. Tu juego como sistema de datos.',        tags:['DNA','PUTTING','ANALYTICS','RANKINGS'] },
+  { name:'RUGBY VICE',   sub:'Kick Tracker 2D',           color:'#00F0FF', status:'BUILD',  desc:'Kick Tracker 2D. DNA 7 ejes. Rugby CV. El deporte como data estructurada.',                  tags:['KICK TRACKER','DNA 7 EJES','RANKINGS','COMMUNITY'] },
+  { name:'VICE OS',      sub:'Sports Tech Stack',         color:'#AAFF00', status:'BUILD',  desc:'Una identidad. Todos los deportes. El OS del atleta de elite. Membresía. AI. Content.',       tags:['CORE','MEMBERSHIP','AI AGENTS','CONTENT ENGINE'] },
+  { name:'LA IGLESIA',   sub:'Gold · IV Región · 3,676ha',color:'#FFD000', status:'ACTIVE', desc:'Concesión activa. Programa de perforación. Inversión estratégica. La mina nunca miente.',    tags:['3,676 HA','DRILL PROGRAM','IV REGIÓN','INVERSIÓN'] },
+  { name:'5% SCALE',     sub:'Mental State Tracker',      color:'#AAFF00', status:'LIVE',   desc:'Score 0–10 diario. EMPTY → 5% MENTALITY. El estado mental como protocolo medible.',          tags:['DAILY CHECK','STREAK','HISTORIA','STATS'] },
+  { name:'AGENTS MACHINE', sub:'Content Engine 24/7',    color:'#C44DFF', status:'BUILD',  desc:'AI agents que crean, publican y monetizan mientras duermes. El sistema de contenido autónomo.', tags:['24/7','CLAUDE AI','CONTENT','AUTO-PUBLISH'] },
+];
+
+const BOOK_SISTEMAS = [
+  { name:'HK23 UNIVERSE OS',    sub:'Everything connected',        color:'#EDEBE6', desc:'Arte + Atleta + Sistemas + Dinero. Un ecosistema. Una identidad. Todo documentado. 33 · 23 · 5.', tags:['HEYOKA','UNIVERSE','ECOSISTEMA','OS'] },
+  { name:'CONTENT FLYWHEEL',    sub:'Document · Publish · Monetize', color:'#C44DFF', desc:'Todo lo que hago se documenta. Lo documentado se convierte en contenido. El contenido genera dinero. El sistema nunca duerme.', tags:['DOCUMENTAR','PUBLICAR','MONETIZAR','SISTEMA'] },
+  { name:'MEMBERSHIP GATES',    sub:'Keys & Tiers',                color:'#FFD000', desc:'Curioso → Obsesionado → Socio. Cada nivel desbloquea algo diferente. Las llaves existen. No todo es público.', tags:['CURIOSO','OBSESIONADO','SOCIO','LLAVES'] },
+  { name:'ORACLE SYSTEM',       sub:'Ask. Price Rises.',           color:'#FF2800', desc:'Primera pregunta gratis. Cada respuesta tiene precio creciente. El conocimiento se cobra. No doy señales, enseño a pensar.', tags:['PRICING ESCALADO','ORACLE','VAULT','RAW'] },
+  { name:'LO QUE SÉ',           sub:'Dark Vault',                  color:'#FF2800', desc:'Lo que aprendí perdiendo. Ganando. Quebrando. Los fragmentos que no publico. El libro que no debería existir.', tags:['BOOK','LOCKED','5 CAPÍTULOS','PRECIO PRIVADO'] },
+  { name:'PERFORMANCE PROTOCOL',sub:'Athlete Systems',             color:'#FF7A00', desc:'Cómo entreno. Cómo estructuro la carga física. Recuperación. HRV. Sueño. El cuerpo como máquina medible.', tags:['GOLF','RUGBY','HRV','RECUPERACIÓN'] },
+];
+
+const STATUS_COLORS = { LIVE:'#AAFF00', BUILD:'#FFD000', ACTIVE:'#00F0FF', SOON:'#555' };
+
+function bookArtSection(key, title, color, desc) {
+  const items = BOOK_ART[key];
+  return `
+    <div style="margin-bottom:32px">
+      <div class="sl" style="color:${color}">${title}
+        <span style="font-size:9px;color:var(--muted);letter-spacing:2px;font-weight:400">${desc}</span>
+      </div>
+      <div class="art-grid">
+        ${items.map(img => `
+          <div class="art-card" onclick="openLightbox('${img.src}','${img.cat} — ${img.title}')">
+            <img src="${img.src}" alt="${img.title}" loading="lazy">
+            <div class="art-overlay">
+              <div class="art-cat">${img.cat}</div>
+              <div class="art-title">${img.title}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
+function renderBookArte() {
+  return [
+    bookArtSection('identity','IDENTITY & GRAFFITI','#FF2800','Jean-Christophe · Tags · Typography · 80s Hip-Hop'),
+    bookArtSection('arte','ARTE DIGITAL','#C44DFF','Collage · Street Art · Vault · Mixed Media'),
+    bookArtSection('golf','VICEGOLFER BRAND','#AAFF00','Golf Club Logos · Minimalist · Moon + Flag'),
+    bookArtSection('crypto','CRYPTO VICE','#00F0FF','Futuristic Trading Studio · Neon Blue'),
+  ].join('');
+}
+
+function renderBookProductos() {
+  return `<div class="prod-grid">` +
+    BOOK_PRODUCTOS.map(p => `
+      <div class="prod-card" style="--pc:${p.color}">
+        <div style="display:inline-block;font-family:'Space Mono',monospace;font-size:7px;letter-spacing:3px;
+          padding:2px 8px;border:1px solid ${STATUS_COLORS[p.status]||'#555'};
+          color:${STATUS_COLORS[p.status]||'#555'};text-transform:uppercase;margin-bottom:10px">${p.status}</div>
+        <div style="font-size:19px;font-weight:700;letter-spacing:-.5px;color:${p.color};margin-bottom:3px">${p.name}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px">${p.sub}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px">${p.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${p.tags.map(t=>`<span class="badge" style="border-color:${p.color}30;color:${p.color}88">${t}</span>`).join('')}
+        </div>
+      </div>`).join('') + `</div>`;
+}
+
+function renderBookSistemas() {
+  return `<div class="prod-grid">` +
+    BOOK_SISTEMAS.map(s => `
+      <div class="prod-card" style="--pc:${s.color}">
+        <div style="font-size:19px;font-weight:700;letter-spacing:-.5px;color:${s.color};margin-bottom:3px">${s.name}</div>
+        <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:10px">${s.sub}</div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.65;margin-bottom:14px">${s.desc}</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap">
+          ${s.tags.map(t=>`<span class="badge" style="border-color:${s.color}30;color:${s.color}88">${t}</span>`).join('')}
+        </div>
+      </div>`).join('') + `</div>`;
+}
+
+let currentBookTab = 'arte';
+function bookTab(tab) {
+  currentBookTab = tab;
+  document.querySelectorAll('.btab').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const body = document.getElementById('book-body');
+  if (!body) return;
+  if (tab === 'arte')      body.innerHTML = renderBookArte();
+  else if (tab === 'productos') body.innerHTML = renderBookProductos();
+  else                     body.innerHTML = renderBookSistemas();
+}
+
+function openLightbox(src, cap) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox-cap').textContent = cap;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+
+// Initialize book when navigating to arte
+(function() {
+  const _origGo = go;
+  go = function(id) {
+    _origGo(id);
+    if (id === 'arte') bookTab('arte');
+  };
+})()
+
+// ═══ AFFIRMATIONS ═══
+const AFFIRMATIONS = [
+  { text: 'EL 5% NO DESCANSA\nTÚ TAMPOCO', sub: 'MENTALIDAD 5%', col: '#AAFF00' },
+  { text: 'LO QUE ENTRENAS HOY\nLO DOMINAS MAÑANA', sub: 'PROTOCOLO DE RENDIMIENTO', col: '#AAFF00' },
+  { text: 'TU IDENTIDAD ES\nTU ACTIVO MÁS RARO', sub: 'IDENTITY CORE', col: '#FFD000' },
+  { text: 'CONSTRUYE MIENTRAS\nOTROS DUERMEN', sub: 'BUILD MODE · 24/7', col: '#00F0FF' },
+  { text: 'COBRA LO QUE VALE\nSIN NEGOCIAR', sub: '$ FLOW SYSTEM', col: '#FFD000' },
+  { text: 'UN REP MÁS\nSIEMPRE UN REP MÁS', sub: 'FORGED NOT BORN', col: '#FF7A00' },
+  { text: 'EL CAOS CON INTENCIÓN\nES ARTE', sub: 'ARTE · HK23 FORGE', col: '#FF2800' },
+  { text: 'DOCUMENTA TODO\nNADA MUERE', sub: 'SISTEMAS HK23', col: '#C44DFF' },
+  { text: 'ERES LO QUE CONSTRUYES\nNO LO QUE SIENTES', sub: 'HEYOKA 23', col: '#EDEBE6' },
+  { text: 'EL DINERO SIGUE\nLA ATENCIÓN', sub: 'MONEY MOVE', col: '#FFD000' },
+  { text: 'SÉ EL SISTEMA QUE\nSIEMPRE QUISISTE SER', sub: 'VICE OS CORE', col: '#00F0FF' },
+  { text: 'NADA ES LIBRE\nTIENES QUE TENER LAS LLAVES', sub: 'HK23 UNIVERSE', col: '#AAFF00' },
+  { text: 'LA EXCELENCIA\nES UN HÁBITO', sub: 'PROTOCOLO DIARIO', col: '#AAFF00' },
+  { text: 'TU NOMBRE ES TU MARCA\nCUÍDALO', sub: 'IDENTITY · VICE OS', col: '#C44DFF' },
+  { text: 'TODO ES MONETIZABLE\nTODO ESTÁ DOCUMENTADO', sub: 'VICE OS PHILOSOPHY', col: '#AAFF00' },
+  { text: 'CADA DÍA MEJOR\nO IGUAL NO EXISTE', sub: 'CRECIMIENTO', col: '#FF7A00' },
+  { text: 'LA RIQUEZA ES UN\nESTADO MENTAL PRIMERO', sub: 'MINDSET · $ FLOW', col: '#FFD000' },
+  { text: 'UN VICIO NO ES\nUN HOBBY', sub: 'VICE OS', col: '#AAFF00' },
+  { text: '33 · 23 · 5\nEL NÚMERO ES EL SISTEMA', sub: 'HEYOKA NUMEROLOGY', col: '#C44DFF' },
+  { text: 'DOMINA UNA DISCIPLINA\nDESTRUYE LOS LÍMITES', sub: 'FORGED ATHLETE', col: '#FF7A00' },
+];
+
+function showAff(a) {
+  const el = document.getElementById('aff-flash');
+  const txt = document.getElementById('aff-text');
+  const sub = document.getElementById('aff-sub');
+  txt.innerHTML = a.text.replace('\n', '<br>');
+  txt.style.color = a.col;
+  txt.style.textShadow = `0 0 80px ${a.col}33`;
+  sub.textContent = a.sub;
+  el.style.display = 'flex';
+  requestAnimationFrame(() => { el.style.opacity = '1'; });
+}
+function closeAff() {
+  const el = document.getElementById('aff-flash');
+  el.style.opacity = '0';
+  setTimeout(() => { el.style.display = 'none'; }, 310);
+}
+
+// ─── floating affirmation texts on canvas ───
+const floatTexts = [];
+let floatSpawnTimer = 0;
+
+function spawnFloatText() {
+  const a = AFFIRMATIONS[Math.floor(Math.random() * AFFIRMATIONS.length)];
+  const line = a.text.split('\n')[0];
+  floatTexts.push({
+    text: line,
+    x: Math.random() * W,
+    y: H * (.12 + Math.random() * .78),
+    vx: (Math.random() - .5) * .12,
+    vy: -.06 - Math.random() * .05,
+    alpha: 0,
+    life: 0,
+    maxLife: 380 + Math.random() * 180,
+    col: a.col,
+    sz: 9 + Math.random() * 5,
+  });
+}
+
+function updateFloatTexts() {
+  floatSpawnTimer++;
+  if (floatSpawnTimer > 90 && floatTexts.length < 8) {
+    spawnFloatText();
+    floatSpawnTimer = 0;
+  }
+  for (let i = floatTexts.length - 1; i >= 0; i--) {
+    const f = floatTexts[i];
+    f.life++;
+    f.x += f.vx;
+    f.y += f.vy;
+    // fade in first 40 frames, hold, fade out last 60
+    if (f.life < 40) f.alpha = f.life / 40 * .18;
+    else if (f.life > f.maxLife - 60) f.alpha = Math.max(0, ((f.maxLife - f.life) / 60) * .18);
+    else f.alpha = .18;
+    if (f.life >= f.maxLife) floatTexts.splice(i, 1);
+  }
+}
+
+function drawFloatTexts() {
+  floatTexts.forEach(f => {
+    bgx.save();
+    bgx.globalAlpha = f.alpha;
+    bgx.font = `700 ${f.sz}px 'Space Mono',monospace`;
+    bgx.fillStyle = f.col;
+    bgx.textAlign = 'center';
+    bgx.textBaseline = 'middle';
+    bgx.letterSpacing = '3px';
+    bgx.fillText(f.text, f.x, f.y);
+    bgx.restore();
+  });
+}
+
+// ═══ MAIN LOOP ═══
+function loop() {
+  updateCosmos();
+  updateFloatTexts();
+  drawCosmos();
+  drawFloatTexts();
+  drawMap();
+  requestAnimationFrame(loop);
+}
+
+// ═══ ORACLE LOGIC ═══
+const PRICES = [0, 2, 5, 12, 25, 50, 100, 200, 500];
+const HOOKS = [
+  "De eso sé bastante. Más de lo que imaginas.",
+  "Esta pregunta toca algo que escribí en el libro. Capítulo 3.",
+  "Tengo una respuesta para eso. No es la que esperas escuchar.",
+  "Esa es buena. El 90% no llega a hacer esa pregunta.",
+  "Sé exactamente de qué hablas. La respuesta te cambia algo.",
+];
+let qCount = 0;
+function getPrice(n) { return PRICES[Math.min(n, PRICES.length - 1)]; }
+function updateMeter() {
+  document.getElementById('oracle-price').textContent = qCount === 0 ? '$0' : '$' + getPrice(qCount);
+  document.getElementById('oracle-next').textContent = '→ $' + getPrice(qCount + 1);
+  document.getElementById('oracle-count').textContent = qCount;
+  document.getElementById('oracle-btn').textContent = qCount === 0 ? 'PREGUNTAR — FREE' : `PREGUNTAR — $${getPrice(qCount + 1)}`;
+}
+function submitQ() {
+  const inp = document.getElementById('oracle-q');
+  const q = inp.value.trim(); if (!q) return;
+  inp.value = '';
+  const isFree = qCount === 0;
+  const price = getPrice(qCount + 1);
+  qCount++; updateMeter();
+  const hook = HOOKS[Math.floor(Math.random() * HOOKS.length)];
+  const feed = document.getElementById('oracle-feed');
+  const el = document.createElement('div'); el.className = 'qbox';
+  el.innerHTML = `
+    <div class="q">— "${q}"</div>
+    ${isFree
+      ? `<div class="a">${hook} <span style="color:var(--r);font-size:11px">↗ Sigue preguntando.</span></div>`
+      : `<div class="locked-a" onclick="unlockAnswer(this,${price})">
+          <span>Ver respuesta completa</span>
+          <span class="aq">$${price} para desbloquear →</span>
+        </div>`}
+  `;
+  feed.insertBefore(el, feed.firstChild);
+}
+function unlockAnswer(el, price) {
+  el.parentElement.innerHTML += `
+    <div style="margin-top:10px;padding:10px;background:rgba(255,40,0,.04);border:1px solid rgba(255,40,0,.13);font-size:11px;color:var(--muted)">
+      <span style="font-family:'Space Mono',monospace;font-size:7.5px;letter-spacing:2px;color:var(--r);display:block;margin-bottom:6px">ACCESO — $${price}</span>
+      Esta respuesta está en el vault. Obtén acceso completo con membership o paga por respuesta individual.
+      <br><br>
+      <button onclick="go('gates')" style="background:var(--r);color:#000;border:none;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;padding:6px 16px;cursor:pointer;font-weight:700;margin-top:4px">VER OPCIONES</button>
+    </div>
+  `;
+  el.style.display = 'none';
+}
+updateMeter();
+
+// ═══ BOOK SECTIONS ═══
+const BOOK = [
+  { title:'Lo que sé de las personas',           price:'$19', preview:'Cómo leo a alguien en 60 segundos. Patrones que la gente repite sin darse cuenta. Por qué ciertos tipos siempre hacen lo mismo.' },
+  { title:'Lo que sé del dinero',                price:'$19', preview:'Lo que aprendí perdiendo. Lo que aprendí ganando. El patrón que tiene todo el que tiene dinero real.' },
+  { title:'Lo que sé de los sistemas',           price:'$29', preview:'Cómo construyo. Cómo pienso. Por qué todo lo que hago termina siendo un sistema con precio.' },
+  { title:'Lo que sé de la oscuridad',           price:'$39', preview:'DMT. Noches sin dormir. Momentos de quiebre. Lo que está al otro lado y cómo volver de ahí con algo útil.' },
+  { title:'Lo que nunca debería saber nadie',    price:'PRECIO PRIVADO', preview:'Existe. Tiene precio. Lo negocias directo conmigo.' },
+];
+document.getElementById('book-sections').innerHTML = BOOK.map(b => `
+  <div class="book-section">
+    <div class="bs-hdr"><div class="bs-title">${b.title}</div><div class="bs-price">${b.price}</div></div>
+    <div class="bs-preview">${b.preview}</div>
+  </div>
+`).join('');
+
+// ═══ MEMBERSHIP TIERS ═══
+const TIERS = [
+  { name:'CURIOSO',     num:'01', price:'FREE',  period:'',     desc:'Lo que es público es tuyo.', ca:'#555',
+    inc:['Arte & visual identity','Vice OS landing','Agentes preview','Oracle — primera pregunta','Intro Heyoka 23'] },
+  { name:'OBSESIONADO', num:'02', price:'$29',   period:'/mes', desc:'Lo que hago, cómo pienso, qué uso.', ca:'#C44DFF', hot:true,
+    inc:['Todo de CURIOSO','Sistemas & procesos','Crypto & trading setup','Forged Athlete protocols','Oracle ilimitado','Vice OS Pro','Content exclusivo'] },
+  { name:'SOCIO',       num:'03', price:'$99',   period:'/mes', desc:'Acceso directo. Parte del build.', ca:'#FFD000',
+    inc:['Todo de OBSESIONADO','Acceso 1:1 mensual','Vice OS Elite','Co-crear conmigo','Revenue share posible','Lo Que Sé — libro completo'] },
+];
+document.getElementById('tiers-wrap').innerHTML = TIERS.map(t => `
+  <div class="tier${t.hot?' hot':''}" style="--ca:${t.ca};${t.hot?`border-color:${t.ca};background:${t.ca}08`:''};margin-bottom:12px">
+    ${t.hot ? `<div class="tier-chip" style="background:${t.ca};color:#000">MÁS ELEGIDO</div>` : ''}
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:${t.ca};margin-bottom:6px">TIER ${t.num}</div>
+        <div style="font-size:26px;font-weight:700;letter-spacing:-1px;margin-bottom:4px">${t.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${t.desc}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <div style="font-size:32px;font-weight:700;color:${t.ca}">${t.price}<span style="font-size:12px;font-weight:400;color:var(--muted)">${t.period}</span></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      ${t.inc.map(i => `<span class="badge" style="border-color:${t.ca}40;color:${t.ca}99">${i}</span>`).join('')}
+    </div>
+  </div>
+`).join('');
+
+// ═══ RESIZE ═══
+window.addEventListener('resize', () => {
+  initCosmos();
+  startMap();
+});
+
+// ═══ INIT ═══
+initCosmos();
+startMap();
+loop();
+</script>
+</body>
+</html>
