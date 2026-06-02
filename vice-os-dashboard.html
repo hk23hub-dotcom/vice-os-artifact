@@ -247,8 +247,8 @@
     </div>
     <div class="hdr-right">
       <div class="hdr-stat">
-        <div class="hdr-stat-val" id="overall-pct">34%</div>
-        <div class="hdr-stat-lbl">OVERALL</div>
+        <div class="hdr-stat-val" id="overall-pct">97%</div>
+        <div class="hdr-stat-lbl" id="overall-lbl">CORE BUILD</div>
       </div>
       <div class="pulse"></div>
     </div>
@@ -475,6 +475,17 @@ const planets = [
 
 const statusMap = { live:'LIVE', build:'BUILDING', spec:'SPEC', concept:'CONCEPT' };
 const statusClass = { live:'s-live', build:'s-build', spec:'s-spec', concept:'s-concept' };
+
+// ── OVERALL % (computed from the planets, never hardcoded) ──
+(function(){
+  if (!planets.length) return;
+  // Headline = the core product (the universe). Honest + reflects daily movement.
+  const core = planets.find(p => p.id === 'universe') || planets[0];
+  const el = document.getElementById('overall-pct');
+  if (el) el.textContent = (core.pct || 0) + '%';
+  const lbl = document.getElementById('overall-lbl');
+  if (lbl) lbl.textContent = 'CORE BUILD';
+})();
 
 // ── RENDER PLANETS ──
 const grid = document.getElementById('planet-grid');
