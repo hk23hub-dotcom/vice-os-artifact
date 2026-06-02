@@ -307,7 +307,7 @@
       <div class="tl-item">
         <div class="tl-badge active">TODAY</div>
         <div class="tl-dot active"></div>
-        <div class="tl-label">ViceGolfer Link +<br>Mindset Engine</div>
+        <div class="tl-label">Mindset Engine ✓<br>+ Swarm Art Gallery</div>
         <div class="tl-date">JUN 1</div>
       </div>
       <div class="tl-item">
@@ -385,10 +385,10 @@ initStars(); drawStars();
 const planets = [
   {
     id:'universe', name:'HK23 UNIVERSE', sub:'Interactive OS Map',
-    color:'#F0EDE8', pct:94, status:'live',
+    color:'#F0EDE8', pct:97, status:'live',
     tasks:{
-      done:['10 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version','Mobile English pass + 3 new planets','Swarm Art — universe self-destruct (S)','Particle text morph — type a word','Mindset Engine foundation — quotes.json source of truth'],
-      todo:['Add SSH key → push to GitHub Pages','Mindset Engine — quote-studio + deep-link handler + daily.html','Swarm Art from Midjourney planet (image source)','Wire questionnaire to real form endpoint']
+      done:['10 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version + English pass','Swarm Art — universe self-destruct (S)','Particle text morph — type a word','Swarm Art — Midjourney gallery + LO/HI fidelity','Mindset Engine COMPLETE (quotes.json + studio + deep-link + daily)','ViceGolfer planet deep-linked to live app','6 core ideas — unique colors'],
+      todo:['Add SSH key → push to GitHub Pages','Sync Midjourney images from Drive → gallery','Wire questionnaire to real form endpoint']
     }
   },
   {
@@ -552,10 +552,9 @@ const todoItems = [
   { text:'git push -u origin main in /vice-os-artifact', meta:'Run in terminal after SSH key added', tag:'urgent', section:'DEPLOY' },
   { text:'Enable GitHub Pages → branch main / root /', meta:'github.com/hk23neo/vice-os-artifact/settings/pages', tag:'urgent', section:'DEPLOY' },
   { text:'Wire galaxy questionnaire to real form endpoint', meta:'Formspree or Supabase — currently fakes submit', tag:'build', section:'UNIVERSE' },
-  { text:'Quote Studio — card generator + QR + PNG export', meta:'quote-studio.html (Task 5 of Mindset Engine plan)', tag:'build', section:'MINDSET ENGINE' },
-  { text:'Universe deep-link handler ?quote / ?planet', meta:'Fly to planet + unlock collectible (Task 4)', tag:'build', section:'MINDSET ENGINE' },
-  { text:'daily.html link-in-bio landing', meta:'Posted quotes grid, deep-links to universe (Task 6)', tag:'next', section:'MINDSET ENGINE' },
-  { text:'Swarm Art from Midjourney planet', meta:'Universe particles form an image pulled from Arte World / file upload — in-universe', tag:'next', section:'SWARM ART' },
+  { text:'Designate a Drive/Box folder for Midjourney art', meta:'Source of truth for the swarm gallery — then I run the sync', tag:'urgent', section:'SWARM ART' },
+  { text:'Sync Midjourney images → /midjourney + manifest', meta:'Agent runs via connector once the folder exists; gallery shows empty-state until then', tag:'next', section:'SWARM ART' },
+  { text:'Project B — Particle Games', meta:'Pac-Man mode + Tetris mode + interactive particle control (own spec, later)', tag:'next', section:'SWARM ART' },
   { text:'Stripe payment integration for ViceGolfer', meta:'Tier 2/3 memberships need real checkout', tag:'build', section:'VICEGOLFER' },
   { text:'Analytics trends dashboard', meta:'Strokes gained, period comparison, auto insights', tag:'build', section:'VICEGOLFER' },
   { text:'Chipping + short game sessions', meta:'Complete the 3-zone training protocol suite', tag:'next', section:'VICEGOLFER' },
@@ -576,7 +575,13 @@ const doneItems = [
   { text:'Mobile universe (hk23-universe-mobile.html)', meta:'Lightweight orbital viewer', section:'UNIVERSE' },
   { text:'Mobile English pass + 3 new planets', meta:'All Spanish → English; Tee Club, Vice AI, Marketplace added on outer2 ring', section:'UNIVERSE' },
   { text:'ViceGolfer planet deep-linked to live app', meta:'6 nodes → vicegolfer.vercel.app routes; UNIVERSE/VICEGOLFER_URL constants', section:'UNIVERSE' },
-  { text:'Mindset Engine: quote-utils + quotes.json + universe loader', meta:'Shared helpers, single source of truth, universe loads quotes.json (3/7 tasks)', section:'MINDSET ENGINE' },
+  { text:'Mindset Engine COMPLETE (7/7) — social quote agent ↔ universe', meta:'quote-utils + quotes.json + universe loader + deep-link handler + quote-studio + daily.html; 8/8 tests pass', section:'MINDSET ENGINE' },
+  { text:'Quote Studio — card generator + QR + PNG export', meta:'quote-studio.html: canvas 1080², client-side QR (no taint), download + copy caption', section:'MINDSET ENGINE' },
+  { text:'Universe deep-link handler ?quote / ?planet', meta:'Flies to planet + unlocks collectible — verified in browser', section:'MINDSET ENGINE' },
+  { text:'daily.html link-in-bio landing', meta:'Posted quotes grid → deep-links into the universe', section:'MINDSET ENGINE' },
+  { text:'Swarm Art — Midjourney gallery + LO/HI fidelity', meta:'Gallery strip in swarm panel, ◈ IMG picker, per-pixel color, ≤6500 particles', section:'SWARM ART' },
+  { text:'Swarm Art design spec + Project B split', meta:'Pac-Man/Tetris/interactive control scoped out to a separate project', section:'SWARM ART' },
+  { text:'6 core ideas — unique colors', meta:'$ FLOW → orange (was duplicate yellow); ARTE/LORE/VICEOS/SYSTEMS/FLOW/AGENTS all distinct', section:'UNIVERSE' },
   { text:'Swarm Art — universe self-destruct (S key)', meta:'Captures live canvas, explodes all planets into particles', section:'UNIVERSE' },
   { text:'Particle text morph — type a word', meta:'Swarm particles rearrange to spell any word', section:'UNIVERSE' },
   { text:'Tee Club planet (emerald #10B981)', meta:'6 fractal nodes, orbital moons: BOOKINGS·MEMBERS·LOCATIONS·EVENTS', section:'UNIVERSE' },
