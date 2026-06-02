@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Etsy Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --etsy:#F1641E; --green:#AAFF00; }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0c0c12;color:#ddd;font-family:'Space Mono',monospace;padding:30px 22px 80px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;letter-spacing:1px;}
+  h1 span{color:var(--etsy);}
+  .sub{color:#666;font-size:10px;letter-spacing:3px;margin:5px 0 8px;}
+  .how{color:#7a7a88;font-size:11px;font-family:'Space Grotesk',sans-serif;max-width:680px;line-height:1.6;margin-bottom:26px;}
+  .how b{color:var(--green);}
+  .grid{display:flex;flex-direction:column;gap:20px;max-width:880px;}
+  .card{display:flex;gap:20px;background:#0a0a12;border:1px solid #1c1c26;border-radius:8px;padding:18px;flex-wrap:wrap;}
+  .art{width:200px;height:200px;object-fit:cover;border:1px solid #222;flex-shrink:0;background:#000;}
+  .body{flex:1;min-width:280px;display:flex;flex-direction:column;gap:11px;}
+  .toprow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .pid{font-size:9px;letter-spacing:2px;color:#555;}
+  .type{font-size:9px;letter-spacing:1px;color:var(--etsy);border:1px solid var(--etsy)55;padding:3px 8px;}
+  .price{margin-left:auto;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;color:var(--green);}
+  .field{border:1px solid #16161e;border-radius:5px;padding:10px 12px;}
+  .field .lbl{font-size:8px;letter-spacing:2px;color:#555;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+  .field .val{font-family:'Space Grotesk',sans-serif;font-size:13px;color:#cfcfcf;line-height:1.5;white-space:pre-wrap;}
+  .tags{display:flex;flex-wrap:wrap;gap:5px;}
+  .tag{font-size:10px;background:#14141c;border:1px solid #24242e;color:#aab;padding:3px 8px;border-radius:3px;}
+  .copy{cursor:pointer;font-size:8px;letter-spacing:1px;color:var(--green);background:none;border:1px solid #2a3a14;padding:3px 7px;border-radius:3px;}
+  .copy:hover{background:#14210a;}
+  .openetsy{display:inline-block;margin-top:6px;text-align:center;text-decoration:none;background:var(--etsy);color:#fff;
+    font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;padding:11px 16px;border-radius:4px;}
+  .footnote{max-width:880px;margin-top:30px;color:#555;font-size:10px;line-height:1.6;border-top:1px solid #16161e;padding-top:16px;}
+  .footnote b{color:#888;}
+</style>
+</head>
+<body>
+  <h1>ETSY <span>STUDIO</span></h1>
+  <div class="sub">ARTE → ETSY · GENERATE → APPROVE → PUBLISH</div>
+  <p class="how">El agente analizó tu arte y generó <b>listings completos de Etsy</b> (título SEO, descripción, 13 tags, precio sugerido). Revisa, copia cada campo con un tap, y pégalo al crear el listing en Etsy. <b>Tú apruebas y publicas</b> — el agente hace el trabajo pesado.</p>
+  <div class="grid" id="grid"></div>
+  <div class="footnote">
+    <b>¿Y la publicación 100% automática?</b> Para que el agente publique solo en Etsy necesitas conectar tu cuenta + API key de Etsy (OAuth). Cuando la tengas, conecto el publish directo. Mover dinero / cerrar ventas siempre lo confirmas tú.
+  </div>
+
+<script>
+function copyText(t, btn){
+  navigator.clipboard.writeText(t);
+  const o = btn.textContent; btn.textContent = '✓ COPIED';
+  setTimeout(()=>btn.textContent=o, 1100);
+}
+fetch('etsy-listings.json').then(r=>r.json()).then(list=>{
+  const grid = document.getElementById('grid');
+  list.forEach(L=>{
+    const tagsHtml = L.tags.map(t=>'<span class="tag">'+t+'</span>').join('');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<img class="art" src="'+L.file+'" alt="'+L.id+'">'+
+      '<div class="body">'+
+        '<div class="toprow"><span class="pid">'+L.id.toUpperCase()+'</span>'+
+          '<span class="type">'+L.type+'</span>'+
+          '<span class="price">$'+L.price+'</span></div>'+
+        '<div class="field"><div class="lbl"><span>TITLE</span><button class="copy">COPY</button></div><div class="val title"></div></div>'+
+        '<div class="field"><div class="lbl"><span>TAGS · '+L.tags.length+'/13</span><button class="copy">COPY ALL</button></div><div class="tags">'+tagsHtml+'</div></div>'+
+        '<div class="field"><div class="lbl"><span>DESCRIPTION</span><button class="copy">COPY</button></div><div class="val desc"></div></div>'+
+        '<a class="openetsy" href="https://www.etsy.com/your/shops/me/tools/listings/create" target="_blank">OPEN ETSY · CREATE LISTING →</a>'+
+      '</div>';
+    card.querySelector('.title').textContent = L.title;
+    card.querySelector('.desc').textContent = L.description;
+    const btns = card.querySelectorAll('.copy');
+    btns[0].onclick = ()=>copyText(L.title, btns[0]);
+    btns[1].onclick = ()=>copyText(L.tags.join(', '), btns[1]);
+    btns[2].onclick = ()=>copyText(L.description, btns[2]);
+    grid.appendChild(card);
+  });
+});
+</script>
+</body>
+</html>
