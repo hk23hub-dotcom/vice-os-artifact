@@ -1398,6 +1398,10 @@
     </div>
   </div>
   <canvas id="map-canvas"></canvas>
+  <div id="world-overlay" style="display:none;opacity:0;transition:opacity .5s;position:fixed;inset:0;z-index:250;background:#000;">
+    <div id="world-stage" style="position:absolute;inset:0;overflow:hidden;"></div>
+  </div>
+  <style>@keyframes worldPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}</style>
   <canvas id="swarm-live-canvas" style="position:absolute;inset:0;pointer-events:none;display:none;"></canvas>
   <!-- SWARM MINI PANEL -->
   <div id="swarm-mini-panel" style="display:none;position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:300;background:rgba(7,7,15,.92);border:1px solid rgba(184,77,255,.4);padding:0;font-family:'Space Mono',monospace;">
@@ -2041,6 +2045,8 @@
 </div>
 
 <script src="quote-utils.js"></script>
+<script src="world-utils.js"></script>
+<script src="world-engine.js"></script>
 <script>
 // ═══════════ STATE ═══════════
 let currentScreen = 'portal';
@@ -4498,6 +4504,29 @@ let fractalT = 0;
 let fractalStack = []; // navigation stack for drill-down
 
 function openFractalUniverse(project) {
+  if (project && window.WorldUtils && WorldUtils.hasWorld(project.id)) { openWorld(project); return; }
+  openFractalUniverseRaw(project);
+}
+
+function openWorld(project) {
+  fetch('worlds/' + project.id + '.json')
+    .then(function (r) { return r.json(); })
+    .then(function (m) {
+      var ov = document.getElementById('world-overlay');
+      ov.style.display = 'block';
+      requestAnimationFrame(function () { ov.style.opacity = '1'; });
+      WorldEngine.open(m, { onExit: closeWorld });
+    })
+    .catch(function () { openFractalUniverseRaw(project); }); // manifest missing → fractal fallback
+}
+
+function closeWorld() {
+  var ov = document.getElementById('world-overlay');
+  ov.style.opacity = '0';
+  setTimeout(function () { ov.style.display = 'none'; }, 500);
+}
+
+function openFractalUniverseRaw(project) {
   fractalStack = [{
     sunLabel: project.label,
     sunColor: project.color,
