@@ -4514,7 +4514,10 @@ function openWorld(project) {
     .then(function (m) {
       var ov = document.getElementById('world-overlay');
       ov.style.display = 'block';
-      requestAnimationFrame(function () { ov.style.opacity = '1'; });
+      void ov.offsetWidth; // force reflow so the opacity transition runs
+      ov.style.opacity = '1';
+      // hide map chrome so it doesn't bleed over the world
+      ['galaxy-cta','shortcut-legend'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
       WorldEngine.open(m, { onExit: closeWorld });
     })
     .catch(function () { openFractalUniverseRaw(project); }); // manifest missing → fractal fallback
@@ -4524,6 +4527,8 @@ function closeWorld() {
   var ov = document.getElementById('world-overlay');
   ov.style.opacity = '0';
   setTimeout(function () { ov.style.display = 'none'; }, 500);
+  // restore map chrome
+  ['galaxy-cta','shortcut-legend'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display=''; });
 }
 
 function openFractalUniverseRaw(project) {
