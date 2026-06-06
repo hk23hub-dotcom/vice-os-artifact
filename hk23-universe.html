@@ -1402,6 +1402,11 @@
     <div id="world-stage" style="position:absolute;inset:0;overflow:hidden;"></div>
   </div>
   <style>@keyframes worldPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}</style>
+  <div id="milestone-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.9);align-items:center;justify-content:center;flex-direction:column;gap:18px;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:#FFD200;">✦ LEGENDARY COLLECTIBLE UNLOCKED</div>
+    <iframe src="token-milestone-card.html" style="width:440px;height:700px;max-width:94vw;border:none;background:transparent;"></iframe>
+    <button onclick="document.getElementById('milestone-modal').style.display='none'" style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;background:none;border:1px solid #FFD200;color:#FFD200;padding:10px 24px;cursor:pointer;">✕ CLOSE</button>
+  </div>
   <canvas id="swarm-live-canvas" style="position:absolute;inset:0;pointer-events:none;display:none;"></canvas>
   <!-- SWARM MINI PANEL -->
   <div id="swarm-mini-panel" style="display:none;position:absolute;bottom:32px;left:50%;transform:translateX(-50%);z-index:300;background:rgba(7,7,15,.92);border:1px solid rgba(184,77,255,.4);padding:0;font-family:'Space Mono',monospace;">
@@ -3474,7 +3479,14 @@ let hoveredBlackHole = null;
 let hoveredCenter = false;
 let hoveredKey = null;
 let hoveredQuote = null;
+let hoveredMilestone = false;
 let hoveredIdeasPlanet = false;
+
+// ─── LEGENDARY COLLECTIBLE — token milestone ───
+const MILESTONE = {
+  id: 'milestone_12m', label: '✲ THE 12 MILLION', color: '#FFD200', rarity: 'legendary',
+  x: 0.5, y: 0.11, vx: 0.000075, vy: 0.000045, collected: false, hovered: false, width: 0,
+};
 let hoveredIdeaMoonIdx = -1;
 let hoveredCmdsMoonIdx = -1;
 let hoveredAgentBase = false;
@@ -3740,6 +3752,33 @@ function animateMap() {
       mapCtx.fillText('→ ' + (q.target === 'lore' || q.target === 'flow' || q.target === 'arte' || q.target === 'agents' || q.target === 'systems' ? 'ZONA' : 'UNIVERSO'), px, py + 13);
     }
   });
+
+  // ─── LEGENDARY milestone collectible ───
+  if (!MILESTONE.collected) {
+    MILESTONE.x += MILESTONE.vx; MILESTONE.y += MILESTONE.vy;
+    if (MILESTONE.x < 0.05 || MILESTONE.x > 0.90) MILESTONE.vx *= -1;
+    if (MILESTONE.y < 0.05 || MILESTONE.y > 0.90) MILESTONE.vy *= -1;
+    const mpx = MILESTONE.x * W, mpy = MILESTONE.y * H;
+    const isHov = MILESTONE.hovered;
+    const pulse = 0.5 + 0.5 * Math.sin(mapT * 2.2);
+    // glow halo
+    const gr = (isHov ? 30 : 20) + pulse * 6;
+    const halo = mapCtx.createRadialGradient(mpx - 6, mpy - 4, 0, mpx - 6, mpy - 4, gr);
+    halo.addColorStop(0, '#FFD200' + (isHov ? '40' : '22')); halo.addColorStop(1, 'transparent');
+    mapCtx.fillStyle = halo;
+    mapCtx.beginPath(); mapCtx.arc(mpx - 6, mpy - 4, gr, 0, Math.PI * 2); mapCtx.fill();
+    // label
+    mapCtx.font = `700 ${isHov ? 12 : 11}px 'Space Mono', monospace`;
+    mapCtx.textAlign = 'left';
+    mapCtx.fillStyle = '#FFD200' + Math.round((isHov ? 0.98 : 0.6 + pulse * 0.25) * 255).toString(16).padStart(2, '0');
+    mapCtx.fillText(MILESTONE.label, mpx, mpy);
+    MILESTONE.width = mapCtx.measureText(MILESTONE.label).width;
+    if (isHov) {
+      mapCtx.font = `400 7px 'Space Mono', monospace`;
+      mapCtx.fillStyle = '#FFD20099';
+      mapCtx.fillText('✦ LEGENDARY — CLICK TO COLLECT', mpx, mpy + 13);
+    }
+  }
 
   // ─── MALIGNANT ENTITIES ───
   if (mapT - lastMalignantTime > MALIGNANT_INTERVAL) {
@@ -4074,6 +4113,13 @@ mapCanvas.addEventListener('mousemove', e => {
     q.hovered = hit;
     if (hit) foundQuote = q.id;
   });
+  // Milestone collectible
+  let foundMilestone = false;
+  if (!MILESTONE.collected) {
+    const px = MILESTONE.x * W, py = MILESTONE.y * H;
+    const hit = e.clientX >= px - 6 && e.clientX <= px + MILESTONE.width + 6 && e.clientY >= py - 16 && e.clientY <= py + 8;
+    MILESTONE.hovered = hit; foundMilestone = hit;
+  }
 
   hoveredNode = foundNode;
   hoveredProject = foundProj;
@@ -4081,6 +4127,7 @@ mapCanvas.addEventListener('mousemove', e => {
   hoveredCenter = foundCenter && !foundNode && !foundProj && !foundBH && !foundKey && !foundQuote;
   hoveredKey = foundKey;
   hoveredQuote = foundQuote;
+  hoveredMilestone = foundMilestone;
 
   // ─── Fase 2 hit-tests ───
   // IDEAS planet
@@ -4110,7 +4157,7 @@ mapCanvas.addEventListener('mousemove', e => {
   hoveredAgentBase = Math.sqrt(abDx*abDx + abDy*abDy) < 22;
   AGENT_BASE.hovered = hoveredAgentBase;
 
-  const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote
+  const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote || foundMilestone
     || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase;
   mapCanvas.style.cursor = anyHovered ? 'pointer' : 'crosshair';
 
@@ -4285,6 +4332,10 @@ mapCanvas.addEventListener('click', e => {
     // Key acts as a portal-black-hole: pick random bh affirmation, mark collected
     const randomBH = BLACK_HOLES[Math.floor(Math.random() * BLACK_HOLES.length)];
     showAffirmation(randomBH, false, k.id);
+  } else if (hoveredMilestone) {
+    MILESTONE.collected = true; MILESTONE.hovered = false; hoveredMilestone = false;
+    addCollectible(MILESTONE.id, 'legendary');
+    document.getElementById('milestone-modal').style.display = 'flex';
   } else if (hoveredQuote) {
     const q = QUOTE_PORTALS.find(q => q.id === hoveredQuote);
     addCollectible(q.id, q.rarity);
