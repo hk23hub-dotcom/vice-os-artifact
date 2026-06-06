@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Collectible: 12M Token Milestone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#08080c;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;gap:22px;padding:40px 20px;font-family:'Space Mono',monospace;}
+  .hint{color:#555;font-size:10px;letter-spacing:3px;text-transform:uppercase;}
+  .hint b{color:#FFD200;}
+
+  /* ── the card ── */
+  .card{
+    position:relative;width:380px;height:560px;border-radius:18px;overflow:hidden;
+    background:linear-gradient(160deg,#0d0d18 0%,#070710 100%);
+    box-shadow:0 30px 80px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.04);
+    cursor:pointer; transition:transform .25s ease;
+  }
+  .card:hover{transform:translateY(-6px) rotate(-.6deg);}
+  /* holographic legendary border */
+  .card::before{
+    content:'';position:absolute;inset:0;border-radius:18px;padding:2px;
+    background:linear-gradient(125deg,#FF3A1F,#FFD200,#AAFF00,#00F0FF,#B84DFF,#FF3A1F);
+    background-size:300% 300%;animation:holo 6s linear infinite;
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;
+  }
+  /* holographic sheen sweep */
+  .card::after{
+    content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;
+    background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.10) 47%,rgba(255,255,255,.18) 50%,rgba(255,255,255,.10) 53%,transparent 70%);
+    background-size:250% 250%;animation:sheen 6s ease-in-out infinite;mix-blend-mode:screen;
+  }
+  @keyframes holo{0%{background-position:0% 50%}100%{background-position:300% 50%}}
+  @keyframes sheen{0%,100%{background-position:120% 0}50%{background-position:-20% 0}}
+
+  .inner{position:absolute;inset:0;padding:22px 22px 20px;display:flex;flex-direction:column;z-index:2;}
+
+  .top{display:flex;align-items:center;justify-content:space-between;}
+  .rarity{font-size:9px;letter-spacing:3px;font-weight:700;
+    background:linear-gradient(90deg,#FFD200,#FF6600);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;}
+  .num{font-size:9px;letter-spacing:2px;color:#555;}
+
+  .emblem{margin:18px auto 6px;width:118px;height:118px;border-radius:50%;position:relative;
+    display:flex;align-items:center;justify-content:center;}
+  .emblem .glow{position:absolute;inset:-20%;border-radius:50%;
+    background:radial-gradient(circle,#FFD20055 0%,transparent 65%);animation:pulse 3s ease-in-out infinite;}
+  .emblem .star{font-size:64px;line-height:1;color:#FFD200;
+    filter:drop-shadow(0 0 14px #FFD20088);animation:spin 14s linear infinite;}
+  @keyframes pulse{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  .title{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:27px;text-align:center;
+    color:#fff;letter-spacing:-.5px;line-height:1;margin-top:4px;}
+  .subtitle{text-align:center;font-size:9px;letter-spacing:4px;color:#777;margin-top:8px;}
+
+  .stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:18px;}
+  .stat{border:1px solid #1c1c28;border-radius:6px;padding:9px 6px;text-align:center;background:rgba(255,255,255,.02);}
+  .stat .v{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:17px;color:#fff;line-height:1;}
+  .stat .l{font-size:6.5px;letter-spacing:1.5px;color:#666;margin-top:5px;text-transform:uppercase;}
+  .stat.hl .v{color:#FFD200;}
+
+  .flavor{margin-top:auto;border-top:1px solid #16161e;padding-top:12px;}
+  .flavor .q{font-family:'Space Grotesk',sans-serif;font-size:13px;color:#cfcfcf;line-height:1.45;text-align:center;}
+  .flavor .q b{color:#AAFF00;}
+  .foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+  .foot .brand{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:13px;color:#fff;}
+  .foot .brand span{color:#FF3A1F;}
+  .foot .meta{font-size:7px;letter-spacing:2px;color:#555;text-align:right;}
+</style>
+</head>
+<body>
+  <div class="hint">HK23 COLLECTIBLE &nbsp;·&nbsp; <b>✦ LEGENDARY</b> &nbsp;·&nbsp; pasa el mouse</div>
+
+  <div class="card">
+    <div class="inner">
+      <div class="top">
+        <span class="rarity">✦ LEGENDARY</span>
+        <span class="num">№ 001 / VICE OS</span>
+      </div>
+
+      <div class="emblem">
+        <div class="glow"></div>
+        <div class="star">✲</div>
+      </div>
+
+      <div class="title">THE 12 MILLION</div>
+      <div class="subtitle">TOKEN VOID · BUILD MILESTONE</div>
+
+      <div class="stats">
+        <div class="stat hl"><div class="v">12.0M</div><div class="l">Tokens</div></div>
+        <div class="stat"><div class="v">18</div><div class="l">Sessions</div></div>
+        <div class="stat"><div class="v">20.6K</div><div class="l">Messages</div></div>
+        <div class="stat"><div class="v">9</div><div class="l">Active Days</div></div>
+        <div class="stat"><div class="v">3d</div><div class="l">Best Streak</div></div>
+        <div class="stat"><div class="v">4 PM</div><div class="l">Peak Hour</div></div>
+      </div>
+
+      <div class="flavor">
+        <div class="q">Forged across 18 sessions with <b>Sonnet 4.6</b> — burned <b>~97× more tokens than The Hobbit</b>. The cost of building a universe.</div>
+        <div class="foot">
+          <div class="brand">HK<span>23</span></div>
+          <div class="meta">VICE OS · 2026<br>MINTED FROM USAGE</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">⌘ una carta legendaria acuñada de tu propio uso</div>
+</body>
+</html>
