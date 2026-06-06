@@ -139,6 +139,11 @@
       cell.onmouseleave = function () { cell.style.borderColor = '#1c1c26'; cell.style.transform = 'scale(1)'; };
       var img = el('img', 'width:100%;height:100%;object-fit:cover;display:block;', cell);
       img.src = g.file; img.loading = 'lazy';
+      if (g.forSale) {
+        el('span', 'position:absolute;top:7px;right:7px;font-family:\'Space Mono\',monospace;font-size:8px;' +
+          'letter-spacing:1px;background:' + accent + ';color:#080808;padding:2px 6px;font-weight:700;', cell)
+          .textContent = '$' + g.price;
+      }
       cell.onclick = function () { showLightbox(g); };
     });
 
@@ -157,9 +162,24 @@
   function showLightbox(g) {
     var lb = el('div', 'position:absolute;inset:0;z-index:14;background:rgba(0,0,0,.93);' +
       'display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:40px;', stage);
-    var img = el('img', 'max-width:90%;max-height:78%;object-fit:contain;border:1px solid #222;', lb);
+    var img = el('img', 'max-width:90%;max-height:' + (g.forSale ? '66%' : '78%') + ';object-fit:contain;border:1px solid #222;', lb);
     img.src = g.file;
-    if (g.title) el('div', "font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#888;", lb).textContent = g.title;
+    if (g.forSale) {
+      var shop = el('div', 'text-align:center;max-width:560px;', lb);
+      el('div', "font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:14px;color:#cfcfcf;line-height:1.4;", shop)
+        .textContent = g.listingTitle || g.title;
+      var row = el('div', 'display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;', shop);
+      el('div', "font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;color:" + accent + ";", row)
+        .textContent = '$' + g.price;
+      el('div', "font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:#666;", row)
+        .textContent = g.type || 'DIGITAL PRINT';
+      var btn = el('a', "display:inline-block;margin-top:14px;text-decoration:none;font-family:'Space Mono',monospace;" +
+        'font-size:11px;letter-spacing:2px;background:' + accent + ';color:#080808;padding:11px 22px;', shop);
+      if (g.etsyUrl) { btn.textContent = 'VIEW ON ETSY →'; btn.href = g.etsyUrl; btn.target = '_blank'; }
+      else { btn.textContent = 'PUBLISHING SOON'; btn.style.opacity = '0.55'; btn.style.cursor = 'default'; btn.href = 'javascript:void(0)'; }
+    } else if (g.title) {
+      el('div', "font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#888;", lb).textContent = g.title;
+    }
     var cl = el('button', "position:absolute;top:18px;right:20px;font-family:'Space Mono',monospace;font-size:11px;" +
       'letter-spacing:2px;background:none;border:1px solid ' + accent + ';color:' + accent + ';padding:9px 16px;cursor:pointer;', lb);
     cl.textContent = '✕ CLOSE'; cl.onclick = function () { lb.remove(); };
