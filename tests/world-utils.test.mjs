@@ -6,7 +6,7 @@ const W = require('../world-utils.js');
 
 test('hasWorld knows registered worlds', () => {
   assert.equal(W.hasWorld('vicegolfer'), true);
-  assert.equal(W.hasWorld('rugbyvice'), false);
+  assert.equal(W.hasWorld('lore'), false);
   assert.equal(W.hasWorld(undefined), false);
 });
 
