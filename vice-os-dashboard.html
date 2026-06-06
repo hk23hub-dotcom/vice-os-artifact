@@ -307,7 +307,7 @@
       <div class="tl-item">
         <div class="tl-badge active">TODAY</div>
         <div class="tl-dot active"></div>
-        <div class="tl-label">Mindset Engine ✓<br>+ Swarm Art Gallery</div>
+        <div class="tl-label">Golf House World ✓<br>+ Etsy Agent built</div>
         <div class="tl-date">JUN 1</div>
       </div>
       <div class="tl-item">
@@ -387,8 +387,8 @@ const planets = [
     id:'universe', name:'HK23 UNIVERSE', sub:'Interactive OS Map',
     color:'#F0EDE8', pct:97, status:'live',
     tasks:{
-      done:['10 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Galaxy questionnaire modal','Mobile version + English pass','Swarm Art — universe self-destruct (S)','Particle text morph — type a word','Swarm Art — Midjourney gallery + LO/HI fidelity','Mindset Engine COMPLETE (quotes.json + studio + deep-link + daily)','ViceGolfer planet deep-linked to live app','6 core ideas — unique colors'],
-      todo:['Add SSH key → push to GitHub Pages','Sync Midjourney images from Drive → gallery','Wire questionnaire to real form endpoint']
+      done:['10 orbital planets + fractal drill','IDEAS planet + CMDS + Agent Base','Black holes + Quote Portals + Keys','Full English translation','Mobile version + English pass','Swarm Art + morph + Midjourney gallery (62 imgs)','Mindset Engine COMPLETE (studio + deep-link + daily)','ViceGolfer planet deep-linked to live app','6 core ideas — unique colors','Immersive Worlds system (data-driven, parallax)','World 1: ViceGolfer "THE GOLF HOUSE" — verified'],
+      todo:['Deploy to Vercel (npx vercel) → public URL','World 2: Mothership "Agent Station" (isometric)','World 3: Arte World gallery','Wire questionnaire to real form endpoint']
     }
   },
   {
@@ -425,10 +425,10 @@ const planets = [
   },
   {
     id:'marketplace', name:'MARKETPLACE', sub:'Everything is for Sale',
-    color:'#F97316', pct:5, status:'spec',
+    color:'#F97316', pct:22, status:'build',
     tasks:{
-      done:['Universe planet + 6 fractal nodes'],
-      todo:['Art store product pages','Digital products + downloads','Memberships page','Stripe checkout','Courses & coaching structure']
+      done:['Universe planet + 6 fractal nodes','Etsy art agent — 5 real listings generated','Etsy Studio (review + 1-tap copy + publish)','Etsy auto-publisher built (OAuth PKCE + API v3)'],
+      todo:['Etsy key activation (pending Etsy review)','First publish + 24/7 Vercel cron','Generate remaining 57 art listings','Digital file delivery for downloads','Stripe checkout for own store']
     }
   },
   {
@@ -559,9 +559,10 @@ setTimeout(() => {
 
 // ── CHECKLIST DATA ──
 const todoItems = [
-  { text:'Add SSH public key to github.com/settings/keys', meta:'vice-os-artifact → GitHub Pages', tag:'urgent', section:'DEPLOY' },
-  { text:'git push -u origin main in /vice-os-artifact', meta:'Run in terminal after SSH key added', tag:'urgent', section:'DEPLOY' },
-  { text:'Enable GitHub Pages → branch main / root /', meta:'github.com/hk23neo/vice-os-artifact/settings/pages', tag:'urgent', section:'DEPLOY' },
+  { text:'⏳ Wait for Etsy to activate the API key', meta:'Status "Pending Personal Approval" — gates the whole Etsy agent', tag:'urgent', section:'ETSY AGENT' },
+  { text:'Run OAuth + first publish (5 min, when key active)', meta:'cp config → keystring → npm run oauth → publish:dry → publish', tag:'urgent', section:'ETSY AGENT' },
+  { text:'Move Etsy agent to 24/7 Vercel Cron', meta:'After first local run works, deploy as scheduled function', tag:'next', section:'ETSY AGENT' },
+  { text:'Deploy universe to Vercel', meta:'npx vercel@latest --yes → permanent public URL (you run the login once)', tag:'urgent', section:'DEPLOY' },
   { text:'Wire galaxy questionnaire to real form endpoint', meta:'Formspree or Supabase — currently fakes submit', tag:'build', section:'UNIVERSE' },
   { text:'Designate a Drive/Box folder for Midjourney art', meta:'Source of truth for the swarm gallery — then I run the sync', tag:'urgent', section:'SWARM ART' },
   { text:'Sync Midjourney images → /midjourney + manifest', meta:'Agent runs via connector once the folder exists; gallery shows empty-state until then', tag:'next', section:'SWARM ART' },
@@ -579,6 +580,10 @@ const todoItems = [
 ];
 
 const doneItems = [
+  { text:'Etsy art agent — 5 real listings from your art', meta:'Analyzed MJ art → SEO title, 13 tags, description, price · etsy-studio.html', section:'ETSY AGENT' },
+  { text:'Etsy auto-publisher built (OAuth + API v3)', meta:'etsy-agent/ — one-click OAuth, draft→image→activate, zero deps. Ready when key activates', section:'ETSY AGENT' },
+  { text:'Immersive Worlds system (data-driven)', meta:'world-engine + manifest + dispatcher; planets open bespoke worlds, fractal fallback', section:'WORLDS' },
+  { text:'World 1: ViceGolfer "THE GOLF HOUSE"', meta:'Parallax scene, 5 hotspots → blueprints + app deep-links · verified in browser', section:'WORLDS' },
   { text:'8 orbital planets + fractal drill-down system', meta:'hk23-universe.html — fully working', section:'UNIVERSE' },
   { text:'IDEAS planet + CMDS + Agent Base', meta:'Fase 2 complete', section:'UNIVERSE' },
   { text:'Full English translation', meta:'Zero Spanish remaining in universe', section:'UNIVERSE' },
