@@ -1,0 +1,14 @@
+{
+  "name": "hk23-etsy-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "HK23 autonomous Etsy publisher — turns generated listings into live Etsy listings.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "oauth": "node oauth.js",
+    "taxonomy": "node taxonomy.js",
+    "publish": "node publish.js",
+    "publish:dry": "node publish.js --dry"
+  }
+}

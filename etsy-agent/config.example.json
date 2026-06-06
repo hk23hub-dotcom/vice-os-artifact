@@ -1,0 +1,13 @@
+{
+  "keystring": "PASTE_YOUR_ETSY_KEYSTRING_HERE",
+  "redirectUri": "http://localhost:3003/callback",
+  "scopes": "listings_r listings_w shops_r",
+  "listingDefaults": {
+    "who_made": "i_did",
+    "when_made": "2020_2025",
+    "type": "download",
+    "quantity": 999,
+    "taxonomy_id": 0,
+    "publish": false
+  }
+}
