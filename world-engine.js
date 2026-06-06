@@ -181,6 +181,13 @@
     } else if (g.title) {
       el('div', "font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#888;", lb).textContent = g.title;
     }
+    // Turn this piece into universe swarm art
+    if (typeof window !== 'undefined' && window.swarmFromImage) {
+      var sw = el('button', "font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;" +
+        'background:none;border:1px solid ' + accent + ';color:' + accent + ';padding:10px 20px;cursor:pointer;margin-top:6px;', lb);
+      sw.textContent = '◉ SWARM THIS';
+      sw.onclick = function () { window.swarmFromImage(g.file); };
+    }
     var cl = el('button', "position:absolute;top:18px;right:20px;font-family:'Space Mono',monospace;font-size:11px;" +
       'letter-spacing:2px;background:none;border:1px solid ' + accent + ';color:' + accent + ';padding:9px 16px;cursor:pointer;', lb);
     cl.textContent = '✕ CLOSE'; cl.onclick = function () { lb.remove(); };

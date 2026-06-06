@@ -2301,7 +2301,7 @@ const PROJECTS = [
     }
   },
   {
-    id: 'arteworld', label: 'ARTE', sub: 'Visual Identity · Brands · Motion',
+    id: 'arteworld', label: 'ARTE WORLD', sub: 'The Gallery · JC Art',
     x: 0.22, y: 0.28, color: '#FF3A1F', size: 17,
     universe: {
       title: 'ARTE', color: '#FF3A1F',
@@ -5430,6 +5430,21 @@ function captureUniverseAndExplode() {
       document.getElementById('swarm-mini-modes').style.display = 'none';
     }
   });
+}
+
+// Form a specific image (e.g. an Arte World gallery piece) with the universe swarm.
+function swarmFromImage(src) {
+  if (typeof WorldEngine !== 'undefined' && WorldEngine.close) { try { WorldEngine.close(); } catch (e) {} }
+  if (currentScreen !== 'map') goTo('map');
+  swarmActive = true;
+  const cta = document.getElementById('galaxy-cta'); if (cta) cta.style.opacity = '0';
+  const panel = document.getElementById('swarm-mini-panel');
+  panel.style.display = 'block';
+  document.getElementById('swarm-mini-upload').style.display = 'none';
+  document.getElementById('swarm-mini-modes').style.display = 'flex';
+  const img = new Image();
+  img.onload = () => launchSwarm(img, 'attract', 'hi');
+  img.src = src;
 }
 
 function closeSwarmArt() {
