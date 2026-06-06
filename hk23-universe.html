@@ -4545,9 +4545,17 @@ let fractalT = 0;
 let fractalStack = []; // navigation stack for drill-down
 
 function openFractalUniverse(project) {
-  if (project && window.WorldUtils && WorldUtils.hasWorld(project.id)) { openWorld(project); return; }
+  // Every planet opens the Obsidian graph. World planets get an ENTER WORLD
+  // portal node inside the graph (added in openFractalUniverseRaw).
   openFractalUniverseRaw(project);
 }
+
+// Per-world label for the portal node inside the graph.
+const WORLD_PORTAL_LABEL = {
+  vicegolfer: 'ENTER\nGOLF HOUSE',
+  arteworld:  'ENTER\nGALLERY',
+  viceai:     'ENTER\nSTATION',
+};
 
 function openWorld(project) {
   fetch('worlds/' + project.id + '.json')
@@ -4573,12 +4581,26 @@ function closeWorld() {
 }
 
 function openFractalUniverseRaw(project) {
+  let nodes = project.universe.nodes;
+  let connections = project.universe.connections ? project.universe.connections.slice() : null;
+  // World planets get an ENTER WORLD portal node appended to the graph.
+  if (window.WorldUtils && WorldUtils.hasWorld(project.id)) {
+    const portal = {
+      label: WORLD_PORTAL_LABEL[project.id] || 'ENTER\nWORLD',
+      color: project.color, size: 20, enterWorld: project.id,
+      detail: { title: 'ENTER ' + project.label, status: 'live', eyebrow: 'IMMERSIVE WORLD',
+        desc: 'Step into the immersive world of this planet.', action: 'ENTER →', actionColor: project.color },
+    };
+    nodes = nodes.concat([portal]);
+    const wi = nodes.length - 1;
+    connections = (connections || []).concat([[wi, 0]]); // link portal to first node
+  }
   fractalStack = [{
     sunLabel: project.label,
     sunColor: project.color,
     sunSize: 28,
-    nodes: project.universe.nodes,
-    connections: project.universe.connections || null,
+    nodes: nodes,
+    connections: connections,
     headerTitle: project.universe.title,
     headerSub: project.sub.toUpperCase(),
     appLink: null,
@@ -4728,6 +4750,15 @@ function startFractalAnimation() {
   function onClick() {
     if (fractalHoveredNode < 0) return;
     const node = nodes[fractalHoveredNode];
+    // Portal node → leave the graph and open the immersive world.
+    if (node.enterWorld) {
+      canvas.removeEventListener('mousemove', onMove);
+      canvas.removeEventListener('click', onClick);
+      const proj = PROJECTS.find(p => p.id === node.enterWorld);
+      closeFractalUniverse();
+      setTimeout(() => { if (proj) openWorld(proj); }, 160);
+      return;
+    }
     const subnodes = getSubnodes(node);
     if (subnodes && subnodes.length > 0) {
       // Drill into this node's sub-universe
