@@ -4,7 +4,7 @@
   'use strict';
 
   // Planets that have a bespoke immersive world. Others use the fractal graph.
-  var WORLD_IDS = ['vicegolfer'];
+  var WORLD_IDS = ['vicegolfer', 'arteworld'];
 
   function hasWorld(id) { return WORLD_IDS.indexOf(id) !== -1; }
 
@@ -14,7 +14,15 @@
     if (!m.id) e.push('manifest missing id');
     if (!m.title) e.push('manifest missing title');
     if (!m.accent) e.push('manifest missing accent');
-    if (!Array.isArray(m.hotspots)) { e.push('manifest hotspots must be an array'); return e; }
+    // A world is either a hotspot scene OR a gallery.
+    var hasHotspots = Array.isArray(m.hotspots);
+    var hasGallery = Array.isArray(m.gallery);
+    if (!hasHotspots && !hasGallery) { e.push('manifest needs a hotspots array or a gallery array'); return e; }
+    if (hasGallery) {
+      if (!m.gallery.length) e.push('gallery is empty');
+      m.gallery.forEach(function (g, i) { if (!g.file) e.push('gallery[' + i + '] missing file'); });
+    }
+    if (!hasHotspots) return e;
     m.hotspots.forEach(function (h, i) {
       var ref = h && h.label ? h.label : '#' + i;
       if (typeof h.x !== 'number' || h.x < 0 || h.x > 1) e.push('hotspot[' + ref + '] x out of range');

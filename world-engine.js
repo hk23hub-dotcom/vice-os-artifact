@@ -19,6 +19,8 @@
     stage = document.getElementById('world-stage');
     stage.innerHTML = '';
 
+    if (Array.isArray(manifest.gallery)) { openGallery(manifest); return; }
+
     // ambient background (parallax depth 0.02)
     var bg = el('div', 'position:absolute;inset:-6%;background:#000 center/cover no-repeat;' +
       'background-image:url(' + manifest.ambient + ');filter:brightness(.62) contrast(1.05);' +
@@ -121,6 +123,48 @@
     f.src = src;
   }
   function closeBlueprint() { var b = document.getElementById('world-blueprint'); if (b) b.remove(); }
+
+  // Gallery world: a scrollable wall of art over a dark backdrop + lightbox.
+  function openGallery(manifest) {
+    el('div', 'position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 0%,#14060a 0%,#000 70%);', stage);
+
+    var scroll = el('div', 'position:absolute;inset:0;overflow-y:auto;padding:96px 26px 60px;', stage);
+    var grid = el('div', 'max-width:1200px;margin:0 auto;display:grid;gap:14px;' +
+      'grid-template-columns:repeat(auto-fill,minmax(180px,1fr));', scroll);
+
+    manifest.gallery.forEach(function (g) {
+      var cell = el('button', 'border:1px solid #1c1c26;background:#0a0a0e;cursor:pointer;padding:0;' +
+        'aspect-ratio:1/1;overflow:hidden;position:relative;transition:border-color .15s,transform .15s;', grid);
+      cell.onmouseenter = function () { cell.style.borderColor = (g.color || accent); cell.style.transform = 'scale(1.02)'; };
+      cell.onmouseleave = function () { cell.style.borderColor = '#1c1c26'; cell.style.transform = 'scale(1)'; };
+      var img = el('img', 'width:100%;height:100%;object-fit:cover;display:block;', cell);
+      img.src = g.file; img.loading = 'lazy';
+      cell.onclick = function () { showLightbox(g); };
+    });
+
+    // HUD over the gallery
+    var hud = el('div', 'position:absolute;top:0;left:0;right:0;display:flex;align-items:center;' +
+      'justify-content:space-between;padding:22px 26px;z-index:5;pointer-events:none;' +
+      'background:linear-gradient(#000 30%,transparent);', stage);
+    el('div', "font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:#fff;", hud)
+      .textContent = manifest.title;
+    var exit = el('button', "pointer-events:auto;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;" +
+      'background:none;border:1px solid ' + accent + '66;color:' + accent + ';padding:9px 16px;cursor:pointer;', hud);
+    exit.textContent = '✕ EXIT';
+    exit.onclick = close;
+  }
+
+  function showLightbox(g) {
+    var lb = el('div', 'position:absolute;inset:0;z-index:14;background:rgba(0,0,0,.93);' +
+      'display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:40px;', stage);
+    var img = el('img', 'max-width:90%;max-height:78%;object-fit:contain;border:1px solid #222;', lb);
+    img.src = g.file;
+    if (g.title) el('div', "font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#888;", lb).textContent = g.title;
+    var cl = el('button', "position:absolute;top:18px;right:20px;font-family:'Space Mono',monospace;font-size:11px;" +
+      'letter-spacing:2px;background:none;border:1px solid ' + accent + ';color:' + accent + ';padding:9px 16px;cursor:pointer;', lb);
+    cl.textContent = '✕ CLOSE'; cl.onclick = function () { lb.remove(); };
+    lb.onclick = function (e) { if (e.target === lb) lb.remove(); };
+  }
 
   function close() {
     if (pointerHandler) window.removeEventListener('pointermove', pointerHandler);
