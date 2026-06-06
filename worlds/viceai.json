@@ -1,0 +1,18 @@
+{
+  "id": "viceai",
+  "title": "THE MOTHERSHIP · AGENT STATION",
+  "accent": "#6366F1",
+  "station": {
+    "grid": [5, 5],
+    "modules": [
+      { "gx": 2, "gy": 0, "label": "CONTENT", "role": "Content Agent — generates posts, captions & articles for all channels, around the clock.", "status": "active", "color": "#00F0FF" },
+      { "gx": 0, "gy": 1, "label": "VAULT", "role": "Vault Agent — memory, retrieval and semantic search across the whole vault.", "status": "idle", "color": "#B84DFF" },
+      { "gx": 4, "gy": 1, "label": "DNA", "role": "DNA Agent — turns your sessions into performance signals for Golf & Rugby.", "status": "idle", "color": "#AAFF00" },
+      { "gx": 2, "gy": 2, "label": "HK23 LINES", "role": "Brand voice AI — keeps every word on-brand in the HK23 tone.", "status": "idle", "color": "#00F0FF" },
+      { "gx": 1, "gy": 3, "label": "OPS", "role": "Ops Agent — task routing, system health and agent orchestration.", "status": "idle", "color": "#10B981" },
+      { "gx": 3, "gy": 3, "label": "COACH", "role": "Vice Coach — weekly personalized training plans from your data.", "status": "idle", "color": "#6366F1" },
+      { "gx": 0, "gy": 4, "label": "CRYPTO", "role": "Crypto Analyst — on-chain signals and daily plain-language briefings.", "status": "idle", "color": "#B84DFF" },
+      { "gx": 4, "gy": 4, "label": "MARKET", "role": "Market Agent — commerce signals, promotions and Etsy publishing.", "status": "idle", "color": "#F97316" }
+    ]
+  }
+}

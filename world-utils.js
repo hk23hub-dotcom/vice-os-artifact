@@ -4,7 +4,7 @@
   'use strict';
 
   // Planets that have a bespoke immersive world. Others use the fractal graph.
-  var WORLD_IDS = ['vicegolfer', 'arteworld'];
+  var WORLD_IDS = ['vicegolfer', 'arteworld', 'viceai'];
 
   function hasWorld(id) { return WORLD_IDS.indexOf(id) !== -1; }
 
@@ -14,13 +14,20 @@
     if (!m.id) e.push('manifest missing id');
     if (!m.title) e.push('manifest missing title');
     if (!m.accent) e.push('manifest missing accent');
-    // A world is either a hotspot scene OR a gallery.
+    // A world is a hotspot scene, a gallery, OR an isometric station.
     var hasHotspots = Array.isArray(m.hotspots);
     var hasGallery = Array.isArray(m.gallery);
-    if (!hasHotspots && !hasGallery) { e.push('manifest needs a hotspots array or a gallery array'); return e; }
+    var hasStation = m.station && Array.isArray(m.station.modules);
+    if (!hasHotspots && !hasGallery && !hasStation) { e.push('manifest needs hotspots, gallery, or station'); return e; }
     if (hasGallery) {
       if (!m.gallery.length) e.push('gallery is empty');
       m.gallery.forEach(function (g, i) { if (!g.file) e.push('gallery[' + i + '] missing file'); });
+    }
+    if (hasStation) {
+      m.station.modules.forEach(function (s, i) {
+        if (typeof s.gx !== 'number' || typeof s.gy !== 'number') e.push('station module[' + i + '] missing gx/gy');
+        if (!s.label) e.push('station module[' + i + '] missing label');
+      });
     }
     if (!hasHotspots) return e;
     m.hotspots.forEach(function (h, i) {

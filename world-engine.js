@@ -3,7 +3,7 @@
 // app deep-links. Browser-only. API: window.WorldEngine.open(manifest, opts) / .close()
 (function () {
   'use strict';
-  var stage, onExitCb, pointerHandler, accent;
+  var stage, onExitCb, pointerHandler, accent, stationAnimId, stationResize;
 
   function el(tag, css, parent) {
     var d = document.createElement(tag);
@@ -20,6 +20,7 @@
     stage.innerHTML = '';
 
     if (Array.isArray(manifest.gallery)) { openGallery(manifest); return; }
+    if (manifest.station && Array.isArray(manifest.station.modules)) { openStation(manifest); return; }
 
     // ambient background (parallax depth 0.02)
     var bg = el('div', 'position:absolute;inset:-6%;background:#000 center/cover no-repeat;' +
@@ -186,9 +187,125 @@
     lb.onclick = function (e) { if (e.target === lb) lb.remove(); };
   }
 
+  // ── Mothership: isometric neon Agent Station ──
+  function openStation(manifest) {
+    var st = manifest.station;
+    var canvas = el('canvas', 'position:absolute;inset:0;width:100%;height:100%;display:block;', stage);
+    var ctx = canvas.getContext('2d');
+    var W, H, ox, oy;
+    var TW = 130, TH = 66, ELEV = 46;
+    var grid = st.grid || [5, 5];
+
+    function proj(gx, gy) {
+      return { x: ox + (gx - gy) * TW / 2, y: oy + (gx + gy - (grid[0] + grid[1]) / 2 + 1) * TH / 2 };
+    }
+    function resize() {
+      W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight;
+      ox = W / 2; oy = H * 0.30;
+    }
+    resize();
+    stationResize = resize; window.addEventListener('resize', stationResize);
+
+    // starfield
+    var stars = [];
+    for (var i = 0; i < 140; i++) stars.push({ x: Math.random(), y: Math.random(), a: 0.1 + Math.random() * 0.5, s: Math.random() * 1.4 + 0.3 });
+
+    function diamond(p, w, h) {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - h / 2); ctx.lineTo(p.x + w / 2, p.y);
+      ctx.lineTo(p.x, p.y + h / 2); ctx.lineTo(p.x - w / 2, p.y); ctx.closePath();
+    }
+    function quad(a, b, c, d) { ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.lineTo(c.x, c.y); ctx.lineTo(d.x, d.y); ctx.closePath(); }
+
+    var t = 0;
+    function frame() {
+      t += 0.02;
+      // space backdrop
+      var g = ctx.createRadialGradient(W / 2, H * 0.25, 0, W / 2, H * 0.25, H);
+      g.addColorStop(0, '#0b0b1e'); g.addColorStop(1, '#04040a');
+      ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+      stars.forEach(function (s) {
+        var tw = 0.5 + 0.5 * Math.sin(t * 1.5 + s.x * 30);
+        ctx.fillStyle = 'rgba(255,255,255,' + (s.a * tw).toFixed(3) + ')';
+        ctx.fillRect(s.x * W, s.y * H, s.s, s.s);
+      });
+
+      // base grid (faint glowing diamonds)
+      for (var gx = 0; gx < grid[0]; gx++) for (var gy = 0; gy < grid[1]; gy++) {
+        var p = proj(gx, gy);
+        diamond(p, TW, TH);
+        ctx.strokeStyle = 'rgba(99,102,241,0.14)'; ctx.lineWidth = 1; ctx.stroke();
+      }
+
+      // modules (raised neon blocks), back-to-front
+      var mods = st.modules.slice().sort(function (a, b) { return (a.gx + a.gy) - (b.gx + b.gy); });
+      mods.forEach(function (m, idx) {
+        var col = m.color || accent;
+        var float = Math.sin(t + idx) * 4;
+        var p = proj(m.gx, m.gy); p.y += float;
+        var top = { x: p.x, y: p.y - ELEV };
+        var topL = { x: p.x - TW / 2, y: p.y - ELEV }, topR = { x: p.x + TW / 2, y: p.y - ELEV };
+        var topB = { x: p.x, y: p.y - ELEV + TH / 2 }, gndB = { x: p.x, y: p.y + TH / 2 };
+        var gndL = { x: p.x - TW / 2, y: p.y }, gndR = { x: p.x + TW / 2, y: p.y };
+        // faces
+        quad(topL, topB, gndB, gndL); ctx.fillStyle = hexA(col, 0.18); ctx.fill(); ctx.strokeStyle = hexA(col, 0.55); ctx.stroke();
+        quad(topR, topB, gndB, gndR); ctx.fillStyle = hexA(col, 0.10); ctx.fill(); ctx.strokeStyle = hexA(col, 0.45); ctx.stroke();
+        // top
+        var pulse = m.status === 'active' ? (0.55 + 0.35 * Math.abs(Math.sin(t * 2))) : 0.32;
+        diamond(top, TW, TH); ctx.fillStyle = hexA(col, pulse); ctx.fill();
+        ctx.strokeStyle = col; ctx.lineWidth = 1.5; ctx.stroke();
+        // glow core
+        var cg = ctx.createRadialGradient(top.x, top.y, 0, top.x, top.y, 40);
+        cg.addColorStop(0, hexA(col, 0.5)); cg.addColorStop(1, hexA(col, 0));
+        ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(top.x, top.y, 40, 0, Math.PI * 2); ctx.fill();
+        m._screen = top;
+      });
+
+      // position DOM labels over modules
+      st.modules.forEach(function (m) {
+        if (m._el && m._screen) { m._el.style.left = m._screen.x + 'px'; m._el.style.top = (m._screen.y - 30) + 'px'; }
+      });
+
+      stationAnimId = requestAnimationFrame(frame);
+    }
+
+    // DOM labels + click targets
+    st.modules.forEach(function (m) {
+      var col = m.color || accent;
+      var b = el('button', 'position:absolute;transform:translate(-50%,-50%);z-index:4;cursor:pointer;background:none;' +
+        'border:none;display:flex;flex-direction:column;align-items:center;gap:3px;white-space:nowrap;', stage);
+      el('span', "font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;font-weight:700;color:" + col + ";" +
+        'background:rgba(0,0,0,.55);padding:2px 7px;', b).textContent = m.label;
+      el('span', "font-family:'Space Mono',monospace;font-size:7px;letter-spacing:1px;color:" + (m.status === 'active' ? col : '#666') + ";", b)
+        .textContent = m.status === 'active' ? '● ACTIVE' : '○ IDLE';
+      b.onclick = function () { showDetail({ label: m.label, blueprint: null, appLink: null, detail: { title: m.label + ' AGENT', desc: m.role, stats: [{ l: 'STATUS', v: m.status === 'active' ? 'ACTIVE 24/7' : 'IDLE · DOCKED' }, { l: 'DOCK', v: m.gx + '·' + m.gy }] } }); };
+      m._el = b;
+    });
+
+    // HUD
+    var hud = el('div', 'position:absolute;top:0;left:0;right:0;display:flex;align-items:center;' +
+      'justify-content:space-between;padding:22px 26px;z-index:6;pointer-events:none;', stage);
+    el('div', "font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:#fff;", hud)
+      .textContent = manifest.title;
+    var exit = el('button', "pointer-events:auto;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;" +
+      'background:none;border:1px solid ' + accent + '66;color:' + accent + ';padding:9px 16px;cursor:pointer;', hud);
+    exit.textContent = '✕ EXIT'; exit.onclick = close;
+
+    frame();
+  }
+
+  // hex + alpha → rgba string
+  function hexA(hex, a) {
+    var h = hex.replace('#', '');
+    var r = parseInt(h.slice(0, 2), 16), g = parseInt(h.slice(2, 4), 16), b = parseInt(h.slice(4, 6), 16);
+    return 'rgba(' + r + ',' + g + ',' + b + ',' + a + ')';
+  }
+
   function close() {
     if (pointerHandler) window.removeEventListener('pointermove', pointerHandler);
     pointerHandler = null;
+    if (stationAnimId) { cancelAnimationFrame(stationAnimId); stationAnimId = null; }
+    if (stationResize) { window.removeEventListener('resize', stationResize); stationResize = null; }
     if (stage) stage.innerHTML = '';
     onExitCb();
   }
