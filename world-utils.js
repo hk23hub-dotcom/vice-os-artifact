@@ -4,7 +4,8 @@
   'use strict';
 
   // Planets that have a bespoke immersive world. Others use the fractal graph.
-  var WORLD_IDS = ['vicegolfer', 'arteworld', 'viceai'];
+  var WORLD_IDS = ['vicegolfer', 'arteworld', 'viceai', 'rugbyvice', 'laiglesia',
+                   'projects_pl', 'cryptovice', 'hk23hub', 'mvb', 'teeclub', 'marketplace', 'soul'];
 
   function hasWorld(id) { return WORLD_IDS.indexOf(id) !== -1; }
 

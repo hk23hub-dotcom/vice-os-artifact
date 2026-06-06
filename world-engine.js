@@ -22,10 +22,11 @@
     if (Array.isArray(manifest.gallery)) { openGallery(manifest); return; }
     if (manifest.station && Array.isArray(manifest.station.modules)) { openStation(manifest); return; }
 
-    // ambient background (parallax depth 0.02)
-    var bg = el('div', 'position:absolute;inset:-6%;background:#000 center/cover no-repeat;' +
-      'background-image:url(' + manifest.ambient + ');filter:brightness(.62) contrast(1.05);' +
-      'transition:transform .15s ease-out;', stage);
+    // ambient background (parallax depth 0.02) — image if given, else themed gradient
+    var bgStyle = manifest.ambient
+      ? 'background:#000 center/cover no-repeat;background-image:url(' + manifest.ambient + ');filter:brightness(.62) contrast(1.05);'
+      : 'background:radial-gradient(circle at 50% 32%, ' + accent + '22 0%, #06060a 62%);';
+    var bg = el('div', 'position:absolute;inset:-6%;' + bgStyle + 'transition:transform .15s ease-out;', stage);
     bg.dataset.depth = '0.02';
     // dark vignette for mood + legibility
     el('div', 'position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 40%,transparent 30%,rgba(0,0,0,.78) 100%);pointer-events:none;', stage);

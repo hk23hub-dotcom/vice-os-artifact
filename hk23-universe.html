@@ -4557,19 +4557,44 @@ const WORLD_PORTAL_LABEL = {
   viceai:     'ENTER\nSTATION',
 };
 
+function showWorld(m) {
+  var ov = document.getElementById('world-overlay');
+  ov.style.display = 'block';
+  void ov.offsetWidth; // force reflow so the opacity transition runs
+  ov.style.opacity = '1';
+  // hide map chrome so it doesn't bleed over the world
+  ['galaxy-cta','shortcut-legend'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+  WorldEngine.open(m, { onExit: closeWorld });
+}
+
+// A default immersive world built from a planet's own nodes (used until a
+// bespoke worlds/<id>.json exists). Themed scene + nodes as hotspots.
+function defaultWorldManifest(project) {
+  var nodes = (project.universe && project.universe.nodes) || [];
+  var n = Math.max(1, nodes.length);
+  return {
+    id: project.id,
+    title: (project.universe && project.universe.title) || project.label,
+    accent: project.color,
+    hotspots: nodes.map(function (nd, i) {
+      var ang = (i / n) * Math.PI * 2 - Math.PI / 2;
+      return {
+        x: 0.5 + Math.cos(ang) * 0.33,
+        y: 0.5 + Math.sin(ang) * 0.30,
+        label: (nd.label || '').replace('\n', ' '),
+        depth: 0.05,
+        detail: nd.detail || { title: nd.label || '', desc: '' },
+        appLink: (nd.detail && nd.detail.link) ? nd.detail.link : null,
+      };
+    }),
+  };
+}
+
 function openWorld(project) {
   fetch('worlds/' + project.id + '.json')
-    .then(function (r) { return r.json(); })
-    .then(function (m) {
-      var ov = document.getElementById('world-overlay');
-      ov.style.display = 'block';
-      void ov.offsetWidth; // force reflow so the opacity transition runs
-      ov.style.opacity = '1';
-      // hide map chrome so it doesn't bleed over the world
-      ['galaxy-cta','shortcut-legend'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
-      WorldEngine.open(m, { onExit: closeWorld });
-    })
-    .catch(function () { openFractalUniverseRaw(project); }); // manifest missing → fractal fallback
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (m) { showWorld(m); })
+    .catch(function () { showWorld(defaultWorldManifest(project)); }); // no manifest → default world
 }
 
 function closeWorld() {
