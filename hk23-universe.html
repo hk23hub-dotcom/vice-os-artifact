@@ -2652,6 +2652,46 @@ const PROJECTS = [
       connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
     }
   },
+  {
+    id: 'soul', label: 'VICE SOUL', sub: 'Cosmic Blueprint',
+    x: 0.50, y: 0.88, color: '#9B5DE5', size: 14,
+    universe: {
+      title: 'VICE SOUL', color: '#9B5DE5',
+      nodes: [
+        { label: 'ASTRO-\nLOGY', x:0.50, y:0.16, color:'#9B5DE5', size:16,
+          detail:{ title:'ASTROLOGY', status:'build', eyebrow:'SUN · MOON · RISING',
+            desc:'Your natal chart — the exact sky at the moment you were born. The Sun is your core identity, the Moon your emotional inner world, the Rising the energy you meet the world with. Add your birth date, exact time and city to unlock your real chart.',
+            stats:[{l:'SUN',v:'—'},{l:'MOON',v:'—'},{l:'RISING',v:'—'},{l:'CHART',v:'ADD DATA'}],
+            action:'ADD BIRTH DATA →', actionColor:'#9B5DE5' }},
+        { label: 'HUMAN\nDESIGN', x:0.82, y:0.40, color:'#00F0FF', size:14,
+          detail:{ title:'HUMAN DESIGN', status:'build', eyebrow:'TYPE · STRATEGY · AUTHORITY',
+            desc:'Your energetic blueprint — how you are wired to make decisions and spend your energy. Reveals your Type (Generator, Projector, Manifestor, Reflector), Strategy, Inner Authority and Profile. Needs your exact birth time + city.',
+            stats:[{l:'TYPE',v:'—'},{l:'STRATEGY',v:'—'},{l:'AUTHORITY',v:'—'},{l:'PROFILE',v:'—'}],
+            action:'ADD BIRTH DATA →', actionColor:'#00F0FF' }},
+        { label: 'NUMERO-\nLOGY', x:0.82, y:0.66, color:'#FFD200', size:13,
+          detail:{ title:'NUMEROLOGY', status:'build', eyebrow:'LIFE PATH · CORE NUMBERS',
+            desc:'The numbers encoded in your birth date and full birth name. Life Path = your purpose and journey. Expression = your natural talents. Soul Urge = your inner desire. Personality = how others first read you. I can compute all of these exactly from your data.',
+            stats:[{l:'LIFE PATH',v:'—'},{l:'EXPRESSION',v:'—'},{l:'SOUL URGE',v:'—'},{l:'PERSONALITY',v:'—'}],
+            action:'ADD NAME + DATE →', actionColor:'#FFD200' }},
+        { label: 'LIFE\nPATH', x:0.50, y:0.84, color:'#AAFF00', size:13,
+          detail:{ title:'LIFE PATH', status:'build', eyebrow:'PURPOSE · SYNTHESIS',
+            desc:'The synthesis — where astrology, human design and numerology converge into one direction. Your themes, your lessons, your highest expression. This node weaves the three systems into a single narrative once they are filled.',
+            stats:[{l:'THEME',v:'—'},{l:'STRENGTH',v:'—'},{l:'LESSON',v:'—'},{l:'PURPOSE',v:'—'}],
+            action:'UNLOCK SYNTHESIS →', actionColor:'#AAFF00' }},
+        { label: 'NORTH\nNODE', x:0.18, y:0.66, color:'#FF6600', size:11,
+          detail:{ title:'NORTH NODE · DESTINY', status:'soon', eyebrow:'KARMIC DIRECTION',
+            desc:'Your North Node points to the soul growth you are here to move toward — and the South Node to the comfort patterns you are here to release. The compass of this lifetime.',
+            stats:[{l:'NORTH NODE',v:'—'},{l:'SOUTH NODE',v:'—'},{l:'DIRECTION',v:'—'},{l:'NEEDS',v:'BIRTH DATA'}],
+            action:'ADD BIRTH DATA →', actionColor:'#FF6600' }},
+        { label: 'SATURN\nRETURN', x:0.18, y:0.40, color:'#B84DFF', size:10,
+          detail:{ title:'SATURN RETURN', status:'soon', eyebrow:'LIFE CYCLES',
+            desc:'The ~29-year cycle when Saturn returns to its birth position — a rite of passage that restructures your life around your true foundations. Knowing yours tells you which chapter you are in right now.',
+            stats:[{l:'FIRST',v:'~AGE 29'},{l:'YOURS',v:'—'},{l:'PHASE',v:'—'},{l:'NEEDS',v:'BIRTH YEAR'}],
+            action:'ADD BIRTH DATA →', actionColor:'#B84DFF' }},
+      ],
+      connections: [[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[0,3],[1,4]]
+    }
+  },
 ];
 
 // ─── BLACK HOLES ───
@@ -2762,6 +2802,7 @@ const ORBITAL_CONFIG = {
   teeclub:     { r: 170, a: Math.PI * 1.15, speed:  0.000085 },
   viceai:      { r: 258, a: Math.PI * 0.45, speed: -0.000060 },
   marketplace: { r: 233, a: Math.PI * 1.65, speed:  0.000067 },
+  soul:        { r: 296, a: Math.PI * 0.95, speed: -0.000048 },
 };
 
 // Nexus planets — shared systems at intermediate orbit
