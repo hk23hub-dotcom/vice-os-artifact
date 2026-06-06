@@ -4578,6 +4578,7 @@ function openFractalUniverseRaw(project) {
     sunColor: project.color,
     sunSize: 28,
     nodes: project.universe.nodes,
+    connections: project.universe.connections || null,
     headerTitle: project.universe.title,
     headerSub: project.sub.toUpperCase(),
     appLink: null,
@@ -4687,16 +4688,24 @@ function startFractalAnimation() {
   const nodes = level.nodes;
   const color = level.sunColor;
 
-  // ── 2D orbital system — same visual language as main universe ──
-  const EY = 0.60;
-  const BASE_R   = [148, 192, 132, 205, 162, 178, 144, 198];
-  const BASE_SPD = [0.00038,-0.00030,0.00046,-0.00027,0.00042,-0.00034,0.00040,-0.00028];
-  const nodeOrbits = nodes.map((n, i) => ({
-    r: BASE_R[i % BASE_R.length],
-    a: (i / nodes.length) * Math.PI * 2,
-    spd: BASE_SPD[i % BASE_SPD.length],
-    px: 0, py: 0,
-  }));
+  // ── Obsidian-style force-directed graph ──
+  const gcx = (canvas.width || window.innerWidth) * 0.5;
+  const gcy = (canvas.height || window.innerHeight) * 0.47;
+  const nodeOrbits = nodes.map((n, i) => {
+    const ang = (i / Math.max(1, nodes.length)) * Math.PI * 2;
+    return {
+      px: gcx + Math.cos(ang) * 210 + (Math.random() - 0.5) * 40,
+      py: gcy + Math.sin(ang) * 150 + (Math.random() - 0.5) * 40,
+      vx: 0, vy: 0,
+    };
+  });
+  // Edges from the level's connections; if none, hub everything to node 0.
+  let edges = (level.connections && level.connections.length)
+    ? level.connections.slice()
+    : nodes.map((_, i) => (i === 0 ? null : [0, i])).filter(Boolean);
+  edges = edges.filter(e => e[0] < nodes.length && e[1] < nodes.length);
+  const adj = nodes.map(() => new Set());
+  edges.forEach(e => { adj[e[0]].add(e[1]); adj[e[1]].add(e[0]); });
   const nodeHitPos = [];
 
   const stars = Array.from({length: 200}, () => ({
@@ -4765,75 +4774,61 @@ function startFractalAnimation() {
       ctx.fill();
     });
 
-    // ── Update node positions ──
+    // ── Force-directed physics (Obsidian-style swarm graph) ──
+    const N = nodeOrbits.length;
+    for (let i = 0; i < N; i++) {
+      const a = nodeOrbits[i];
+      // repulsion between every pair
+      for (let j = i + 1; j < N; j++) {
+        const b = nodeOrbits[j];
+        const dx = a.px - b.px, dy = a.py - b.py;
+        const d2 = dx * dx + dy * dy + 0.01;
+        const d = Math.sqrt(d2);
+        const f = 17000 / d2;
+        const ux = dx / d, uy = dy / d;
+        a.vx += ux * f; a.vy += uy * f;
+        b.vx -= ux * f; b.vy -= uy * f;
+      }
+      // gentle pull toward center so the graph stays framed
+      a.vx += (cx - a.px) * 0.0010;
+      a.vy += (cy - a.py) * 0.0010;
+    }
+    // springs along edges
+    edges.forEach(e => {
+      const a = nodeOrbits[e[0]], b = nodeOrbits[e[1]];
+      const dx = b.px - a.px, dy = b.py - a.py;
+      const d = Math.hypot(dx, dy) + 0.01;
+      const diff = (d - 168) * 0.012;
+      const ux = dx / d, uy = dy / d;
+      a.vx += ux * diff; a.vy += uy * diff;
+      b.vx -= ux * diff; b.vy -= uy * diff;
+    });
+    // integrate + damping
     nodeOrbits.forEach(o => {
-      o.a += o.spd;
-      o.px = cx + Math.cos(o.a) * o.r;
-      o.py = cy + Math.sin(o.a) * o.r * EY;
+      o.vx *= 0.86; o.vy *= 0.86;
+      const sp = Math.hypot(o.vx, o.vy);
+      if (sp > 6) { o.vx *= 6 / sp; o.vy *= 6 / sp; }
+      o.px += o.vx; o.py += o.vy;
     });
     nodeHitPos.length = 0;
 
-    // ── Orbital rings (unique radii, faint) ──
-    const drawnR = new Set();
-    nodeOrbits.forEach(o => {
-      if (drawnR.has(o.r)) return;
-      drawnR.add(o.r);
-      ctx.save();
-      ctx.setLineDash([2, 14]);
+    // ── Edges (links between nodes) ──
+    edges.forEach(e => {
+      const a = nodeOrbits[e[0]], b = nodeOrbits[e[1]];
+      const hot = fractalHoveredNode === e[0] || fractalHoveredNode === e[1];
       ctx.beginPath();
-      ctx.ellipse(cx, cy, o.r, o.r * EY, 0, 0, Math.PI * 2);
-      ctx.strokeStyle = color + '12';
-      ctx.lineWidth = 0.5;
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
-    });
-
-    // ── Spoke lines from sun to each node ──
-    nodeOrbits.forEach((o, i) => {
-      const isHov = fractalHoveredNode === i;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(o.px, o.py);
-      ctx.strokeStyle = isHov ? nodes[i].color + '28' : color + '08';
-      ctx.lineWidth = isHov ? 0.8 : 0.3;
+      ctx.moveTo(a.px, a.py); ctx.lineTo(b.px, b.py);
+      ctx.strokeStyle = hot ? color + '66' : color + '18';
+      ctx.lineWidth = hot ? 1.2 : 0.5;
       ctx.stroke();
     });
 
-    // ── Center sun ──
-    const sunBaseR = level.sunSize || 28;
-    const sunR = sunBaseR + Math.sin(fractalT * 0.7) * 2;
-    // Outer corona
-    [sunR * 5.2, sunR * 3.4, sunR * 2.1].forEach((gr, gi) => {
-      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, gr);
-      g.addColorStop(0, color + ['32','22','14'][gi]);
-      g.addColorStop(1, 'transparent');
-      ctx.beginPath(); ctx.arc(cx, cy, gr, 0, Math.PI * 2);
-      ctx.fillStyle = g; ctx.fill();
-    });
-    // Tilted orbit rings around sun
-    [sunR+9, sunR+16, sunR+24].forEach((or, i) => {
-      ctx.save(); ctx.translate(cx, cy);
-      ctx.rotate(fractalT * (i % 2 ? -0.22 : 0.17) * (1 + i * 0.35));
-      ctx.beginPath();
-      ctx.ellipse(0, 0, or, or * (0.22 + i * 0.06), 0, 0, Math.PI * 2);
-      ctx.strokeStyle = color + ['28','1A','0E'][i];
-      ctx.lineWidth = 0.8 - i * 0.2; ctx.stroke();
-      ctx.restore();
-    });
-    // Sun core sphere
-    const sg = ctx.createRadialGradient(cx - sunR*0.3, cy - sunR*0.3, sunR*0.05, cx, cy, sunR);
-    sg.addColorStop(0, 'rgba(255,255,255,0.50)');
-    sg.addColorStop(0.35, color + 'EE');
-    sg.addColorStop(1, color + '55');
-    ctx.beginPath(); ctx.arc(cx, cy, sunR, 0, Math.PI * 2);
-    ctx.fillStyle = sg; ctx.fill();
-    ctx.strokeStyle = color + 'BB'; ctx.lineWidth = 1.2; ctx.stroke();
-    ctx.font = `800 11px 'Space Grotesk',system-ui`;
-    ctx.fillStyle = '#080808'; ctx.textAlign = 'center';
-    // Sun label — multiline support
+    // ── Faint center label (planet identity) ──
+    ctx.font = `800 13px 'Space Grotesk',system-ui`;
+    ctx.textAlign = 'center';
+    ctx.fillStyle = color + '14';
     const sunLines = level.sunLabel.split('\n');
-    const lineH = 13;
+    const lineH = 15;
     const startY = cy - ((sunLines.length - 1) * lineH * 0.5) + 4;
     sunLines.forEach((ln, li) => ctx.fillText(ln, cx, startY + li * lineH));
 
