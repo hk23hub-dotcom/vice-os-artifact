@@ -68,21 +68,32 @@ const TEES={
   Rojo:{name:'Rojo',color:'#ef4444',slope:117,rating:33.9,par:36}};
 const PAR_TOTAL=HOLES.reduce((s,h)=>s+h.par,0);
 
-// ── Demo state ──
+// ── Categorías FChG + auto-cálculo ──
+const CAT_LABEL={V:'Varones',D:'Damas',VA:'Varones Adulto',VS:'Varones Senior',VPS:'Varones Pre Senior',VJ:'Varones Juvenil',VPJ:'Varones Pre Juvenil',DA:'Damas Adulto',DS:'Damas Senior',DPS:'Damas Pre Senior'};
+const GCOL={V:'#60a5fa',D:'#ec4899'};
+function genderOf(code){return code[0]==='D'?'D':'V';}
+function ageAt(bd,ref){const b=new Date(bd);let a=ref.getFullYear()-b.getFullYear();const m=ref.getMonth()-b.getMonth();if(m<0||(m===0&&ref.getDate()<b.getDate()))a--;return a;}
+function assignCat(bd,g,tdate){const t=new Date(tdate);const prev=new Date(t.getFullYear()-1,11,31);const aPrev=ageAt(bd,prev);const aNow=ageAt(bd,t);if(aPrev<=14)return g+'PJ';if(aPrev<=17)return g+'J';if(g==='D'){if(aNow>=50)return'DS';if(aNow>=40)return'DPS';}else{if(aNow>=55)return'VS';if(aNow>=40)return'VPS';}return g+'A';}
+
+// ── Demo state — jugadores con fecha de nacimiento (auto-categoría) ──
 let T={name:'Copa Las Rocas 2025',course:'Cancha Blanca · 9h · Par 36',date:'2025-06-08',format:'stroke',status:'live',
+  activeCategories:['V','D','VA','VS','DA'],
   players:[
-    {id:'p1',name:'HK23',index:8.3,tee:'Blanco'},
-    {id:'p2',name:'Martín R.',index:14.2,tee:'Blanco'},
-    {id:'p3',name:'Diego S.',index:3.1,tee:'Azul'},
-    {id:'p4',name:'Andrés P.',index:22.0,tee:'Dorado'},
+    {id:'p1',name:'HK23',index:8.3,tee:'Blanco',gender:'V',bd:'1995-03-12'},
+    {id:'p2',name:'Martín R.',index:14.2,tee:'Blanco',gender:'V',bd:'1968-07-20'},
+    {id:'p3',name:'Diego S.',index:3.1,tee:'Azul',gender:'V',bd:'1990-11-02'},
+    {id:'p4',name:'Ana V.',index:18.0,tee:'Rojo',gender:'D',bd:'1985-05-18'},
   ],
   scores:{
     p1:{1:5,2:4,3:4,4:6,5:5,6:4,7:5,8:3,9:6},
     p2:{1:6,2:5,3:4,4:7,5:6,6:5,7:5,8:4,9:6},
     p3:{1:4,2:4,3:3,4:5,5:4,6:4,7:4,8:3,9:5},
-    p4:{1:7,2:6,3:5,4:8,5:6,6:6,7:6,8:4,9:7},
+    p4:{1:6,2:5,3:4,4:6,5:5,6:5,7:5,8:4,9:6},
   }};
-let TAB='board';
+// auto-asignar categoría a cada jugador
+T.players.forEach(p=>{p.category=assignCat(p.bd,p.gender,T.date);});
+let TAB='players';
+let FILTER='all';
 const SC={draft:'#6a6a6a',live:'#4ade80',closed:'#C6A15B'};
 
 function teeOf(name){return TEES[name];}
@@ -115,14 +126,16 @@ function renderTab(){
   else c.innerHTML=boardHTML();
 }
 
+function catBadge(code,sz){const g=genderOf(code);return `<span style="font-size:${sz||6}px;font-weight:700;letter-spacing:0.08em;padding:1px 4px;border-radius:2px;color:${GCOL[g]};border:1px solid ${GCOL[g]}44;">${code}</span>`;}
 function playersHTML(){
   return T.players.map(p=>{
     const tee=teeOf(p.tee); const ch=courseHandicap(p.index,tee); const recv=strokesReceived(ch,9);
+    const age=ageAt(p.bd,new Date(T.date));
     return `<div class="card" style="border-left:3px solid ${tee.color};display:flex;align-items:center;gap:12px;cursor:default;">
       <div class="dot" style="background:${tee.color};flex-shrink:0;"></div>
       <div style="flex:1;">
-        <div style="font-family:var(--B);font-size:17px;letter-spacing:0.04em;line-height:1;">${p.name}</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:3px;">Índice ${p.index} · Tee ${p.tee}</div>
+        <div style="display:flex;align-items:center;gap:6px;"><span style="font-family:var(--B);font-size:17px;letter-spacing:0.04em;line-height:1;">${p.name}</span>${catBadge(p.category,7)}<span style="font-size:6px;color:#3a3a34;background:rgba(74,222,128,0.1);padding:1px 4px;border-radius:2px;color:var(--green);">AUTO</span></div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px;">Índice ${p.index} · Tee ${p.tee} · ${age} años · ${CAT_LABEL[p.category]||p.category}</div>
       </div>
       <div style="text-align:center;"><div style="font-family:var(--B);font-size:22px;color:var(--gold);line-height:1;">${ch}</div><div style="font-size:7px;color:#4a4a42;letter-spacing:0.1em;">HCP CANCHA</div></div>
       <div style="text-align:center;"><div style="font-family:var(--B);font-size:18px;color:var(--green);line-height:1;">${recv}</div><div style="font-size:7px;color:#4a4a42;letter-spacing:0.1em;">GOLPES</div></div>
@@ -140,28 +153,39 @@ function scoresHTML(){
   }).join('');
 }
 
+function setFilter(f){FILTER=f;render();}
 function boardHTML(){
-  const rows=T.players.map(p=>{
+  const activeCats=[...new Set(T.players.map(p=>p.category))];
+  let rows=T.players.map(p=>{
     const tee=teeOf(p.tee);
     const scores=HOLES.map(h=>({hole:h.hole,gross:T.scores[p.id]?.[h.hole]??null}));
     const sum=playerSummary({index:p.index,tee},HOLES,scores);
     return {p,sum,thru:sum.holesPlayed};
-  }).sort((a,b)=>a.sum.netTotal-b.sum.netTotal);
+  });
+  if(FILTER!=='all')rows=rows.filter(r=>r.p.category===FILTER);
+  rows.sort((a,b)=>a.sum.netTotal-b.sum.netTotal);
   const fmtPar=v=>{const d=v-PAR_TOTAL;return d===0?'E':d>0?'+'+d:''+d;};
   const medal=['#FFD700','#C0C0C0','#CD7F32'];
-  return `<div class="card" style="cursor:default;padding:0;border-left:1px solid rgba(245,245,245,0.07);overflow:hidden;">
+  // filter chips
+  const chip=(code,lbl,col,on,count)=>`<button onclick="setFilter('${code}')" style="padding:5px 11px;border-radius:20px;cursor:pointer;font-family:var(--F);font-size:8px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;background:${on?col+'22':'transparent'};border:1px solid ${on?col:'rgba(245,245,245,0.1)'};color:${on?col:'#5a5a52'};">${lbl} · ${count}</button>`;
+  const chips=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
+    ${chip('all','General','#C6A15B',FILTER==='all',T.players.length)}
+    ${activeCats.map(c=>chip(c,c,GCOL[genderOf(c)],FILTER===c,T.players.filter(p=>p.category===c).length)).join('')}
+  </div>`;
+  const heading=FILTER!=='all'?`<div style="font-family:var(--F);font-size:9px;color:var(--gold);letter-spacing:0.08em;margin-bottom:10px;">🏆 ${CAT_LABEL[FILTER]||FILTER}</div>`:'';
+  return chips+heading+`<div class="card" style="cursor:default;padding:0;border-left:1px solid rgba(245,245,245,0.07);overflow:hidden;">
     <div style="display:grid;grid-template-columns:34px 1fr 44px 50px 50px;padding:9px 12px;background:#0e0e0e;border-bottom:1px solid rgba(245,245,245,0.06);">
       ${['#','Jugador','Thru','Gross','Neto'].map((h,i)=>`<div style="font-size:8px;color:#4a4a42;letter-spacing:0.1em;text-transform:uppercase;text-align:${i>1?'center':'left'};">${h}</div>`).join('')}
     </div>
     ${rows.map((r,i)=>`<div style="display:grid;grid-template-columns:34px 1fr 44px 50px 50px;padding:11px 12px;border-bottom:1px solid rgba(245,245,245,0.04);align-items:center;background:${i===0?'rgba(198,161,91,0.04)':'transparent'};">
       <div style="font-size:13px;font-weight:700;color:${i<3?medal[i]:'#3a3a3a'};">${i+1}</div>
-      <div><div style="font-family:var(--B);font-size:16px;letter-spacing:0.03em;line-height:1;">${r.p.name}</div><div style="font-size:7px;color:#4a4a42;">HCP ${r.sum.courseHandicap} · ${r.p.tee}</div></div>
+      <div><div style="display:flex;align-items:center;gap:5px;"><span style="font-family:var(--B);font-size:16px;letter-spacing:0.03em;line-height:1;">${r.p.name}</span>${catBadge(r.p.category,6)}</div><div style="font-size:7px;color:#4a4a42;">HCP ${r.sum.courseHandicap} · ${r.p.tee}</div></div>
       <div style="font-size:11px;color:${r.thru===9?'var(--green)':'var(--muted)'};text-align:center;">${r.thru===9?'F':r.thru}</div>
       <div style="font-family:var(--B);font-size:17px;text-align:center;">${r.sum.grossTotal}</div>
       <div style="font-family:var(--B);font-size:17px;color:var(--gold);text-align:center;">${fmtPar(r.sum.netTotal)}</div>
     </div>`).join('')}
   </div>
-  <div style="font-size:8px;color:#3a3a34;margin-top:10px;letter-spacing:0.06em;">Neto calculado con Vice Handicap Engine · orden por Neto · vs par ${PAR_TOTAL}</div>`;
+  <div style="font-size:8px;color:#3a3a34;margin-top:10px;letter-spacing:0.06em;">Neto · Vice Handicap Engine · categoría auto por edad/género · ${FILTER==='all'?'orden general':'campeón de categoría'}</div>`;
 }
 
 function openCard(pid){
