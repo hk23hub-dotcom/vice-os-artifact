@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer — Club Tournaments Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--gold:#C6A15B;--cream:#F5F5F5;--bg:#0a0a0a;--surface:#141414;--muted:#5a5a52;--green:#4ade80;--blue:#60a5fa;--F:'Montserrat',sans-serif;--B:'Bebas Neue',sans-serif;}
+  body{background:var(--bg);color:var(--cream);font-family:var(--F);font-size:13px;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:760px;margin:0 auto;padding:16px 16px 80px;}
+  .demo-tag{position:fixed;top:0;left:0;right:0;background:#C6A15B;color:#0a0a0a;text-align:center;font-size:9px;font-weight:700;letter-spacing:0.16em;padding:5px;z-index:500;text-transform:uppercase;}
+  .head{display:flex;justify-content:space-between;align-items:flex-start;margin:24px 0 6px;}
+  .kicker{font-size:8px;font-weight:700;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
+  .h1{font-family:var(--B);font-size:30px;letter-spacing:0.04em;line-height:1;}
+  .btn{background:var(--gold);color:#0a0a0a;border:none;padding:10px 16px;font-family:var(--F);font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;}
+  .btn-ghost{background:transparent;border:1px solid rgba(245,245,245,0.1);color:var(--muted);}
+  .sub{font-size:10px;color:var(--muted);margin-bottom:20px;}
+  .seclabel{font-size:8px;font-weight:700;letter-spacing:0.2em;color:#4a4a42;text-transform:uppercase;margin-bottom:10px;}
+  .card{background:var(--surface);border:1px solid rgba(245,245,245,0.07);border-radius:0 3px 3px 0;padding:14px 16px;cursor:pointer;margin-bottom:8px;}
+  .tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid rgba(245,245,245,0.07);margin-bottom:16px;}
+  .tab{padding:11px 0;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:var(--F);font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);margin-bottom:-1px;}
+  .tab.on{border-bottom-color:var(--gold);color:var(--gold);}
+  .hidden{display:none;}
+  .badge{font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border:1px solid;padding:4px 10px;border-radius:3px;}
+  input,select{background:#111110;border:1px solid rgba(245,245,245,0.12);color:var(--cream);padding:10px 12px;font-family:var(--F);font-size:12px;border-radius:3px;outline:none;width:100%;}
+  .lbl{font-size:8px;font-weight:700;letter-spacing:0.16em;color:var(--muted);text-transform:uppercase;display:block;margin-bottom:6px;}
+  .tee-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border-radius:3px;cursor:pointer;background:#0e0e0e;border:1px solid rgba(245,245,245,0.1);font-size:9px;font-weight:700;color:var(--muted);}
+  .tee-btn.on{background:rgba(198,161,91,0.12);border-color:var(--gold);color:var(--gold);}
+  .dot{width:9px;height:9px;border-radius:50%;}
+</style>
+</head>
+<body>
+<div class="demo-tag">PREVIEW STANDALONE · CLUB TOURNAMENTS · datos de demo Las Rocas</div>
+<div class="wrap" id="app"></div>
+
+<script>
+// ── Vice Handicap Engine (inline) ──
+function courseHandicap(index, tee){ return Math.round(index*(tee.slope/113)+(tee.rating-tee.par)); }
+function strokesReceived(ch, holes){ return holes===9?Math.round(ch/2):ch; }
+function strokesByHole(total, holes){
+  const map={}; holes.forEach(h=>map[h.hole]=0); if(total<=0)return map;
+  const n=holes.length, full=Math.floor(total/n), rem=total%n;
+  holes.forEach(h=>map[h.hole]=full+(h.holeIndex<=rem?1:0)); return map;
+}
+function playerSummary(player, holes, scores){
+  const ch=courseHandicap(player.index,player.tee);
+  const total=strokesReceived(ch,holes.length);
+  const byHole=strokesByHole(total,holes);
+  const sm={}; scores.forEach(s=>sm[s.hole]=s.gross);
+  let gross=0,net=0,stbl=0,played=0;
+  holes.forEach(h=>{const g=sm[h.hole]; if(g!=null){played++;gross+=g;const nh=g-byHole[h.hole];net+=nh;stbl+=Math.max(0,(h.par-nh)+2);}});
+  const par=holes.reduce((s,h)=>s+h.par,0);
+  return {courseHandicap:ch,strokesReceived:total,grossTotal:gross,netTotal:net,stablefordTotal:stbl,holesPlayed:played,toPar:gross-par,netToPar:net-par};
+}
+
+// ── Cancha Blanca Las Rocas (9 hoyos) ──
+const HOLES=[
+  {hole:1,par:4,holeIndex:2},{hole:2,par:4,holeIndex:7},{hole:3,par:3,holeIndex:8},
+  {hole:4,par:5,holeIndex:5},{hole:5,par:4,holeIndex:1},{hole:6,par:4,holeIndex:6},
+  {hole:7,par:4,holeIndex:3},{hole:8,par:3,holeIndex:9},{hole:9,par:5,holeIndex:4}];
+const TEES={
+  Negro:{name:'Negro',color:'#1a1a1a',slope:130,rating:36.2,par:36},
+  Azul:{name:'Azul',color:'#60a5fa',slope:127,rating:35.6,par:36},
+  Blanco:{name:'Blanco',color:'#F5F5F5',slope:125,rating:35.3,par:36},
+  Dorado:{name:'Dorado',color:'#C6A15B',slope:120,rating:34.5,par:36},
+  Rojo:{name:'Rojo',color:'#ef4444',slope:117,rating:33.9,par:36}};
+const PAR_TOTAL=HOLES.reduce((s,h)=>s+h.par,0);
+
+// ── Demo state ──
+let T={name:'Copa Las Rocas 2025',course:'Cancha Blanca · 9h · Par 36',date:'2025-06-08',format:'stroke',status:'live',
+  players:[
+    {id:'p1',name:'HK23',index:8.3,tee:'Blanco'},
+    {id:'p2',name:'Martín R.',index:14.2,tee:'Blanco'},
+    {id:'p3',name:'Diego S.',index:3.1,tee:'Azul'},
+    {id:'p4',name:'Andrés P.',index:22.0,tee:'Dorado'},
+  ],
+  scores:{
+    p1:{1:5,2:4,3:4,4:6,5:5,6:4,7:5,8:3,9:6},
+    p2:{1:6,2:5,3:4,4:7,5:6,6:5,7:5,8:4,9:6},
+    p3:{1:4,2:4,3:3,4:5,5:4,6:4,7:4,8:3,9:5},
+    p4:{1:7,2:6,3:5,4:8,5:6,6:6,7:6,8:4,9:7},
+  }};
+let TAB='board';
+const SC={draft:'#6a6a6a',live:'#4ade80',closed:'#C6A15B'};
+
+function teeOf(name){return TEES[name];}
+function render(){
+  const app=document.getElementById('app');
+  app.innerHTML=`
+  <div class="head">
+    <div>
+      <div class="kicker">TOURNAMENT OS · CLUB PLAN</div>
+      <div class="h1">${T.name}</div>
+    </div>
+    <span class="badge" style="color:${SC[T.status]};border-color:${SC[T.status]}55;">${T.status}</span>
+  </div>
+  <div class="sub">${T.course} · ${T.date} · Stroke Play · ${T.players.length} jugadores</div>
+
+  <div class="tabs">
+    <button class="tab ${TAB==='players'?'on':''}" onclick="setTab('players')">Jugadores</button>
+    <button class="tab ${TAB==='scores'?'on':''}" onclick="setTab('scores')">Scorecards</button>
+    <button class="tab ${TAB==='board'?'on':''}" onclick="setTab('board')">Leaderboard</button>
+  </div>
+  <div id="tabc"></div>`;
+  renderTab();
+}
+function setTab(t){TAB=t;render();}
+
+function renderTab(){
+  const c=document.getElementById('tabc');
+  if(TAB==='players')c.innerHTML=playersHTML();
+  else if(TAB==='scores')c.innerHTML=scoresHTML();
+  else c.innerHTML=boardHTML();
+}
+
+function playersHTML(){
+  return T.players.map(p=>{
+    const tee=teeOf(p.tee); const ch=courseHandicap(p.index,tee); const recv=strokesReceived(ch,9);
+    return `<div class="card" style="border-left:3px solid ${tee.color};display:flex;align-items:center;gap:12px;cursor:default;">
+      <div class="dot" style="background:${tee.color};flex-shrink:0;"></div>
+      <div style="flex:1;">
+        <div style="font-family:var(--B);font-size:17px;letter-spacing:0.04em;line-height:1;">${p.name}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px;">Índice ${p.index} · Tee ${p.tee}</div>
+      </div>
+      <div style="text-align:center;"><div style="font-family:var(--B);font-size:22px;color:var(--gold);line-height:1;">${ch}</div><div style="font-size:7px;color:#4a4a42;letter-spacing:0.1em;">HCP CANCHA</div></div>
+      <div style="text-align:center;"><div style="font-family:var(--B);font-size:18px;color:var(--green);line-height:1;">${recv}</div><div style="font-size:7px;color:#4a4a42;letter-spacing:0.1em;">GOLPES</div></div>
+    </div>`;
+  }).join('');
+}
+
+function scoresHTML(){
+  return `<div class="seclabel">Toca un jugador para ingresar scores</div>`+T.players.map(p=>{
+    const played=Object.values(T.scores[p.id]||{}).filter(v=>v!=null).length;
+    return `<div class="card" onclick="openCard('${p.id}')" style="display:flex;justify-content:space-between;align-items:center;border-radius:3px;">
+      <div style="font-family:var(--B);font-size:17px;letter-spacing:0.04em;">${p.name}</div>
+      <div style="font-size:10px;color:${played===9?'var(--green)':'var(--muted)'};">${played}/9 hoyos →</div>
+    </div>`;
+  }).join('');
+}
+
+function boardHTML(){
+  const rows=T.players.map(p=>{
+    const tee=teeOf(p.tee);
+    const scores=HOLES.map(h=>({hole:h.hole,gross:T.scores[p.id]?.[h.hole]??null}));
+    const sum=playerSummary({index:p.index,tee},HOLES,scores);
+    return {p,sum,thru:sum.holesPlayed};
+  }).sort((a,b)=>a.sum.netTotal-b.sum.netTotal);
+  const fmtPar=v=>{const d=v-PAR_TOTAL;return d===0?'E':d>0?'+'+d:''+d;};
+  const medal=['#FFD700','#C0C0C0','#CD7F32'];
+  return `<div class="card" style="cursor:default;padding:0;border-left:1px solid rgba(245,245,245,0.07);overflow:hidden;">
+    <div style="display:grid;grid-template-columns:34px 1fr 44px 50px 50px;padding:9px 12px;background:#0e0e0e;border-bottom:1px solid rgba(245,245,245,0.06);">
+      ${['#','Jugador','Thru','Gross','Neto'].map((h,i)=>`<div style="font-size:8px;color:#4a4a42;letter-spacing:0.1em;text-transform:uppercase;text-align:${i>1?'center':'left'};">${h}</div>`).join('')}
+    </div>
+    ${rows.map((r,i)=>`<div style="display:grid;grid-template-columns:34px 1fr 44px 50px 50px;padding:11px 12px;border-bottom:1px solid rgba(245,245,245,0.04);align-items:center;background:${i===0?'rgba(198,161,91,0.04)':'transparent'};">
+      <div style="font-size:13px;font-weight:700;color:${i<3?medal[i]:'#3a3a3a'};">${i+1}</div>
+      <div><div style="font-family:var(--B);font-size:16px;letter-spacing:0.03em;line-height:1;">${r.p.name}</div><div style="font-size:7px;color:#4a4a42;">HCP ${r.sum.courseHandicap} · ${r.p.tee}</div></div>
+      <div style="font-size:11px;color:${r.thru===9?'var(--green)':'var(--muted)'};text-align:center;">${r.thru===9?'F':r.thru}</div>
+      <div style="font-family:var(--B);font-size:17px;text-align:center;">${r.sum.grossTotal}</div>
+      <div style="font-family:var(--B);font-size:17px;color:var(--gold);text-align:center;">${fmtPar(r.sum.netTotal)}</div>
+    </div>`).join('')}
+  </div>
+  <div style="font-size:8px;color:#3a3a34;margin-top:10px;letter-spacing:0.06em;">Neto calculado con Vice Handicap Engine · orden por Neto · vs par ${PAR_TOTAL}</div>`;
+}
+
+function openCard(pid){
+  const p=T.players.find(x=>x.id===pid); const tee=teeOf(p.tee);
+  const ch=courseHandicap(p.index,tee); const recv=strokesReceived(ch,9); const byHole=strokesByHole(recv,HOLES);
+  const scores=HOLES.map(h=>({hole:h.hole,gross:T.scores[p.id]?.[h.hole]??null}));
+  const sum=playerSummary({index:p.index,tee},HOLES,scores);
+  const RES=d=>d>=2?'#fbbf24':d===1?'#4ade80':d===0?'#F5F5F5':d===-1?'#f97316':'#ef4444';
+  const m=document.createElement('div');
+  m.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:600;display:flex;flex-direction:column;';
+  m.innerHTML=`
+    <div style="background:#141414;border-bottom:1px solid rgba(198,161,91,0.3);padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div><div style="font-family:var(--B);font-size:22px;color:var(--gold);letter-spacing:0.04em;line-height:1;">${p.name}</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:3px;">Índice ${p.index} · ${p.tee} · HCP Cancha ${ch} · ${recv} golpes</div></div>
+        <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;">×</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;">
+        ${[['GROSS',sum.grossTotal,'#F5F5F5'],['NETO',sum.netTotal,'#60a5fa'],['STBL',sum.stablefordTotal,'#C6A15B']].map(([k,v,col])=>`<div style="background:#0e0e0e;padding:8px 0;text-align:center;border-radius:3px;"><div style="font-family:var(--B);font-size:22px;color:${col};">${v}</div><div style="font-size:7px;color:#3a3a3a;letter-spacing:0.12em;margin-top:1px;">${k}</div></div>`).join('')}
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:12px 16px;">
+      ${HOLES.map(h=>{const g=T.scores[p.id]?.[h.hole]??null;const rh=byHole[h.hole];const net=g!=null?g-rh:null;const diff=net!=null?h.par-net:null;
+        return `<div style="display:grid;grid-template-columns:50px 1fr 90px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(245,245,245,0.04);">
+          <div><div style="font-family:var(--B);font-size:18px;color:var(--gold);line-height:1;">${h.hole}</div><div style="font-size:7px;color:#4a4a42;">Par ${h.par} · í${h.holeIndex}${rh>0?' · +'+rh:''}</div></div>
+          <div style="text-align:center;font-family:var(--B);font-size:26px;color:${diff!=null?RES(diff):'#2a2a2a'};">${g??'—'}</div>
+          <div style="text-align:right;">${net!=null?'<span style="font-family:var(--B);font-size:18px;color:#60a5fa;">'+net+'</span><span style="font-size:8px;color:#4a4a42;"> neto</span>':'<span style="color:#2a2a2a;font-family:var(--B);font-size:16px;">—</span>'}</div>
+        </div>`;}).join('')}
+    </div>`;
+  document.body.appendChild(m);
+}
+render();
+</script>
+</body>
+</html>
