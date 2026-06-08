@@ -187,32 +187,41 @@
           <div class="sub" style="text-align:center;">Cancha Blanca · 9 hoyos · Par 36</div>
         </div>
 
+        <!-- category filter — categorías activas -->
+        <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin:4px 0 10px;">
+          <span style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;background:rgba(198,161,91,0.15);border:1px solid var(--gold);color:var(--gold);">General · 4</span>
+          <span style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid rgba(96,165,250,0.4);color:var(--blue);">VA · 2</span>
+          <span style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid rgba(96,165,250,0.4);color:var(--blue);">VS · 1</span>
+          <span style="font-size:7px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid rgba(236,72,153,0.4);color:#ec4899;">DA · 1</span>
+        </div>
+
         <!-- public leaderboard -->
         <div style="border:1px solid rgba(245,245,245,0.07);border-radius:4px;overflow:hidden;margin-top:6px;">
-          <div class="lb-head" style="grid-template-columns:26px 1fr 36px 42px 42px;">
-            <div class="lb-h">#</div><div class="lb-h">Jugador</div><div class="lb-h" style="text-align:center;">Thru</div><div class="lb-h" style="text-align:center;">Gross</div><div class="lb-h" style="text-align:center;">Neto</div>
+          <div class="lb-head" style="grid-template-columns:24px 1fr 30px 38px 38px;">
+            <div class="lb-h">#</div><div class="lb-h">Jugador</div><div class="lb-h" style="text-align:center;">Thru</div><div class="lb-h" style="text-align:center;">Gr</div><div class="lb-h" style="text-align:center;">Net</div>
           </div>
-          <div class="lb-row" style="grid-template-columns:26px 1fr 36px 42px 42px;background:rgba(198,161,91,0.04);">
+          <div class="lb-row" style="grid-template-columns:24px 1fr 30px 38px 38px;background:rgba(198,161,91,0.04);">
             <div style="font-size:12px;font-weight:700;color:#FFD700;">1</div>
-            <div><div class="nm">Diego S.</div><div class="sm">HCP 3 · Azul</div></div>
+            <div><div style="display:flex;align-items:center;gap:4px;"><span class="nm">Diego S.</span><span style="font-size:6px;font-weight:700;padding:1px 3px;border-radius:2px;color:var(--blue);border:1px solid rgba(96,165,250,0.3);">VA</span></div><div class="sm">HCP 3 · Azul</div></div>
             <div class="val" style="font-size:10px;color:var(--green);">F</div><div class="val">36</div><div class="val" style="color:var(--gold);">−2</div>
           </div>
-          <div class="lb-row" style="grid-template-columns:26px 1fr 36px 42px 42px;">
+          <div class="lb-row" style="grid-template-columns:24px 1fr 30px 38px 38px;">
             <div style="font-size:12px;font-weight:700;color:#C0C0C0;">2</div>
-            <div><div class="nm">HK23</div><div class="sm">HCP 8 · Blanco</div></div>
+            <div><div style="display:flex;align-items:center;gap:4px;"><span class="nm">HK23</span><span style="font-size:6px;font-weight:700;padding:1px 3px;border-radius:2px;color:var(--blue);border:1px solid rgba(96,165,250,0.3);">VA</span></div><div class="sm">HCP 8 · Blanco</div></div>
             <div class="val" style="font-size:10px;color:var(--green);">F</div><div class="val">42</div><div class="val" style="color:var(--gold);">+2</div>
           </div>
-          <div class="lb-row" style="grid-template-columns:26px 1fr 36px 42px 42px;">
+          <div class="lb-row" style="grid-template-columns:24px 1fr 30px 38px 38px;">
             <div style="font-size:12px;font-weight:700;color:#CD7F32;">3</div>
-            <div><div class="nm">Martín R.</div><div class="sm">HCP 15 · Blanco</div></div>
+            <div><div style="display:flex;align-items:center;gap:4px;"><span class="nm">Martín R.</span><span style="font-size:6px;font-weight:700;padding:1px 3px;border-radius:2px;color:var(--blue);border:1px solid rgba(96,165,250,0.3);">VS</span></div><div class="sm">HCP 15 · Blanco</div></div>
             <div class="val" style="font-size:10px;color:var(--green);">F</div><div class="val">48</div><div class="val" style="color:var(--gold);">+4</div>
           </div>
-          <div class="lb-row" style="grid-template-columns:26px 1fr 36px 42px 42px;">
+          <div class="lb-row" style="grid-template-columns:24px 1fr 30px 38px 38px;">
             <div style="font-size:12px;font-weight:700;color:#3a3a3a;">4</div>
-            <div><div class="nm">Andrés P.</div><div class="sm">HCP 22 · Dorado</div></div>
-            <div class="val" style="font-size:10px;color:var(--muted);">5</div><div class="val">31</div><div class="val" style="color:var(--gold);">+5</div>
+            <div><div style="display:flex;align-items:center;gap:4px;"><span class="nm">Ana V.</span><span style="font-size:6px;font-weight:700;padding:1px 3px;border-radius:2px;color:#ec4899;border:1px solid rgba(236,72,153,0.3);">DA</span></div><div class="sm">HCP 18 · Rojo</div></div>
+            <div class="val" style="font-size:10px;color:var(--green);">F</div><div class="val">50</div><div class="val" style="color:var(--gold);">+6</div>
           </div>
         </div>
+        <div style="font-size:7px;color:#3a3a34;margin-top:6px;text-align:center;letter-spacing:0.06em;">Filtra por categoría FChG · campeón general + campeón por categoría</div>
 
         <!-- QR -->
         <div style="text-align:center;margin-top:16px;">
