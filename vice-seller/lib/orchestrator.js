@@ -46,7 +46,7 @@ export async function runWave({ waveSize, captionFn } = {}) {
       const seo = buildSeo(it, caption, i);
       record(it.id, { seo });
 
-      const img = await etsy.fetchImage(it.full);
+      const img = etsy.localImage(it.sku) || await etsy.fetchImage(it.full);
       const listingId = await etsy.createDraft(seo);
       await etsy.uploadImage(listingId, img);
       await etsy.uploadFile(listingId, img, it.sku);

@@ -64,7 +64,7 @@ export async function api(path, { method = 'GET', body, isForm } = {}) {
   const cfg = loadConfig();
   const token = await getFreshAccessToken();
   const headers = {
-    'x-api-key': cfg.keystring,
+    'x-api-key': cfg.sharedSecret ? `${cfg.keystring}:${cfg.sharedSecret}` : cfg.keystring,
     'Authorization': 'Bearer ' + token,
   };
   let payload = body;

@@ -1,4 +1,5 @@
 config.local.json
 data/ledger.json
+data/img/
 node_modules/
 *.log

@@ -1,14 +1,31 @@
 // etsy.js — VICE SELLER Etsy channel. Creates a digital-download listing,
 // attaches the artwork as the listing photo AND the downloadable file.
 // Reuses the approved etsy-agent OAuth/token layer (single source of truth).
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { api, getShopId, getFreshAccessToken } from '../../etsy-agent/lib.js';
-import { loadConfig } from './sources.js';
+import { loadConfig, ROOT } from './sources.js';
+
+// read a pre-downloaded image from data/img/{sku}.{ext} (browser-fetched).
+export function localImage(sku) {
+  for (const ext of ['png', 'jpg', 'jpeg', 'webp']) {
+    const p = join(ROOT, 'data', 'img', `${sku}.${ext}`);
+    if (existsSync(p)) {
+      const type = ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg';
+      return { buf: readFileSync(p), type, ext: ext === 'jpeg' ? 'jpg' : ext };
+    }
+  }
+  return null;
+}
 
 const API = 'https://api.etsy.com/v3/application';
-const KEYSTRING = JSON.parse(
+const ETSY_CFG = JSON.parse(
   readFileSync(new URL('../../etsy-agent/config.json', import.meta.url), 'utf8'),
-).keystring;
+);
+// Etsy v3 wants x-api-key as `keystring:shared_secret` for this app.
+const KEYSTRING = ETSY_CFG.sharedSecret
+  ? `${ETSY_CFG.keystring}:${ETSY_CFG.sharedSecret}`
+  : ETSY_CFG.keystring;
 
 // download the full-res image into memory (png, with webp fallback)
 export async function fetchImage(url) {
