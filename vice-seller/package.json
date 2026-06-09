@@ -1,0 +1,14 @@
+{
+  "name": "vice-seller",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "VICE SELLER — autonomous monetization agent for the HK23 universe. Turns a MidJourney collection into multi-channel revenue (Etsy digital + Printify physical + Pinterest traffic).",
+  "scripts": {
+    "plan": "node run.js --dry",
+    "wave": "node run.js",
+    "wave:dry": "node run.js --dry",
+    "status": "node run.js --status",
+    "etsy:oauth": "node ../etsy-agent/oauth.js"
+  }
+}

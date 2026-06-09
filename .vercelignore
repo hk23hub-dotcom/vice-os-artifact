@@ -1,0 +1,16 @@
+# Secrets & backend (NEVER deploy)
+etsy-agent/
+*.tokens.json
+tokens.json
+**/config.json
+
+# Dev / internal
+.claude/
+vice-os/
+tests/
+node_modules/
+docs/
+prompts/
+
+# OS junk
+.DS_Store

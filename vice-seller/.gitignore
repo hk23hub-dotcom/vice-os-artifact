@@ -1,0 +1,4 @@
+config.local.json
+data/ledger.json
+node_modules/
+*.log

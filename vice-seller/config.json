@@ -1,0 +1,31 @@
+{
+  "shopName": "HK23Studio",
+  "brand": "HK23",
+  "waveSize": 50,
+  "channels": {
+    "etsyDigital": { "enabled": true,  "publish": "draft" },
+    "printify":    { "enabled": false, "publish": "draft", "blueprints": ["canvas", "poster"] },
+    "pinterest":   { "enabled": false }
+  },
+  "pricing": {
+    "digitalUSD": 7.5,
+    "canvasMarkup": 1.6,
+    "posterMarkup": 1.8
+  },
+  "listingDefaults": {
+    "who_made": "i_did",
+    "when_made": "2020_2025",
+    "taxonomy_id": 2078,
+    "quantity": 999,
+    "type": "download",
+    "is_digital": true,
+    "should_auto_renew": false
+  },
+  "seo": {
+    "titleMaxChars": 140,
+    "tagCount": 13,
+    "baseKeywords": ["wall art", "printable art", "digital download", "home decor", "instant download"]
+  },
+  "source": "data/midjourney-manifest.json",
+  "cdnBase": "https://cdn.midjourney.com"
+}

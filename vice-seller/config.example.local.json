@@ -1,0 +1,8 @@
+{
+  "_comment": "Copy to config.local.json (gitignored) and fill what you have. Every key is optional; a channel stays dormant until its key exists.",
+  "anthropicKey": "sk-ant-...        (enables vision SEO — titles match the real image)",
+  "printifyToken": "...             (Printify > Settings > Connections > API token)",
+  "printifyShopId": "...            (Printify shop id, numeric)",
+  "pinterestToken": "...            (Pinterest API v5 access token)",
+  "pinterestBoardId": "..."
+}
