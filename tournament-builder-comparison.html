@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer vs Competencia — Tournament Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--gold:#C6A15B;--cream:#F5F5F5;--bg:#0a0a0a;--surface:#141414;--muted:#5a5a52;--green:#4ade80;--red:#ef4444;--F:'Montserrat',sans-serif;--B:'Bebas Neue',sans-serif;}
+  body{background:#060606;color:var(--cream);font-family:var(--F);font-size:13px;padding:36px 20px 80px;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(rgba(198,161,91,0.04) 1px,transparent 1px);background-size:30px 30px;}
+  .head{text-align:center;max-width:760px;margin:0 auto 40px;}
+  .head .k{font-size:9px;font-weight:700;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+  .head .t{font-family:var(--B);font-size:clamp(36px,7vw,60px);letter-spacing:0.03em;line-height:0.95;}
+  .head .s{font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6;}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;margin:0 auto;}
+  @media(max-width:780px){.cols{grid-template-columns:1fr;}}
+
+  .col{border-radius:12px;overflow:hidden;border:1px solid rgba(245,245,245,0.08);}
+  .col.vice{border:1.5px solid var(--gold);box-shadow:0 0 60px rgba(198,161,91,0.08);}
+  .col-head{padding:20px;text-align:center;}
+  .col.vice .col-head{background:linear-gradient(180deg,rgba(198,161,91,0.12),transparent);}
+  .col.them .col-head{background:rgba(245,245,245,0.02);}
+  .badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:4px 12px;border-radius:20px;margin-bottom:10px;}
+  .col-name{font-family:var(--B);font-size:30px;letter-spacing:0.06em;line-height:1;}
+  .col-sub{font-size:10px;color:var(--muted);margin-top:5px;letter-spacing:0.04em;}
+  .price{font-family:var(--B);font-size:38px;margin-top:14px;}
+  .price-sub{font-size:9px;color:var(--muted);letter-spacing:0.1em;}
+
+  .feat-list{padding:8px 18px 20px;}
+  .feat{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid rgba(245,245,245,0.04);}
+  .feat:last-child{border-bottom:none;}
+  .ic{flex-shrink:0;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+  .ic.yes{background:rgba(74,222,128,0.15);color:var(--green);}
+  .ic.no{background:rgba(239,68,68,0.12);color:var(--red);}
+  .ic.partial{background:rgba(251,191,36,0.15);color:#fbbf24;}
+  .feat-txt{font-size:12px;color:#c5c5bd;line-height:1.4;}
+  .feat-txt.dim{color:#5a5a52;}
+
+  .verdict{max-width:1100px;margin:32px auto 0;background:var(--surface);border:1px solid rgba(198,161,91,0.2);border-radius:12px;padding:24px;text-align:center;}
+  .verdict .vt{font-family:var(--B);font-size:26px;letter-spacing:0.04em;margin-bottom:12px;}
+  .verdict .vrow{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;margin-top:16px;}
+  .vstat .n{font-family:var(--B);font-size:32px;color:var(--gold);line-height:1;}
+  .vstat .l{font-size:8px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;margin-top:4px;}
+  .foot{text-align:center;font-family:var(--B);font-size:16px;color:var(--gold);letter-spacing:0.12em;margin-top:40px;}
+</style>
+</head>
+<body>
+
+<div class="head">
+  <div class="k">TOURNAMENT BUILDER · COMPARATIVO</div>
+  <div class="t">VICEGOLFER<br><span style="color:var(--muted);font-size:0.6em;">vs lo que ofrecen hoy</span></div>
+  <div class="s">Mismo nivel de torneo profesional. Más funciones. Una fracción del precio.</div>
+</div>
+
+<div class="cols">
+
+  <!-- VICEGOLFER -->
+  <div class="col vice">
+    <div class="col-head">
+      <span class="badge" style="background:var(--gold);color:#0a0a0a;">VICEGOLFER · TOURNAMENT OS</span>
+      <div class="col-name" style="color:var(--gold);">VICEGOLFER</div>
+      <div class="col-sub">Plataforma de performance + torneos</div>
+      <div class="price" style="color:var(--gold);">$2.4M</div>
+      <div class="price-sub">CLP / AÑO · TORNEOS ILIMITADOS</div>
+    </div>
+    <div class="feat-list">
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt"><b>Handicap de Cancha automático</b> (Índice · Slope · Rating · Par)</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt"><b>Categorías FChG automáticas por edad</b> (Pre Juvenil → Senior)</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Leaderboard público en vivo (link + QR)</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Gross / Neto / Stableford + empates (T5)</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Multi-ronda (R1–R4) para campeonatos de varios días</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt"><b>App de rendimiento para todos los socios</b></div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Putting Protocol + análisis de juego</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Listo en 1 día · sin instalación</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Torneos ilimitados todo el año</div></div>
+    </div>
+  </div>
+
+  <!-- COMPETENCIA -->
+  <div class="col them">
+    <div class="col-head">
+      <span class="badge" style="background:rgba(245,245,245,0.06);color:var(--muted);">SISTEMA ACTUAL DEL MERCADO</span>
+      <div class="col-name" style="color:#8a8a82;">COMPETENCIA</div>
+      <div class="col-sub">Solo sistema de torneos</div>
+      <div class="price" style="color:#8a8a82;">$12M</div>
+      <div class="price-sub">CLP · LICENCIA + INSTALACIÓN</div>
+    </div>
+    <div class="feat-list">
+      <div class="feat"><div class="ic partial">~</div><div class="feat-txt">Handicap (carga manual)</div></div>
+      <div class="feat"><div class="ic no">✕</div><div class="feat-txt dim">Categorías por edad automáticas</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Leaderboard público en vivo</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Gross / Neto + empates</div></div>
+      <div class="feat"><div class="ic yes">✓</div><div class="feat-txt">Multi-ronda</div></div>
+      <div class="feat"><div class="ic no">✕</div><div class="feat-txt dim">App de rendimiento para socios</div></div>
+      <div class="feat"><div class="ic no">✕</div><div class="feat-txt dim">Putting Protocol / análisis</div></div>
+      <div class="feat"><div class="ic partial">~</div><div class="feat-txt">Requiere instalación / setup</div></div>
+      <div class="feat"><div class="ic partial">~</div><div class="feat-txt">Modelo de licencia cara una vez</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <div class="vt">MISMO TORNEO. <span style="color:var(--gold);">5X MENOS CARO.</span> + ECOSISTEMA COMPLETO.</div>
+  <div style="font-size:12px;color:var(--muted);max-width:540px;margin:0 auto;line-height:1.6;">
+    La competencia te vende una herramienta de torneos por $12M. ViceGolfer te da el torneo profesional <b style="color:var(--cream);">más</b> handicap automático, categorías por edad, y una app de performance para todos tus socios — por $2.4M al año.
+  </div>
+  <div class="vrow">
+    <div class="vstat"><div class="n">5×</div><div class="l">más barato</div></div>
+    <div class="vstat"><div class="n">+4</div><div class="l">funciones exclusivas</div></div>
+    <div class="vstat"><div class="n">1 día</div><div class="l">para arrancar</div></div>
+    <div class="vstat"><div class="n">∞</div><div class="l">torneos al año</div></div>
+  </div>
+</div>
+
+<div class="foot">NOT GIVEN. TAKEN.</div>
+
+</body>
+</html>
