@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Mockup Studio · Framed Wall Mockups for Etsy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0b0b10;color:#eee;font-family:'Space Mono',monospace;padding:30px 24px 80px;}
+  header{max-width:1200px;margin:0 auto 28px;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:30px;letter-spacing:-.5px;}
+  h1 span{color:#FF3A1F;}
+  .sub{color:#888;font-size:12px;margin-top:8px;line-height:1.6;max-width:760px;}
+  .sub b{color:#AAFF00;}
+  .bar{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;align-items:center;}
+  button.act{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;
+    background:#FFD200;color:#111;border:none;border-radius:8px;padding:11px 18px;cursor:pointer;text-transform:uppercase;}
+  button.act:hover{filter:brightness(1.08);}
+  button.ghost{background:transparent;color:#aaa;border:1px solid #2a2a36;}
+  .note{font-size:10px;color:#666;letter-spacing:1px;}
+
+  .piece{max-width:1200px;margin:0 auto 46px;border-top:1px solid #1a1a24;padding-top:26px;}
+  .ptitle{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;color:#fff;margin-bottom:4px;}
+  .pmeta{font-size:10px;color:#666;letter-spacing:1px;margin-bottom:16px;text-transform:uppercase;}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;}
+  @media(max-width:900px){.row{grid-template-columns:1fr;}}
+  .slot{background:#121219;border:1px solid #1d1d28;border-radius:12px;padding:12px;}
+  .slot canvas{width:100%;height:auto;border-radius:6px;display:block;background:#1a1a22;}
+  .slotbar{display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+  .stylename{font-size:10px;letter-spacing:2px;color:#9aa;text-transform:uppercase;}
+  .dl{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;
+    background:#1f1f2b;color:#FFD200;border:1px solid #33333f;border-radius:6px;padding:7px 11px;cursor:pointer;text-transform:uppercase;}
+  .dl:hover{background:#262633;}
+  #status{position:fixed;bottom:0;left:0;right:0;background:#15151d;border-top:1px solid #262630;
+    padding:10px 20px;font-size:11px;color:#9aa;letter-spacing:1px;}
+  #status b{color:#AAFF00;}
+</style>
+</head>
+<body>
+<header>
+  <h1>HK<span>23</span> · MOCKUP STUDIO</h1>
+  <p class="sub">Framed-on-wall mockups for your Etsy listings — use these as the <b>2nd / 3rd photo</b> on each listing (the 1st stays the raw art). Each piece is rendered in 3 room styles. Click <b>⬇</b> to download a PNG, then upload it to the matching listing.<br>
+  Source art is the 624px preview — perfect for listing photos. For the print deliverable keep using your full-res files.</p>
+  <div class="bar">
+    <button class="act" id="dlall">⬇ Download ALL (30 PNGs)</button>
+    <button class="act ghost" id="rerender">↻ Re-render</button>
+    <span class="note">Tip: allow multiple downloads if the browser asks.</span>
+  </div>
+</header>
+
+<div id="gallery"></div>
+<div id="status">Loading art…</div>
+
+<script>
+const PIECES = [
+  { id:'mj-01', title:'Surreal Parrot Forest Art Print' },
+  { id:'mj-02', title:'Googly Eyes Character Portrait' },
+  { id:'mj-03', title:'Psychedelic Woman Portrait' },
+  { id:'mj-04', title:'Cyberpunk Circuit Face' },
+  { id:'mj-05', title:'Black & White Graffiti Print' },
+  { id:'mj-06', title:'Dark Expressionist Face' },
+  { id:'mj-07', title:'Folk Owl Forest Art Print' },
+  { id:'mj-08', title:'Geometric Stag Art Print' },
+  { id:'mj-09', title:'Autumn Deer Portrait' },
+  { id:'mj-10', title:'Mystical Golden Owl Art Print' },
+];
+
+// Each style: wall gradient stops, optional floor, frame molding, mat.
+const STYLES = [
+  {
+    key:'gallery', name:'Gallery · Black Frame',
+    wallTop:'#efece6', wallBot:'#ddd8cf', floor:null,
+    frameOuter:'#16161a', frameInner:'#2c2c33', frameW:0.045,
+    mat:'#ffffff', matW:0.055, artScale:0.60, glass:0.10,
+  },
+  {
+    key:'oak', name:'Cozy · Oak Frame',
+    wallTop:'#e7ddcd', wallBot:'#cdbfa8', floor:'#b59b78',
+    frameOuter:'#a9824e', frameInner:'#caa372', frameW:0.05,
+    mat:'#f7f3ec', matW:0.04, artScale:0.58, glass:0.08,
+  },
+  {
+    key:'minimal', name:'Minimal · Wide Mat',
+    wallTop:'#f4f4f2', wallBot:'#e6e6e3', floor:null,
+    frameOuter:'#d7d7d2', frameInner:'#ffffff', frameW:0.022,
+    mat:'#ffffff', matW:0.10, artScale:0.50, glass:0.12,
+  },
+];
+
+const SIZE = 2000; // export resolution (square, Etsy-friendly)
+const imgs = {};
+
+function loadImg(src){
+  return new Promise((res,rej)=>{
+    const im = new Image();
+    im.onload = ()=>res(im);
+    im.onerror= ()=>rej(src);
+    im.src = src;
+  });
+}
+
+function roundRectPath(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);
+  ctx.arcTo(x+w,y,x+w,y+h,r);
+  ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);
+  ctx.arcTo(x,y,x+w,y,r);
+  ctx.closePath();
+}
+
+function render(canvas, img, st){
+  const S = SIZE;
+  canvas.width = S; canvas.height = S;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+
+  // ---- wall ----
+  const g = ctx.createLinearGradient(0,0,0,S);
+  g.addColorStop(0, st.wallTop); g.addColorStop(1, st.wallBot);
+  ctx.fillStyle = g; ctx.fillRect(0,0,S,S);
+  // soft top light
+  const rg = ctx.createRadialGradient(S*0.5,S*0.18,S*0.05, S*0.5,S*0.3,S*0.8);
+  rg.addColorStop(0,'rgba(255,255,255,0.18)'); rg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle = rg; ctx.fillRect(0,0,S,S);
+  // floor band
+  if(st.floor){
+    const fy = S*0.82;
+    ctx.fillStyle = st.floor; ctx.fillRect(0,fy,S,S-fy);
+    const fg = ctx.createLinearGradient(0,fy,0,S);
+    fg.addColorStop(0,'rgba(0,0,0,0.12)'); fg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle = fg; ctx.fillRect(0,fy,S,S-fy);
+  }
+  // vignette
+  const vg = ctx.createRadialGradient(S*0.5,S*0.5,S*0.3, S*0.5,S*0.5,S*0.75);
+  vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,0.10)');
+  ctx.fillStyle = vg; ctx.fillRect(0,0,S,S);
+
+  // ---- frame geometry (square, centered, lifted slightly above center) ----
+  const artScale = st.artScale;            // art opening as fraction of S
+  const matW = S*st.matW;
+  const frW  = S*st.frameW;
+  const art  = S*artScale;
+  const total = art + 2*matW + 2*frW;
+  const fx = (S-total)/2;
+  const fy = (S-total)/2 - S*0.02;
+
+  // contact shadow under frame
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,0.38)'; ctx.shadowBlur=S*0.05; ctx.shadowOffsetY=S*0.022;
+  ctx.fillStyle='rgba(0,0,0,0.5)';
+  roundRectPath(ctx,fx,fy,total,total,6); ctx.fill();
+  ctx.restore();
+
+  // frame molding with bevel
+  const fg2 = ctx.createLinearGradient(fx,fy,fx+total,fy+total);
+  fg2.addColorStop(0, st.frameInner); fg2.addColorStop(0.5, st.frameOuter); fg2.addColorStop(1, '#000');
+  ctx.fillStyle = fg2; roundRectPath(ctx,fx,fy,total,total,6); ctx.fill();
+  // inner bevel highlight
+  ctx.fillStyle = st.frameOuter;
+  roundRectPath(ctx,fx+frW*0.35,fy+frW*0.35,total-frW*0.7,total-frW*0.7,3); ctx.fill();
+
+  // mat
+  const mx=fx+frW, my=fy+frW, mw=total-2*frW;
+  ctx.fillStyle = st.mat; ctx.fillRect(mx,my,mw,mw);
+  // mat inner bevel (subtle)
+  ctx.strokeStyle='rgba(0,0,0,0.10)'; ctx.lineWidth=2;
+  ctx.strokeRect(mx+matW-2, my+matW-2, art+4, art+4);
+
+  // artwork
+  const ax=mx+matW, ay=my+matW;
+  // cover-fit square art into square opening
+  const iw=img.width, ih=img.height, side=Math.min(iw,ih);
+  const sx=(iw-side)/2, sy=(ih-side)/2;
+  ctx.drawImage(img, sx,sy,side,side, ax,ay,art,art);
+  // inner shadow on art
+  ctx.save();
+  ctx.strokeStyle='rgba(0,0,0,0.22)'; ctx.lineWidth=S*0.006;
+  ctx.strokeRect(ax,ay,art,art);
+  ctx.restore();
+
+  // glass reflection streak
+  if(st.glass){
+    ctx.save();
+    ctx.beginPath(); ctx.rect(ax,ay,art,art); ctx.clip();
+    const gl=ctx.createLinearGradient(ax,ay,ax+art,ay+art);
+    gl.addColorStop(0,`rgba(255,255,255,${st.glass})`);
+    gl.addColorStop(0.25,'rgba(255,255,255,0)');
+    gl.addColorStop(0.55,`rgba(255,255,255,${st.glass*0.6})`);
+    gl.addColorStop(0.75,'rgba(255,255,255,0)');
+    ctx.fillStyle=gl; ctx.fillRect(ax,ay,art,art);
+    ctx.restore();
+  }
+}
+
+function dlCanvas(canvas, filename){
+  const a=document.createElement('a');
+  a.download=filename;
+  a.href=canvas.toDataURL('image/png');
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+const statusEl=document.getElementById('status');
+function status(html){ statusEl.innerHTML=html; }
+
+async function build(){
+  const gal=document.getElementById('gallery');
+  gal.innerHTML='';
+  let loaded=0;
+  for(const p of PIECES){
+    if(!imgs[p.id]){
+      try{ imgs[p.id]=await loadImg(`assets/midjourney/${p.id}.webp`); }
+      catch(e){ try{ imgs[p.id]=await loadImg(`etsy-exports/HK23-${p.id}.jpg`);}catch(e2){ continue; } }
+    }
+    loaded++;
+    const sec=document.createElement('div'); sec.className='piece';
+    sec.innerHTML=`<div class="ptitle">${p.title}</div><div class="pmeta">${p.id} · 3 styles</div>`;
+    const row=document.createElement('div'); row.className='row';
+    STYLES.forEach(st=>{
+      const slot=document.createElement('div'); slot.className='slot';
+      const cv=document.createElement('canvas');
+      render(cv, imgs[p.id], st);
+      const bar=document.createElement('div'); bar.className='slotbar';
+      bar.innerHTML=`<span class="stylename">${st.name}</span>`;
+      const b=document.createElement('button'); b.className='dl'; b.textContent='⬇ PNG';
+      b.onclick=()=>dlCanvas(cv, `HK23-${p.id}-mockup-${st.key}.png`);
+      bar.appendChild(b);
+      slot.appendChild(cv); slot.appendChild(bar);
+      row.appendChild(slot);
+    });
+    sec.appendChild(row); gal.appendChild(sec);
+    status(`Rendered <b>${loaded}/${PIECES.length}</b> pieces · ${loaded*3} mockups ready`);
+    await new Promise(r=>setTimeout(r,10));
+  }
+  status(`✓ <b>${loaded*3} mockups</b> ready · click ⬇ on any, or “Download ALL”`);
+}
+
+document.getElementById('rerender').onclick=build;
+document.getElementById('dlall').onclick=async()=>{
+  const cvs=[...document.querySelectorAll('canvas')];
+  const slots=[...document.querySelectorAll('.slot .dl')];
+  status(`Downloading ${cvs.length} PNGs…`);
+  let i=0;
+  for(const p of PIECES){
+    for(const st of STYLES){
+      const cv=cvs[i++];
+      if(cv) dlCanvas(cv, `HK23-${p.id}-mockup-${st.key}.png`);
+      await new Promise(r=>setTimeout(r,350));
+    }
+  }
+  status(`✓ Triggered ${cvs.length} downloads. Check your Downloads folder.`);
+};
+
+build();
+</script>
+</body>
+</html>

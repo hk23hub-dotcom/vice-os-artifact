@@ -5,3 +5,4 @@ vice-os/
 etsy-agent/config.json
 etsy-agent/tokens.json
 etsy-agent/.published.json
+.vercel

@@ -1,7 +1,7 @@
 // orchestrator.js — the brain. Picks the next wave of un-published items,
 // generates SEO, and runs them through each enabled channel. Records every
 // step to the ledger so it is resumable and idempotent.
-import { loadItems, loadConfig } from './sources.js';
+import { loadItems, loadConfig, loadCaptions } from './sources.js';
 import { loadLedger, record, pending, summary } from './state.js';
 import { buildSeo, captionFor } from './seo.js';
 
@@ -10,20 +10,23 @@ const log = (...a) => console.log(...a);
 export function plan(waveSize) {
   const items = loadItems();
   const cfg = loadConfig();
+  const caps = loadCaptions();
   const size = waveSize || cfg.waveSize;
-  const todo = pending(items, 'etsy').slice(0, size);
-  return { items, todo, cfg };
+  // only sell vision-approved keepers; skip logos/mockups/renders.
+  const sellable = items.filter((it) => caps[it.sku] && caps[it.sku].keep === true);
+  const todo = pending(sellable, 'etsy').slice(0, size);
+  return { items, sellable, todo, cfg, caps };
 }
 
 // dry-run: show exactly what the next wave WOULD do (no network, no fees)
 export function dryRun(waveSize) {
-  const { items, todo, cfg } = plan(waveSize);
+  const { items, sellable, todo, cfg, caps } = plan(waveSize);
   log(`\n  VICE SELLER — dry run`);
-  log(`  collection: ${items.length} prints · wave size: ${todo.length}`);
+  log(`  collection: ${items.length} · curated sellable: ${sellable.length} · captioned: ${Object.keys(caps).length} · wave: ${todo.length}`);
   log(`  channels: ${Object.entries(cfg.channels).filter(([, c]) => c.enabled).map(([k]) => k).join(', ') || 'none'}`);
   log(`  etsy mode: ${cfg.channels.etsyDigital.publish} (draft = $0 until you publish)\n`);
   todo.slice(0, 5).forEach((it, i) => {
-    const seo = buildSeo(it, captionFor(it, i), i);
+    const seo = buildSeo(it, caps[it.sku] || captionFor(it, i), i);
     log(`  • ${it.sku}  ${seo.title}`);
     log(`      $${seo.price} · tags: ${seo.tags.join(', ')}`);
   });
@@ -34,15 +37,15 @@ export function dryRun(waveSize) {
 
 // live wave: requires an Etsy token. captionFn is optional (vision upgrade).
 export async function runWave({ waveSize, captionFn } = {}) {
-  const { items, todo, cfg } = plan(waveSize);
+  const { todo, cfg, caps } = plan(waveSize);
   const etsy = await import('./etsy.js');
   log(`VICE SELLER — live wave of ${todo.length} (etsy: ${cfg.channels.etsyDigital.publish})`);
   let ok = 0, fail = 0;
   for (let i = 0; i < todo.length; i++) {
     const it = todo[i];
     try {
-      const ledgerSeo = loadLedger()[it.id]?.seo;
-      const caption = ledgerSeo?.caption || (captionFn ? await captionFn(it) : captionFor(it, i));
+      // vision caption from captions.json → falls back to template only if missing
+      const caption = caps[it.sku] || loadLedger()[it.id]?.seo?.caption || (captionFn ? await captionFn(it) : captionFor(it, i));
       const seo = buildSeo(it, caption, i);
       record(it.id, { seo });
 
@@ -95,5 +98,5 @@ export async function runWave({ waveSize, captionFn } = {}) {
     }
   }
   log(`\nWave complete: ${ok} ok, ${fail} failed.`);
-  return { ok, fail, summary: summary(items) };
+  return { ok, fail, summary: summary(loadItems()) };
 }

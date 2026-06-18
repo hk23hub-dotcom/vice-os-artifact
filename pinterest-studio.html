@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — Pinterest Studio · Pin copy for your Etsy art</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0b0b10;color:#eee;font-family:'Space Mono',monospace;padding:30px 24px 80px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:30px;letter-spacing:-.5px;}
+  h1 span{color:#E60023;}
+  .sub{color:#8a8a93;font-size:12px;margin-top:8px;line-height:1.7;max-width:820px;}
+  .sub b{color:#AAFF00;}
+  .strat{background:#13131b;border:1px solid #20202c;border-radius:12px;padding:18px 20px;margin:22px 0 30px;}
+  .strat h2{font-family:'Space Grotesk',sans-serif;font-size:14px;color:#fff;letter-spacing:1px;margin-bottom:10px;text-transform:uppercase;}
+  .strat ol{margin-left:18px;color:#bdbdc6;font-size:12px;line-height:1.9;}
+  .strat ol b{color:#fff;}
+  .piece{border-top:1px solid #1a1a24;padding-top:24px;margin-bottom:40px;}
+  .ptitle{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:16px;color:#fff;}
+  .pmeta{font-size:10px;color:#666;letter-spacing:1px;margin:4px 0 16px;text-transform:uppercase;}
+  .pins{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  @media(max-width:920px){.pins{grid-template-columns:1fr;}}
+  .pin{background:#121219;border:1px solid #1d1d28;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .pin .tag{font-size:9px;letter-spacing:2px;color:#E60023;text-transform:uppercase;font-weight:700;}
+  .pin .thumb{width:100%;aspect-ratio:1;border-radius:8px;background:#1a1a22 center/cover no-repeat;}
+  .fld{}
+  .fld label{font-size:9px;letter-spacing:2px;color:#777;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .fld .val{background:#0d0d13;border:1px solid #23232f;border-radius:6px;padding:9px 10px;font-size:11.5px;color:#dfdfe6;line-height:1.55;white-space:pre-wrap;}
+  .fld .val.desc{min-height:96px;}
+  .copy{align-self:flex-start;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:9px;letter-spacing:1px;
+    background:#1f1f2b;color:#AAFF00;border:1px solid #33333f;border-radius:6px;padding:6px 10px;cursor:pointer;text-transform:uppercase;margin-top:5px;}
+  .copy:hover{background:#262633;} .copy.ok{color:#0b0b10;background:#AAFF00;}
+  .link{font-size:10px;color:#777;letter-spacing:.5px;}
+  .link b{color:#E60023;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>HK<span>23</span> · PINTEREST STUDIO</h1>
+  <p class="sub">30 ready-to-post pins (10 artworks × 3 angles). Each pin targets a different buyer — <b>gallery</b>, <b>cozy</b>, <b>minimalist</b>. Pinterest is the #1 driver for printable art and pins keep working for months. Use the matching <b>mockup PNG</b> as the pin image.</p>
+
+  <div class="strat">
+    <h2>⚡ Quick Pinterest playbook</h2>
+    <ol>
+      <li>Make a <b>free Pinterest Business account</b> → enables analytics + Rich Pins.</li>
+      <li>Create boards by theme: <b>“Surreal Wall Art”, “Cozy Home Prints”, “Cyberpunk & Neon”, “Woodland / Nature Art”, “Psychedelic Art”.</b></li>
+      <li>Pin <b>image = the mockup</b> (framed-on-wall converts far better than raw art).</li>
+      <li><b>Link every pin</b> to its exact Etsy listing (not just the shop) — set the URL below.</li>
+      <li>Post <b>3–5 pins/day</b>, spread across boards. Re-pin the same art in different styles on different days.</li>
+      <li>First sales/reviews take ~2–4 weeks of consistent pinning — it compounds.</li>
+    </ol>
+  </div>
+
+  <div class="fld" style="margin-bottom:24px;max-width:520px;">
+    <label>Your Etsy shop URL (used in the “link to” reminders)</label>
+    <input id="shop" value="https://www.etsy.com/shop/HK23Studio" style="width:100%;background:#0d0d13;border:1px solid #23232f;border-radius:6px;padding:9px 10px;font-size:11.5px;color:#dfdfe6;font-family:'Space Mono',monospace;">
+  </div>
+
+  <div id="gallery"></div>
+</div>
+
+<script>
+const URLS = {
+  'mj-01':'https://www.etsy.com/listing/4517395889',
+  'mj-02':'https://www.etsy.com/listing/4517399434',
+  'mj-03':'https://www.etsy.com/listing/4517405193',
+  'mj-04':'https://www.etsy.com/listing/4517406341',
+  'mj-05':'https://www.etsy.com/listing/4517402936',
+  'mj-06':'https://www.etsy.com/listing/4517408831',
+  'mj-07':'https://www.etsy.com/listing/4517410085',
+  'mj-08':'https://www.etsy.com/listing/4517406914',
+  'mj-09':'https://www.etsy.com/listing/4517408082',
+  'mj-10':'https://www.etsy.com/listing/4517415207',
+};
+const PIECES = [
+  { id:'mj-01', subject:'Surreal Parrot Forest', noun:'surreal folk-art parrot in an autumn forest',
+    vibe:'cozy yet otherworldly', kw:'surreal parrot wall art, folk woodland bird print, autumn forest decor, maximalist nature art',
+    tags:['#surrealart','#parrotart','#cottagecoredecor','#printablewallart'] },
+  { id:'mj-02', subject:'Googly Eyes Character', noun:'raw, funny expressionist character',
+    vibe:'weird, bold and a little unhinged', kw:'weird wall art, quirky portrait print, red and black art, funny dorm decor',
+    tags:['#weirdart','#quirkydecor','#dormwallart','#printableart'] },
+  { id:'mj-03', subject:'Psychedelic Woman', noun:'visionary psychedelic portrait',
+    vibe:'trippy, vibrant and hypnotic', kw:'psychedelic art, trippy wall art, colorful festival poster, visionary portrait',
+    tags:['#psychedelicart','#trippyart','#festivaldecor','#printablewallart'] },
+  { id:'mj-04', subject:'Cyberpunk Circuit Face', noun:'neon cyber-deity built from glowing circuitry',
+    vibe:'futuristic, dark and electric', kw:'cyberpunk art, neon wall art, gamer room decor, glitch sci-fi print',
+    tags:['#cyberpunk','#gamerroom','#neonart','#printableart'] },
+  { id:'mj-05', subject:'Black & White Graffiti', noun:'raw wildstyle graffiti piece',
+    vibe:'pure street energy in black & white', kw:'graffiti wall art, street art poster, wildstyle print, urban loft decor',
+    tags:['#graffitiart','#streetart','#urbandecor','#printablewallart'] },
+  { id:'mj-06', subject:'Dark Expressionist Face', noun:'raw expressionist abstract portrait',
+    vibe:'primal, moody and emotional', kw:'expressionist art, abstract portrait print, dark moody wall art, red black modern art',
+    tags:['#abstractart','#expressionism','#moodydecor','#printableart'] },
+  { id:'mj-07', subject:'Folk Owl Forest', noun:'folk-surrealist owl in a geometric forest',
+    vibe:'warm, decorative and a little magical', kw:'folk owl wall art, woodland bird print, geometric forest art, cottagecore decor',
+    tags:['#owlart','#cottagecore','#woodlandart','#printablewallart'] },
+  { id:'mj-08', subject:'Geometric Stag', noun:'majestic low-poly stag in an autumn forest',
+    vibe:'bold, warm and rustic', kw:'geometric stag art, deer wall art, low poly forest print, rustic cabin decor',
+    tags:['#deerart','#cabindecor','#rusticdecor','#printableart'] },
+  { id:'mj-09', subject:'Autumn Deer Portrait', noun:'geometric deer portrait glowing in autumn golds',
+    vibe:'cozy, striking and timeless', kw:'autumn deer art, geometric stag print, fall woodland decor, cozy cabin wall art',
+    tags:['#fallhomedecor','#deerart','#woodlanddecor','#printablewallart'] },
+  { id:'mj-10', subject:'Mystical Golden Owl', noun:'golden owl on a forest temple beneath a rising sun',
+    vibe:'mystical, regal and hypnotic', kw:'mystical owl art, golden owl print, surreal forest temple, boho spiritual wall art',
+    tags:['#mysticalart','#bohodecor','#owlart','#printablewallart'] },
+];
+
+const STYLES = [
+  { key:'gallery', label:'Gallery / Black Frame', word:'Bold', room:'a modern gallery wall',
+    audience:'statement living-room & studio decor', extra:'#gallerywall' },
+  { key:'oak', label:'Cozy / Oak Frame', word:'Cozy', room:'a warm, cozy home',
+    audience:'rustic, cottagecore & cabin interiors', extra:'#cozyhome' },
+  { key:'minimal', label:'Minimal / Wide Mat', word:'Minimalist', room:'a clean, minimalist space',
+    audience:'neutral, scandi & modern decor', extra:'#minimalistdecor' },
+];
+
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function titleFor(p,st){
+  if(st.key==='gallery') return `${p.subject} Wall Art · Bold Printable Print for a Gallery Wall`;
+  if(st.key==='oak')     return `Cozy ${p.subject} Print · Printable Wall Art for a Warm Home`;
+  return `Minimalist ${p.subject} Print · Neutral Printable Wall Art`;
+}
+function descFor(p,st){
+  const hashtags=[...p.tags, st.extra].join(' ');
+  return `${cap(p.noun)} — ${p.vibe}. ${cap(p.kw)}. Instant digital download: print it any size at home or a local shop, frame it, and hang it in ${st.room}. Perfect for ${st.audience}. Tap to get the printable →\n\n${hashtags}`;
+}
+
+function copyBtn(text){
+  const b=document.createElement('button'); b.className='copy'; b.textContent='⧉ Copy';
+  b.onclick=()=>{navigator.clipboard.writeText(text);b.textContent='✓ Copied';b.classList.add('ok');setTimeout(()=>{b.textContent='⧉ Copy';b.classList.remove('ok');},1200);};
+  return b;
+}
+function field(label,text,cls){
+  const f=document.createElement('div'); f.className='fld';
+  const l=document.createElement('label'); l.textContent=label;
+  const v=document.createElement('div'); v.className='val'+(cls?(' '+cls):''); v.textContent=text;
+  f.appendChild(l); f.appendChild(v); f.appendChild(copyBtn(text));
+  return f;
+}
+
+function build(){
+  const gal=document.getElementById('gallery'); gal.innerHTML='';
+  const shop=document.getElementById('shop').value.trim();
+  PIECES.forEach(p=>{
+    const sec=document.createElement('div'); sec.className='piece';
+    sec.innerHTML=`<div class="ptitle">${p.subject}</div><div class="pmeta">${p.id} · 3 pins</div>`;
+    const row=document.createElement('div'); row.className='pins';
+    STYLES.forEach(st=>{
+      const pin=document.createElement('div'); pin.className='pin';
+      const tag=document.createElement('div'); tag.className='tag'; tag.textContent='PIN · '+st.label;
+      const thumb=document.createElement('div'); thumb.className='thumb';
+      thumb.style.backgroundImage=`url(assets/midjourney/${p.id}.webp)`;
+      const title=titleFor(p,st), desc=descFor(p,st);
+      const imgN=document.createElement('div'); imgN.className='link';
+      imgN.innerHTML=`Pin image: <b>HK23-${p.id}-mockup-${st.key}.png</b>`;
+      pin.appendChild(tag); pin.appendChild(thumb);
+      pin.appendChild(field('Pin title',title));
+      pin.appendChild(field('Pin description',desc,'desc'));
+      pin.appendChild(field('Link to (paste in pin URL)', URLS[p.id]||shop));
+      pin.appendChild(imgN);
+      row.appendChild(pin);
+    });
+    sec.appendChild(row); gal.appendChild(sec);
+  });
+}
+document.getElementById('shop').addEventListener('input',build);
+build();
+</script>
+</body>
+</html>

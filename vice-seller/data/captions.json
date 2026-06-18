@@ -1,0 +1,3322 @@
+{
+  "mjx-0001": {
+    "keep": false,
+    "reason": "golf simulator room render"
+  },
+  "mjx-0002": {
+    "keep": false,
+    "reason": "golf simulator room render"
+  },
+  "mjx-0003": {
+    "keep": false,
+    "reason": "golf simulator room render"
+  },
+  "mjx-0004": {
+    "keep": false,
+    "reason": "apparel mockup"
+  },
+  "mjx-0005": {
+    "keep": false,
+    "reason": "apparel mockup"
+  },
+  "mjx-0006": {
+    "keep": true,
+    "subject": "Lone Golfer Field",
+    "style": "Cinematic",
+    "theme": "Moody",
+    "palette": "Burnt Orange",
+    "keywords": [
+      "golf wall art",
+      "moody golf print",
+      "golfer poster",
+      "sports decor",
+      "man cave art"
+    ]
+  },
+  "mjx-0007": {
+    "keep": false,
+    "reason": "patterned shirt mockup"
+  },
+  "mjx-0008": {
+    "keep": true,
+    "subject": "Vintage Golfers Scene",
+    "style": "Retro Painterly",
+    "theme": "Clubhouse",
+    "palette": "Dusty Pastel",
+    "keywords": [
+      "vintage golf art",
+      "golf wall art",
+      "retro golf print",
+      "clubhouse decor",
+      "golfer gift"
+    ]
+  },
+  "mjx-0009": {
+    "keep": true,
+    "subject": "Flower Of Life Orb",
+    "style": "Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Dark Mono",
+    "keywords": [
+      "sacred geometry",
+      "flower of life",
+      "spiritual wall art",
+      "geometric print",
+      "meditation decor"
+    ]
+  },
+  "mjx-0010": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0011": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0012": {
+    "keep": true,
+    "subject": "Cosmic Energy Being",
+    "style": "Surreal Sci-Fi",
+    "theme": "Cosmic",
+    "palette": "Fiery Glow",
+    "keywords": [
+      "surreal wall art",
+      "cosmic art print",
+      "sci fi poster",
+      "energy art",
+      "spiritual decor"
+    ]
+  },
+  "mjx-0013": {
+    "keep": true,
+    "subject": "Glowing Ascension Figure",
+    "style": "Surreal Sci-Fi",
+    "theme": "Cosmic",
+    "palette": "Amber Glow",
+    "keywords": [
+      "surreal art print",
+      "ascension art",
+      "cosmic wall art",
+      "energy being",
+      "metaphysical decor"
+    ]
+  },
+  "mjx-0014": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0015": {
+    "keep": false,
+    "reason": "golf simulator room render"
+  },
+  "mjx-0016": {
+    "keep": false,
+    "reason": "golf simulator room"
+  },
+  "mjx-0017": {
+    "keep": false,
+    "reason": "golf simulator room"
+  },
+  "mjx-0018": {
+    "keep": false,
+    "reason": "golf simulator room"
+  },
+  "mjx-0019": {
+    "keep": false,
+    "reason": "architecture render"
+  },
+  "mjx-0020": {
+    "keep": true,
+    "subject": "Figure Before The Light",
+    "style": "Surreal Dramatic",
+    "theme": "Spiritual",
+    "palette": "Cobalt Gold",
+    "keywords": [
+      "surreal wall art",
+      "spiritual art print",
+      "dramatic poster",
+      "light and shadow",
+      "contemporary decor"
+    ]
+  },
+  "mjx-0021": {
+    "keep": true,
+    "subject": "Pilgrim And The Light",
+    "style": "Surreal Dramatic",
+    "theme": "Contemplative",
+    "palette": "Blue Amber",
+    "keywords": [
+      "surreal art print",
+      "spiritual wall art",
+      "figure silhouette",
+      "moody poster",
+      "gallery decor"
+    ]
+  },
+  "mjx-0022": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0023": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0024": {
+    "keep": true,
+    "subject": "Crimson Abstract Visage",
+    "style": "Abstract Expressionist",
+    "theme": "Bold",
+    "palette": "Red Indigo",
+    "keywords": [
+      "abstract wall art",
+      "expressionist print",
+      "red abstract art",
+      "modern poster",
+      "bold decor"
+    ]
+  },
+  "mjx-0025": {
+    "keep": true,
+    "subject": "Indigo Bloom Abstraction",
+    "style": "Abstract Expressionist",
+    "theme": "Maximalist",
+    "palette": "Crimson Blue",
+    "keywords": [
+      "abstract art print",
+      "expressionist wall art",
+      "colorful abstract",
+      "statement decor",
+      "modern poster"
+    ]
+  },
+  "mjx-0026": {
+    "keep": true,
+    "subject": "Fractured Portrait Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Moody",
+    "palette": "Red Slate",
+    "keywords": [
+      "abstract portrait",
+      "expressionist print",
+      "modern wall art",
+      "abstract face art",
+      "bold decor"
+    ]
+  },
+  "mjx-0027": {
+    "keep": true,
+    "subject": "Scarlet Storm Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Dynamic",
+    "palette": "Scarlet Cobalt",
+    "keywords": [
+      "abstract wall art",
+      "red abstract print",
+      "expressionist art",
+      "energetic decor",
+      "modern poster"
+    ]
+  },
+  "mjx-0028": {
+    "keep": true,
+    "subject": "Veiled Faces Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Mysterious",
+    "palette": "Crimson Indigo",
+    "keywords": [
+      "abstract face print",
+      "expressionist wall art",
+      "mysterious art",
+      "modern decor",
+      "statement poster"
+    ]
+  },
+  "mjx-0029": {
+    "keep": true,
+    "subject": "Ruby Chaos Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Bold",
+    "palette": "Ruby Navy",
+    "keywords": [
+      "abstract art print",
+      "bold wall art",
+      "red and blue art",
+      "expressionist poster",
+      "modern decor"
+    ]
+  },
+  "mjx-0030": {
+    "keep": true,
+    "subject": "Crimson Reverie Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Dreamlike",
+    "palette": "Red Midnight",
+    "keywords": [
+      "abstract wall art",
+      "dreamlike print",
+      "expressionist art",
+      "colorful decor",
+      "modern poster"
+    ]
+  },
+  "mjx-0031": {
+    "keep": true,
+    "subject": "Crimson Chaos Abstract",
+    "style": "Abstract Expressionist",
+    "theme": "Bold",
+    "palette": "Red Indigo",
+    "keywords": [
+      "abstract wall art",
+      "expressionist print",
+      "red abstract art",
+      "modern poster",
+      "bold decor"
+    ]
+  },
+  "mjx-0032": {
+    "keep": false,
+    "reason": "graffiti tag sketches"
+  },
+  "mjx-0033": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0034": {
+    "keep": false,
+    "reason": "logo"
+  },
+  "mjx-0035": {
+    "keep": false,
+    "reason": "icon concept"
+  },
+  "mjx-0036": {
+    "keep": true,
+    "subject": "Tattooed Woman Portrait",
+    "style": "Painterly Pop",
+    "theme": "Edgy",
+    "palette": "Sunlit Pastel",
+    "keywords": [
+      "woman portrait art",
+      "painterly print",
+      "fashion wall art",
+      "tattoo art print",
+      "modern portrait"
+    ]
+  },
+  "mjx-0037": {
+    "keep": true,
+    "subject": "Googly Eyes Character",
+    "style": "Quirky Pop",
+    "theme": "Playful",
+    "palette": "Coral Red",
+    "keywords": [
+      "funny wall art",
+      "quirky portrait",
+      "pop art print",
+      "weird art",
+      "coral decor"
+    ]
+  },
+  "mjx-0038": {
+    "keep": true,
+    "subject": "Psychedelic Goddess",
+    "style": "Psychedelic",
+    "theme": "Cosmic",
+    "palette": "Rainbow",
+    "keywords": [
+      "psychedelic art print",
+      "goddess wall art",
+      "trippy poster",
+      "colorful decor",
+      "visionary art"
+    ]
+  },
+  "mjx-0039": {
+    "keep": true,
+    "subject": "Surreal Collage Creature",
+    "style": "Mixed Media Surreal",
+    "theme": "Eccentric",
+    "palette": "Earthy Bold",
+    "keywords": [
+      "surreal wall art",
+      "collage art print",
+      "eccentric decor",
+      "mixed media art",
+      "unique poster"
+    ]
+  },
+  "mjx-0040": {
+    "keep": false,
+    "reason": "golf sim room render"
+  },
+  "mjx-0041": {
+    "keep": true,
+    "subject": "Wide Eyed Character Red",
+    "style": "Quirky Pop",
+    "theme": "Playful",
+    "palette": "Red",
+    "keywords": [
+      "funny portrait art",
+      "quirky wall art",
+      "pop art print",
+      "weird character",
+      "red decor"
+    ]
+  },
+  "mjx-0042": {
+    "keep": true,
+    "subject": "Startled Character Portrait",
+    "style": "Quirky Pop",
+    "theme": "Humorous",
+    "palette": "Crimson",
+    "keywords": [
+      "humorous wall art",
+      "quirky print",
+      "pop art portrait",
+      "funny decor",
+      "character art"
+    ]
+  },
+  "mjx-0043": {
+    "keep": true,
+    "subject": "Hidden Face Portrait",
+    "style": "Dark Expressionist",
+    "theme": "Moody",
+    "palette": "Desaturated",
+    "keywords": [
+      "dark portrait art",
+      "expressionist print",
+      "moody wall art",
+      "emotional art",
+      "monochrome poster"
+    ]
+  },
+  "mjx-0044": {
+    "keep": true,
+    "subject": "Psychedelic Beast Mural",
+    "style": "Psychedelic Street",
+    "theme": "Wild",
+    "palette": "Acid Bright",
+    "keywords": [
+      "psychedelic poster",
+      "street art print",
+      "trippy wall art",
+      "monster art",
+      "bold decor"
+    ]
+  },
+  "mjx-0045": {
+    "keep": false,
+    "reason": "architecture render"
+  },
+  "mjx-0046": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0047": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0048": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0049": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0050": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0051": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0052": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0053": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0054": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0055": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0056": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0057": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0058": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0059": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0060": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0061": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0062": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0063": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0064": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0065": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0066": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0067": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0068": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0069": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0070": {
+    "keep": true,
+    "subject": "Abstract Blue Visage",
+    "style": "Cubist Surreal",
+    "theme": "Artistic",
+    "palette": "Blue Orange",
+    "keywords": [
+      "abstract face art",
+      "cubist print",
+      "modern portrait",
+      "surreal wall art",
+      "artistic decor"
+    ]
+  },
+  "mjx-0071": {
+    "keep": false,
+    "reason": "kitchen interior render"
+  },
+  "mjx-0072": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0073": {
+    "keep": false,
+    "reason": "house render"
+  },
+  "mjx-0074": {
+    "keep": true,
+    "subject": "Neon Circuit Mandala",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Cyan Magenta",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon mandala",
+      "geometric print",
+      "futuristic decor",
+      "circuit art"
+    ]
+  },
+  "mjx-0075": {
+    "keep": true,
+    "subject": "Neon Circuit Skull",
+    "style": "Cyberpunk",
+    "theme": "Edgy",
+    "palette": "Magenta Cyan",
+    "keywords": [
+      "cyberpunk skull art",
+      "neon wall art",
+      "skull print",
+      "futuristic poster",
+      "edgy decor"
+    ]
+  },
+  "mjx-0076": {
+    "keep": true,
+    "subject": "Neon Circuit Totem",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Purple Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon geometric print",
+      "circuit art",
+      "futuristic decor",
+      "psychedelic poster"
+    ]
+  },
+  "mjx-0077": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0078": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0079": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0080": {
+    "keep": true,
+    "subject": "Neon Circuit Emblem",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Purple Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon geometric print",
+      "circuit art",
+      "futuristic decor",
+      "psychedelic poster"
+    ]
+  },
+  "mjx-0081": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0082": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0083": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0084": {
+    "keep": true,
+    "subject": "Neon Circuit Owl",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Purple Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon geometric print",
+      "circuit art",
+      "futuristic decor",
+      "psychedelic poster"
+    ]
+  },
+  "mjx-0085": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0086": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0087": {
+    "keep": true,
+    "subject": "Neon Circuit Temple",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Purple Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon geometric print",
+      "circuit art",
+      "futuristic decor",
+      "psychedelic poster"
+    ]
+  },
+  "mjx-0088": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0089": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0090": {
+    "keep": true,
+    "subject": "Neon Circuit Bloom",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Purple Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon geometric print",
+      "circuit art",
+      "futuristic decor",
+      "psychedelic poster"
+    ]
+  },
+  "mjx-0091": {
+    "keep": true,
+    "subject": "Neon Code Glyph",
+    "style": "Cyberpunk Geometric",
+    "theme": "Futuristic",
+    "palette": "Magenta Lime",
+    "keywords": [
+      "cyberpunk art print",
+      "neon wall art",
+      "glyph art",
+      "futuristic poster",
+      "tech decor"
+    ]
+  },
+  "mjx-0092": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0093": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0094": {
+    "keep": true,
+    "subject": "Neon Circuit Skull Mandala",
+    "style": "Cyberpunk Geometric",
+    "theme": "Edgy",
+    "palette": "Violet Teal",
+    "keywords": [
+      "cyberpunk skull art",
+      "neon mandala",
+      "geometric print",
+      "edgy decor",
+      "circuit art"
+    ]
+  },
+  "mjx-0095": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0096": {
+    "keep": false,
+    "reason": "near-duplicate cyberpunk variant"
+  },
+  "mjx-0097": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0098": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0099": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0100": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0101": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0102": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0103": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0104": {
+    "keep": false,
+    "reason": "logo / monogram"
+  },
+  "mjx-0105": {
+    "keep": true,
+    "subject": "Folk Floral Garden",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Jewel Tones",
+    "keywords": [
+      "folk art print",
+      "floral wall art",
+      "botanical poster",
+      "colorful flowers",
+      "maximalist decor"
+    ]
+  },
+  "mjx-0106": {
+    "keep": true,
+    "subject": "Midnight Folk Florals",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Tulip Jewel",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0107": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0108": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0109": {
+    "keep": true,
+    "subject": "Wildflower Folk Bloom",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Pink Gold",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0110": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0111": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0112": {
+    "keep": true,
+    "subject": "Folk Protea Garden",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Coral Emerald",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0113": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0114": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0115": {
+    "keep": true,
+    "subject": "Botanical Folk Tapestry",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Crimson Teal",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0116": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0117": {
+    "keep": false,
+    "reason": "office interior render"
+  },
+  "mjx-0118": {
+    "keep": true,
+    "subject": "Folk Flower Field",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Magenta Olive",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0119": {
+    "keep": false,
+    "reason": "near-duplicate floral variant"
+  },
+  "mjx-0120": {
+    "keep": true,
+    "subject": "Folk Floral Mandala",
+    "style": "Folk Botanical",
+    "theme": "Vibrant",
+    "palette": "Rainbow Dark",
+    "keywords": [
+      "folk floral art",
+      "botanical wall art",
+      "flower print",
+      "colorful decor",
+      "maximalist poster"
+    ]
+  },
+  "mjx-0121": {
+    "keep": true,
+    "subject": "Rainbow Lotus Mandala",
+    "style": "Psychedelic Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Neon",
+    "keywords": [
+      "psychedelic mandala",
+      "sacred geometry print",
+      "trippy wall art",
+      "meditation decor",
+      "visionary poster"
+    ]
+  },
+  "mjx-0122": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0123": {
+    "keep": true,
+    "subject": "Blooming Sacred Mandala",
+    "style": "Psychedelic Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Magenta Green",
+    "keywords": [
+      "psychedelic mandala",
+      "sacred geometry print",
+      "trippy wall art",
+      "meditation decor",
+      "visionary poster"
+    ]
+  },
+  "mjx-0124": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0125": {
+    "keep": true,
+    "subject": "Solar Geometry Mandala",
+    "style": "Psychedelic Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Sunset",
+    "keywords": [
+      "psychedelic mandala",
+      "sacred geometry print",
+      "trippy wall art",
+      "meditation decor",
+      "visionary poster"
+    ]
+  },
+  "mjx-0126": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0127": {
+    "keep": true,
+    "subject": "Emerald Bloom Mandala",
+    "style": "Psychedelic Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Violet Lime",
+    "keywords": [
+      "psychedelic mandala",
+      "sacred geometry print",
+      "trippy wall art",
+      "meditation decor",
+      "visionary poster"
+    ]
+  },
+  "mjx-0128": {
+    "keep": true,
+    "subject": "Armored Croc Beast",
+    "style": "Stylized Creature",
+    "theme": "Playful",
+    "palette": "Teal Green",
+    "keywords": [
+      "creature art print",
+      "fun wall art",
+      "character poster",
+      "quirky decor",
+      "illustration print"
+    ]
+  },
+  "mjx-0129": {
+    "keep": true,
+    "subject": "Snapping Reptile Beast",
+    "style": "Stylized Creature",
+    "theme": "Bold",
+    "palette": "Jade",
+    "keywords": [
+      "creature art print",
+      "fun wall art",
+      "character poster",
+      "quirky decor",
+      "illustration print"
+    ]
+  },
+  "mjx-0130": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0131": {
+    "keep": true,
+    "subject": "Golden Pharaoh Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Antique Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0132": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0133": {
+    "keep": true,
+    "subject": "Sun Crown Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Antique Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0134": {
+    "keep": false,
+    "reason": "near-duplicate variant"
+  },
+  "mjx-0135": {
+    "keep": true,
+    "subject": "Sacred Cross Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Antique Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0136": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0137": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0138": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0139": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0140": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0141": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0142": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0143": {
+    "keep": true,
+    "subject": "All Seeing Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Brass Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0144": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0145": {
+    "keep": true,
+    "subject": "Eye Of The Sun Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Brass Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0146": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0147": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0148": {
+    "keep": true,
+    "subject": "Brass Oracle Totem",
+    "style": "Ornate Symbolic",
+    "theme": "Mystical",
+    "palette": "Brass Gold",
+    "keywords": [
+      "ornate totem art",
+      "steampunk wall art",
+      "talisman print",
+      "mystical decor",
+      "golden artifact art"
+    ]
+  },
+  "mjx-0149": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0150": {
+    "keep": false,
+    "reason": "near-duplicate totem variant"
+  },
+  "mjx-0151": {
+    "keep": false,
+    "reason": "totem variant"
+  },
+  "mjx-0152": {
+    "keep": false,
+    "reason": "totem variant"
+  },
+  "mjx-0153": {
+    "keep": false,
+    "reason": "totem variant"
+  },
+  "mjx-0154": {
+    "keep": false,
+    "reason": "totem variant"
+  },
+  "mjx-0155": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0156": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0157": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0158": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0159": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0160": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0161": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0162": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0163": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0164": {
+    "keep": false,
+    "reason": "rugby jersey mockup"
+  },
+  "mjx-0165": {
+    "keep": false,
+    "reason": "typography logo"
+  },
+  "mjx-0166": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0167": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0168": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0169": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0170": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0171": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0172": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0173": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0174": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0175": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0176": {
+    "keep": true,
+    "subject": "Palm Golf Sunrise",
+    "style": "Warm Landscape",
+    "theme": "Serene",
+    "palette": "Golden",
+    "keywords": [
+      "palm tree wall art",
+      "tropical landscape print",
+      "golden hour decor",
+      "desert palm poster",
+      "warm wall art"
+    ]
+  },
+  "mjx-0177": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0178": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0179": {
+    "keep": true,
+    "subject": "Palm Grove Fairway",
+    "style": "Warm Landscape",
+    "theme": "Serene",
+    "palette": "Amber",
+    "keywords": [
+      "palm tree wall art",
+      "tropical landscape print",
+      "golden hour decor",
+      "desert palm poster",
+      "warm wall art"
+    ]
+  },
+  "mjx-0180": {
+    "keep": false,
+    "reason": "typography / palm landscape variant"
+  },
+  "mjx-0181": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0182": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0183": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0184": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0185": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0186": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0187": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0188": {
+    "keep": true,
+    "subject": "Desert Palm Oasis",
+    "style": "Warm Landscape",
+    "theme": "Tranquil",
+    "palette": "Sand Gold",
+    "keywords": [
+      "palm tree wall art",
+      "tropical landscape print",
+      "golden hour decor",
+      "desert palm poster",
+      "warm wall art"
+    ]
+  },
+  "mjx-0189": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0190": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0191": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0192": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0193": {
+    "keep": false,
+    "reason": "palm landscape / rugby variant"
+  },
+  "mjx-0194": {
+    "keep": true,
+    "subject": "Ornate Folk Owl",
+    "style": "Folk Botanical",
+    "theme": "Mystical",
+    "palette": "Forest Gold",
+    "keywords": [
+      "folk owl art",
+      "owl wall art",
+      "woodland print",
+      "boho animal art",
+      "nature decor"
+    ]
+  },
+  "mjx-0195": {
+    "keep": true,
+    "subject": "Twilight Folk Owl",
+    "style": "Folk Botanical",
+    "theme": "Mystical",
+    "palette": "Teal Amber",
+    "keywords": [
+      "folk owl art",
+      "owl wall art",
+      "woodland print",
+      "boho animal art",
+      "nature decor"
+    ]
+  },
+  "mjx-0196": {
+    "keep": true,
+    "subject": "Autumn Stag Folk",
+    "style": "Folk Botanical",
+    "theme": "Cozy",
+    "palette": "Fall Tones",
+    "keywords": [
+      "autumn deer art",
+      "folk stag print",
+      "fall wall art",
+      "woodland animal art",
+      "cozy decor"
+    ]
+  },
+  "mjx-0197": {
+    "keep": true,
+    "subject": "Golden Autumn Deer",
+    "style": "Folk Botanical",
+    "theme": "Cozy",
+    "palette": "Amber Green",
+    "keywords": [
+      "autumn deer art",
+      "folk stag print",
+      "fall wall art",
+      "woodland animal art",
+      "cozy decor"
+    ]
+  },
+  "mjx-0198": {
+    "keep": true,
+    "subject": "Woodland Folk Owl",
+    "style": "Folk Botanical",
+    "theme": "Mystical",
+    "palette": "Forest",
+    "keywords": [
+      "folk owl art",
+      "owl wall art",
+      "woodland print",
+      "boho animal art",
+      "nature decor"
+    ]
+  },
+  "mjx-0199": {
+    "keep": true,
+    "subject": "Garden Folk Parrot",
+    "style": "Folk Botanical",
+    "theme": "Whimsical",
+    "palette": "Lush Green",
+    "keywords": [
+      "folk bird art",
+      "parrot wall art",
+      "botanical print",
+      "whimsical decor",
+      "nature poster"
+    ]
+  },
+  "mjx-0200": {
+    "keep": true,
+    "subject": "Balloon House Dream",
+    "style": "Surreal Narrative",
+    "theme": "Whimsical",
+    "palette": "Sky Blue",
+    "keywords": [
+      "surreal wall art",
+      "whimsical print",
+      "dreamlike poster",
+      "storybook art",
+      "unique decor"
+    ]
+  },
+  "mjx-0201": {
+    "keep": true,
+    "subject": "Synthwave Street Sage",
+    "style": "Synthwave",
+    "theme": "Retro Cool",
+    "palette": "Neon Pink",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s art",
+      "man cave decor"
+    ]
+  },
+  "mjx-0202": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0203": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0204": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0205": {
+    "keep": true,
+    "subject": "Neon Pink Portrait",
+    "style": "Synthwave",
+    "theme": "Retro Cool",
+    "palette": "Neon Pink",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s art",
+      "man cave decor"
+    ]
+  },
+  "mjx-0206": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0207": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0208": {
+    "keep": true,
+    "subject": "Retrowave Cool Cat",
+    "style": "Synthwave",
+    "theme": "Retro Cool",
+    "palette": "Neon Pink",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s art",
+      "man cave decor"
+    ]
+  },
+  "mjx-0209": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0210": {
+    "keep": false,
+    "reason": "synthwave portrait variant"
+  },
+  "mjx-0211": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0212": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0213": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0214": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0215": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0216": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0217": {
+    "keep": true,
+    "subject": "Synthwave Beard Portrait",
+    "style": "Synthwave",
+    "theme": "Retro Cool",
+    "palette": "Neon Magenta",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s art",
+      "man cave decor"
+    ]
+  },
+  "mjx-0218": {
+    "keep": true,
+    "subject": "Synthwave Rose Lady",
+    "style": "Synthwave",
+    "theme": "Glam",
+    "palette": "Teal Crimson",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s art",
+      "man cave decor"
+    ]
+  },
+  "mjx-0219": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0220": {
+    "keep": true,
+    "subject": "Psychedelic Bloom Muse",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0221": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0222": {
+    "keep": true,
+    "subject": "Cosmic Flower Goddess",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0223": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0224": {
+    "keep": true,
+    "subject": "Surreal Garden Muse",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0225": {
+    "keep": false,
+    "reason": "synthwave/goddess variant"
+  },
+  "mjx-0226": {
+    "keep": true,
+    "subject": "Floral Mind Goddess",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0227": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0228": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0229": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0230": {
+    "keep": true,
+    "subject": "Carnival Dream Muse",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0231": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0232": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0233": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0234": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0235": {
+    "keep": true,
+    "subject": "Painted Visionary Woman",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0236": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0237": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0238": {
+    "keep": true,
+    "subject": "Mosaic Goddess Portrait",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0239": {
+    "keep": false,
+    "reason": "psychedelic goddess variant"
+  },
+  "mjx-0240": {
+    "keep": true,
+    "subject": "Cosmic Bloom Queen",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0241": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0242": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0243": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0244": {
+    "keep": true,
+    "subject": "Neon Pop Goddess",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0245": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0246": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0247": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0248": {
+    "keep": true,
+    "subject": "Electric Visionary Muse",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0249": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0250": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0251": {
+    "keep": true,
+    "subject": "Rainbow Dream Woman",
+    "style": "Psychedelic Surreal",
+    "theme": "Visionary",
+    "palette": "Vivid",
+    "keywords": [
+      "psychedelic portrait",
+      "surreal goddess art",
+      "trippy wall art",
+      "visionary print",
+      "colorful decor"
+    ]
+  },
+  "mjx-0252": {
+    "keep": true,
+    "subject": "Dim Room Solitude",
+    "style": "Cinematic Noir",
+    "theme": "Moody",
+    "palette": "Shadow",
+    "keywords": [
+      "moody portrait art",
+      "cinematic wall art",
+      "dark photography print",
+      "noir decor",
+      "dramatic poster"
+    ]
+  },
+  "mjx-0253": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0254": {
+    "keep": true,
+    "subject": "Lone Man Cinematic",
+    "style": "Cinematic Noir",
+    "theme": "Moody",
+    "palette": "Muted",
+    "keywords": [
+      "moody portrait art",
+      "cinematic wall art",
+      "dark photography print",
+      "noir decor",
+      "dramatic poster"
+    ]
+  },
+  "mjx-0255": {
+    "keep": false,
+    "reason": "psychedelic/cinematic variant"
+  },
+  "mjx-0256": {
+    "keep": true,
+    "subject": "Rugby Grit Portrait",
+    "style": "Cinematic",
+    "theme": "Moody",
+    "palette": "Earthy",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "rugby gift",
+      "man cave decor",
+      "athletic poster"
+    ]
+  },
+  "mjx-0257": {
+    "keep": true,
+    "subject": "Painterly Rugby Player",
+    "style": "Painterly",
+    "theme": "Bold",
+    "palette": "Autumn",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "rugby gift",
+      "man cave decor",
+      "athletic poster"
+    ]
+  },
+  "mjx-0258": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0259": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0260": {
+    "keep": true,
+    "subject": "Dynamic Rugby Action",
+    "style": "Illustrated",
+    "theme": "Energetic",
+    "palette": "Vivid",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "rugby gift",
+      "man cave decor",
+      "athletic poster"
+    ]
+  },
+  "mjx-0261": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0262": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0263": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0264": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0265": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0266": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0267": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0268": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0269": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0270": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0271": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0272": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0273": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0274": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0275": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0276": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0277": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0278": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0279": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0280": {
+    "keep": true,
+    "subject": "Synthwave Palm Island",
+    "style": "Synthwave",
+    "theme": "Retro",
+    "palette": "Neon Pink",
+    "keywords": [
+      "synthwave wall art",
+      "retro neon print",
+      "vaporwave poster",
+      "80s decor",
+      "tropical night art"
+    ]
+  },
+  "mjx-0281": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0282": {
+    "keep": true,
+    "subject": "Retro Palm Sunset",
+    "style": "Synthwave",
+    "theme": "Dreamy",
+    "palette": "Magenta Teal",
+    "keywords": [
+      "synthwave wall art",
+      "retro neon print",
+      "vaporwave poster",
+      "80s decor",
+      "tropical night art"
+    ]
+  },
+  "mjx-0283": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0284": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0285": {
+    "keep": false,
+    "reason": "logo/jersey variant"
+  },
+  "mjx-0286": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0287": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0288": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0289": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0290": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0291": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0292": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0293": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0294": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0295": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0296": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0297": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0298": {
+    "keep": true,
+    "subject": "Retro Boombox Scene",
+    "style": "Synthwave Street",
+    "theme": "Nostalgic",
+    "palette": "Warm Neon",
+    "keywords": [
+      "synthwave wall art",
+      "retro neon print",
+      "vaporwave poster",
+      "80s decor",
+      "tropical night art"
+    ]
+  },
+  "mjx-0299": {
+    "keep": false,
+    "reason": "jersey/logo variant"
+  },
+  "mjx-0300": {
+    "keep": true,
+    "subject": "Synthwave Rugby Sunset",
+    "style": "Synthwave",
+    "theme": "Bold",
+    "palette": "Pink Sunset",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "rugby gift",
+      "man cave decor",
+      "athletic poster"
+    ]
+  },
+  "mjx-0301": {
+    "keep": true,
+    "subject": "Pixel Sun Woman",
+    "style": "Abstract Pop",
+    "theme": "Bold",
+    "palette": "Blue Orange",
+    "keywords": [
+      "abstract portrait art",
+      "pop wall art",
+      "colorful print",
+      "modern decor",
+      "face art"
+    ]
+  },
+  "mjx-0302": {
+    "keep": true,
+    "subject": "Painterly Muse",
+    "style": "Painterly Illustration",
+    "theme": "Dreamy",
+    "palette": "Teal Coral",
+    "keywords": [
+      "illustrated portrait",
+      "painterly print",
+      "art poster",
+      "whimsical decor",
+      "woman art"
+    ]
+  },
+  "mjx-0303": {
+    "keep": true,
+    "subject": "Cosmic Sage",
+    "style": "Psychedelic Cosmic",
+    "theme": "Visionary",
+    "palette": "Rainbow",
+    "keywords": [
+      "cosmic wall art",
+      "visionary art print",
+      "psychedelic poster",
+      "spiritual decor",
+      "surreal art"
+    ]
+  },
+  "mjx-0304": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0305": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0306": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0307": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0308": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0309": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0310": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0311": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0312": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0313": {
+    "keep": false,
+    "reason": "logo/object render/variant"
+  },
+  "mjx-0314": {
+    "keep": true,
+    "subject": "Neon City Woman",
+    "style": "Cyberpunk",
+    "theme": "Edgy",
+    "palette": "Magenta Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon portrait print",
+      "sci fi poster",
+      "futuristic decor",
+      "synthwave art"
+    ]
+  },
+  "mjx-0315": {
+    "keep": true,
+    "subject": "Cyberpunk Lounge",
+    "style": "Cyberpunk",
+    "theme": "Moody",
+    "palette": "Neon Violet",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon portrait print",
+      "sci fi poster",
+      "futuristic decor",
+      "synthwave art"
+    ]
+  },
+  "mjx-0316": {
+    "keep": true,
+    "subject": "Neon Alley Portrait",
+    "style": "Cyberpunk",
+    "theme": "Edgy",
+    "palette": "Electric",
+    "keywords": [
+      "cyberpunk wall art",
+      "neon portrait print",
+      "sci fi poster",
+      "futuristic decor",
+      "synthwave art"
+    ]
+  },
+  "mjx-0317": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0318": {
+    "keep": true,
+    "subject": "Cloudmind Woman",
+    "style": "Synthwave Illustration",
+    "theme": "Dreamy",
+    "palette": "Pink Lilac",
+    "keywords": [
+      "synthwave portrait",
+      "vaporwave wall art",
+      "retro neon print",
+      "pop art poster",
+      "colorful decor"
+    ]
+  },
+  "mjx-0319": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0320": {
+    "keep": true,
+    "subject": "Crimson Dream Muse",
+    "style": "Synthwave Illustration",
+    "theme": "Bold",
+    "palette": "Red Pink",
+    "keywords": [
+      "synthwave portrait",
+      "vaporwave wall art",
+      "retro neon print",
+      "pop art poster",
+      "colorful decor"
+    ]
+  },
+  "mjx-0321": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0322": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0323": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0324": {
+    "keep": true,
+    "subject": "Lone Figure Horizon",
+    "style": "Synthwave Illustration",
+    "theme": "Serene",
+    "palette": "Pastel Dusk",
+    "keywords": [
+      "minimal wall art",
+      "synthwave landscape",
+      "dreamy print",
+      "calm decor",
+      "silhouette art"
+    ]
+  },
+  "mjx-0325": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0326": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0327": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0328": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0329": {
+    "keep": true,
+    "subject": "Tropical Pitch Sunset",
+    "style": "Illustrated Sport",
+    "theme": "Vibrant",
+    "palette": "Teal Sand",
+    "keywords": [
+      "sports wall art",
+      "tropical illustration",
+      "football pitch art",
+      "vibrant decor",
+      "beach print"
+    ]
+  },
+  "mjx-0330": {
+    "keep": false,
+    "reason": "series variant/logo/pitch dup"
+  },
+  "mjx-0331": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0332": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0333": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0334": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0335": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0336": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0337": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0338": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0339": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0340": {
+    "keep": true,
+    "subject": "Synthwave Court Man",
+    "style": "Synthwave",
+    "theme": "Retro Cool",
+    "palette": "Hot Pink",
+    "keywords": [
+      "synthwave wall art",
+      "retro sport print",
+      "vaporwave poster",
+      "man cave decor",
+      "neon art"
+    ]
+  },
+  "mjx-0341": {
+    "keep": true,
+    "subject": "Fire Ring Sorceress",
+    "style": "Fantasy",
+    "theme": "Epic",
+    "palette": "Amber Gold",
+    "keywords": [
+      "fantasy wall art",
+      "sorceress print",
+      "epic poster",
+      "mystical decor",
+      "fire art"
+    ]
+  },
+  "mjx-0342": {
+    "keep": true,
+    "subject": "Celestial Deity",
+    "style": "Sacred Geometry",
+    "theme": "Visionary",
+    "palette": "Blue Gold",
+    "keywords": [
+      "sacred art print",
+      "deity wall art",
+      "spiritual poster",
+      "meditation decor",
+      "visionary art"
+    ]
+  },
+  "mjx-0343": {
+    "keep": true,
+    "subject": "Water Elemental Woman",
+    "style": "Surreal Ethereal",
+    "theme": "Serene",
+    "palette": "Aqua White",
+    "keywords": [
+      "ethereal wall art",
+      "water art print",
+      "surreal portrait",
+      "calm decor",
+      "elemental art"
+    ]
+  },
+  "mjx-0344": {
+    "keep": true,
+    "subject": "Tropical Sunset Surf",
+    "style": "Scenic Landscape",
+    "theme": "Warm",
+    "palette": "Sunset Orange",
+    "keywords": [
+      "sunset wall art",
+      "tropical landscape print",
+      "beach decor",
+      "ocean art",
+      "warm poster"
+    ]
+  },
+  "mjx-0345": {
+    "keep": false,
+    "reason": "tropical pitch dup/variant"
+  },
+  "mjx-0346": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0347": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0348": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0349": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0350": {
+    "keep": true,
+    "subject": "Sunset Coast Van",
+    "style": "Illustrated Landscape",
+    "theme": "Nostalgic",
+    "palette": "Sunset Orange",
+    "keywords": [
+      "sunset wall art",
+      "retro van print",
+      "beach landscape",
+      "warm decor",
+      "vanlife art"
+    ]
+  },
+  "mjx-0351": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0352": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0353": {
+    "keep": true,
+    "subject": "Zen Splash Athlete",
+    "style": "Splash Art",
+    "theme": "Energetic",
+    "palette": "Teal Magenta",
+    "keywords": [
+      "fitness wall art",
+      "meditation print",
+      "colorful splash art",
+      "gym decor",
+      "zen poster"
+    ]
+  },
+  "mjx-0354": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0355": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0356": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0357": {
+    "keep": true,
+    "subject": "Desert Wanderer",
+    "style": "Atmospheric",
+    "theme": "Moody",
+    "palette": "Dusty Pink",
+    "keywords": [
+      "surreal wall art",
+      "desert print",
+      "lone figure art",
+      "moody decor",
+      "atmospheric poster"
+    ]
+  },
+  "mjx-0358": {
+    "keep": false,
+    "reason": "sunset/series variant"
+  },
+  "mjx-0359": {
+    "keep": true,
+    "subject": "Athlete In Motion",
+    "style": "Splash Art",
+    "theme": "Dynamic",
+    "palette": "Vivid",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "athlete poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0360": {
+    "keep": true,
+    "subject": "Warrior Splash Portrait",
+    "style": "Splash Art",
+    "theme": "Bold",
+    "palette": "Fiery",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "athlete poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0361": {
+    "keep": true,
+    "subject": "Rugby Grit Splash",
+    "style": "Splash Art",
+    "theme": "Intense",
+    "palette": "Cobalt Orange",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "athlete poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0362": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0363": {
+    "keep": true,
+    "subject": "Rugby Power Portrait",
+    "style": "Splash Art",
+    "theme": "Bold",
+    "palette": "Sunburst",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "athlete poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0364": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0365": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0366": {
+    "keep": true,
+    "subject": "Breaking Through",
+    "style": "Dramatic Painterly",
+    "theme": "Epic",
+    "palette": "Earthy",
+    "keywords": [
+      "dramatic wall art",
+      "motion print",
+      "painterly poster",
+      "bold decor",
+      "figure art"
+    ]
+  },
+  "mjx-0367": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0368": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0369": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0370": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0371": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0372": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0373": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0374": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0375": {
+    "keep": false,
+    "reason": "rugby ball mockup/icon/variant"
+  },
+  "mjx-0376": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0377": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0378": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0379": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0380": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0381": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0382": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0383": {
+    "keep": true,
+    "subject": "Synthwave Rugby Seated",
+    "style": "Synthwave Illustration",
+    "theme": "Retro Cool",
+    "palette": "Pink Teal",
+    "keywords": [
+      "synthwave sport art",
+      "retro rugby print",
+      "vaporwave poster",
+      "man cave decor",
+      "neon art"
+    ]
+  },
+  "mjx-0384": {
+    "keep": true,
+    "subject": "Synthwave Squad",
+    "style": "Synthwave Illustration",
+    "theme": "Bold",
+    "palette": "Pink Cyan",
+    "keywords": [
+      "synthwave wall art",
+      "retro sport print",
+      "vaporwave poster",
+      "team art",
+      "neon decor"
+    ]
+  },
+  "mjx-0385": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0386": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0387": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0388": {
+    "keep": true,
+    "subject": "Retro Road Woman",
+    "style": "Synthwave",
+    "theme": "Cool",
+    "palette": "Pink Teal",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s decor",
+      "pink art"
+    ]
+  },
+  "mjx-0389": {
+    "keep": false,
+    "reason": "icon set/logo/product/variant"
+  },
+  "mjx-0390": {
+    "keep": true,
+    "subject": "Synthwave Highway Muse",
+    "style": "Synthwave",
+    "theme": "Dreamy",
+    "palette": "Magenta",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s decor",
+      "pink art"
+    ]
+  },
+  "mjx-0391": {
+    "keep": true,
+    "subject": "Synthwave Diva",
+    "style": "Synthwave Pop",
+    "theme": "Bold",
+    "palette": "Pink Teal",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s decor",
+      "pop art"
+    ]
+  },
+  "mjx-0392": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0393": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0394": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0395": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0396": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0397": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0398": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0399": {
+    "keep": true,
+    "subject": "Chrome Lounge Figure",
+    "style": "Retro Futurism",
+    "theme": "Cool",
+    "palette": "Pink Aqua",
+    "keywords": [
+      "chrome art print",
+      "retro futurism wall art",
+      "metallic poster",
+      "modern decor",
+      "figure art"
+    ]
+  },
+  "mjx-0400": {
+    "keep": true,
+    "subject": "Pink Suit Pop",
+    "style": "Pop Fashion",
+    "theme": "Bold",
+    "palette": "Pastel Pink",
+    "keywords": [
+      "fashion wall art",
+      "pop art print",
+      "retro portrait",
+      "bold decor",
+      "style poster"
+    ]
+  },
+  "mjx-0401": {
+    "keep": true,
+    "subject": "Pixel Mirror Woman",
+    "style": "Abstract Pop",
+    "theme": "Edgy",
+    "palette": "Sunset Pixel",
+    "keywords": [
+      "abstract portrait art",
+      "pop print",
+      "modern wall art",
+      "colorful decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0402": {
+    "keep": true,
+    "subject": "Chrome Siren",
+    "style": "Retro Futurism",
+    "theme": "Sleek",
+    "palette": "Cyan Magenta",
+    "keywords": [
+      "chrome wall art",
+      "metallic print",
+      "retro futurism poster",
+      "futuristic decor",
+      "figure art"
+    ]
+  },
+  "mjx-0403": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0404": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0405": {
+    "keep": false,
+    "reason": "synthwave/chrome series variant"
+  },
+  "mjx-0406": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0407": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0408": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0409": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0410": {
+    "keep": true,
+    "subject": "Afrofuturist Queen",
+    "style": "Afrofuturist Folk",
+    "theme": "Regal",
+    "palette": "Earthy Gold",
+    "keywords": [
+      "afrofuturist art",
+      "african wall art",
+      "folk portrait print",
+      "cultural decor",
+      "queen art"
+    ]
+  },
+  "mjx-0411": {
+    "keep": true,
+    "subject": "Mind Over Pyramids",
+    "style": "Surreal",
+    "theme": "Contemplative",
+    "palette": "Sepia",
+    "keywords": [
+      "surreal wall art",
+      "conceptual print",
+      "silhouette art",
+      "thoughtful decor",
+      "minimal poster"
+    ]
+  },
+  "mjx-0412": {
+    "keep": true,
+    "subject": "Dreamtime Clocks",
+    "style": "Surrealist",
+    "theme": "Dreamlike",
+    "palette": "Warm Pastel",
+    "keywords": [
+      "surrealist wall art",
+      "dali style print",
+      "dream art poster",
+      "imaginative decor",
+      "melting clock art"
+    ]
+  },
+  "mjx-0413": {
+    "keep": true,
+    "subject": "Runner At The Tower",
+    "style": "Dynamic Illustration",
+    "theme": "Energetic",
+    "palette": "Pink Dusk",
+    "keywords": [
+      "sports wall art",
+      "runner print",
+      "paris poster",
+      "dynamic decor",
+      "athletic art"
+    ]
+  },
+  "mjx-0414": {
+    "keep": true,
+    "subject": "Rugby Run",
+    "style": "Sports Illustration",
+    "theme": "Bold",
+    "palette": "Pink",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "athlete poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0415": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0416": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0417": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0418": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0419": {
+    "keep": false,
+    "reason": "chrome/rugby/trophy variant"
+  },
+  "mjx-0420": {
+    "keep": true,
+    "subject": "Lynx Sketch",
+    "style": "Pencil Illustration",
+    "theme": "Detailed",
+    "palette": "Monochrome",
+    "keywords": [
+      "cat wall art",
+      "pencil drawing print",
+      "animal art",
+      "realistic decor",
+      "feline poster"
+    ]
+  },
+  "mjx-0421": {
+    "keep": true,
+    "subject": "Starborn Soul",
+    "style": "Cosmic Portrait",
+    "theme": "Soulful",
+    "palette": "Indigo Gold",
+    "keywords": [
+      "cosmic portrait art",
+      "soulful wall art",
+      "starry print",
+      "spiritual decor",
+      "surreal portrait"
+    ]
+  },
+  "mjx-0422": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0423": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0424": {
+    "keep": true,
+    "subject": "Cyber Oracle",
+    "style": "Cyber Illustration",
+    "theme": "Futuristic",
+    "palette": "Violet Cyan",
+    "keywords": [
+      "cyberpunk wall art",
+      "ai art print",
+      "futuristic poster",
+      "sci fi decor",
+      "tech art"
+    ]
+  },
+  "mjx-0425": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0426": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0427": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0428": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0429": {
+    "keep": true,
+    "subject": "Splash Muse",
+    "style": "Watercolor Splash",
+    "theme": "Vibrant",
+    "palette": "Rainbow",
+    "keywords": [
+      "splash art print",
+      "colorful portrait",
+      "watercolor wall art",
+      "vibrant decor",
+      "woman art"
+    ]
+  },
+  "mjx-0430": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0431": {
+    "keep": true,
+    "subject": "Bronze Cyber Mind",
+    "style": "Cyber Illustration",
+    "theme": "Ornate",
+    "palette": "Teal Gold",
+    "keywords": [
+      "cyberpunk wall art",
+      "ai art print",
+      "futuristic poster",
+      "sci fi decor",
+      "tech art"
+    ]
+  },
+  "mjx-0432": {
+    "keep": true,
+    "subject": "Chakra Ascension",
+    "style": "Visionary",
+    "theme": "Spiritual",
+    "palette": "Cosmic Blue",
+    "keywords": [
+      "energy art print",
+      "chakra wall art",
+      "spiritual poster",
+      "meditation decor",
+      "visionary art"
+    ]
+  },
+  "mjx-0433": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0434": {
+    "keep": true,
+    "subject": "Synthwave Palm Gate",
+    "style": "Synthwave",
+    "theme": "Retro",
+    "palette": "Magenta Sun",
+    "keywords": [
+      "synthwave wall art",
+      "vaporwave print",
+      "retro neon poster",
+      "80s decor",
+      "pop art"
+    ]
+  },
+  "mjx-0435": {
+    "keep": false,
+    "reason": "portrait/logo/sunset variant"
+  },
+  "mjx-0436": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0437": {
+    "keep": true,
+    "subject": "Neon Palm Drive",
+    "style": "Synthwave",
+    "theme": "Retro",
+    "palette": "Cyan Magenta",
+    "keywords": [
+      "synthwave wall art",
+      "retro sunset print",
+      "vaporwave poster",
+      "palm decor",
+      "neon art"
+    ]
+  },
+  "mjx-0438": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0439": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0440": {
+    "keep": true,
+    "subject": "Sunset Palm Badge",
+    "style": "Synthwave",
+    "theme": "Bold",
+    "palette": "Pink Sunset",
+    "keywords": [
+      "synthwave wall art",
+      "retro sunset print",
+      "vaporwave poster",
+      "palm decor",
+      "neon art"
+    ]
+  },
+  "mjx-0441": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0442": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0443": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0444": {
+    "keep": true,
+    "subject": "Rugby Team Charge",
+    "style": "Sports Illustration",
+    "theme": "Dynamic",
+    "palette": "Bold Green",
+    "keywords": [
+      "rugby wall art",
+      "sports print",
+      "team poster",
+      "man cave decor",
+      "rugby gift"
+    ]
+  },
+  "mjx-0445": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0446": {
+    "keep": true,
+    "subject": "Flower Of Life Dark",
+    "style": "Sacred Geometry",
+    "theme": "Meditative",
+    "palette": "Dark Mono",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0447": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0448": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0449": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0450": {
+    "keep": false,
+    "reason": "synthwave/geometry/rugby variant"
+  },
+  "mjx-0451": {
+    "keep": true,
+    "subject": "Neon Octagon Bloom",
+    "style": "Sacred Geometry",
+    "theme": "Visionary",
+    "palette": "Rainbow Neon",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0452": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0453": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0454": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0455": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0456": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0457": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0458": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0459": {
+    "keep": true,
+    "subject": "Starlight Mandala",
+    "style": "Sacred Geometry",
+    "theme": "Cosmic",
+    "palette": "Violet Glow",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0460": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0461": {
+    "keep": true,
+    "subject": "Geometry Over Dusk",
+    "style": "Sacred Geometry",
+    "theme": "Serene",
+    "palette": "Twilight",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0462": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0463": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0464": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0465": {
+    "keep": false,
+    "reason": "sacred geometry variant"
+  },
+  "mjx-0466": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0467": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0468": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0469": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0470": {
+    "keep": true,
+    "subject": "Crystal Star Grid",
+    "style": "Sacred Geometry",
+    "theme": "Visionary",
+    "palette": "Magenta Gold",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0471": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0472": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0473": {
+    "keep": true,
+    "subject": "Pyramid Ascension",
+    "style": "Sacred Geometry",
+    "theme": "Cosmic",
+    "palette": "Sunset Neon",
+    "keywords": [
+      "sacred geometry print",
+      "neon mandala wall art",
+      "spiritual poster",
+      "meditation decor",
+      "geometric art"
+    ]
+  },
+  "mjx-0474": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0475": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0476": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0477": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0478": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0479": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  },
+  "mjx-0480": {
+    "keep": false,
+    "reason": "geometry/logo/typography variant"
+  }
+}

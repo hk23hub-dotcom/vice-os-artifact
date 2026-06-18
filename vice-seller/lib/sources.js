@@ -1,10 +1,16 @@
 // sources.js — load the MidJourney collection manifest and build image URLs.
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 export const loadConfig = () => JSON.parse(readFileSync(join(ROOT, 'config.json'), 'utf8'));
+
+// vision-curated captions/keep decisions, keyed by sku (built during captioning).
+export function loadCaptions() {
+  const p = join(ROOT, 'data', 'captions.json');
+  return existsSync(p) ? JSON.parse(readFileSync(p, 'utf8')) : {};
+}
 
 // Every job in the manifest becomes one print "item".
 export function loadItems() {

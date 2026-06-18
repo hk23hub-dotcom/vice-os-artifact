@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 — COMMAND CENTER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--bg:#08080c;--surf:#101016;--surf2:#16161e;--bd:#1e1e28;--red:#FF3A1F;--gold:#FFD200;--green:#AAFF00;--cyan:#00F0FF;--purple:#B84DFF;--mut:#6a6a78;--txt:#ECECF0;}
+  html,body{height:100%;background:var(--bg);color:var(--txt);font-family:'Space Mono',monospace;}
+  body{overflow-x:hidden;}
+  a{color:inherit;}
+  .wrap{max-width:1240px;margin:0 auto;padding:28px 22px 80px;}
+  /* header */
+  header{display:flex;align-items:center;gap:16px;margin-bottom:8px;}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:26px;letter-spacing:1px;}
+  .logo span{color:var(--red);}
+  .tagline{font-size:10px;letter-spacing:4px;color:var(--mut);text-transform:uppercase;}
+  .live{margin-left:auto;font-size:10px;letter-spacing:2px;color:var(--green);border:1px solid #2a3a20;background:rgba(170,255,0,.06);border-radius:20px;padding:6px 14px;text-transform:uppercase;}
+  .live b{color:#fff;}
+  h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(28px,5vw,46px);letter-spacing:-1px;margin:14px 0 4px;}
+  .sub{color:var(--mut);font-size:12px;letter-spacing:1px;margin-bottom:26px;}
+  /* stat strip */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:30px;}
+  .stat{background:var(--surf);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;}
+  .stat .n{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:28px;}
+  .stat .l{font-size:9px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-top:2px;}
+  /* next moves */
+  .next-wrap{background:linear-gradient(135deg,rgba(255,58,31,.08),rgba(255,210,0,.04));border:1px solid #2a2018;border-radius:16px;padding:22px;margin-bottom:34px;}
+  .next-wrap h2{font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;}
+  .moves{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
+  .move{background:var(--surf2);border:1px solid var(--bd);border-radius:12px;padding:15px 16px;cursor:pointer;transition:border-color .2s,transform .2s;}
+  .move:hover{border-color:var(--red);transform:translateY(-2px);}
+  .move .rank{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:11px;color:var(--red);}
+  .move .t{font-weight:700;font-size:13px;margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;}
+  .move .d{font-size:11px;color:var(--mut);line-height:1.5;}
+  /* filters */
+  .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+  .chip{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);background:var(--surf);border:1px solid var(--bd);border-radius:20px;padding:8px 14px;cursor:pointer;transition:all .15s;}
+  .chip:hover{color:#fff;} .chip.on{color:var(--bg);background:var(--gold);border-color:var(--gold);font-weight:700;}
+  /* grid */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+  .card{background:var(--surf);border:1px solid var(--bd);border-radius:16px;padding:18px;cursor:pointer;transition:border-color .2s,transform .2s;position:relative;overflow:hidden;}
+  .card:hover{transform:translateY(-3px);}
+  .card .bar{position:absolute;top:0;left:0;width:100%;height:3px;}
+  .card .top{display:flex;align-items:center;gap:9px;margin-bottom:10px;}
+  .card .ico{font-size:18px;}
+  .card .nm{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:16px;letter-spacing:.3px;}
+  .card .what{font-size:11.5px;color:#a9a9b6;line-height:1.55;min-height:50px;}
+  .card .foot{display:flex;align-items:center;justify-content:space-between;margin-top:14px;}
+  .badge{font-size:8.5px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 9px;border-radius:20px;font-weight:700;}
+  .card .next{font-size:10px;color:var(--gold);letter-spacing:.5px;}
+  .typetag{font-size:8px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;}
+  /* detail panel */
+  #panel{position:fixed;top:0;right:0;height:100%;width:min(440px,92vw);background:rgba(10,10,16,.97);backdrop-filter:blur(14px);
+    border-left:1px solid var(--bd);z-index:50;transform:translateX(105%);transition:transform .45s cubic-bezier(.16,1,.3,1);padding:30px 30px 40px;overflow-y:auto;}
+  #panel.open{transform:translateX(0);}
+  #panel .x{position:absolute;top:20px;right:22px;width:34px;height:34px;border:1px solid var(--bd);border-radius:50%;background:none;color:var(--mut);cursor:pointer;font-size:15px;}
+  #panel .x:hover{color:#fff;border-color:#fff;}
+  #panel .pico{font-size:34px;margin-bottom:6px;}
+  #panel .ptype{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--red);}
+  #panel h3{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:30px;letter-spacing:-.5px;margin:6px 0 14px;}
+  #panel .pwhat{font-size:13px;color:#b6b6c2;line-height:1.7;}
+  #panel .meta{margin-top:22px;border-top:1px solid var(--bd);}
+  #panel .mrow{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--bd);font-size:12px;}
+  #panel .mrow .k{color:var(--mut);letter-spacing:1px;text-transform:uppercase;font-size:10px;}
+  #panel .mrow .v{text-align:right;color:#fff;}
+  #panel .pnext{margin-top:22px;}
+  #panel .pnext .h{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+  #panel .step{display:flex;gap:10px;font-size:12px;color:#c2c2cc;padding:7px 0;line-height:1.5;}
+  #panel .step .b{color:var(--red);font-weight:700;}
+  #backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .4s;z-index:45;}
+  #backdrop.open{opacity:1;pointer-events:auto;}
+  .path{font-family:'Space Mono';font-size:10px;color:var(--cyan);word-break:break-all;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">HK<span>23</span></div>
+    <div class="tagline">Command Center</div>
+    <div class="live">◉ <b id="liveN">0</b> LIVE</div>
+  </header>
+  <h1>The Empire, Ordered.</h1>
+  <div class="sub">Cada proyecto, qué es, dónde vive, y el próximo movimiento. Haz clic en cualquiera.</div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="next-wrap">
+    <h2>⚡ Próximos 3 movimientos — mi recomendación</h2>
+    <div class="moves" id="moves"></div>
+  </div>
+
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div id="backdrop" onclick="closeP()"></div>
+<aside id="panel">
+  <button class="x" onclick="closeP()">✕</button>
+  <div class="pico" id="p-ico"></div>
+  <div class="ptype" id="p-type"></div>
+  <h3 id="p-nm"></h3>
+  <div class="pwhat" id="p-what"></div>
+  <div class="meta" id="p-meta"></div>
+  <div class="pnext"><div class="h">Próximos pasos</div><div id="p-steps"></div></div>
+</aside>
+
+<script>
+const TYPES={
+  system:{label:'Sistema privado',ico:'🧠',col:'#B84DFF'},
+  web:{label:'Web / Hub',ico:'🌌',col:'#FF3A1F'},
+  app:{label:'App',ico:'📱',col:'#00F0FF'},
+  product:{label:'Producto',ico:'💸',col:'#AAFF00'},
+  agent:{label:'Agente',ico:'🤖',col:'#FFD200'},
+  venture:{label:'Venture',ico:'🏦',col:'#F97316'},
+};
+const ST={
+  live:{label:'Live',col:'#AAFF00',bg:'rgba(170,255,0,.1)'},
+  building:{label:'Building',col:'#FFD200',bg:'rgba(255,210,0,.1)'},
+  paused:{label:'Paused',col:'#F97316',bg:'rgba(249,115,22,.1)'},
+  spec:{label:'Spec',col:'#B84DFF',bg:'rgba(184,77,247,.1)'},
+  idea:{label:'Idea',col:'#6a6a78',bg:'rgba(255,255,255,.05)'},
+};
+const P=[
+ {id:'viceos',nm:'Vice OS',type:'system',st:'live',what:'Tu segundo cerebro de por vida — la bóveda Obsidian desde la que operas todo.',path:'~/Library/.../Obsidian',next:['Mantener atómico + sin huérfanos','Destilar partes vendibles → ATLAS X']},
+ {id:'platform',nm:'vice-os-platform',type:'system',st:'spec',what:'Los docs de arquitectura del ecosistema completo. El blueprint, no el código.',path:'~/vice-os-platform/docs',next:['Mantener sincronizado con la realidad (galaxias = 6 stages, no 4)']},
+ {id:'cosmos',nm:'HK23 Cosmos',type:'web',st:'live',what:'El universo web / marketplace. cosmos.html + command-center; cada proyecto orbita como planeta.',path:'~/vice-os-artifact',link:'https://hk23universe.vercel.app',next:['✓ 0004 aplicada · grafo público (17 edges) · deploy READY','Pulir glow del torus (opcional)']},
+ {id:'vicegolfer',nm:'VICEGOLFER',type:'app',st:'building',what:'Golf performance OS: rounds, putting, tokens, league pool, admin de alumnos.',path:'~/vicegolfer',link:'https://vicegolfer.vercel.app',next:['✓ RLS fix corrido · ✓ marca auditada · ✓ fleet 5 agentes','Board NEXT: token economy / caddies / shop links','Despachar vg-orchestrator a las tareas next']},
+ {id:'rugbyvice',nm:'RUGBY VICE',type:'app',st:'building',what:'App de rugby — kick tracker 2D y perfil de performance por posición.',path:'~/rugbyvice',next:['Definir estado actual / roadmap']},
+ {id:'atlasx',nm:'ATLAS X',type:'product',st:'live',what:'Producto digital: "Personal Intelligence OS" empaquetado. Destilado de Vice OS.',path:'~/Documents/Claude/Projects/ATLAS X',link:'https://hk23hub.gumroad.com/l/ljkokj',next:['Trabajar el launch plan (pineado)','Conectar checkout Stripe (hoy Gumroad)']},
+ {id:'prints',nm:'Art Prints',type:'product',st:'live',what:'Tu colección MidJourney vendida en Etsy (HK23Studio). 87 prints PÚBLICOS y vendibles.',path:'Etsy · HK23Studio',next:['✓ 87 publicados (activos)','Pinterest + Printify canvas','Curar las 626 restantes → más drops']},
+ {id:'viceseller',nm:'VICE SELLER',type:'agent',st:'paused',what:'Agente autónomo Etsy/Printify/Pinterest. Cura + lista tu arte con SEO de visión. 87 listados.',path:'~/vice-os-artifact/vice-seller',next:['Reanudar curación: 300/926 → seguir','Encender Printify + Pinterest (keys)']},
+ {id:'affiliate',nm:'Affiliate Growth Agent',type:'agent',st:'building',what:'Sistema de crecimiento 90 días para CryptoVice: content engine, funnels, KPIs.',path:'~/Documents/Claude/Projects/AFFILIATE GROWTH AGENT',next:['Ejecutar el content engine','Conectar KPI dashboard']},
+ {id:'laiglesia',nm:'La Iglesia',type:'venture',st:'building',what:'Exploración de oro en Chile (IV Región, 3.676 ha). Data + material para inversores.',path:'~/la_iglesia',next:['Material de inversores','Pipeline de datos geológicos']},
+ {id:'cryptovice',nm:'CryptoVice',type:'venture',st:'building',what:'Venture cripto / DeFi — portfolio y on-chain. Crecido vía el Affiliate Agent.',path:'ecosystem/cryptovice',next:['Definir oferta core','Lanzar growth system']},
+ {id:'proyplaya',nm:'Proy-Playa',type:'venture',st:'idea',what:'Proyecto de playa/propiedad. (Por confirmar alcance.)',path:'ecosystem/proy-playa',next:['Confirmar qué es y objetivo']},
+ {id:'hk23brand',nm:'HK23 Brand',type:'venture',st:'building',what:'Identidad de marca del imperio entero — assets compartidos.',path:'ecosystem/hk23-brand',next:['Consolidar guía de marca','Aplicar a todas las apps']},
+];
+const MOVES=[
+ {rank:'01',t:'🎨 VICE SELLER: curar las 626 restantes',d:'Más volumen vendible. El agente ya cura+lista solo con SEO de visión. 300/926 hecho.',go:'viceseller'},
+ {rank:'02',t:'⚙️ VG board: token economy / caddies / links',d:'Despachar vg-orchestrator a las tareas NEXT del Founder Dashboard.',go:'vicegolfer'},
+ {rank:'03',t:'💸 ATLAS X launch plan',d:'Trabajar el lanzamiento del producto (pineado) + checkout Stripe.',go:'atlasx'},
+];
+// ✓ Sesión anterior: RLS fix · 87 prints publicados · Cosmos 0004 + deploy — todos COMPLETOS
+
+const byId=Object.fromEntries(P.map(p=>[p.id,p]));
+// stats
+const liveN=P.filter(p=>p.st==='live').length;
+document.getElementById('liveN').textContent=liveN;
+const counts={total:P.length,live:liveN,building:P.filter(p=>p.st==='building').length,types:new Set(P.map(p=>p.type)).size};
+document.getElementById('stats').innerHTML=[
+ ['n',counts.total,'Proyectos'],['n',counts.live,'Live'],['n',counts.building,'En obra'],['n',counts.types,'Categorías']
+].map(s=>`<div class="stat"><div class="n">${s[1]}</div><div class="l">${s[2]}</div></div>`).join('');
+// moves
+document.getElementById('moves').innerHTML=MOVES.map(m=>`<div class="move" onclick="openP('${m.go}')"><div class="rank">${m.rank}</div><div class="t">${m.t}</div><div class="d">${m.d}</div></div>`).join('');
+// filters
+let filter='all';
+const types=['all',...Object.keys(TYPES)];
+function renderFilters(){document.getElementById('filters').innerHTML=types.map(t=>`<div class="chip ${filter===t?'on':''}" onclick="setF('${t}')">${t==='all'?'Todo':TYPES[t].ico+' '+TYPES[t].label}</div>`).join('');}
+window.setF=t=>{filter=t;renderFilters();renderGrid();};
+function renderGrid(){
+  const list=P.filter(p=>filter==='all'||p.type===filter);
+  document.getElementById('grid').innerHTML=list.map(p=>{const ty=TYPES[p.type],s=ST[p.st];
+   return `<div class="card" onclick="openP('${p.id}')"><div class="bar" style="background:${ty.col}"></div>
+    <div class="top"><span class="ico">${ty.ico}</span><span class="nm">${p.nm}</span></div>
+    <div class="typetag">${ty.label}</div>
+    <div class="what" style="margin-top:8px">${p.what}</div>
+    <div class="foot"><span class="badge" style="color:${s.col};background:${s.bg}">${s.label}</span>
+    <span class="next">→ ${p.next[0].replace(/^[🔴🟢🚀]\s*/,'').slice(0,30)}…</span></div></div>`;}).join('');
+}
+window.openP=id=>{const p=byId[id],ty=TYPES[p.type],s=ST[p.st];
+  document.getElementById('p-ico').textContent=ty.ico;
+  document.getElementById('p-type').textContent=ty.label;
+  document.getElementById('p-nm').textContent=p.nm;
+  document.getElementById('p-what').textContent=p.what;
+  let meta=`<div class="mrow"><span class="k">Estado</span><span class="v" style="color:${s.col}">${s.label}</span></div>
+   <div class="mrow"><span class="k">Ubicación</span><span class="v path">${p.path}</span></div>`;
+  if(p.link)meta+=`<div class="mrow"><span class="k">Link</span><span class="v"><a href="${p.link}" target="_blank" style="color:${ty.col}">abrir ↗</a></span></div>`;
+  document.getElementById('p-meta').innerHTML=meta;
+  document.getElementById('p-steps').innerHTML=p.next.map((n,i)=>`<div class="step"><span class="b">${i+1}</span><span>${n}</span></div>`).join('');
+  document.getElementById('panel').classList.add('open');document.getElementById('backdrop').classList.add('open');
+};
+window.closeP=()=>{document.getElementById('panel').classList.remove('open');document.getElementById('backdrop').classList.remove('open');};
+addEventListener('keydown',e=>{if(e.key==='Escape')closeP();});
+renderFilters();renderGrid();
+</script>
+</body>
+</html>

@@ -102,7 +102,7 @@ export async function uploadFile(listingId, img, name) {
 export async function activate(listingId) {
   const shopId = await getShopId();
   await api(`/shops/${shopId}/listings/${listingId}`, {
-    method: 'PUT',
+    method: 'PATCH',
     body: new URLSearchParams({ state: 'active' }),
   });
 }
