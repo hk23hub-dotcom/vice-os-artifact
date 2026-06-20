@@ -6051,6 +6051,129 @@ loadQuotesThen(handleDeepLink);
   };
   function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
   window.NH=NH;
+  window.__nhToast = NH.toast;
+})();
+</script>
+<!-- ═══════════ HK23 Universe Dashboard — mission control (additive) ═══════════ -->
+<style>
+  #dash-fab{position:fixed;bottom:66px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;
+    border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);}
+  #dash-fab:hover{border-color:#39d0ff;color:#fff;}
+  #dash-fab.on{border-color:#39d0ff;color:#39d0ff;}
+  #dash-panel{position:fixed;top:0;left:0;height:100%;width:420px;max-width:94vw;z-index:9001;background:rgba(8,8,13,.97);
+    backdrop-filter:blur(16px);border-right:1px solid #1d1d28;transform:translateX(-102%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;padding:22px 22px 60px;font-family:'Space Mono',monospace;color:#e6e6ee;}
+  #dash-panel.open{transform:translateX(0);}
+  #dash-panel h3{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;letter-spacing:.5px;margin-bottom:2px;}
+  #dash-panel .d-sub{font-size:9px;letter-spacing:2px;color:#5a5a68;text-transform:uppercase;margin-bottom:14px;}
+  #dash-panel .d-x{position:absolute;top:18px;right:18px;cursor:pointer;color:#888;font-size:18px;}
+  #dash-tabs{display:flex;margin:6px 0 14px;}
+  .d-tab{flex:1;text-align:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:9px 2px;cursor:pointer;color:#6a6a78;border-bottom:1px solid #20202c;}
+  .d-tab.on{color:#39d0ff;border-color:#39d0ff;}
+  #dash-body input,#dash-body textarea{width:100%;background:#0e0e16;border:1px solid #20202c;border-radius:8px;padding:9px 11px;color:#e6e6ee;font-family:inherit;font-size:12px;outline:none;}
+  #dash-body input:focus,#dash-body textarea:focus{border-color:#39d0ff;}
+  #dash-body textarea{resize:vertical;min-height:48px;line-height:1.5;}
+  .d-btn{width:100%;text-align:center;margin-top:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:9px;padding:11px;cursor:pointer;border:none;background:#39d0ff;color:#06121a;}
+  .d-card{background:#11111a;border:1px solid #20202c;border-radius:10px;padding:11px 12px;margin-top:9px;font-size:12px;line-height:1.5;position:relative;}
+  .d-del{position:absolute;top:8px;right:10px;color:#555;cursor:pointer;font-size:13px;}
+  .d-del:hover{color:#ff6b6b;}
+  .d-pill{display:inline-block;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;cursor:pointer;}
+  .d-metric{display:inline-block;text-align:center;background:#11111a;border:1px solid #20202c;border-radius:10px;padding:12px 0;width:31%;margin-right:2%;}
+  .d-metric b{display:block;font-family:'Space Grotesk',sans-serif;font-size:26px;color:#39d0ff;}
+  .d-metric span{font-size:8px;letter-spacing:1px;color:#6a6a78;text-transform:uppercase;}
+  .d-world{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #20202c;border-radius:10px;margin-top:9px;text-decoration:none;color:#e6e6ee;font-size:13px;}
+  .d-world:hover{border-color:#39d0ff;}
+  .d-world.soon{opacity:.5;cursor:default;}
+  .d-world .d-go{margin-left:auto;font-size:10px;color:#39d0ff;letter-spacing:1px;}
+</style>
+<div id="dash-fab" onclick="DASH.toggle()">▦ Dashboard</div>
+<div id="dash-panel">
+  <span class="d-x" onclick="DASH.close()">✕</span>
+  <h3>UNIVERSE DASHBOARD</h3>
+  <div class="d-sub">Mission control · escribe y ejecuta de verdad</div>
+  <div id="dash-tabs">
+    <div class="d-tab on" id="dt-overview" onclick="DASH.tab('overview')">Resumen</div>
+    <div class="d-tab" id="dt-notes" onclick="DASH.tab('notes')">Notas</div>
+    <div class="d-tab" id="dt-tasks" onclick="DASH.tab('tasks')">Tareas</div>
+    <div class="d-tab" id="dt-worlds" onclick="DASH.tab('worlds')">Mundos</div>
+    <div class="d-tab" id="dt-exec" onclick="DASH.tab('exec')">Ejecutar</div>
+  </div>
+  <div id="dash-body"></div>
+</div>
+<script>
+(function(){
+  const SB = (window.__nhCloud && window.__nhCloud.SB) || { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const toast = (m)=>{ try{ (window.__nhToast||function(){})(m); }catch(e){} };
+  function H(rep){ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json','Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; }
+  async function readKind(kind){ try{ const r=await fetch(SB.url+'/entities?select=id,name,summary,meta&meta->>nh=eq.1&meta->>kind=eq.'+kind+'&order=created_at.desc',{headers:H()}); if(!r.ok) return []; return await r.json(); }catch(e){ return []; } }
+  async function countEntities(){ try{ const r=await fetch(SB.url+'/entities?select=id',{headers:Object.assign({Prefer:'count=exact','Range-Unit':'items',Range:'0-0'},H())}); const cr=r.headers.get('content-range')||''; const tot=cr.split('/')[1]; return tot&&tot!=='*'?parseInt(tot,10):'—'; }catch(e){ return '—'; } }
+  async function add(kind, fields){ try{ const body=Object.assign({level:'node',kind:'system'},fields); body.meta=Object.assign({nh:'1',kind:kind}, fields.meta||{}); const r=await fetch(SB.url+'/entities',{method:'POST',headers:H(true),body:JSON.stringify(body)}); if(!r.ok) return null; const j=await r.json(); return j[0]||null; }catch(e){ return null; } }
+  async function patch(id, fields){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'PATCH',headers:H(false),body:JSON.stringify(fields)}); return r.ok; }catch(e){ return false; } }
+  async function del(id){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'DELETE',headers:H()}); return r.ok; }catch(e){ return false; } }
+  const esc=(s)=>String(s==null?'':s).replace(/</g,'&lt;');
+
+  const WORLDS=[
+    {label:'Rugby Vice',sub:'cartas · kick tracker',url:'',soon:true},
+    {label:'ViceGolfer',sub:'golf performance',url:'',soon:true},
+    {label:'ATLAS X',sub:'motor de IA',url:'https://atlas-x-app.vercel.app',soon:false},
+    {label:'Cosmos',sub:'front door',url:'cosmos.html',soon:false},
+  ];
+  const STATUS={pendiente:{c:'#6a6a78',bg:'#1a1a24'},haciendo:{c:'#39d0ff',bg:'#0c2531'},hecho:{c:'#2bd66a',bg:'#0e2417'}};
+  const NEXT={pendiente:'haciendo',haciendo:'hecho',hecho:'pendiente'};
+  let state={notes:[],tasks:[]};
+
+  const panel=()=>document.getElementById('dash-panel');
+  const body=()=>document.getElementById('dash-body');
+  let tab='overview';
+
+  const DASH={
+    toggle(){ const p=panel(),f=document.getElementById('dash-fab'); p.classList.toggle('open'); f.classList.toggle('on'); if(p.classList.contains('open')) DASH.render(); },
+    close(){ panel().classList.remove('open'); document.getElementById('dash-fab').classList.remove('on'); },
+    tab(t){ tab=t; ['overview','notes','tasks','worlds','exec'].forEach(x=>document.getElementById('dt-'+x).classList.toggle('on',x===t)); DASH.render(); },
+    async render(){
+      const b=body(); if(!b) return;
+      if(tab==='overview'){ b.innerHTML='<div style="color:#6a6a78;font-size:11px">Cargando…</div>';
+        const [notes,tasks,ents]=await Promise.all([readKind('note'),readKind('task'),countEntities()]);
+        state.notes=notes; state.tasks=tasks;
+        const done=tasks.filter(t=>(t.meta&&t.meta.status)==='hecho').length;
+        b.innerHTML=`<div style="margin:4px 0 8px">
+            <div class="d-metric"><b>${ents}</b><span>Entidades</span></div>
+            <div class="d-metric"><b>${notes.length}</b><span>Notas</span></div>
+            <div class="d-metric" style="margin-right:0"><b>${tasks.length}</b><span>Tareas</span></div>
+          </div>
+          <div class="d-card">Tareas hechas: <b style="color:#2bd66a">${done}/${tasks.length}</b></div>
+          <div class="d-card" style="color:#8a8a98">Todo lo que agregas aquí (notas, tareas, nodos) se guarda <b style="color:#39d0ff">de verdad</b> en Supabase. "Ejecutar" acciones reales llega en el Action Runner (incremento 2).</div>`;
+        return; }
+      if(tab==='notes'){ b.innerHTML=`<textarea id="d-note" placeholder="Escribe una nota… (se guarda en Supabase)"></textarea>
+          <button class="d-btn" onclick="DASH.addNote()">＋ Guardar nota</button><div id="d-notelist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const notes=await readKind('note'); state.notes=notes;
+        document.getElementById('d-notelist').innerHTML = notes.length? notes.map(n=>`<div class="d-card"><span class="d-del" onclick="DASH.del('note','${n.id}')">✕</span>${esc(n.summary||n.name)}</div>`).join('') : '<div style="color:#6a6a78;font-size:11px">Sin notas todavía.</div>';
+        return; }
+      if(tab==='tasks'){ b.innerHTML=`<input id="d-task" placeholder="Nueva tarea…"><button class="d-btn" onclick="DASH.addTask()">＋ Agregar tarea</button><div id="d-tasklist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const tasks=await readKind('task'); state.tasks=tasks;
+        document.getElementById('d-tasklist').innerHTML = tasks.length? tasks.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card"><span class="d-del" onclick="DASH.del('task','${t.id}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${t.id}')">${st} ↻</span></div>`; }).join('') : '<div style="color:#6a6a78;font-size:11px">Sin tareas todavía.</div>';
+        return; }
+      if(tab==='worlds'){ b.innerHTML=`<div class="d-sub">Entra a un mundo del universo</div>`+ WORLDS.map(w=> w.soon
+          ? `<div class="d-world soon"><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub}</div></div><span class="d-go">incr. 3 →</span></div>`
+          : `<a class="d-world" href="${w.url}" target="_blank" rel="noopener"><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub}</div></div><span class="d-go">abrir →</span></a>`
+        ).join('');
+        return; }
+      if(tab==='exec'){ b.innerHTML=`<div class="d-sub">Acciones reales</div>
+          <div class="d-card" style="color:#8a8a98">La ejecución real (correr un agente, llamar una API con secretos) corre por el <b style="color:#39d0ff">Action Runner</b> — un mini-backend en Vercel con allowlist + token.</div>
+          <div class="d-card soon" style="opacity:.55">▶ Correr VICE SELLER &nbsp;·&nbsp; <span style="color:#6a6a78">requiere Action Runner (incr. 2)</span></div>
+          <div class="d-card soon" style="opacity:.55">▶ Generar con ATLAS X &nbsp;·&nbsp; <span style="color:#6a6a78">requiere Action Runner (incr. 2)</span></div>`;
+        return; }
+    },
+    async addNote(){ const el=document.getElementById('d-note'); const v=(el.value||'').trim(); if(!v) return; el.value='';
+      const row=await add('note',{name:v.slice(0,48),summary:v,meta:{body:v}}); toast(row?'Nota guardada ✓ DB':'Error de red'); DASH.render(); },
+    async addTask(){ const el=document.getElementById('d-task'); const v=(el.value||'').trim(); if(!v) return; el.value='';
+      const row=await add('task',{name:v,meta:{status:'pendiente'}}); toast(row?'Tarea agregada ✓ DB':'Error de red'); DASH.render(); },
+    async cycle(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const st=(t.meta&&t.meta.status)||'pendiente'; const ns=NEXT[st];
+      const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
+    async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
+  };
+  window.DASH=DASH;
 })();
 </script>
 </body>
