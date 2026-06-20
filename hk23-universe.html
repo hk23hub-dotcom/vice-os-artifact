@@ -6086,6 +6086,18 @@ loadQuotesThen(handleDeepLink);
   .d-world:hover{border-color:#39d0ff;}
   .d-world.soon{opacity:.5;cursor:default;}
   .d-world .d-go{margin-left:auto;font-size:10px;color:#39d0ff;letter-spacing:1px;}
+  #world-view{position:fixed;inset:0;z-index:9002;background:rgba(5,5,9,.86);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;}
+  #world-view.open{display:flex;}
+  #world-view .wv-card{position:relative;max-width:520px;width:100%;background:#0c0c14;border:1px solid #20202c;border-radius:16px;padding:30px 28px;color:#e6e6ee;}
+  #world-view .wv-x{position:absolute;top:16px;right:18px;cursor:pointer;color:#888;font-size:18px;}
+  #world-view .wv-status{display:inline-block;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:20px;margin-bottom:12px;}
+  #world-view h2{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:30px;letter-spacing:.5px;margin:0 0 4px;}
+  #world-view .wv-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6a6a78;margin-bottom:22px;}
+  #world-view .wv-why-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#5a5a68;margin-bottom:7px;}
+  #world-view .wv-why{font-size:14px;line-height:1.65;color:#c6c6d2;}
+  #world-view .wv-road{font-size:12px;color:#8a8a98;margin-top:18px;padding:11px 13px;border:1px dashed #2a2a36;border-radius:9px;}
+  #world-view #wv-actions{display:flex;gap:10px;margin-top:22px;}
+  #world-view .wv-btn{flex:1;text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:9px;padding:12px;cursor:pointer;}
 </style>
 <div id="dash-fab" onclick="DASH.toggle()">▦ Dashboard</div>
 <div id="dash-panel">
@@ -6101,6 +6113,16 @@ loadQuotesThen(handleDeepLink);
   </div>
   <div id="dash-body"></div>
 </div>
+<div id="world-view"><div class="wv-card">
+  <span class="wv-x" onclick="DASH.closeWorld()">✕</span>
+  <div class="wv-status" id="wv-status"></div>
+  <h2 id="wv-title"></h2>
+  <div class="wv-sub" id="wv-sub"></div>
+  <div class="wv-why-label">Por qué está en el universo</div>
+  <div class="wv-why" id="wv-why"></div>
+  <div class="wv-road" id="wv-road"></div>
+  <div id="wv-actions"></div>
+</div></div>
 <script>
 (function(){
   const SB = (window.__nhCloud && window.__nhCloud.SB) || { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
@@ -6114,11 +6136,16 @@ loadQuotesThen(handleDeepLink);
   const esc=(s)=>String(s==null?'':s).replace(/</g,'&lt;');
 
   const WORLDS=[
-    {label:'Rugby Vice',sub:'cartas · kick tracker',url:'',soon:true},
-    {label:'ViceGolfer',sub:'golf performance',url:'',soon:true},
-    {label:'ATLAS X',sub:'motor de IA',url:'https://atlas-x-app.vercel.app',soon:false},
-    {label:'Cosmos',sub:'front door',url:'cosmos.html',soon:false},
+    {id:'rugby-vice',label:'Rugby Vice',sub:'cartas · kick tracker',status:'build',url:'',roadmap:'Se integra como mundo en el incremento 3.',
+      why:'El mundo de performance de rugby: cartas coleccionables, evaluación 1–5 y kick tracker. Tu deporte convertido en sistema — y la puerta al desbloqueo de mentes (arma tu XV).'},
+    {id:'vicegolfer',label:'ViceGolfer',sub:'golf performance',status:'build',url:'',roadmap:'La app ya existe; falta conectarla como mundo (incr. 4).',
+      why:'Performance de golf — el gemelo de Rugby Vice: mismo motor, otro deporte. El primer Vice que validó el sistema.'},
+    {id:'atlas-x',label:'ATLAS X',sub:'motor de IA',status:'live',url:'https://atlas-x-app.vercel.app',
+      why:'El motor de IA del universo — el cerebro que va a potenciar los agentes (priorizar, generar, analizar).'},
+    {id:'cosmos',label:'Cosmos',sub:'front door',status:'live',url:'cosmos.html',
+      why:'La puerta principal del universo — el front door coleccionable / marketplace.'},
   ];
+  const WSTATUS={live:{c:'#2bd66a',label:'EN VIVO'},build:{c:'#FFD200',label:'EN CONSTRUCCIÓN'},idea:{c:'#b06bff',label:'IDEA'}};
   const STATUS={pendiente:{c:'#6a6a78',bg:'#1a1a24'},haciendo:{c:'#39d0ff',bg:'#0c2531'},hecho:{c:'#2bd66a',bg:'#0e2417'}};
   const NEXT={pendiente:'haciendo',haciendo:'hecho',hecho:'pendiente'};
   const PRIO={alta:{c:'#ff6b6b',bg:'#2a1416',label:'ALTA'},media:{c:'#FFD200',bg:'#2a2410',label:'MEDIA'},baja:{c:'#6a8a9a',bg:'#13202a',label:'BAJA'}};
@@ -6174,10 +6201,9 @@ loadQuotesThen(handleDeepLink);
           <div id="d-tasklist" style="margin-top:16px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
         const tasks=await readKind('task'); state.tasks=tasks; renderTasks(tasks);
         return; }
-      if(tab==='worlds'){ b.innerHTML=`<div class="d-sub">Entra a un mundo del universo</div>`+ WORLDS.map(w=> w.soon
-          ? `<div class="d-world soon"><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub}</div></div><span class="d-go">incr. 3 →</span></div>`
-          : `<a class="d-world" href="${w.url}" target="_blank" rel="noopener"><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub}</div></div><span class="d-go">abrir →</span></a>`
-        ).join('');
+      if(tab==='worlds'){ b.innerHTML=`<div class="d-sub">Entra a un mundo del universo</div>`+ WORLDS.map(w=>{ const s=WSTATUS[w.status]||WSTATUS.idea; const go=w.status==='live'?'abrir →':'ver →';
+          return `<div class="d-world" onclick="DASH.openWorld('${w.id}')"><span style="width:8px;height:8px;border-radius:50%;background:${s.c};flex-shrink:0"></span><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub} · <span style="color:${s.c}">${s.label.toLowerCase()}</span></div></div><span class="d-go">${go}</span></div>`;
+        }).join('');
         return; }
       if(tab==='exec'){ b.innerHTML=`<div class="d-sub">Acciones reales</div>
           <div class="d-card" style="color:#8a8a98">La ejecución real (correr un agente, llamar una API con secretos) corre por el <b style="color:#39d0ff">Action Runner</b> — un mini-backend en Vercel con allowlist + token.</div>
@@ -6198,6 +6224,16 @@ loadQuotesThen(handleDeepLink);
     async cycle(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const st=(t.meta&&t.meta.status)||'pendiente'; const ns=NEXT[st];
       const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
     async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
+    openWorld(id){ const w=WORLDS.find(x=>x.id===id); if(!w) return;
+      if(w.status==='live'&&w.url){ window.open(w.url,'_blank','noopener'); return; }
+      DASH.showWorld(w); },
+    showWorld(w){ const s=WSTATUS[w.status]||WSTATUS.idea; const st=document.getElementById('wv-status');
+      st.textContent=s.label; st.style.color=s.c; st.style.background=s.c+'22'; st.style.border='1px solid '+s.c+'55';
+      document.getElementById('wv-title').textContent=w.label; document.getElementById('wv-sub').textContent=w.sub;
+      document.getElementById('wv-why').textContent=w.why||''; document.getElementById('wv-road').textContent=w.roadmap||'Aún sin fecha — es una idea viva en el universo.';
+      document.getElementById('wv-actions').innerHTML = (w.url? `<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open('${w.url}','_blank','noopener')">Entrar →</button>`:'') + `<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>`;
+      document.getElementById('world-view').classList.add('open'); },
+    closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
   };
   window.DASH=DASH;
 })();
