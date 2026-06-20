@@ -5825,7 +5825,7 @@ loadQuotesThen(handleDeepLink);
 </script>
 <!-- ═══════════ HK23 NeuralHub — functional layer (additive, v1-safe) ═══════════ -->
 <style>
-  #nh-fab{position:fixed;bottom:24px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+  #nh-fab{position:fixed;top:108px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
     letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;
     border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);}
   #nh-fab:hover{border-color:#FFD200;color:#fff;}
@@ -6056,7 +6056,7 @@ loadQuotesThen(handleDeepLink);
 </script>
 <!-- ═══════════ HK23 Universe Dashboard — mission control (additive) ═══════════ -->
 <style>
-  #dash-fab{position:fixed;bottom:66px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+  #dash-fab{position:fixed;top:66px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
     letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;
     border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);}
   #dash-fab:hover{border-color:#39d0ff;color:#fff;}
@@ -6121,6 +6121,22 @@ loadQuotesThen(handleDeepLink);
   ];
   const STATUS={pendiente:{c:'#6a6a78',bg:'#1a1a24'},haciendo:{c:'#39d0ff',bg:'#0c2531'},hecho:{c:'#2bd66a',bg:'#0e2417'}};
   const NEXT={pendiente:'haciendo',haciendo:'hecho',hecho:'pendiente'};
+  const PRIO={alta:{c:'#ff6b6b',bg:'#2a1416',label:'ALTA'},media:{c:'#FFD200',bg:'#2a2410',label:'MEDIA'},baja:{c:'#6a8a9a',bg:'#13202a',label:'BAJA'}};
+  const BUMP={baja:'media',media:'alta',alta:'baja'};
+  // local prioritization agent (heuristic) — upgradeable to ATLAS X via the Action Runner
+  function classify(line){ const s=line.toLowerCase();
+    if(/urgent|urgente|\bhoy\b|today|\bya\b|asap|ahora|\bnow\b|cr[ií]tic|deadline|vence|!!/.test(s)) return 'alta';
+    if(/importante|prioridad|priorit|pronto|esta semana|this week|soon|clave|\bkey\b/.test(s)) return 'media';
+    if(/alg[uú]n d[ií]a|someday|cuando pueda|later|opcional|optional|nice to have|backlog/.test(s)) return 'baja';
+    if(/!/.test(line)) return 'media';
+    return 'baja'; }
+  function parseLines(text){ return text.split(/\n|;|·|•/).map(l=>l.replace(/^\s*[-*\d.)\]]+\s*/,'').trim()).filter(l=>l.length>1); }
+  function renderTasks(tasks){ const el=document.getElementById('d-tasklist'); if(!el) return;
+    if(!tasks.length){ el.innerHTML='<div style="color:#6a6a78;font-size:11px">Sin tareas todavía.</div>'; return; }
+    let h=''; ['alta','media','baja'].forEach(p=>{ const grp=tasks.filter(t=>((t.meta&&t.meta.priority)||'baja')===p); if(!grp.length) return; const pc=PRIO[p];
+      h+=`<div style="margin:14px 0 4px;font-size:10px;letter-spacing:2px;color:${pc.c}">${pc.label} · ${grp.length}</div>`;
+      h+=grp.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card" style="border-left:3px solid ${pc.c}"><span class="d-del" onclick="DASH.del('task','${t.id}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${t.id}')">${st} ↻</span> <span class="d-pill" style="margin-top:7px;margin-left:5px;color:${pc.c};background:${pc.bg}" onclick="DASH.bump('${t.id}')">${pc.label} ↑</span></div>`; }).join(''); });
+    el.innerHTML=h; }
   let state={notes:[],tasks:[]};
 
   const panel=()=>document.getElementById('dash-panel');
@@ -6150,9 +6166,13 @@ loadQuotesThen(handleDeepLink);
         const notes=await readKind('note'); state.notes=notes;
         document.getElementById('d-notelist').innerHTML = notes.length? notes.map(n=>`<div class="d-card"><span class="d-del" onclick="DASH.del('note','${n.id}')">✕</span>${esc(n.summary||n.name)}</div>`).join('') : '<div style="color:#6a6a78;font-size:11px">Sin notas todavía.</div>';
         return; }
-      if(tab==='tasks'){ b.innerHTML=`<input id="d-task" placeholder="Nueva tarea…"><button class="d-btn" onclick="DASH.addTask()">＋ Agregar tarea</button><div id="d-tasklist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
-        const tasks=await readKind('task'); state.tasks=tasks;
-        document.getElementById('d-tasklist').innerHTML = tasks.length? tasks.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card"><span class="d-del" onclick="DASH.del('task','${t.id}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${t.id}')">${st} ↻</span></div>`; }).join('') : '<div style="color:#6a6a78;font-size:11px">Sin tareas todavía.</div>';
+      if(tab==='tasks'){ b.innerHTML=`
+          <div class="d-sub">Agente de prioridades</div>
+          <textarea id="d-bulk" placeholder="Pega tu lista o un texto con tareas… el agente las separa por prioridad" style="min-height:80px"></textarea>
+          <button class="d-btn" onclick="DASH.prioritize()">▶ Priorizar con agente</button>
+          <input id="d-task" placeholder="…o agrega una sola" style="margin-top:12px"><button class="d-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.addTask()">＋ Agregar una</button>
+          <div id="d-tasklist" style="margin-top:16px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const tasks=await readKind('task'); state.tasks=tasks; renderTasks(tasks);
         return; }
       if(tab==='worlds'){ b.innerHTML=`<div class="d-sub">Entra a un mundo del universo</div>`+ WORLDS.map(w=> w.soon
           ? `<div class="d-world soon"><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub}</div></div><span class="d-go">incr. 3 →</span></div>`
@@ -6168,7 +6188,13 @@ loadQuotesThen(handleDeepLink);
     async addNote(){ const el=document.getElementById('d-note'); const v=(el.value||'').trim(); if(!v) return; el.value='';
       const row=await add('note',{name:v.slice(0,48),summary:v,meta:{body:v}}); toast(row?'Nota guardada ✓ DB':'Error de red'); DASH.render(); },
     async addTask(){ const el=document.getElementById('d-task'); const v=(el.value||'').trim(); if(!v) return; el.value='';
-      const row=await add('task',{name:v,meta:{status:'pendiente'}}); toast(row?'Tarea agregada ✓ DB':'Error de red'); DASH.render(); },
+      const row=await add('task',{name:v,meta:{status:'pendiente',priority:classify(v)}}); toast(row?'Tarea agregada ✓ DB':'Error de red'); DASH.render(); },
+    async prioritize(){ const el=document.getElementById('d-bulk'); const txt=(el.value||'').trim(); if(!txt) return; const lines=parseLines(txt); if(!lines.length) return; el.value='';
+      toast('Priorizando '+lines.length+'…'); let ok=0;
+      for(const line of lines){ const r=await add('task',{name:line,meta:{status:'pendiente',priority:classify(line)}}); if(r) ok++; }
+      toast('✓ '+ok+' tareas priorizadas'); DASH.render(); },
+    async bump(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const cur=(t.meta&&t.meta.priority)||'baja'; const np=BUMP[cur];
+      const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',priority:np})}); toast(ok?('Prioridad: '+np):'Error'); DASH.render(); },
     async cycle(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const st=(t.meta&&t.meta.status)||'pendiente'; const ns=NEXT[st];
       const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
     async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
