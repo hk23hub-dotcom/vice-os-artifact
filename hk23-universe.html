@@ -5823,5 +5823,235 @@ animateBg();
 // ─── MINDSET ENGINE: quotes + inbound deep-links ───
 loadQuotesThen(handleDeepLink);
 </script>
+<!-- ═══════════ HK23 NeuralHub — functional layer (additive, v1-safe) ═══════════ -->
+<style>
+  #nh-fab{position:fixed;bottom:24px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;
+    border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);}
+  #nh-fab:hover{border-color:#FFD200;color:#fff;}
+  #nh-fab.on{border-color:#FFD200;color:#FFD200;}
+  #nh-editor{position:fixed;top:0;right:0;height:100%;width:380px;max-width:92vw;z-index:9001;background:rgba(8,8,13,.97);
+    backdrop-filter:blur(16px);border-left:1px solid #1d1d28;transform:translateX(102%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;padding:22px 22px 60px;font-family:'Space Mono',monospace;color:#e6e6ee;}
+  #nh-editor.open{transform:translateX(0);}
+  #nh-editor h3{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;letter-spacing:.5px;margin-bottom:2px;}
+  #nh-editor .nh-sub{font-size:9px;letter-spacing:2px;color:#5a5a68;text-transform:uppercase;margin-bottom:16px;}
+  #nh-editor label{display:block;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#6a6a78;margin:12px 0 4px;}
+  #nh-editor input,#nh-editor textarea,#nh-editor select{width:100%;background:#0e0e16;border:1px solid #20202c;border-radius:8px;
+    padding:9px 11px;color:#e6e6ee;font-family:inherit;font-size:12px;outline:none;}
+  #nh-editor input:focus,#nh-editor textarea:focus{border-color:#FFD200;}
+  #nh-editor textarea{resize:vertical;min-height:54px;line-height:1.5;}
+  #nh-editor .nh-x{position:absolute;top:18px;right:18px;cursor:pointer;color:#888;font-size:18px;}
+  .nh-btn{display:block;width:100%;text-align:center;margin-top:16px;font-family:'Space Grotesk',sans-serif;font-weight:700;
+    font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:9px;padding:12px;cursor:pointer;border:none;background:#FFD200;color:#111;}
+  .nh-btn.ghost{background:transparent;border:1px solid #2a2a36;color:#aab;}
+  .nh-list{margin-top:6px;}
+  .nh-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;cursor:pointer;font-size:12px;}
+  .nh-item:hover{background:#15151f;}
+  .nh-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .nh-tab{flex:1;text-align:center;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:8px;cursor:pointer;color:#6a6a78;border-bottom:1px solid #20202c;}
+  .nh-tab.on{color:#FFD200;border-color:#FFD200;}
+  #fnp-nh{margin-top:14px;}
+  #fnp-nh .nh-fld{margin-bottom:12px;}
+  #fnp-nh .nh-flab{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6a6a78;margin-bottom:5px;}
+  #fnp-nh .nh-fval{font-size:12px;color:#c2c2cc;line-height:1.55;}
+</style>
+<div id="nh-fab" onclick="NH.toggle()">✎ NeuralHub</div>
+<div id="nh-editor">
+  <div class="nh-x" onclick="NH.close()">✕</div>
+  <h3>NeuralHub Editor</h3><div class="nh-sub">edita · crea · conecta · persiste</div>
+  <div style="display:flex;margin-bottom:8px">
+    <div class="nh-tab on" id="nh-tab-edit" onclick="NH.tab('edit')">Nodos</div>
+    <div class="nh-tab" id="nh-tab-new" onclick="NH.tab('new')">＋ Nuevo</div>
+    <div class="nh-tab" id="nh-tab-rel" onclick="NH.tab('rel')">Relaciones</div>
+  </div>
+  <div id="nh-body"></div>
+</div>
+<script>
+(function(){
+  const KEY='hk23nh-overrides';
+  const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}};
+  const save=(o)=>localStorage.setItem(KEY,JSON.stringify(o));
+  let ov=load();
+  // ensure shape
+  ov.galaxies=ov.galaxies||{}; ov.nodes=ov.nodes||{}; ov.newGalaxies=ov.newGalaxies||[]; ov.addConns=ov.addConns||[];
+  ov.sbIds=ov.sbIds||{}; ov.sbRels=ov.sbRels||{};
+
+  const nkey=(n)=> (n.detail&&n.detail.title)||n.label||'';
+
+  // ── Supabase cloud mirror — writes nh-tagged rows only (RLS-scoped, secure) ──
+  const SB={ url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  function sbH(rep){ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json','Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; }
+  const inflight={};
+  function sbEntity(localId, fields){
+    fields.meta=Object.assign({nh:'1'}, fields.meta||{});
+    const run=async()=>{
+      try{
+        const ex=ov.sbIds[localId];
+        if(ex){ const r=await fetch(SB.url+'/entities?id=eq.'+ex,{method:'PATCH',headers:sbH(false),body:JSON.stringify(fields)}); return r.ok; }
+        const r=await fetch(SB.url+'/entities',{method:'POST',headers:sbH(true),body:JSON.stringify(fields)});
+        if(!r.ok) return false; const j=await r.json(); if(j[0]&&j[0].id){ ov.sbIds[localId]=j[0].id; save(ov); } return true;
+      }catch(e){ return false; }
+    };
+    // serialize per localId so concurrent saves never double-insert
+    inflight[localId]= inflight[localId] ? inflight[localId].then(run, run) : run();
+    return inflight[localId];
+  }
+  function ensureGx(id){ if(ov.sbIds['gx:'+id]) return Promise.resolve(true); const g=NODES.find(x=>x.id===id)||{};
+    return sbEntity('gx:'+id,{name:g.label||id,slug:'nh-gx-'+id,level:'node',kind:'system',color:g.color,summary:g.sub,meta:{nh:'1',role:'galaxy'}}); }
+  async function sbRel(localKey, fromLocal, toLocal){
+    try{ const fa=ov.sbIds[fromLocal], fb=ov.sbIds[toLocal]; if(!fa||!fb) return false; if(ov.sbRels[localKey]) return true;
+      const r=await fetch(SB.url+'/relationships',{method:'POST',headers:sbH(true),body:JSON.stringify({from_id:fa,to_id:fb,type:'related',meta:{nh:'1'}})});
+      if(!r.ok) return false; const j=await r.json(); if(j[0]&&j[0].id){ ov.sbRels[localKey]=j[0].id; save(ov); } return true;
+    }catch(e){ return false; }
+  }
+  window.__nhCloud={sbEntity,ensureGx,sbRel,SB};
+
+  // ── apply persisted overrides to the LIVE data (canvas reads these every frame) ──
+  function apply(){
+    // edited galaxies
+    NODES.forEach(g=>{ const o=ov.galaxies[g.id]; if(o) Object.assign(g,o); });
+    // new galaxies
+    ov.newGalaxies.forEach(g=>{ if(!NODES.some(x=>x.id===g.id)) NODES.push({...g}); });
+    // new connections
+    ov.addConns.forEach(c=>{ if(!CONNECTIONS.some(x=>x[0]===c[0]&&x[1]===c[1])) CONNECTIONS.push([c[0],c[1]]); });
+    // edited project sub-nodes (by title key)
+    (typeof PROJECTS!=='undefined'?PROJECTS:[]).forEach(p=>{
+      (p.universe&&p.universe.nodes||[]).forEach(n=>{ const o=ov.nodes[p.id+'/'+nkey(n)]; if(o){ n.detail=Object.assign({},n.detail,o); } });
+    });
+  }
+  apply();
+
+  // ── inject extended NeuralHub fields into the fractal node ficha (safe wrapper) ──
+  if(typeof openFractalNodePanel==='function'){
+    const _orig=openFractalNodePanel;
+    window.openFractalNodePanel=function(node,pc,pl){
+      _orig(node,pc,pl);
+      try{
+        const panel=document.getElementById('fractal-node-panel'); if(!panel) return;
+        let box=document.getElementById('fnp-nh'); if(box) box.remove();
+        const d=node.detail||{}; const extra=[];
+        if(d.notes) extra.push(['Notas',d.notes]);
+        if(d.nextActions&&d.nextActions.length) extra.push(['Próximas acciones', d.nextActions.map(a=>'› '+a).join('<br>')]);
+        if(d.tags&&d.tags.length) extra.push(['Tags', d.tags.map(t=>'#'+t).join('  ')]);
+        if(d.monetization) extra.push(['Monetización', d.monetization]);
+        box=document.createElement('div'); box.id='fnp-nh';
+        box.innerHTML=extra.map(e=>`<div class="nh-fld"><div class="nh-flab">${e[0]}</div><div class="nh-fval">${e[1]}</div></div>`).join('')
+          + `<button class="nh-btn ghost" style="margin-top:8px" onclick="NH.editNode('${(node.__pid||'')}','${nkey(node).replace(/'/g,'')}')">✎ Editar este nodo</button>`;
+        // tag node with its project id for editing
+        panel.appendChild(box);
+      }catch(e){}
+    };
+    // tag project nodes with their project id so the ficha edit knows where it lives
+    (typeof PROJECTS!=='undefined'?PROJECTS:[]).forEach(p=>(p.universe&&p.universe.nodes||[]).forEach(n=>{ n.__pid=p.id; }));
+  }
+
+  // ── Editor UI ──
+  const ed=document.getElementById('nh-editor'), fab=document.getElementById('nh-fab'), body=document.getElementById('nh-body');
+  const esc=(s)=>String(s==null?'':s);
+  let tab='edit';
+  const NH={
+    toggle(){ ed.classList.toggle('open'); fab.classList.toggle('on'); if(ed.classList.contains('open')) NH.render(); },
+    close(){ ed.classList.remove('open'); fab.classList.remove('on'); },
+    tab(t){ tab=t; ['edit','new','rel'].forEach(x=>document.getElementById('nh-tab-'+x).classList.toggle('on',x===t)); NH.render(); },
+    persist(){ save(ov); },
+    render(){
+      if(tab==='edit') return NH.renderList();
+      if(tab==='new') return NH.renderNew();
+      if(tab==='rel') return NH.renderRel();
+    },
+    renderList(){
+      let h='<div class="nh-list">';
+      NODES.forEach(g=>{ h+=`<div class="nh-item" onclick="NH.editGalaxy('${g.id}')"><span class="nh-dot" style="background:${g.color}"></span><b>${esc(g.label)}</b><span style="color:#5a5a68;margin-left:auto;font-size:9px">galaxia</span></div>`; });
+      (typeof PROJECTS!=='undefined'?PROJECTS:[]).forEach(p=>{
+        h+=`<div style="font-size:9px;letter-spacing:2px;color:#5a5a68;text-transform:uppercase;margin:14px 0 4px">${esc(p.label)} · nodos</div>`;
+        (p.universe&&p.universe.nodes||[]).forEach(n=>{ h+=`<div class="nh-item" onclick="NH.editNode('${p.id}','${nkey(n).replace(/'/g,'')}')"><span class="nh-dot" style="background:${n.color}"></span>${esc((n.detail&&n.detail.title)||n.label)}</div>`; });
+      });
+      h+='</div>'; body.innerHTML=h;
+    },
+    editGalaxy(id){
+      const g=NODES.find(x=>x.id===id); if(!g) return;
+      body.innerHTML=`<label>Nombre</label><input id="e-label" value="${esc(g.label)}">
+        <label>Tagline</label><input id="e-sub" value="${esc(g.sub)}">
+        <label>Color</label><input id="e-color" value="${esc(g.color)}">
+        <button class="nh-btn" onclick="NH.saveGalaxy('${id}')">Guardar</button>
+        <button class="nh-btn ghost" onclick="NH.render()">← volver</button>`;
+    },
+    saveGalaxy(id){
+      const g=NODES.find(x=>x.id===id); if(!g) return;
+      g.label=v('e-label'); g.sub=v('e-sub'); g.color=v('e-color');
+      ov.galaxies[id]={label:g.label,sub:g.sub,color:g.color}; NH.persist(); NH.renderList();
+      sbEntity('gx:'+id,{name:g.label,slug:'nh-gx-'+id,level:'node',kind:'system',color:g.color,summary:g.sub,meta:{nh:'1',role:'galaxy'}}).then(ok=>NH.toast(ok?'Guardado ✓ DB':'Guardado local'));
+    },
+    editNode(pid,key){
+      if(!pid){ NH.tab('edit'); return; }
+      const p=PROJECTS.find(x=>x.id===pid); if(!p) return;
+      const n=(p.universe.nodes||[]).find(x=>nkey(x)===key); if(!n) return;
+      const d=n.detail||(n.detail={title:n.label||'',desc:''});
+      body.innerHTML=`<label>Título</label><input id="e-title" value="${esc(d.title)}">
+        <label>Estado</label><select id="e-status">
+          <option value="live"${d.status==='live'?' selected':''}>live</option>
+          <option value="build"${d.status==='build'?' selected':''}>building</option>
+          <option value="soon"${(!d.status||d.status==='soon')?' selected':''}>coming soon</option></select>
+        <label>Descripción</label><textarea id="e-desc">${esc(d.desc)}</textarea>
+        <label>Notas</label><textarea id="e-notes">${esc(d.notes)}</textarea>
+        <label>Próximas acciones (una por línea)</label><textarea id="e-next">${esc((d.nextActions||[]).join('\n'))}</textarea>
+        <label>Tags (coma)</label><input id="e-tags" value="${esc((d.tags||[]).join(', '))}">
+        <label>Monetización</label><input id="e-mon" value="${esc(d.monetization)}">
+        <label>Prompt para Claude</label><textarea id="e-prompt">${esc(d.prompt)}</textarea>
+        <button class="nh-btn" onclick="NH.saveNode('${pid}','${key}')">Guardar</button>
+        <button class="nh-btn ghost" onclick="NH.render()">← volver</button>`;
+      if(!ed.classList.contains('open')) NH.toggle();
+    },
+    saveNode(pid,key){
+      const p=PROJECTS.find(x=>x.id===pid); const n=(p.universe.nodes||[]).find(x=>nkey(x)===key); if(!n) return;
+      const patch={ title:v('e-title'), status:v('e-status'), desc:v('e-desc'), notes:v('e-notes'),
+        nextActions:v('e-next').split('\n').map(s=>s.trim()).filter(Boolean),
+        tags:v('e-tags').split(',').map(s=>s.trim()).filter(Boolean), monetization:v('e-mon'), prompt:v('e-prompt') };
+      n.detail=Object.assign({},n.detail,patch);
+      ov.nodes[pid+'/'+key]=Object.assign(ov.nodes[pid+'/'+key]||{},patch); NH.persist();
+      NH.renderList();
+      sbEntity('node:'+pid+'/'+key,{name:patch.title||key,slug:'nh-node-'+pid+'-'+key.toLowerCase().replace(/[^a-z0-9]+/g,'-'),level:'node',kind:'system',summary:patch.desc,
+        meta:{nh:'1',role:'node',pid:pid,status:patch.status,notes:patch.notes,nextActions:patch.nextActions,tags:patch.tags,monetization:patch.monetization,prompt:patch.prompt}})
+        .then(ok=>NH.toast(ok?'Guardado ✓ DB':'Guardado local'));
+    },
+    renderNew(){
+      const cols=['#FF3A1F','#FFD200','#AAFF00','#00F0FF','#B84DFF','#FF6600','#FF2D78'];
+      body.innerHTML=`<div class="nh-sub">Nueva galaxia (aparece en vivo)</div>
+        <label>Nombre</label><input id="n-label" placeholder="MI GALAXIA">
+        <label>Tagline</label><input id="n-sub" placeholder="Qué es">
+        <label>Color</label><select id="n-color">${cols.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+        <button class="nh-btn" onclick="NH.createGalaxy()">＋ Crear galaxia</button>`;
+    },
+    createGalaxy(){
+      const label=v('n-label'); if(!label) return;
+      const id='nh-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
+      const g={id,label,sub:v('n-sub'),color:v('n-color'),size:11,x:0.3+Math.random()*0.4,y:0.3+Math.random()*0.4};
+      NODES.push(g); ov.newGalaxies.push(g); NH.persist(); NH.tab('edit'); NH.toast('Galaxia creada ✓');
+      sbEntity('gx:'+id,{name:g.label,slug:'nh-gx-'+id,level:'node',kind:'system',color:g.color,summary:g.sub,meta:{nh:'1',role:'galaxy'}}).then(ok=>{ if(ok) NH.toast('Galaxia creada ✓ DB'); });
+    },
+    renderRel(){
+      const opts=NODES.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('');
+      body.innerHTML=`<div class="nh-sub">Conectar dos galaxias</div>
+        <label>Desde</label><select id="r-a">${opts}</select>
+        <label>Hacia</label><select id="r-b">${opts}</select>
+        <button class="nh-btn" onclick="NH.addRel()">＋ Conectar</button>
+        <div class="nh-sub" style="margin-top:20px">Conexiones actuales: ${CONNECTIONS.length}</div>`;
+    },
+    addRel(){
+      const a=v('r-a'),b=v('r-b'); if(a===b) return;
+      if(!CONNECTIONS.some(c=>(c[0]===a&&c[1]===b)||(c[0]===b&&c[1]===a))){ CONNECTIONS.push([a,b]); ov.addConns.push([a,b]); NH.persist();
+        Promise.all([ensureGx(a),ensureGx(b)]).then(()=>sbRel(a+'|'+b,'gx:'+a,'gx:'+b)).then(ok=>NH.toast(ok?'Conectado ✓ DB':'Conectado local')); }
+      NH.renderRel();
+    },
+    reset(){ localStorage.removeItem(KEY); location.reload(); },
+    toast(msg){ let t=document.getElementById('nh-toast'); if(!t){ t=document.createElement('div'); t.id='nh-toast';
+      t.style.cssText='position:fixed;bottom:74px;left:24px;z-index:9002;background:#FFD200;color:#111;font-family:Space Mono,monospace;font-size:11px;font-weight:700;padding:9px 14px;border-radius:8px;opacity:0;transition:opacity .25s'; document.body.appendChild(t); }
+      t.textContent=msg; t.style.opacity='1'; clearTimeout(t._h); t._h=setTimeout(function(){t.style.opacity='0'},1600); },
+  };
+  function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+  window.NH=NH;
+})();
+</script>
 </body>
 </html>
