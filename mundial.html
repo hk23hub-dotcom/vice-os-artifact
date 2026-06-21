@@ -62,11 +62,13 @@
   <p id="agent-read"></p></div>
 
 <div class="controls">
-  <div class="seg"><button id="v-prob" class="on" onclick="setView('prob')">Posibilidades</button><button id="v-grp" onclick="setView('grp')">Grupos</button></div>
+  <div class="seg"><button id="v-prob" class="on" onclick="setView('prob')">Posibilidades</button><button id="v-scorers" onclick="setView('scorers')">Goleadores</button><button id="v-ball" onclick="setView('ball')">Mejor jugador</button><button id="v-grp" onclick="setView('grp')">Grupos</button></div>
   <span style="flex:1"></span>
+  <span id="filters">
   <button class="chip on" data-f="all" onclick="setFilter('all',this)">Todas</button>
   <button class="chip" data-f="Clasificado" onclick="setFilter('Clasificado',this)">Clasificados</button>
   <button class="chip" data-f="Liderando" onclick="setFilter('Liderando',this)">Líderes</button>
+  </span>
 </div>
 
 <div id="view-prob" class="layout">
@@ -77,6 +79,16 @@
 <div id="view-grp" class="hidden">
   <div class="groups" id="groups"></div>
 </div>
+
+<div id="view-scorers" class="hidden"><div style="max-width:700px">
+  <div style="font-size:12px;color:var(--mut);margin-bottom:10px;font-family:'Space Mono',monospace">⚽ BOTA DE ORO · goles en fase de grupos</div>
+  <div id="scorers-list"></div>
+</div></div>
+
+<div id="view-ball" class="hidden"><div style="max-width:700px">
+  <div style="font-size:12px;color:var(--mut);margin-bottom:10px;font-family:'Space Mono',monospace">🏅 BALÓN DE ORO · candidatos a mejor jugador (cuotas del mercado)</div>
+  <div id="ball-list"></div>
+</div></div>
 
 <footer>
   Snapshot al <b>21 jun 2026</b> · probabilidades de título del mercado (Kalshi/casas) · estados y líderes de grupo según prensa. <b>No es en vivo</b> — los datos cambian con cada partido (grupos hasta el 27 jun).<br>
@@ -132,9 +144,51 @@ function detail(){
 }
 function pick(n){ sel=n; rankRows(); detail(); }
 function setFilter(f,btn){ filter=f; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); btn.classList.add('on'); rankRows(); }
-function setView(v){ document.getElementById('v-prob').classList.toggle('on',v==='prob'); document.getElementById('v-grp').classList.toggle('on',v==='grp');
-  document.getElementById('view-prob').classList.toggle('hidden',v!=='prob'); document.getElementById('view-grp').classList.toggle('hidden',v!=='grp'); }
+function setView(v){ ['prob','scorers','ball','grp'].forEach(x=>{ document.getElementById('v-'+x).classList.toggle('on',x===v); document.getElementById('view-'+x).classList.toggle('hidden',x!==v); });
+  document.getElementById('filters').style.display = v==='prob'?'':'none'; }
 function groupsView(){ document.getElementById('groups').innerHTML=Object.keys(GROUPS).map(g=>`<div class="gcard"><h4>GRUPO ${g}</h4>${GROUPS[g].map(t=>`<div class="gt ${t.includes('líder')?'lead':''}">${t}</div>`).join('')}</div>`).join(''); }
-rankRows(); detail(); groupsView();
+const SCORERS=[
+ {n:'Lionel Messi',f:'🇦🇷',t:'Argentina',g:3},
+ {n:'Jonathan David',f:'🇨🇦',t:'Canadá',g:3},
+ {n:'Kylian Mbappé',f:'🇫🇷',t:'Francia',g:2},
+ {n:'Erling Haaland',f:'🇳🇴',t:'Noruega',g:2},
+ {n:'Harry Kane',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:'Inglaterra',g:2},
+ {n:'Vinícius Jr.',f:'🇧🇷',t:'Brasil',g:2},
+ {n:'Matheus Cunha',f:'🇧🇷',t:'Brasil',g:2},
+ {n:'Folarin Balogun',f:'🇺🇸',t:'USA',g:2},
+ {n:'Kai Havertz',f:'🇩🇪',t:'Alemania',g:2},
+ {n:'Cody Gakpo',f:'🇳🇱',t:'P. Bajos',g:2},
+ {n:'Brian Brobbey',f:'🇳🇱',t:'P. Bajos',g:2},
+ {n:'Crysencio Summerville',f:'🇳🇱',t:'P. Bajos',g:2},
+ {n:'Cyle Larin',f:'🇨🇦',t:'Canadá',g:2},
+ {n:'Ismael Saibari',f:'🇲🇦',t:'Marruecos',g:2},
+ {n:'Johan Manzambi',f:'🇨🇭',t:'Suiza',g:2},
+ {n:'Yasin Ayari',f:'🇸🇪',t:'Suecia',g:2},
+ {n:'Elijah Just',f:'🇳🇿',t:'N. Zelanda',g:2},
+];
+const BALL=[
+ {n:'Kylian Mbappé',f:'🇫🇷',t:'Francia',odds:'+600',p:14.3,a:'Favorito al Balón de Oro. Segundo en 2022 detrás de Messi; quiere el premio que se le escapó. Lidera a la candidata number 1.'},
+ {n:'Michael Olise',f:'🇫🇷',t:'Francia',odds:'+650',p:13.3,a:'La irrupción del torneo. Desequilibrio puro por afuera; si Francia llega lejos, es voto seguro.'},
+ {n:'Lionel Messi',f:'🇦🇷',t:'Argentina',odds:'+650',p:13.3,a:'Hat-trick de salida y co-líder de goleo. Va por un Balón de Oro histórico (sería el tercero).'},
+ {n:'Harry Kane',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',t:'Inglaterra',odds:'+900',p:10.0,a:'Goles garantizados. Su techo depende de cuán lejos llegue Inglaterra.'},
+ {n:'Lamine Yamal',f:'🇪🇸',t:'España',odds:'+1200',p:7.7,a:'La joya. Co-favorito en otras casas; si España reacciona, su talento manda.'},
+ {n:'Vinícius Jr.',f:'🇧🇷',t:'Brasil',odds:'+1200',p:7.7,a:'Ya suma 2 goles. Cuando se enciende, decide partidos solo.'},
+ {n:'Erling Haaland',f:'🇳🇴',t:'Noruega',odds:'+1800',p:5.3,a:'Máquina de gol y Noruega sorprende liderando. El premio suele ir a semifinalistas — ahí está su techo.'},
+];
+function scorersView(){ document.getElementById('scorers-list').innerHTML=SCORERS.map((s,i)=>`<div class="row" style="cursor:default">
+  <span class="pct" style="width:26px;color:#7d8a98">${i+1}</span>
+  <span class="flag">${s.f}</span>
+  <div style="flex:1"><div class="nm">${s.n}</div><div class="gp">${s.t}</div></div>
+  <span class="pct" style="color:${s.g>=3?'#FFD200':'#2bd66a'};width:auto">${s.g} ⚽</span>
+</div>`).join(''); }
+function ballView(){ const max=BALL[0].p; document.getElementById('ball-list').innerHTML=BALL.map((b,i)=>`<div class="row" style="cursor:default">
+  <span class="pct" style="width:26px;color:#7d8a98">${i+1}</span>
+  <span class="flag">${b.f}</span>
+  <div style="width:160px"><div class="nm">${b.n}</div><div class="gp">${b.t}</div></div>
+  <div class="bar"><i style="width:${Math.round(b.p/max*100)}%"></i></div>
+  <span class="pct">${b.p}%</span>
+  <span class="st" style="color:#39d0ff;background:#0c2531">${b.odds}</span>
+</div>`).join(''); }
+rankRows(); detail(); groupsView(); scorersView(); ballView();
 </script>
 </body></html>
