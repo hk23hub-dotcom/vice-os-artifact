@@ -6054,6 +6054,41 @@ loadQuotesThen(handleDeepLink);
   window.__nhToast = NH.toast;
 })();
 </script>
+<!-- ═══════════ HK23 Modo Manipular — drag planets (additive) ═══════════ -->
+<script>
+(function(){
+  const KEY='hk23-upos';
+  let UPOS={}; try{ UPOS=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ UPOS={}; }
+  const save=()=>localStorage.setItem(KEY,JSON.stringify(UPOS));
+  const ND=()=> (typeof NODES!=='undefined')?NODES:[];
+  const PR=()=> (typeof PROJECTS!=='undefined')?PROJECTS:[];
+  function applyUP(){ ND().forEach(n=>{ const p=UPOS['gal:'+n.id]; if(p){ n.x=p.x; n.y=p.y; } }); PR().forEach(n=>{ const p=UPOS['proj:'+n.id]; if(p){ n.x=p.x; n.y=p.y; } }); }
+  applyUP();
+  const cv=(typeof mapCanvas!=='undefined' && mapCanvas) || document.querySelector('canvas');
+  let EDIT=false, drag=null;
+
+  const fab=document.createElement('div'); fab.id='move-fab'; fab.textContent='✋ Mover';
+  fab.style.cssText='position:fixed;top:150px;left:24px;z-index:9000;font-family:\'Space Mono\',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px)';
+  document.body.appendChild(fab);
+  function setEdit(v){ EDIT=v; fab.style.borderColor=v?'#FF2D78':'#2a2a36'; fab.style.color=v?'#FF2D78':'#cdd'; fab.textContent=v?'✋ MOVIENDO · ON':'✋ Mover'; if(cv) cv.style.cursor=v?'grab':''; }
+  fab.onclick=()=>setEdit(!EDIT);
+  window.addEventListener('keydown',e=>{ const tn=(e.target&&e.target.tagName||'').toLowerCase(); if((e.key==='m'||e.key==='M')&&tn!=='input'&&tn!=='textarea'&&tn!=='select') setEdit(!EDIT); });
+
+  function pos(e){ const r=cv.getBoundingClientRect(); return { x:Math.min(.98,Math.max(.02,(e.clientX-r.left)/r.width)), y:Math.min(.98,Math.max(.02,(e.clientY-r.top)/r.height)) }; }
+  if(cv){
+    cv.addEventListener('mousedown',e=>{ if(!EDIT) return;
+      const hp=(typeof hoveredProject!=='undefined')?hoveredProject:null, hn=(typeof hoveredNode!=='undefined')?hoveredNode:null;
+      let ref=null,k=null;
+      if(hp){ ref=PR().find(p=>p.id===hp); k='proj:'+hp; }
+      else if(hn){ ref=ND().find(n=>n.id===hn); k='gal:'+hn; }
+      if(ref){ drag={ref,k}; if(cv) cv.style.cursor='grabbing'; e.preventDefault(); } },true);
+    window.addEventListener('mousemove',e=>{ if(!drag) return; const p=pos(e); drag.ref.x=p.x; drag.ref.y=p.y; },true);
+    window.addEventListener('mouseup',()=>{ if(!drag) return; UPOS[drag.k]={x:drag.ref.x,y:drag.ref.y}; save(); drag=null; if(cv) cv.style.cursor=EDIT?'grab':''; },true);
+    cv.addEventListener('click',e=>{ if(EDIT){ e.stopImmediatePropagation(); e.preventDefault(); } },true);
+  }
+  window.MOVE={ setEdit, on:()=>EDIT, reset(){ localStorage.removeItem(KEY); location.reload(); } };
+})();
+</script>
 <!-- ═══════════ HK23 Universe Dashboard — mission control (additive) ═══════════ -->
 <style>
   #dash-fab{position:fixed;top:66px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
