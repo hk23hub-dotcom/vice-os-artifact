@@ -1,0 +1,140 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HK23 · Mundial 2026 — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#0a0e12;--card:#11161c;--bd:#1d2530;--txt:#e8eef2;--mut:#7d8a98;--grn:#2bd66a;--cyan:#39d0ff;--gold:#FFD200;--red:#ff5b6b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--txt);font-family:'Space Grotesk',sans-serif;padding:0 0 60px;}
+  .wrap{max-width:1040px;margin:0 auto;padding:22px 18px;}
+  header .eye{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--grn);}
+  header h1{font-size:34px;font-weight:700;letter-spacing:-.5px;margin:2px 0 4px;}
+  header .meta{font-size:12px;color:var(--mut);}
+  .agent{margin:20px 0;background:linear-gradient(120deg,#0e1a14,#11161c);border:1px solid var(--bd);border-left:3px solid var(--grn);border-radius:12px;padding:16px 18px;}
+  .agent .who{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--grn);text-transform:uppercase;margin-bottom:7px;}
+  .agent .who::before{content:'◉ ';}
+  .agent p{font-size:14px;line-height:1.6;color:#cdd6de;}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 14px;align-items:center;}
+  .seg{display:flex;border:1px solid var(--bd);border-radius:9px;overflow:hidden;}
+  .seg button{background:transparent;border:none;color:var(--mut);font-family:inherit;font-size:12px;font-weight:500;padding:8px 14px;cursor:pointer;}
+  .seg button.on{background:var(--grn);color:#06210f;}
+  .chip{background:transparent;border:1px solid var(--bd);color:var(--mut);font-size:11px;padding:7px 12px;border-radius:20px;cursor:pointer;font-family:inherit;}
+  .chip.on{border-color:var(--cyan);color:var(--cyan);}
+  .layout{display:grid;grid-template-columns:1fr 360px;gap:18px;align-items:start;}
+  @media(max-width:820px){.layout{grid-template-columns:1fr;}.detail{position:static!important;}}
+  .row{display:flex;align-items:center;gap:12px;padding:11px 13px;border:1px solid var(--bd);border-radius:11px;margin-bottom:8px;cursor:pointer;background:var(--card);transition:border-color .15s,transform .1s;}
+  .row:hover{border-color:var(--grn);}
+  .row.sel{border-color:var(--grn);box-shadow:0 0 0 1px var(--grn);}
+  .row .flag{font-size:24px;width:30px;text-align:center;flex-shrink:0;}
+  .row .nm{font-weight:500;font-size:15px;}
+  .row .gp{font-size:10px;color:var(--mut);font-family:'Space Mono',monospace;}
+  .bar{flex:1;height:8px;background:#0c1218;border-radius:6px;overflow:hidden;min-width:60px;}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--grn),var(--cyan));border-radius:6px;}
+  .pct{width:54px;text-align:right;font-family:'Space Mono',monospace;font-weight:700;font-size:14px;color:var(--grn);}
+  .st{font-size:9px;letter-spacing:.5px;padding:3px 7px;border-radius:20px;white-space:nowrap;}
+  .detail{position:sticky;top:18px;background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:20px;}
+  .detail .dflag{font-size:46px;}
+  .detail h2{font-size:24px;margin:6px 0 2px;}
+  .detail .dsub{font-size:12px;color:var(--mut);font-family:'Space Mono',monospace;margin-bottom:14px;}
+  .detail .big{font-family:'Space Mono',monospace;font-size:38px;font-weight:700;color:var(--grn);line-height:1;}
+  .detail .biglbl{font-size:10px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-bottom:14px;}
+  .detail .alabel{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--grn);text-transform:uppercase;margin:14px 0 6px;}
+  .detail .atext{font-size:13.5px;line-height:1.6;color:#cdd6de;}
+  .detail .kv{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;border-top:1px solid var(--bd);}
+  .detail .kv span{color:var(--mut);}
+  .groups{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .gcard{background:var(--card);border:1px solid var(--bd);border-radius:11px;padding:12px;}
+  .gcard h4{font-size:11px;letter-spacing:1px;color:var(--mut);font-family:'Space Mono',monospace;margin-bottom:8px;}
+  .gcard .gt{display:flex;align-items:center;gap:7px;font-size:13px;padding:3px 0;}
+  .gcard .gt small{margin-left:auto;font-family:'Space Mono',monospace;color:var(--mut);}
+  .lead{color:var(--grn);} .hidden{display:none;}
+  footer{margin-top:26px;font-size:11px;color:var(--mut);line-height:1.7;}
+  footer a{color:var(--cyan);}
+</style></head>
+<body><div class="wrap">
+<header>
+  <div class="eye">HK23 · AGENTE PRO DE FÚTBOL</div>
+  <h1>Mundial 2026 — ¿Quién va quedando?</h1>
+  <div class="meta" id="meta">Snapshot · fase de grupos · 48 equipos · top 2 de cada grupo + 8 mejores terceros → Ronda de 32</div>
+</header>
+
+<div class="agent"><div class="who">Lectura del agente</div>
+  <p id="agent-read"></p></div>
+
+<div class="controls">
+  <div class="seg"><button id="v-prob" class="on" onclick="setView('prob')">Posibilidades</button><button id="v-grp" onclick="setView('grp')">Grupos</button></div>
+  <span style="flex:1"></span>
+  <button class="chip on" data-f="all" onclick="setFilter('all',this)">Todas</button>
+  <button class="chip" data-f="Clasificado" onclick="setFilter('Clasificado',this)">Clasificados</button>
+  <button class="chip" data-f="Liderando" onclick="setFilter('Liderando',this)">Líderes</button>
+</div>
+
+<div id="view-prob" class="layout">
+  <div id="ranking"></div>
+  <div class="detail" id="detail"></div>
+</div>
+
+<div id="view-grp" class="hidden">
+  <div class="groups" id="groups"></div>
+</div>
+
+<footer>
+  Snapshot al <b>21 jun 2026</b> · probabilidades de título del mercado (Kalshi/casas) · estados y líderes de grupo según prensa. <b>No es en vivo</b> — los datos cambian con cada partido (grupos hasta el 27 jun).<br>
+  Fuentes: <a href="https://www.covers.com/world-cup/odds" target="_blank">covers.com</a> · <a href="https://www.cbssports.com/soccer/news/world-cup-group-standings-table-results/" target="_blank">CBS Sports</a> · <a href="https://www.espn.com/soccer/story/_/id/48939282/" target="_blank">ESPN</a> · <a href="https://www.foxsports.com/stories/soccer/world-cup-2026-champion-odds" target="_blank">FOX Sports</a>
+</footer>
+</div>
+
+<script>
+const STATUS={Clasificado:{c:'#2bd66a',bg:'#0e2417',label:'CLASIFICADO'},Liderando:{c:'#39d0ff',bg:'#0c2531',label:'LIDERA GRUPO'},Disputa:{c:'#7d8a98',bg:'#161c22',label:'EN DISPUTA'}};
+const TEAMS=[
+ {n:'Francia',f:'🇫🇷',g:'I',prob:19.5,odds:'+413',st:'Liderando',a:'Favorita number 1 tras el 3-1 a Senegal. Plantel profundísimo y campeona reciente; comparte liderato con Noruega pero su techo es el más alto del torneo.'},
+ {n:'España',f:'🇪🇸',g:'?',prob:13.2,odds:'+658',st:'Disputa',a:'Perdió el trono de favorita tras empatar con Cabo Verde. Juego de toque de elite, pero necesita recuperar contundencia para no complicarse.'},
+ {n:'Inglaterra',f:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',g:'L',prob:12.9,odds:'+675',st:'Liderando',a:'Fondo de armario brutal y generación en su pico. Lidera con Ghana; la duda histórica sigue siendo cerrar en fases finales.'},
+ {n:'Argentina',f:'🇦🇷',g:'J',prob:10.8,odds:'+826',st:'Liderando',a:'Campeona defensora. Base 2022 + jerarquía ganadora, aunque Austria le iguala el grupo y deberá acelerar.'},
+ {n:'Portugal',f:'🇵🇹',g:'?',prob:7.1,odds:'+1308',st:'Disputa',a:'Talento ofensivo de sobra. Depende del equilibrio defensivo y del momento fino de sus figuras para pelear arriba.'},
+ {n:'Brasil',f:'🇧🇷',g:'C',prob:6.8,odds:'+1370',st:'Liderando',a:'Ganó 3-0 a Haití pero comparte liderato con Marruecos. Talento de sobra; la regularidad es lo que debe demostrar.'},
+ {n:'Alemania',f:'🇩🇪',g:'E',prob:6.2,odds:'+1513',st:'Clasificado',a:'Paso firme: 6 puntos y arriba en el Grupo E. Resurgir alemán — la candidata silenciosa que nadie quiere cruzar.'},
+ {n:'USA',f:'🇺🇸',g:'D',prob:5.5,odds:'+1718',st:'Clasificado',a:'Local y ya en octavos (6 pts, Grupo D). El empuje de jugar en casa la convierte en una outsider peligrosa.'},
+ {n:'Países Bajos',f:'🇳🇱',g:'F',prob:4.3,odds:'+2226',st:'Liderando',a:'Lidera el Grupo F y goleó 5-1. Oranje muy peligrosa en ataque si ajusta el orden defensivo.'},
+ {n:'Noruega',f:'🇳🇴',g:'I',prob:2.7,odds:'+3604',st:'Liderando',a:'La sorpresa: comparte liderato con Francia. Con Haaland en racha puede romper cualquier partido.'},
+ {n:'Marruecos',f:'🇲🇦',g:'C',prob:2.7,odds:'+3604',st:'Liderando',a:'Sigue la estela de su gesta 2022. Bloque sólido y orgullo; comparte la cima del Grupo C con Brasil.'},
+ {n:'México',f:'🇲🇽',g:'A',prob:2.0,odds:'+4900',st:'Clasificado',a:'Local, ganó el Grupo A (6 pts) y ya está en la Ronda de 32. El ambiente en casa lo empuja.'},
+ {n:'Colombia',f:'🇨🇴',g:'K',prob:1.8,odds:'+5456',st:'Liderando',a:'Líder del Grupo K con una generación talentosa. Outsider con mucho upside si mantiene el nivel.'},
+ {n:'Bélgica',f:'🇧🇪',g:'?',prob:1.6,odds:'+6150',st:'Disputa',a:'En pleno recambio generacional; menos favorita que en ciclos pasados, pero con individualidades de jerarquía.'},
+ {n:'Japón',f:'🇯🇵',g:'?',prob:1.4,odds:'+7043',st:'Disputa',a:'La mejor de Asia: intensidad, orden y velocidad. Capaz de dar un golpe a cualquier grande en un partido.'},
+];
+const GROUPS={A:['🇲🇽 México (líder)'],B:['🇨🇦 Canadá','🇨🇭 Suiza'],C:['🇧🇷 Brasil','🇲🇦 Marruecos'],D:['🇺🇸 USA (líder)'],E:['🇩🇪 Alemania (líder)'],F:['🇳🇱 Países Bajos (líder)'],G:['🇳🇿 N. Zelanda','🇮🇷 Irán'],H:['🇸🇦 Arabia S.','🇺🇾 Uruguay'],I:['🇳🇴 Noruega','🇫🇷 Francia'],J:['🇦🇷 Argentina','🇦🇹 Austria'],K:['🇨🇴 Colombia (líder)'],L:['🏴󠁧󠁢󠁥󠁮󠁧󠁿 Inglaterra','🇬🇭 Ghana']};
+
+document.getElementById('agent-read').textContent='Francia destronó a España como favorita (19.5% de título) tras golear a Senegal; España se frenó con Cabo Verde. Los anfitriones aprietan: México y USA ya están en octavos. Sorpresas vivas: Noruega (con Haaland) y Marruecos lideran sus grupos. Mi pick de valor ahora: Alemania, pasa desapercibida con paso perfecto. Aún no hay eliminados oficiales — los grupos cierran el 27 jun.';
+
+let filter='all', sel='Francia';
+function rankRows(){
+  const el=document.getElementById('ranking'); const max=TEAMS[0].prob;
+  const list=TEAMS.filter(t=>filter==='all'||t.st===filter);
+  el.innerHTML=list.map(t=>{ const s=STATUS[t.st]; return `<div class="row ${t.n===sel?'sel':''}" onclick="pick('${t.n}')">
+    <span class="flag">${t.f}</span>
+    <div style="width:108px"><div class="nm">${t.n}</div><div class="gp">Grupo ${t.g}</div></div>
+    <div class="bar"><i style="width:${Math.round(t.prob/max*100)}%"></i></div>
+    <span class="pct">${t.prob}%</span>
+    <span class="st" style="color:${s.c};background:${s.bg}">${s.label}</span>
+  </div>`; }).join('') || '<div style="color:#7d8a98;padding:14px">Sin equipos en este filtro.</div>';
+}
+function detail(){
+  const t=TEAMS.find(x=>x.n===sel)||TEAMS[0]; const s=STATUS[t.st];
+  document.getElementById('detail').innerHTML=`<div class="dflag">${t.f}</div>
+    <h2>${t.n}</h2><div class="dsub">Grupo ${t.g} · cuota ${t.odds}</div>
+    <div class="big">${t.prob}%</div><div class="biglbl">probabilidad de título</div>
+    <span class="st" style="color:${s.c};background:${s.bg};display:inline-block;margin-bottom:6px">${s.label}</span>
+    <div class="alabel">◉ El agente dice</div><div class="atext">${t.a}</div>
+    <div class="kv"><span>Probabilidad</span><b>${t.prob}%</b></div>
+    <div class="kv"><span>Cuota mercado</span><b>${t.odds}</b></div>
+    <div class="kv"><span>Estado</span><b style="color:${s.c}">${s.label}</b></div>`;
+}
+function pick(n){ sel=n; rankRows(); detail(); }
+function setFilter(f,btn){ filter=f; document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); btn.classList.add('on'); rankRows(); }
+function setView(v){ document.getElementById('v-prob').classList.toggle('on',v==='prob'); document.getElementById('v-grp').classList.toggle('on',v==='grp');
+  document.getElementById('view-prob').classList.toggle('hidden',v!=='prob'); document.getElementById('view-grp').classList.toggle('hidden',v!=='grp'); }
+function groupsView(){ document.getElementById('groups').innerHTML=Object.keys(GROUPS).map(g=>`<div class="gcard"><h4>GRUPO ${g}</h4>${GROUPS[g].map(t=>`<div class="gt ${t.includes('líder')?'lead':''}">${t}</div>`).join('')}</div>`).join(''); }
+rankRows(); detail(); groupsView();
+</script>
+</body></html>
