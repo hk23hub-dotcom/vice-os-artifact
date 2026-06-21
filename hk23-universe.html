@@ -6140,7 +6140,8 @@ loadQuotesThen(handleDeepLink);
       why:'El mundo de performance de rugby: cartas coleccionables, evaluación 1–5 y kick tracker. Tu deporte convertido en sistema — y la puerta al desbloqueo de mentes (arma tu XV).'},
     {id:'vicegolfer',label:'ViceGolfer',sub:'golf performance',status:'build',url:'',roadmap:'La app ya existe; falta conectarla como mundo (incr. 4).',
       why:'Performance de golf — el gemelo de Rugby Vice: mismo motor, otro deporte. El primer Vice que validó el sistema.'},
-    {id:'atlas-x',label:'ATLAS X',sub:'motor de IA',status:'live',url:'https://atlas-x-app.vercel.app',
+    {id:'atlas-x',label:'ATLAS X',sub:'motor de IA',status:'live',url:'https://atlas-x-app.vercel.app',gated:true,
+      roadmap:'Está EN VIVO, pero la app tiene candado de contraseña (Invalid/missing access password). Por eso no se abre directo: entra y mete tu clave, o quítale el password en Vercel para que abra libre.',
       why:'El motor de IA del universo — el cerebro que va a potenciar los agentes (priorizar, generar, analizar).'},
     {id:'cosmos',label:'Cosmos',sub:'front door',status:'live',url:'cosmos.html',
       why:'La puerta principal del universo — el front door coleccionable / marketplace.'},
@@ -6225,7 +6226,7 @@ loadQuotesThen(handleDeepLink);
       const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
     async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
     openWorld(id){ const w=WORLDS.find(x=>x.id===id); if(!w) return;
-      if(w.status==='live'&&w.url){ window.open(w.url,'_blank','noopener'); return; }
+      if(w.status==='live'&&w.url&&!w.gated){ window.open(w.url,'_blank','noopener'); return; }
       DASH.showWorld(w); },
     showWorld(w){ const s=WSTATUS[w.status]||WSTATUS.idea; const st=document.getElementById('wv-status');
       st.textContent=s.label; st.style.color=s.c; st.style.background=s.c+'22'; st.style.border='1px solid '+s.c+'55';
