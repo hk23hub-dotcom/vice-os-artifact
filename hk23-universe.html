@@ -6164,6 +6164,7 @@ loadQuotesThen(handleDeepLink);
     <div class="d-tab" id="dt-notes" onclick="DASH.tab('notes')">Notas</div>
     <div class="d-tab" id="dt-tasks" onclick="DASH.tab('tasks')">Tareas</div>
     <div class="d-tab" id="dt-worlds" onclick="DASH.tab('worlds')">Mundos</div>
+    <div class="d-tab" id="dt-projects" onclick="DASH.tab('projects')">Proyectos</div>
     <div class="d-tab" id="dt-admin" onclick="DASH.tab('admin')">Admin</div>
     <div class="d-tab" id="dt-exec" onclick="DASH.tab('exec')">Ejecutar</div>
   </div>
@@ -6208,6 +6209,9 @@ loadQuotesThen(handleDeepLink);
   // ── PUERTAS: cada nodo del universo tiene un destino asignable ──
   const UDEST_KEY='hk23-udest';
   let UDEST={}; try{ UDEST=JSON.parse(localStorage.getItem(UDEST_KEY)||'{}'); }catch(e){ UDEST={}; }
+  if(!UDEST['proj:projects_pl']) UDEST['proj:projects_pl']={type:'dashboard',value:'projects'};
+  const PROJ_STATUS={idea:{c:'#b06bff',label:'IDEA'},construyendo:{c:'#FFD200',label:'CONSTRUYENDO'},vivo:{c:'#2bd66a',label:'VIVO'},hecho:{c:'#39d0ff',label:'HECHO'}};
+  const PROJ_NEXT={idea:'construyendo',construyendo:'vivo',vivo:'hecho',hecho:'idea'};
   const saveDest=()=>localStorage.setItem(UDEST_KEY,JSON.stringify(UDEST));
   const DEST_TYPES=[['door','Puerta (info/idea)'],['url','Abrir link/mundo'],['dashboard','Pestaña dashboard'],['fractal','Red neural (vieja)'],['zone','Zona original']];
   const DEST_SHORT={door:'puerta',url:'link',dashboard:'dashboard',fractal:'red neural',zone:'zona'};
@@ -6245,7 +6249,7 @@ loadQuotesThen(handleDeepLink);
   const DASH={
     toggle(){ const p=panel(),f=document.getElementById('dash-fab'); p.classList.toggle('open'); f.classList.toggle('on'); if(p.classList.contains('open')) DASH.render(); },
     close(){ panel().classList.remove('open'); document.getElementById('dash-fab').classList.remove('on'); },
-    tab(t){ tab=t; ['overview','notes','tasks','worlds','admin','exec'].forEach(x=>document.getElementById('dt-'+x).classList.toggle('on',x===t)); DASH.render(); },
+    tab(t){ tab=t; ['overview','notes','tasks','worlds','projects','admin','exec'].forEach(x=>document.getElementById('dt-'+x).classList.toggle('on',x===t)); DASH.render(); },
     async render(){
       const b=body(); if(!b) return;
       if(tab==='overview'){ b.innerHTML='<div style="color:#6a6a78;font-size:11px">Cargando…</div>';
@@ -6302,6 +6306,24 @@ loadQuotesThen(handleDeepLink);
           <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">PLANETAS / PROYECTOS · ${projs.length}</div>
           ${projs.map(p=>row('proj:'+p.id, p.label, 'planeta')).join('')}`;
         return; }
+      if(tab==='projects'){ b.innerHTML=`<div class="d-sub">Tus proyectos · estado + progreso (persiste)</div>
+          <input id="d-proj" placeholder="Nuevo proyecto…"><button class="d-btn" onclick="DASH.projAdd()">＋ Proyecto</button>
+          <div id="d-projlist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const tracked=await readKind('project'); const byPid={};
+        tracked.forEach(t=>{ const pid=(t.meta&&t.meta.pid)||('c:'+t.id); byPid[pid]={id:t.id,status:(t.meta&&t.meta.status)||'idea',progress:+((t.meta&&t.meta.progress)||0),label:t.name}; });
+        const uni=(typeof PROJECTS!=='undefined'?PROJECTS:[]); const rows={};
+        uni.forEach(p=>{ const pid='u:'+p.id, t=byPid[pid]; rows[pid]={pid,label:p.label,status:t?t.status:'idea',progress:t?t.progress:0,id:t?t.id:null}; });
+        Object.keys(byPid).forEach(pid=>{ if(!rows[pid]){ const t=byPid[pid]; rows[pid]={pid,label:t.label,status:t.status,progress:t.progress,id:t.id}; } });
+        state.projRows=rows;
+        document.getElementById('d-projlist').innerHTML=Object.keys(rows).map(pid=>{ const r=rows[pid], s=PROJ_STATUS[r.status]||PROJ_STATUS.idea; return `<div class="d-card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(r.label)}</b><span class="d-pill" style="color:${s.c};background:${s.c}22" onclick="DASH.projCycle('${pid}')">${s.label} ↻</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
+            <div style="flex:1;height:7px;background:#0c1218;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${r.progress}%;background:${s.c};border-radius:6px"></i></div>
+            <span style="font-size:11px;color:${s.c};width:34px;text-align:right">${r.progress}%</span>
+            <button onclick="DASH.projProg('${pid}',-10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">−</button>
+            <button onclick="DASH.projProg('${pid}',10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">＋</button>
+          </div></div>`; }).join('');
+        return; }
     },
     async addNote(){ const el=document.getElementById('d-note'); const v=(el.value||'').trim(); if(!v) return; el.value='';
       const row=await add('note',{name:v.slice(0,48),summary:v,meta:{body:v}}); toast(row?'Nota guardada ✓ DB':'Error de red'); DASH.render(); },
@@ -6316,6 +6338,12 @@ loadQuotesThen(handleDeepLink);
     async cycle(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const st=(t.meta&&t.meta.status)||'pendiente'; const ns=NEXT[st];
       const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
     async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
+    async saveProj(pid,label,status,progress){ const r=state.projRows&&state.projRows[pid]; const meta={nh:'1',kind:'project',pid:pid,status:status,progress:progress};
+      if(r&&r.id){ await patch(r.id,{name:label,meta:meta}); } else { const row=await add('project',{name:label,meta:meta}); if(row&&state.projRows&&state.projRows[pid]) state.projRows[pid].id=row.id; }
+      toast('Proyecto guardado ✓'); DASH.render(); },
+    async projCycle(pid){ const r=state.projRows&&state.projRows[pid]; if(!r) return; await DASH.saveProj(pid,r.label,PROJ_NEXT[r.status]||'construyendo',r.progress); },
+    async projProg(pid,d){ const r=state.projRows&&state.projRows[pid]; if(!r) return; const np=Math.max(0,Math.min(100,r.progress+d)); await DASH.saveProj(pid,r.label,np>=100?'hecho':r.status,np); },
+    async projAdd(){ const el=document.getElementById('d-proj'); const v=(el.value||'').trim(); if(!v) return; el.value=''; const pid='c:'+Date.now(); state.projRows=state.projRows||{}; state.projRows[pid]={pid,label:v,status:'idea',progress:0,id:null}; await DASH.saveProj(pid,v,'idea',0); },
     openWorld(id){ const w=WORLDS.find(x=>x.id===id); if(!w) return;
       if(w.status==='live'&&w.url&&!w.gated){ window.open(w.url,'_blank','noopener'); return; }
       DASH.showWorld(w); },
