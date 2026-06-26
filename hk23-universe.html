@@ -3433,6 +3433,10 @@ function addCollectible(id, rarity) {
   toast.textContent = '✦ COLECCIONABLE DESBLOQUEADO' + suffix;
   toast.classList.add('show');
   setTimeout(() => toast.classList.remove('show'), 2800);
+  // hide the "I NEED MY GALAXY" CTA while the collectible toast shows (no overlap)
+  const cta = document.getElementById('galaxy-cta-btn');
+  if (cta) { cta.style.transition = 'opacity .3s'; cta.style.opacity = '0'; cta.style.pointerEvents = 'none';
+    clearTimeout(cta._hideH); cta._hideH = setTimeout(() => { cta.style.opacity = ''; cta.style.pointerEvents = ''; }, 3200); }
 }
 
 // Route a quote (or its target id) to the right destination: drillable
@@ -6052,6 +6056,89 @@ loadQuotesThen(handleDeepLink);
   function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
   window.NH=NH;
   window.__nhToast = NH.toast;
+})();
+</script>
+<!-- ═══════════ HK23 Modo Juegos — arcade overlay (additive) ═══════════ -->
+<style>
+  #games-launch{position:fixed;inset:0;z-index:9500;background:rgba(5,5,9,.82);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;font-family:'Space Mono',monospace;}
+  #games-launch.open{display:flex;}
+  #games-launch .gl-card{text-align:center}
+  #games-launch .gl-eye{font-size:11px;letter-spacing:4px;color:#39d0ff;margin-bottom:14px}
+  #games-launch input{width:340px;max-width:80vw;background:#0e0e16;border:1px solid #2a2a36;border-bottom:2px solid #39d0ff;color:#fff;font-family:inherit;font-size:20px;text-align:center;padding:14px;border-radius:10px;outline:none;text-transform:lowercase}
+  #games-launch .gl-hint{margin-top:14px;font-size:11px;color:#6a6a78;letter-spacing:1px}
+  #games-launch .gl-hint b{color:#FFD200}
+  #game-stage{position:fixed;inset:0;z-index:9600;background:radial-gradient(120% 90% at 50% 0%,#0c1018,#05060a 70%);display:none;flex-direction:column;align-items:center;justify-content:center;font-family:'Space Mono',monospace;color:#e6e6ee}
+  #game-stage.open{display:flex}
+  #game-stage .gs-top{position:absolute;top:18px;left:0;right:0;display:flex;align-items:center;justify-content:center;gap:16px}
+  #game-stage .gs-title{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:2px}
+  #game-stage .gs-btn{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:#cdd;background:rgba(10,10,16,.7);border:1px solid #2a2a36;border-radius:20px;padding:8px 14px;cursor:pointer}
+  #game-stage .gs-btn.on{border-color:#2bd66a;color:#2bd66a}
+  #game-stage .gs-score{position:absolute;top:60px;font-size:13px;letter-spacing:2px;color:#FFD200}
+  #game-stage .gs-foot{position:absolute;bottom:22px;font-size:10px;letter-spacing:1px;color:#6a6a78}
+</style>
+<div id="games-launch"><div class="gl-card">
+  <div class="gl-eye">◈ HK23 ARCADE</div>
+  <input id="gl-input" placeholder="escribe un juego…" autocomplete="off">
+  <div class="gl-hint">disponibles: <b>tetris</b> · <b>pacman</b> (pronto) · <span style="color:#555">enter para jugar · esc para salir</span></div>
+</div></div>
+<div id="game-stage">
+  <div class="gs-top"><span class="gs-title" id="gs-title">TETRIS</span>
+    <span class="gs-btn on" id="gs-auto" onclick="GAMES.toggleAuto()">AUTO</span>
+    <span class="gs-btn" onclick="GAMES.exit()">✕ SALIR</span></div>
+  <div class="gs-score" id="gs-score">0</div>
+  <canvas id="game-canvas"></canvas>
+  <div class="gs-foot" id="gs-foot">← → mover · ↑ rotar · ↓ bajar · espacio: drop</div>
+</div>
+<script>
+(function(){
+  const launch=document.getElementById('games-launch'), input=document.getElementById('gl-input'), stage=document.getElementById('game-stage');
+  function openLauncher(){ launch.classList.add('open'); input.value=''; setTimeout(()=>input.focus(),50); }
+  function closeLauncher(){ launch.classList.remove('open'); }
+  window.addEventListener('keydown',e=>{ const tn=(e.target&&e.target.tagName||'').toLowerCase();
+    if((e.key==='j'||e.key==='J')&&tn!=='input'&&tn!=='textarea'&&tn!=='select'&&!stage.classList.contains('open')){ e.preventDefault(); openLauncher(); }
+    if(e.key==='Escape'){ closeLauncher(); if(stage.classList.contains('open')) GAMES.exit(); } });
+  input.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const g=input.value.trim().toLowerCase(); closeLauncher(); GAMES.play(g); } });
+
+  // ── TETRIS ──
+  const COLS=10,ROWS=20,CELL=26;
+  const SHAPES={I:[[1,1,1,1]],O:[[1,1],[1,1]],T:[[0,1,0],[1,1,1]],S:[[0,1,1],[1,1,0]],Z:[[1,1,0],[0,1,1]],J:[[1,0,0],[1,1,1]],L:[[0,0,1],[1,1,1]]};
+  const COLORS={I:'#39d0ff',O:'#FFD200',T:'#b06bff',S:'#2bd66a',Z:'#ff5b6b',J:'#FF6600',L:'#FF2D78'};
+  const KEYS=Object.keys(SHAPES);
+  let grid,cur,ck,cx,cy,score,timer,auto=true,plan=null,cvs,ctx,raf,lastDrop=0;
+  function reset(){ grid=Array.from({length:ROWS},()=>Array(COLS).fill('')); score=0; spawn(); }
+  function rot(m){ return m[0].map((_,i)=>m.map(r=>r[i]).reverse()); }
+  function collide(m,px,py){ for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++){ if(!m[y][x])continue; const gx=px+x,gy=py+y; if(gx<0||gx>=COLS||gy>=ROWS||(gy>=0&&grid[gy][gx]))return true; } return false; }
+  function merge(){ for(let y=0;y<cur.length;y++)for(let x=0;x<cur[y].length;x++){ if(cur[y][x]&&cy+y>=0) grid[cy+y][cx+x]=ck; } }
+  function clearLines(){ let n=0; for(let y=ROWS-1;y>=0;y--){ if(grid[y].every(c=>c)){ grid.splice(y,1); grid.unshift(Array(COLS).fill('')); n++; y++; } } if(n){ score+=[0,40,100,300,1200][n]; document.getElementById('gs-score').textContent=score; } }
+  function spawn(){ ck=KEYS[Math.floor(Math.random()*KEYS.length)]; cur=SHAPES[ck].map(r=>r.slice()); cx=((COLS/2)|0)-((cur[0].length/2)|0); cy=-cur.length; if(auto) computePlan(); }
+  // simple AI: pick rotation+column minimizing height+holes+bumpiness
+  function evalGrid(g){ let h=0,holes=0,agg=0,heights=[]; for(let x=0;x<COLS;x++){ let top=-1; for(let y=0;y<ROWS;y++){ if(g[y][x]){ if(top<0)top=y; } } const colH=top<0?0:ROWS-top; heights.push(colH); agg+=colH; for(let y=top<0?ROWS:top;y<ROWS;y++){ if(top>=0&&!g[y][x])holes++; } } let bump=0; for(let x=0;x<COLS-1;x++)bump+=Math.abs(heights[x]-heights[x+1]); return -0.51*agg -0.36*holes -0.18*bump; }
+  function computePlan(){ let best=-1e9,bestRot=0,bestX=cx; let m=cur.map(r=>r.slice());
+    for(let r=0;r<4;r++){ for(let px=-2;px<COLS;px++){ if(collide(m,px,0)&&!collide(m,px,-m.length)){} let py=-m.length; if(collide(m,px,py)){continue;} while(!collide(m,px,py+1))py++; if(py<0)continue; // simulate
+        const g=grid.map(row=>row.slice()); for(let y=0;y<m.length;y++)for(let x=0;x<m[y].length;x++){ if(m[y][x]&&py+y>=0)g[py+y][px+x]=ck; }
+        const s=evalGrid(g); if(s>best){ best=s; bestRot=r; bestX=px; } }
+      m=rot(m); }
+    plan={rot:bestRot,x:bestX,curRot:0}; }
+  function step(){ if(auto&&plan){ if(plan.curRot<plan.rot){ const nm=rot(cur); if(!collide(nm,cx,cy)){cur=nm;} plan.curRot++; return; } if(cx<plan.x&&!collide(cur,cx+1,cy)){cx++;return;} if(cx>plan.x&&!collide(cur,cx-1,cy)){cx--;return;} }
+    if(!collide(cur,cx,cy+1)){ cy++; } else { if(cy<0){ reset(); return; } merge(); clearLines(); spawn(); } }
+  function draw(){ if(!ctx)return; ctx.clearRect(0,0,cvs.width,cvs.height);
+    ctx.fillStyle='#0a0d12'; ctx.fillRect(0,0,cvs.width,cvs.height);
+    ctx.strokeStyle='#141a22'; for(let x=0;x<=COLS;x++){ctx.beginPath();ctx.moveTo(x*CELL,0);ctx.lineTo(x*CELL,ROWS*CELL);ctx.stroke();} for(let y=0;y<=ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*CELL);ctx.lineTo(COLS*CELL,y*CELL);ctx.stroke();}
+    function cell(x,y,c){ ctx.fillStyle=c; ctx.fillRect(x*CELL+1,y*CELL+1,CELL-2,CELL-2); ctx.fillStyle='rgba(255,255,255,.18)'; ctx.fillRect(x*CELL+1,y*CELL+1,CELL-2,4); }
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){ if(grid[y][x])cell(x,y,COLORS[grid[y][x]]); }
+    for(let y=0;y<cur.length;y++)for(let x=0;x<cur[y].length;x++){ if(cur[y][x]&&cy+y>=0)cell(cx+x,cy+y,COLORS[ck]); } }
+  function loop(t){ if(!stage.classList.contains('open'))return; if(t-lastDrop> (auto?70:520)){ step(); lastDrop=t; } draw(); raf=requestAnimationFrame(loop); }
+
+  const GAMES={
+    play(g){ if(g==='tetris'){ GAMES.tetris(); } else if(g==='pacman'){ if(window.__nhToast)__nhToast('Pacman: próximamente 🟡'); else alert('Pacman: próximamente'); } else { if(window.__nhToast)__nhToast('Juego no encontrado: '+g); } },
+    tetris(){ document.getElementById('gs-title').textContent='TETRIS'; document.getElementById('gs-foot').style.display=auto?'none':''; stage.classList.add('open');
+      cvs=document.getElementById('game-canvas'); cvs.width=COLS*CELL; cvs.height=ROWS*CELL; cvs.style.cssText='border-radius:8px;box-shadow:0 0 50px rgba(57,208,255,.18)'; ctx=cvs.getContext('2d');
+      reset(); lastDrop=0; cancelAnimationFrame(raf); raf=requestAnimationFrame(loop); },
+    toggleAuto(){ auto=!auto; const b=document.getElementById('gs-auto'); b.classList.toggle('on',auto); b.textContent=auto?'AUTO':'MANUAL'; document.getElementById('gs-foot').style.display=auto?'none':''; if(auto&&cur)computePlan(); },
+    exit(){ stage.classList.remove('open'); cancelAnimationFrame(raf); },
+  };
+  window.GAMES=GAMES;
+  window.addEventListener('keydown',e=>{ if(!stage.classList.contains('open')||auto)return; if(e.key==='ArrowLeft'){ if(!collide(cur,cx-1,cy))cx--; e.preventDefault(); } else if(e.key==='ArrowRight'){ if(!collide(cur,cx+1,cy))cx++; e.preventDefault(); } else if(e.key==='ArrowUp'){ const nm=rot(cur); if(!collide(nm,cx,cy))cur=nm; e.preventDefault(); } else if(e.key==='ArrowDown'){ if(!collide(cur,cx,cy+1))cy++; e.preventDefault(); } else if(e.key===' '){ while(!collide(cur,cx,cy+1))cy++; e.preventDefault(); } });
 })();
 </script>
 <!-- ═══════════ HK23 Modo Manipular — drag planets (additive) ═══════════ -->
