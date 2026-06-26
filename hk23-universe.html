@@ -6375,7 +6375,7 @@ loadQuotesThen(handleDeepLink);
           <div class="d-card soon" style="opacity:.55">▶ Generar con ATLAS X &nbsp;·&nbsp; <span style="color:#6a6a78">requiere Action Runner (incr. 2)</span></div>`;
         return; }
       if(tab==='admin'){
-        const gals=(typeof NODES!=='undefined'?NODES:[]), projs=(typeof PROJECTS!=='undefined'?PROJECTS:[]);
+        const gals=(typeof NODES!=='undefined'?NODES:[]), projs=(typeof PROJECTS!=='undefined'?PROJECTS:[]), nexus=(typeof NEXUS_ORBITERS!=='undefined'?NEXUS_ORBITERS:[]);
         const opt=(sel)=>DEST_TYPES.map(t=>`<option value="${t[0]}"${t[0]===(sel||'door')?' selected':''}>${t[1]}</option>`).join('');
         const istyle="background:#0e0e16;border:1px solid #20202c;color:#cdd;border-radius:7px;padding:6px;font-size:11px;font-family:inherit";
         const row=(id,label,kind)=>{ const d=UDEST[id]||{}; return `<div class="d-card" style="padding:10px 11px">
@@ -6391,7 +6391,9 @@ loadQuotesThen(handleDeepLink);
           <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">GALAXIAS · ${gals.length}</div>
           ${gals.map(g=>row('gal:'+g.id, g.label, 'galaxia')).join('')}
           <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">PLANETAS / PROYECTOS · ${projs.length}</div>
-          ${projs.map(p=>row('proj:'+p.id, p.label, 'planeta')).join('')}`;
+          ${projs.map(p=>row('proj:'+p.id, p.label, 'planeta')).join('')}
+          <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">ORBITADORES · ${nexus.length}</div>
+          ${nexus.map(n=>row('nexus:'+n.id, n.label, 'orbitador')).join('')}`;
         return; }
       if(tab==='projects'){ b.innerHTML=`<div class="d-sub">Tus proyectos · estado + progreso (persiste)</div>
           <input id="d-proj" placeholder="Nuevo proyecto…"><button class="d-btn" onclick="DASH.projAdd()">＋ Proyecto</button>
@@ -6454,6 +6456,17 @@ loadQuotesThen(handleDeepLink);
   try{
     if(typeof openFractalUniverse==='function'){ DASH._origFractal=openFractalUniverse; window.openFractalUniverse=function(project){ routeNode('proj:'+project.id, project); }; }
     if(typeof goTo==='function'){ DASH._origGoTo=goTo; window.goTo=function(id){ if(UDEST['gal:'+id]){ const g=(typeof NODES!=='undefined')?NODES.find(n=>n.id===id):null; routeNode('gal:'+id, g); return; } return DASH._origGoTo(id); }; }
+  }catch(e){}
+  // ── QUE TODO FUNCIONE: orbitadores + lunas flotantes → abren su puerta (no más clicks muertos) ──
+  try{
+    const mc=(typeof mapCanvas!=='undefined'&&mapCanvas)||null;
+    if(mc){ mc.addEventListener('click',function(e){
+      if(window.MOVE&&window.MOVE.on&&window.MOVE.on()) return;
+      const mx=e.clientX,my=e.clientY; let hit=null;
+      if(typeof NEXUS_ORBITERS!=='undefined'){ for(const n of NEXUS_ORBITERS){ if(Math.hypot(mx-n.px,my-n.py)<((n.size||10)+12)){ hit={id:'nexus:'+n.id,label:n.label}; break; } } }
+      if(!hit&&typeof ORBITAL_MOONS!=='undefined'){ for(const pid in ORBITAL_MOONS){ for(const m of ORBITAL_MOONS[pid]){ if(m.px&&Math.hypot(mx-m.px,my-m.py)<((m.sz||5)+12)){ hit={id:'moon:'+pid+'/'+((m.label||'').replace(/\s+/g,'-')),label:(m.label||'').replace(/\n/g,' ')}; break; } } if(hit)break; } }
+      if(hit){ e.stopImmediatePropagation(); e.preventDefault(); routeNode(hit.id,{label:hit.label}); }
+    },true); }
   }catch(e){}
 })();
 </script>
