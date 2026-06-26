@@ -6265,6 +6265,7 @@ loadQuotesThen(handleDeepLink);
   <div class="wv-why-label">Por qué está en el universo</div>
   <div class="wv-why" id="wv-why"></div>
   <div class="wv-road" id="wv-road"></div>
+  <div id="wv-list"></div>
   <div id="wv-actions"></div>
 </div></div>
 <script>
@@ -6446,10 +6447,35 @@ loadQuotesThen(handleDeepLink);
     setDest(id){ const ts=document.getElementById('ad-t-'+id), vs=document.getElementById('ad-v-'+id); if(!ts) return;
       UDEST[id]={type:ts.value, value:(vs.value||'').trim()}; saveDest(); toast('Destino asignado ✓'); DASH.render(); },
     newGalaxy(){ if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
-    showDoor(id, obj){ const label=(obj&&obj.label)||id, sub=(obj&&obj.sub)||'planeta del universo', d=UDEST[id];
-      DASH.showWorld({ label:label, sub:sub, status:'idea', url:'',
-        why:(d&&d.type==='door'&&d.value)? d.value : ((obj&&obj.universe&&obj.universe.title)? obj.universe.title : 'Este planeta es una puerta. Asígnale un destino real (dashboard, link o mundo) desde el Admin Board.'),
-        roadmap:'⚙ Admin Board → asignar destino a "'+label+'"'}); },
+    showDoor(id, obj){ obj=obj||(DASH._doorObj&&DASH._doorObj[id]); DASH._doorObj=DASH._doorObj||{}; if(obj) DASH._doorObj[id]=obj;
+      const label=(obj&&obj.label)||id; const uni=obj&&obj.universe; const nodes=(uni&&uni.nodes)||[];
+      const st=document.getElementById('wv-status'); st.textContent=id.indexOf('proj:')===0?'PLANETA':id.indexOf('gal:')===0?'GALAXIA':id.indexOf('nexus:')===0?'ORBITADOR':'NODO';
+      st.style.color='#39d0ff'; st.style.background='#39d0ff22'; st.style.border='1px solid #39d0ff55';
+      document.getElementById('wv-title').textContent=label;
+      document.getElementById('wv-sub').textContent=(uni&&uni.title)||(obj&&obj.sub)||'planeta del universo';
+      document.getElementById('wv-road').style.display='none';
+      const lbl=document.querySelector('#world-view .wv-why-label'), why=document.getElementById('wv-why'), list=document.getElementById('wv-list');
+      if(nodes.length){
+        lbl.textContent='Contenido · '+nodes.length+' dentro'; why.textContent='Entra a cualquiera para ver su ficha completa.';
+        list.innerHTML=nodes.map((n,i)=>{ const d=n.detail||{}; const sc={live:'#2bd66a',build:'#FFD200',soon:'#b06bff'}[d.status]||'#6a6a78'; return `<div onclick="DASH.showFicha('${id}',${i})" style="display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #20202c;border-radius:9px;margin-top:7px;cursor:pointer" onmouseover="this.style.borderColor='#39d0ff'" onmouseout="this.style.borderColor='#20202c'"><span style="width:7px;height:7px;border-radius:50%;background:${n.color||sc};flex-shrink:0"></span><span style="flex:1;font-size:13px">${((d.title||n.label||'')+'').replace(/\\n/g,' ')}</span><span style="font-size:9px;letter-spacing:1px;color:${sc}">${(d.status||'').toUpperCase()}</span><span style="color:#39d0ff">→</span></div>`; }).join('');
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>';
+      } else {
+        lbl.textContent='Qué es'; why.textContent=(obj&&obj.sub)||'Este nodo aún no tiene contenido. Asígnale un destino desde el Admin Board.'; list.innerHTML='';
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
+      }
+      document.getElementById('world-view').classList.add('open'); },
+    showFicha(id, idx){ const obj=DASH._doorObj&&DASH._doorObj[id]; if(!obj||!obj.universe) return; const n=obj.universe.nodes[idx]; if(!n) return; const d=n.detail||{};
+      const benef=Array.isArray(d.benefits)?d.benefits.join(' · '):(d.benefits||''); const stats=Array.isArray(d.stats)?d.stats.join(' · '):(d.stats||'');
+      const st=document.getElementById('wv-status'); const sc={live:'#2bd66a',build:'#FFD200',soon:'#b06bff'}[d.status]||'#39d0ff';
+      st.textContent=(d.status||'NODO').toUpperCase(); st.style.color=sc; st.style.background=sc+'22'; st.style.border='1px solid '+sc+'55';
+      document.getElementById('wv-title').textContent=((d.title||n.label||'')+'').replace(/\n/g,' ');
+      document.getElementById('wv-sub').textContent=(d.eyebrow||obj.label||'');
+      document.querySelector('#world-view .wv-why-label').textContent='Detalle';
+      document.getElementById('wv-why').innerHTML=(d.desc||'')+(d.howTo?('<br><br><b style="color:#39d0ff">Cómo:</b> '+d.howTo):'')+(benef?('<br><br><b style="color:#39d0ff">Beneficios:</b> '+benef):'')+(stats?('<br><br><b style="color:#39d0ff">Stats:</b> '+stats):'');
+      document.getElementById('wv-list').innerHTML='';
+      const acts=[]; if(d.link) acts.push('<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open(\''+d.link+'\',\'_blank\',\'noopener\')">'+(d.action||'Abrir')+' →</button>');
+      acts.push('<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.showDoor(\''+id+'\')">← Volver</button>');
+      document.getElementById('wv-actions').innerHTML=acts.join(''); },
   };
   window.DASH=DASH;
   // ── PUERTAS: interceptar clicks de planetas (sin red neural por default) y galaxias ──
