@@ -63,7 +63,7 @@
   #backdrop.open{opacity:1;pointer-events:auto;}
 
   /* ---------- SHORTCUT + HEATMAP WORLD ---------- */
-  #hmbtn{position:fixed;bottom:24px;left:24px;z-index:15;pointer-events:auto;cursor:pointer;
+  #hmbtn{position:fixed;bottom:24px;left:24px;z-index:52;pointer-events:auto;cursor:pointer;
     font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#cdd;
     background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:11px 18px;
     opacity:0;transition:opacity 2s ease 1s,background .2s,color .2s;}
@@ -85,7 +85,7 @@
   .tile .tp{font-family:'Space Mono',monospace;font-size:10px;color:#AAFF00;margin-top:3px;font-weight:700;}
 
   /* ---------- CMDS COMMAND PALETTE ---------- */
-  #cmdsbtn{position:fixed;bottom:24px;right:24px;z-index:15;pointer-events:auto;cursor:pointer;font-family:'Space Mono',monospace;
+  #cmdsbtn{position:fixed;bottom:24px;right:24px;z-index:52;pointer-events:auto;cursor:pointer;font-family:'Space Mono',monospace;
     font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#cdd;background:rgba(255,255,255,.05);
     border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:11px 18px;opacity:0;transition:opacity 2s ease 1s,background .2s,color .2s;}
   #cmdsbtn.in{opacity:1;} #cmdsbtn:hover{background:rgba(255,255,255,.12);color:#fff;}
@@ -172,6 +172,11 @@
 </section>
 
 <button id="cmdsbtn">⌘ CMDS</button>
+<a id="gridbtn" href="grid.html" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:53;text-decoration:none;
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#020207;font-weight:700;
+  background:#AAFF00;border:1px solid #AAFF00;border-radius:30px;padding:11px 20px;box-shadow:0 0 30px -6px #AAFF0099;transition:transform .2s,box-shadow .2s;"
+  onmouseover="this.style.transform='translateX(-50%) translateY(-2px)';this.style.boxShadow='0 0 40px 0 #AAFF00cc'"
+  onmouseout="this.style.transform='translateX(-50%)';this.style.boxShadow='0 0 30px -6px #AAFF0099'">▦ THE GRID</a>
 <div id="cmds"><div id="cmds-box"></div></div>
 <div id="toast"></div>
 
@@ -371,6 +376,7 @@ async function load(){ try{
 
   const stats=[['1','COSMOS'],[mv||1,'MULTIVERSE'],[gal||4,'GALAXIES'],[sys||14,'SYSTEMS'],[node||11,'NODES']];
   document.getElementById('stats').innerHTML=stats.map(s=>'<div class="s"><div class="n">'+s[0]+'</div><div class="l">'+s[1]+'</div></div>').join('');
+  openBrain(); // neural brain is the front door; cosmos is one toggle away (CMDS → Cosmos / Orbit)
 }catch(e){ console.warn(e);
   document.getElementById('stats').innerHTML=[['1','COSMOS'],['1','MULTIVERSE'],['4','GALAXIES'],['14','SYSTEMS'],['11','NODES']]
     .map(s=>'<div class="s"><div class="n">'+s[0]+'</div><div class="l">'+s[1]+'</div></div>').join(''); } }
@@ -465,11 +471,13 @@ function toast(msg){ const el=document.getElementById('toast'); el.textContent=m
   clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),2200); }
 function cmdRow(color,name,sub,expr,soon){return '<div class="cmd'+(soon?' soon':'')+'" onclick="closeCmds();'+expr+'"><span class="dot" style="color:'+color+';background:'+color+'"></span><span class="nm">'+name+'<small>'+sub+'</small></span></div>';}
 function buildCmds(){ const box=document.getElementById('cmds-box');
-  let h='<h3>Galaxies</h3>';
-  h+=cmdRow('#fff','All Systems','show the whole cosmos','setGalaxy(null)');
+  let h='<h3>Views</h3>';
+  h+=cmdRow('#6ea8ff','◈ Neural Brain','your work as a living brain','openBrain()');
+  h+=cmdRow('#FF3A1F','✦ Cosmos / Orbit','the orbital marketplace view','closeBrain()');
+  h+='<h3>Galaxies</h3>';
+  h+=cmdRow('#fff','All Systems','show everything','setGalaxy(null)');
   GALAXIES.forEach(g=>{ h+=cmdRow(g.color,g.name,'isolate this galaxy',"setGalaxy('"+g.slug+"')"); });
   h+='<h3>Powers</h3>';
-  h+=cmdRow('#6ea8ff','◈ Neural Brain','your work as a living brain','openBrain()');
   h+=cmdRow('#FFD200','▦ Portfolio Heatmap','treemap of everything by importance','openHeatmap()');
   h+=cmdRow('#B84DFF','⬡ Swarm Art','particles morph into your art','startSwarm()');
   h+=cmdRow('#5b3fb0','● Black Hole','consume stalled entities','blackHole()');
@@ -639,7 +647,9 @@ function animateBrain(){ if(!brainActive)return; const ctx=brainCtx, W=innerWidt
       ctx.fillStyle='rgba(255,235,180,'+(hot?0.9:0.4)+')'; ctx.beginPath();ctx.arc(px,py,hot?2:1.3,0,6.3);ctx.fill(); } });
   brainFiller.forEach(f=>{ const x=brainCx+(f.x-brainCx)*breathe,y=brainCy+(f.y-brainCy)*breathe;
     ctx.fillStyle=hexA(f.c,f.base*(0.6+0.4*Math.sin(brainT*1.6+f.tw))); ctx.beginPath();ctx.arc(x,y,f.r,0,6.3);ctx.fill(); });
-  brainNodes.forEach(n=>{ const x=BX(n),y=BY(n); n.sx=x;n.sy=y; const hl=(n===brainHover);
+  brainNodes.forEach(n=>{ const x=BX(n),y=BY(n);
+    if(activeGalaxy && n.e.galaxySlug!==activeGalaxy){ n.sx=null; ctx.fillStyle=hexA(n.e.color,.12); ctx.beginPath();ctx.arc(x,y,1.5,0,6.3);ctx.fill(); return; }
+    n.sx=x;n.sy=y; const hl=(n===brainHover);
     const pr=n.r*(hl?1.5:1)*(1+0.12*Math.sin(brainT*2+n.pulse));
     const g=ctx.createRadialGradient(x,y,0,x,y,pr*3); g.addColorStop(0,hexA(n.e.color,hl?0.9:0.55));g.addColorStop(1,hexA(n.e.color,0));
     ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,pr*3,0,6.3);ctx.fill();

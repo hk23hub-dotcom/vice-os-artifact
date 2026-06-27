@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Albatros — Torneos de nivel federación, en un día</title>
+<meta name="description" content="Sistema de torneos para clubes de golf: handicap de cancha automático, categorías por edad y leaderboard en vivo por QR.">
+<meta property="og:title" content="Torneos de nivel federación, en un día">
+<meta property="og:description" content="Handicap automático, categorías por edad y leaderboard en vivo por QR. Una fracción del precio.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--gold:#C6A15B;--gold2:#d4b070;--bg:#070707;--surf:#121210;--line:rgba(245,245,245,0.08);--cream:#F5F5F5;--mut:#8d8d83;--green:#4ade80;--red:#ef4444;
+    --F:'Montserrat',sans-serif;--B:'Bebas Neue',sans-serif;--I:'Inter',sans-serif;}
+  body{background:var(--bg);color:var(--cream);font-family:var(--F);-webkit-font-smoothing:antialiased;line-height:1.5;
+    background-image:radial-gradient(circle at 50% -8%,rgba(198,161,91,0.10),transparent 55%);}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:960px;margin:0 auto;padding:40px 22px 90px;}
+
+  .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:60px;}
+  .brand{font-family:var(--B);font-size:26px;letter-spacing:0.05em;}
+  .brand b{color:var(--gold);font-weight:400;}
+  .top .tag{font-size:9px;letter-spacing:0.24em;color:var(--mut);text-transform:uppercase;}
+
+  .hero{text-align:center;margin-bottom:54px;}
+  .kick{font-size:11px;font-weight:700;letter-spacing:0.32em;color:var(--gold);text-transform:uppercase;margin-bottom:18px;}
+  h1{font-family:var(--B);font-size:clamp(46px,9vw,92px);line-height:0.9;letter-spacing:0.01em;}
+  h1 .g{color:var(--gold);}
+  .lead{font-size:15px;color:var(--mut);max-width:560px;margin:24px auto 0;line-height:1.7;}
+  .lead b{color:var(--cream);}
+
+  /* QR card */
+  .qrcard{display:flex;gap:26px;align-items:center;justify-content:center;flex-wrap:wrap;
+    background:var(--surf);border:1px solid var(--line);border-radius:18px;padding:28px 30px;margin:0 auto 60px;max-width:620px;}
+  .qrbox{background:#fff;border-radius:12px;padding:12px;flex-shrink:0;}
+  .qrbox svg{display:block;width:170px;height:170px;}
+  .qrtxt{text-align:left;min-width:200px;}
+  .qrtxt .k{font-size:10px;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;font-weight:700;}
+  .qrtxt .h{font-family:var(--B);font-size:30px;letter-spacing:0.03em;margin:6px 0 8px;line-height:1;}
+  .qrtxt p{font-size:12.5px;color:var(--mut);line-height:1.6;}
+  .qrtxt .url{display:inline-block;margin-top:14px;font-family:var(--I);font-size:13px;font-weight:500;color:#0A0A0A;background:var(--gold);
+    border-radius:30px;padding:11px 20px;letter-spacing:0.02em;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-bottom:60px;}
+  .feat{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:20px;}
+  .feat .bar{width:30px;height:3px;background:var(--gold);border-radius:3px;margin-bottom:13px;}
+  .feat h3{font-family:var(--F);font-size:14px;font-weight:700;margin-bottom:7px;}
+  .feat p{font-size:12.5px;color:var(--mut);line-height:1.6;}
+
+  /* comparison */
+  .vs{background:var(--surf);border:1px solid rgba(198,161,91,0.25);border-radius:18px;padding:30px;text-align:center;margin-bottom:54px;}
+  .vs .t{font-family:var(--B);font-size:clamp(24px,4vw,34px);letter-spacing:0.03em;margin-bottom:8px;}
+  .vs .t .g{color:var(--gold);}
+  .vs .s{font-size:13px;color:var(--mut);max-width:540px;margin:0 auto 22px;line-height:1.7;}
+  .vs .s b{color:var(--cream);}
+  .stats{display:flex;justify-content:center;gap:clamp(20px,6vw,54px);flex-wrap:wrap;}
+  .stat .n{font-family:var(--B);font-size:34px;color:var(--gold);line-height:1;}
+  .stat .l{font-size:9px;letter-spacing:0.14em;color:var(--mut);text-transform:uppercase;margin-top:5px;}
+
+  .cta{text-align:center;}
+  .cta a{display:inline-block;font-family:var(--F);font-size:13px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+    color:#0A0A0A;background:var(--gold);border-radius:6px;padding:17px 36px;transition:transform .2s,box-shadow .2s;}
+  .cta a:hover{transform:translateY(-2px);box-shadow:0 12px 40px -10px rgba(198,161,91,0.6);}
+  .foot{text-align:center;font-family:var(--B);font-size:16px;letter-spacing:0.18em;color:var(--gold);margin-top:54px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand">ALBA<b>TROS</b></div>
+    <div class="tag">Sistema de torneos para clubes</div>
+  </div>
+
+  <section class="hero">
+    <div class="kick">Para tu club de golf</div>
+    <h1>TORNEOS DE NIVEL<br><span class="g">FEDERACIÓN</span>, EN UN DÍA</h1>
+    <p class="lead">Handicap de cancha automático, categorías por edad y un <b>leaderboard en vivo por QR</b>. Todo lo que necesitas para correr torneos profesionales — <b>sin la licencia de millones</b>.</p>
+  </section>
+
+  <section class="qrcard">
+    <div class="qrbox">
+      <svg viewBox="0 0 370 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR a la app de torneos"><g transform="scale(10)"><path fill="#fff" d="M0 0h37v37h-37z"/><path class="qrline" stroke="#0a0a0a" d="M2 2.5h7m2 0h1m1 0h1m1 0h1m2 0h1m2 0h2m1 0h1m1 0h1m1 0h7m-33 1h1m5 0h1m2 0h1m1 0h1m2 0h4m2 0h3m1 0h1m1 0h1m5 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m1 0h3m1 0h1m3 0h1m1 0h1m1 0h2m1 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m1 0h2m4 0h2m1 0h2m1 0h2m1 0h1m2 0h1m1 0h3m1 0h1m-33 1h1m1 0h3m1 0h1m3 0h3m1 0h4m4 0h3m1 0h1m1 0h3m1 0h1m-33 1h1m5 0h1m2 0h2m1 0h4m1 0h2m1 0h2m1 0h1m2 0h1m5 0h1m-33 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-24 1h2m1 0h3m1 0h1m1 0h1m5 0h1m-22 1h2m1 0h2m1 0h1m1 0h2m3 0h1m7 0h1m4 0h2m-30 1h1m1 0h1m1 0h1m2 0h2m1 0h1m1 0h1m1 0h2m1 0h1m2 0h5m1 0h4m-28 1h4m1 0h4m2 0h3m1 0h3m1 0h3m1 0h2m1 0h1m1 0h2m-31 1h2m7 0h1m2 0h1m1 0h4m1 0h3m1 0h1m1 0h2m1 0h2m-32 1h2m1 0h1m2 0h1m1 0h3m2 0h1m1 0h1m5 0h1m2 0h1m1 0h4m1 0h2m-32 1h1m1 0h3m3 0h1m3 0h1m2 0h1m1 0h1m2 0h1m1 0h1m3 0h2m1 0h2m-29 1h2m1 0h1m3 0h1m1 0h3m3 0h1m5 0h2m1 0h1m2 0h1m-29 1h1m1 0h1m2 0h3m1 0h1m3 0h4m1 0h1m2 0h3m1 0h1m2 0h2m-31 1h3m1 0h2m2 0h2m1 0h1m2 0h1m3 0h1m3 0h1m1 0h6m-31 1h1m1 0h2m3 0h2m1 0h1m1 0h1m1 0h1m1 0h3m1 0h1m1 0h1m1 0h1m1 0h4m1 0h2m-31 1h1m2 0h3m2 0h1m3 0h2m2 0h1m3 0h2m1 0h3m1 0h2m1 0h1m-33 1h2m1 0h1m1 0h1m2 0h3m1 0h1m3 0h5m1 0h3m1 0h1m2 0h4m-31 1h1m1 0h4m4 0h1m1 0h3m5 0h1m1 0h2m1 0h1m1 0h1m1 0h1m-32 1h4m5 0h4m5 0h2m2 0h1m2 0h5m1 0h1m-32 1h1m1 0h1m2 0h4m1 0h3m1 0h1m1 0h2m3 0h1m2 0h1m1 0h7m-33 1h1m1 0h3m2 0h1m2 0h7m1 0h1m1 0h1m7 0h1m1 0h1m1 0h1m-33 1h3m2 0h5m1 0h1m1 0h1m2 0h2m6 0h6m-22 1h1m1 0h2m3 0h2m3 0h1m1 0h1m1 0h1m3 0h4m-32 1h7m1 0h1m1 0h2m1 0h3m3 0h1m1 0h4m1 0h1m1 0h3m-31 1h1m5 0h1m4 0h1m3 0h1m1 0h2m1 0h1m2 0h2m3 0h4m-32 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h3m1 0h4m1 0h6m2 0h1m-32 1h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h6m1 0h1m2 0h2m1 0h1m1 0h3m-32 1h1m1 0h3m1 0h1m3 0h3m1 0h1m2 0h1m6 0h1m3 0h5m-33 1h1m5 0h1m2 0h1m1 0h1m1 0h2m2 0h4m1 0h2m2 0h1m3 0h3m-33 1h7m2 0h6m4 0h2m2 0h3m2 0h1m1 0h1"/></g></svg>
+    </div>
+    <div class="qrtxt">
+      <div class="k">Escanéalo para entrar</div>
+      <div class="h">Pruébalo ahora</div>
+      <p>Crea la cuenta de tu club, arma tu primer torneo y publica el leaderboard en vivo. Sin instalación.</p>
+      <a class="url" href="https://albatros.vercel.app" target="_blank" rel="noopener">albatros.vercel.app →</a>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="feat"><div class="bar"></div><h3>Handicap de cancha automático</h3><p>Índice · Slope · Rating · Par. El golpe por hoyo, calculado solo.</p></div>
+    <div class="feat"><div class="bar"></div><h3>Categorías FChG por edad</h3><p>Pre Juvenil → Senior, asignadas automáticamente por fecha de nacimiento.</p></div>
+    <div class="feat"><div class="bar"></div><h3>Leaderboard público en vivo</h3><p>Link + QR. Los socios ven los resultados en tiempo real, sin instalar nada.</p></div>
+    <div class="feat"><div class="bar"></div><h3>Gross · Neto · Stableford</h3><p>Con desempates y multi-ronda para campeonatos de varios días.</p></div>
+    <div class="feat"><div class="bar"></div><h3>Parejas: Best Ball y Greensome</h3><p>Mejor bola al 80% y greensome al 40%, listos para tus bases dobles.</p></div>
+    <div class="feat"><div class="bar"></div><h3>Listo en 1 día</h3><p>Sin servidores ni instalación. Tu club arma su primer torneo hoy.</p></div>
+  </section>
+
+  <section class="vs">
+    <div class="t">MISMO TORNEO. <span class="g">5× MÁS BARATO.</span></div>
+    <div class="s">La competencia vende una herramienta de torneos por <b>$12M CLP</b> de licencia. Aquí tienes el torneo profesional <b>más</b> handicap automático y categorías por edad — por una fracción, y al año.</div>
+    <div class="stats">
+      <div class="stat"><div class="n">5×</div><div class="l">más barato</div></div>
+      <div class="stat"><div class="n">1 día</div><div class="l">para arrancar</div></div>
+      <div class="stat"><div class="n">∞</div><div class="l">torneos al año</div></div>
+      <div class="stat"><div class="n">QR</div><div class="l">leaderboard en vivo</div></div>
+    </div>
+  </section>
+
+  <div class="cta"><a href="https://albatros.vercel.app" target="_blank" rel="noopener">Crear el primer torneo de mi club</a></div>
+
+  <div class="foot">NOT GIVEN. TAKEN.</div>
+</div>
+</body>
+</html>
