@@ -16,9 +16,23 @@ export const printifyReady = () => !!authed();
 
 // Catalog blueprints worth selling prints on (Printify ids; verified at runtime).
 export const BLUEPRINTS = {
-  poster: { blueprint_id: 5,   label: 'Poster' },          // "Poster" (Generic brand)
-  canvas: { blueprint_id: 50,  label: 'Canvas' },          // "Matte Canvas, Stretched"
+  poster:  { blueprint_id: 5,    label: 'Poster' },        // "Poster" (Generic brand)
+  canvas:  { blueprint_id: 50,   label: 'Canvas' },        // "Matte Canvas, Stretched"
+  sticker: { blueprint_id: 1268, label: 'Kiss-Cut Sticker' }, // verify id at runtime via catalog
 };
+
+// Upload artwork from a local file (base64) — for our own assets (PROOF OF WORK),
+// which aren't hosted on a CDN like the MidJourney source images.
+export async function uploadImageBase64(filePath, name) {
+  const a = authed(); if (!a) throw new Error('printify not configured');
+  const { readFileSync } = await import('node:fs');
+  const contents = readFileSync(filePath).toString('base64');
+  const r = await fetch(`${BASE}/uploads/images.json`, {
+    method: 'POST', headers: a.h, body: JSON.stringify({ file_name: name, contents }),
+  });
+  if (!r.ok) throw new Error(`printify upload ${r.status}: ${await r.text()}`);
+  return (await r.json()).id;
+}
 
 export async function uploadImage(url, name) {
   const a = authed(); if (!a) throw new Error('printify not configured');
@@ -38,13 +52,14 @@ async function providerAndVariants(blueprintId) {
   return { pp, variants: vs.variants };
 }
 
-export async function createProduct({ kind, title, description, imageId, markup }) {
+export async function createProduct({ kind, title, description, imageId, markup, tags }) {
   const a = authed(); if (!a) throw new Error('printify not configured');
   const bp = BLUEPRINTS[kind];
   const { pp, variants } = await providerAndVariants(bp.blueprint_id);
   const variant_ids = variants.map((v) => v.id);
   const body = {
     title, description, blueprint_id: bp.blueprint_id, print_provider_id: pp,
+    ...(tags && tags.length ? { tags } : {}),
     variants: variants.map((v) => ({ id: v.id, price: Math.round(v.cost * markup), is_enabled: true })),
     print_areas: [{ variant_ids, placeholders: [{ position: 'front', images: [{ id: imageId, x: 0.5, y: 0.5, scale: 1, angle: 0 }] }] }],
   };
