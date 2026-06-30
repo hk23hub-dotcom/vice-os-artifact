@@ -1,0 +1,8 @@
+{
+  "name": "hk23-universe",
+  "private": true,
+  "dependencies": {
+    "ai": "^6.0.0",
+    "@ai-sdk/gateway": "^3.0.0"
+  }
+}
