@@ -37,7 +37,10 @@ export default async function handler(req, res) {
     let prompt = input;
     if (action === 'agent') {
       const persona = AGENTS[body.agent] || AGENTS.strategist;
-      prompt = persona + '\n\n' + input;
+      const ctx = (body.context || '').toString().slice(0, 5000);
+      prompt = persona + '\n\n'
+        + (ctx ? ('CONTEXTO REAL DE HK23 (esto es del usuario — básate en esto, no inventes):\n' + ctx + '\n\n') : '')
+        + 'TAREA:\n' + input;
     }
 
     const { text } = await generateText({ model: MODEL, maxOutputTokens: 800, prompt });

@@ -6482,10 +6482,10 @@ loadQuotesThen(handleDeepLink);
       if(nodes.length){
         lbl.textContent='Contenido · '+nodes.length+' dentro'; why.textContent='Entra a cualquiera para ver su ficha completa.';
         list.innerHTML=nodes.map((n,i)=>{ const d=n.detail||{}; const sc={live:'#2bd66a',build:'#FFD200',soon:'#b06bff'}[d.status]||'#6a6a78'; return `<div onclick="DASH.showFicha('${id}',${i})" style="display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #20202c;border-radius:9px;margin-top:7px;cursor:pointer" onmouseover="this.style.borderColor='#39d0ff'" onmouseout="this.style.borderColor='#20202c'"><span style="width:7px;height:7px;border-radius:50%;background:${n.color||sc};flex-shrink:0"></span><span style="flex:1;font-size:13px">${((d.title||n.label||'')+'').replace(/\\n/g,' ')}</span><span style="font-size:9px;letter-spacing:1px;color:${sc}">${(d.status||'').toUpperCase()}</span><span style="color:#39d0ff">→</span></div>`; }).join('');
-        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>';
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:#00F0FF;color:#06121a" onclick="DASH.runDoor(\''+id+'\')">▶ Ejecutar con agente</button><button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
       } else {
-        lbl.textContent='Qué es'; why.textContent=(obj&&obj.sub)||'Este nodo aún no tiene contenido. Asígnale un destino desde el Admin Board.'; list.innerHTML='';
-        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
+        lbl.textContent='Qué es'; why.textContent=(obj&&obj.sub)||'Este nodo aún no tiene contenido. Ejecútalo con el agente o asígnale un destino desde el Admin.'; list.innerHTML='';
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:#00F0FF;color:#06121a" onclick="DASH.runDoor(\''+id+'\')">▶ Ejecutar con agente</button><button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
       }
       document.getElementById('world-view').classList.add('open'); },
     showFicha(id, idx){ const obj=DASH._doorObj&&DASH._doorObj[id]; if(!obj||!obj.universe) return; const n=obj.universe.nodes[idx]; if(!n) return; const d=n.detail||{};
@@ -6500,19 +6500,35 @@ loadQuotesThen(handleDeepLink);
       const acts=[]; if(d.link) acts.push('<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open(\''+d.link+'\',\'_blank\',\'noopener\')">'+(d.action||'Abrir')+' →</button>');
       acts.push('<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.showDoor(\''+id+'\')">← Volver</button>');
       document.getElementById('wv-actions').innerHTML=acts.join(''); },
+    runDoor(id){ const obj=DASH._doorObj&&DASH._doorObj[id]; const label=(obj&&obj.label)||id;
+      let ctx='Planeta: '+label+(obj&&obj.sub?(' — '+obj.sub):'');
+      const nodes=(obj&&obj.universe&&obj.universe.nodes)||[];
+      if(nodes.length) ctx+='\nContenido: '+nodes.map(n=>{const d=n.detail||{}; return ((d.title||n.label||'')+'').replace(/\n/g,' ')+(d.desc?(' ('+d.desc.slice(0,90)+')'):'');}).join('; ');
+      DASH.closeWorld(); RUNNER.open('Dame los próximos pasos concretos para avanzar "'+label+'".', gatherContext(ctx)); },
   };
   window.DASH=DASH;
   // ── ACTION RUNNER: ejecutar agentes de verdad (IA vía /api/run) ──
   const RUN_TOKEN='hk23-run-9x';
   const AGENTS_UI=[['prioritizer','Priorizador'],['strategist','Estratega'],['writer','Copywriter'],['analyst','Analista']];
   let curAgent='strategist';
+  function gatherContext(extra){
+    let c='';
+    try{ const projs=(typeof PROJECTS!=='undefined')?PROJECTS.map(p=>p.label+(p.universe&&p.universe.title?(' — '+p.universe.title):'')).join('; '):'';
+      const gals=(typeof NODES!=='undefined')?NODES.map(n=>n.label).join(', '):'';
+      c='Galaxias: '+gals+'\nPlanetas/proyectos: '+projs; }catch(e){}
+    if(extra) c=extra+'\n\n'+c;
+    return c.slice(0,4500);
+  }
   const RUNNER={
-    open(){ document.getElementById('ar-agents').innerHTML=AGENTS_UI.map(a=>`<span class="ar-agent ${a[0]===curAgent?'on':''}" onclick="RUNNER.pick('${a[0]}')">${a[1]}</span>`).join(''); document.getElementById('agents-run').classList.add('open'); setTimeout(()=>{var el=document.getElementById('ar-input'); if(el) el.focus();},60); },
+    open(preset, context){ RUNNER._ctx = context || gatherContext();
+      document.getElementById('ar-agents').innerHTML=AGENTS_UI.map(a=>`<span class="ar-agent ${a[0]===curAgent?'on':''}" onclick="RUNNER.pick('${a[0]}')">${a[1]}</span>`).join('');
+      const inp=document.getElementById('ar-input'); if(preset && inp) inp.value=preset;
+      document.getElementById('agents-run').classList.add('open'); setTimeout(()=>{ if(inp) inp.focus(); },60); },
     close(){ document.getElementById('agents-run').classList.remove('open'); },
     pick(a){ curAgent=a; document.querySelectorAll('#ar-agents .ar-agent').forEach((e,i)=>e.classList.toggle('on', AGENTS_UI[i][0]===a)); },
     async go(){ const input=(document.getElementById('ar-input').value||'').trim(), out=document.getElementById('ar-out'), btn=document.getElementById('ar-runbtn'); if(!input){ out.textContent='Escribe una tarea primero.'; return; }
       btn.textContent='EJECUTANDO…'; btn.disabled=true; out.textContent='⏳ El agente está ejecutando…';
-      try{ const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},body:JSON.stringify({action:'agent',agent:curAgent,input:input})}); const j=await r.json(); out.textContent=j.ok?j.text:('⚠️ '+(j.error||'falló')); }
+      try{ const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},body:JSON.stringify({action:'agent',agent:curAgent,input:input,context:RUNNER._ctx||''})}); const j=await r.json(); out.textContent=j.ok?j.text:('⚠️ '+(j.error||'falló')); }
       catch(e){ out.textContent='⚠️ Error de red: '+e; }
       btn.textContent='▶ EJECUTAR'; btn.disabled=false; },
   };
