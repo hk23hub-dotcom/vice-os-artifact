@@ -1527,7 +1527,7 @@
   <div class="ip-desc" id="ip-desc">—</div>
   <div class="ip-actions">
     <button class="ip-btn ip-btn-develop" id="ip-develop-btn">DEVELOP THIS IDEA →</button>
-    <button class="ip-btn ip-btn-vault">+ SAVE TO VAULT</button>
+    <button class="ip-btn ip-btn-vault" id="ip-vault-btn">+ SAVE TO VAULT</button>
   </div>
   <div class="ip-reward">✦ Developed ideas become projects in the universe.</div>
   <button class="ip-close" id="ip-close">✕ CLOSE</button>
@@ -2055,7 +2055,6 @@
 <script>
 // ═══════════ STATE ═══════════
 let currentScreen = 'portal';
-const SCREENS = ['portal','map','arte','lore','viceos','systems','flow','agents','gates','trap','ecosystem'];
 
 function goTo(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -4330,12 +4329,17 @@ mapCanvas.addEventListener('click', e => {
     openFractalUniverse(proj);
   } else if (hoveredBlackHole) {
     const bh = BLACK_HOLES.find(b => b.id === hoveredBlackHole);
-    showAffirmation(bh, true);
+    // Black hole CONSUMES the noise → returns the essential (real agent execution).
+    window.RUNNER.open('El hoyo negro consume el ruido. Del universo HK23, dime SOLO las 3 cosas ESENCIALES en las que enfocarme AHORA y por qué — ignora todo lo demás.');
+    if (window.RUNNER.pick) window.RUNNER.pick('analyst');
   } else if (hoveredKey) {
     const k = KEYS.find(k => k.id === hoveredKey);
-    // Key acts as a portal-black-hole: pick random bh affirmation, mark collected
-    const randomBH = BLACK_HOLES[Math.floor(Math.random() * BLACK_HOLES.length)];
-    showAffirmation(randomBH, false, k.id);
+    // Key UNLOCKS a real world: collect it + open a planet's content.
+    if (k) k.collected = true; hoveredKey = null;
+    addCollectible(k ? k.id : ('key-' + Date.now()), 'rare');
+    const opn = (typeof PROJECTS !== 'undefined') ? PROJECTS.filter(p => p.universe && p.universe.nodes && p.universe.nodes.length) : [];
+    if (opn.length && window.openFractalUniverse) window.openFractalUniverse(opn[Math.floor(Math.random() * opn.length)]);
+    else showAffirmation(BLACK_HOLES[0], false, k && k.id);
   } else if (hoveredMilestone) {
     MILESTONE.collected = true; MILESTONE.hovered = false; hoveredMilestone = false;
     addCollectible(MILESTONE.id, 'legendary');
@@ -4373,6 +4377,18 @@ function openIdeaPanel(idea) {
   document.getElementById('ip-develop-btn').onclick = () => {
     showCmdToast('IDEA MARCADA PARA DESARROLLO ✦', idea.col);
     panel.classList.remove('visible');
+  };
+  document.getElementById('ip-vault-btn').onclick = () => {
+    if (window.__nhCloud && window.__nhCloud.sbEntity) {
+      const vid = idea.id || ('idea:' + Date.now());
+      idea.id = vid;
+      window.__nhCloud.sbEntity(vid, {
+        name: idea.detail.title, slug: 'vault-' + vid.replace(/[^a-z0-9]+/gi, '-').toLowerCase(),
+        level: 'node', kind: 'system', summary: idea.detail.desc,
+        meta: { nh: '1', kind: 'idea', vaulted: '1' },
+      });
+    }
+    showCmdToast('GUARDADA EN VAULT ✦', '#B84DFF');
   };
   panel.classList.add('visible');
 }
