@@ -4396,7 +4396,7 @@ function executeCmdAction(action) {
   } else if (action === 'agentbase') {
     openAgentBasePanel();
   } else if (action === 'whitehole') {
-    showCmdToast('⌘ WHITE HOLE — COMING SOON', '#ffffff');
+    if (window.whiteHoleGenerate) window.whiteHoleGenerate(); else showCmdToast('⌘ WHITE HOLE', '#ffffff');
   } else if (action === 'swarmart') {
     openSwarmArt();
   }
@@ -6030,9 +6030,17 @@ loadQuotesThen(handleDeepLink);
     createGalaxy(){
       const label=v('n-label'); if(!label) return;
       const id='nh-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
-      const g={id,label,sub:v('n-sub'),color:v('n-color'),size:11,x:0.3+Math.random()*0.4,y:0.3+Math.random()*0.4};
-      NODES.push(g); ov.newGalaxies.push(g); NH.persist(); NH.tab('edit'); NH.toast('Galaxia creada ✓');
+      // place as a NEIGHBOR of an existing galaxy + connect to it
+      const base=(NODES&&NODES.length)?NODES[Math.floor(Math.random()*NODES.length)]:{x:0.5,y:0.5};
+      const ang=Math.random()*Math.PI*2, dist=0.10+Math.random()*0.04;
+      const nx=Math.min(0.92,Math.max(0.08, (base.x||0.5)+Math.cos(ang)*dist));
+      const ny=Math.min(0.92,Math.max(0.08, (base.y||0.5)+Math.sin(ang)*dist*0.7));
+      const g={id,label,sub:v('n-sub'),color:v('n-color'),size:11,x:nx,y:ny};
+      NODES.push(g); ov.newGalaxies.push(g);
+      if(base.id && typeof CONNECTIONS!=='undefined'){ CONNECTIONS.push([base.id,id]); ov.addConns.push([base.id,id]); }
+      NH.persist(); NH.tab('edit'); NH.toast('Galaxia vecina creada ✓'+(base.label?(' (junto a '+base.label+')'):''));
       sbEntity('gx:'+id,{name:g.label,slug:'nh-gx-'+id,level:'node',kind:'system',color:g.color,summary:g.sub,meta:{nh:'1',role:'galaxy'}}).then(ok=>{ if(ok) NH.toast('Galaxia creada ✓ DB'); });
+      if(base.id && window.__nhCloud && window.__nhCloud.sbRel){ window.__nhCloud.ensureGx(base.id).then(()=>window.__nhCloud.sbRel(base.id+'|'+id,'gx:'+base.id,'gx:'+id)); }
     },
     renderRel(){
       const opts=NODES.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('');
@@ -6533,6 +6541,18 @@ loadQuotesThen(handleDeepLink);
       btn.textContent='▶ EJECUTAR'; btn.disabled=false; },
   };
   window.RUNNER=RUNNER;
+  // ── WHITE HOLE: genera una idea NUEVA de verdad (agente) y la siembra en el universo ──
+  window.whiteHoleGenerate = async function(){
+    const t=(window.showCmdToast||function(){}); t('⌘ WHITE HOLE — generando idea…', '#ffffff');
+    try{
+      const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},body:JSON.stringify({action:'agent',agent:'strategist',input:'Genera UNA idea nueva, concreta y original para el ecosistema HK23. Responde SOLO en una línea con formato: TÍTULO CORTO — descripción breve.',context:gatherContext()})});
+      const j=await r.json(); if(!j.ok){ t('⌘ falló: '+(j.error||''), '#ff5b6b'); return; }
+      const text=(j.text||'').trim(); const title=(text.split(/—|:|-/)[0]||'IDEA').trim().slice(0,26); const desc=text.slice(0,220);
+      if(typeof IDEAS_PLANET!=='undefined' && IDEAS_PLANET.ideas){ IDEAS_PLANET.ideas.push({ label:title.toUpperCase().slice(0,16), mr:48+Math.random()*34, ma:Math.random()*6.28, ms:(Math.random()>.5?1:-1)*0.0018, sz:5, col:'#ffffff', px:0, py:0, detail:{ title:title, desc:desc } }); }
+      t('⌘ WHITE HOLE → idea: '+title, '#ffffff');
+      if(window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity('idea:'+Date.now(),{name:title,slug:'wh-idea',level:'node',kind:'system',summary:desc,meta:{nh:'1',kind:'idea',source:'whitehole'}});
+    }catch(e){ t('⌘ error de red','#ff5b6b'); }
+  };
   // ── PUERTAS: interceptar clicks de planetas (sin red neural por default) y galaxias ──
   try{
     if(typeof openFractalUniverse==='function'){ DASH._origFractal=openFractalUniverse; window.openFractalUniverse=function(project){ routeNode('proj:'+project.id, project); }; }
