@@ -7226,7 +7226,7 @@ loadQuotesThen(handleDeepLink);
   #agents-run .ar-card{position:relative;width:460px;max-width:94vw;max-height:90vh;overflow-y:auto;background:radial-gradient(120% 80% at 50% 0%, #12121e 0%, #08080e 60%);border:1px solid #24243a;border-radius:18px;padding:20px 24px 24px;color:#e6e6ee;box-shadow:0 0 60px rgba(0,0,0,.6);}
   #agents-run .ar-x{position:absolute;top:14px;right:16px;cursor:pointer;color:#888;font-size:18px;z-index:2;}
   #agents-run .ar-being{display:flex;flex-direction:column;align-items:center;margin-bottom:8px;}
-  #agents-run #ar-avatar{width:260px;height:200px;max-width:100%;}
+  #agents-run #ar-avatar{width:300px;height:240px;max-width:100%;}
   #agents-run .ar-name{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;letter-spacing:4px;margin-top:-6px;color:#00F0FF;text-shadow:0 0 18px currentColor;}
   #agents-run .ar-state{font-size:10px;letter-spacing:2px;color:#6a6a82;text-transform:uppercase;margin-top:4px;}
   #agents-run .ar-agents{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 12px;justify-content:center;}
@@ -7240,7 +7240,7 @@ loadQuotesThen(handleDeepLink);
 <div id="agents-run"><div class="ar-card">
   <span class="ar-x" onclick="RUNNER.close()">✕</span>
   <div class="ar-being">
-    <canvas id="ar-avatar" width="260" height="200"></canvas>
+    <canvas id="ar-avatar" width="300" height="240"></canvas>
     <div class="ar-name" id="ar-name">ORÁCULO</div>
     <div class="ar-state" id="ar-state">◦ en reposo</div>
   </div>
@@ -7336,6 +7336,21 @@ loadQuotesThen(handleDeepLink);
     }
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 
+    // segmented halo — bright rotating arcs (very visible)
+    ctx.save();
+    ctx.rotate(t * 0.9);
+    const haloR = 66 + pulse * 6;
+    for (let i = 0; i < 8; i++) {
+      const a0 = i / 8 * Math.PI * 2, a1 = a0 + Math.PI / 8;
+      ctx.beginPath(); ctx.arc(0, -2, haloR, a0, a1);
+      ctx.strokeStyle = c(0.35 + (i % 2) * 0.25 + think * 0.2); ctx.lineWidth = 2.4; ctx.stroke();
+    }
+    ctx.restore();
+    // counter-rotating inner tick ring
+    ctx.save(); ctx.rotate(-t * 1.3);
+    for (let i = 0; i < 16; i++) { const a = i / 16 * Math.PI * 2; ctx.beginPath(); ctx.moveTo(Math.cos(a) * 50, Math.sin(a) * 50 - 2); ctx.lineTo(Math.cos(a) * 55, Math.sin(a) * 55 - 2); ctx.strokeStyle = c(0.2 + think * 0.2); ctx.lineWidth = 1; ctx.stroke(); }
+    ctx.restore();
+
     // pulsing core behind the being
     const coreR = 20 + pulse * 6 + think * 8;
     const cg = ctx.createRadialGradient(0, -2, 0, 0, -2, coreR);
@@ -7387,6 +7402,16 @@ loadQuotesThen(handleDeepLink);
       if (cfg.name === 'HEYOKA') { ctx.moveTo(-8, 13); ctx.lineTo(-3, 16); ctx.lineTo(2, 13); ctx.lineTo(7, 16); } // zigzag trickster grin
       else { ctx.moveTo(-6, 14); ctx.quadraticCurveTo(0, 14 + 3, 6, 14); }
       ctx.strokeStyle = c(0.6); ctx.lineWidth = 1.4; ctx.stroke();
+    }
+
+    // reactive voice bars below the being (taller & lively when speaking/thinking)
+    const bars = 13, bw = 4, gap = 3, totalW = bars * bw + (bars - 1) * gap, by = 78;
+    for (let i = 0; i < bars; i++) {
+      const amp = state === 'speak' ? 22 : (state === 'think' ? 12 : 6);
+      const h = 2 + Math.abs(Math.sin(t * 6 + i * 0.7)) * amp * (0.4 + 0.6 * Math.sin(i / bars * Math.PI));
+      const x = -totalW / 2 + i * (bw + gap);
+      ctx.fillStyle = c(0.35 + (h / (amp + 4)) * 0.5);
+      ctx.fillRect(x, by - h, bw, h);
     }
 
     ctx.restore();
