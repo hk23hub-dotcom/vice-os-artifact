@@ -1331,6 +1331,28 @@
   </div>
 </div>
 
+<!-- ═══════════ TIER CHOOSER (subscription = your galaxy) ═══════════ -->
+<div id="tier-overlay" style="position:fixed;inset:0;z-index:9700;display:none;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:900px;max-width:96vw;max-height:92vh;overflow:auto;">
+    <div style="text-align:center;margin-bottom:6px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:26px;letter-spacing:2px;color:#fff;">ELEGÍ TU GALAXIA</span></div>
+    <div style="text-align:center;color:#6a6a82;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;">Cada galaxia es una suscripción · entrás al universo HK23</div>
+    <div id="tier-cards" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;"></div>
+    <div style="text-align:center;margin-top:18px;"><span onclick="document.getElementById('tier-overlay').style.display='none'" style="cursor:pointer;color:#666;font-size:11px;letter-spacing:1px;">cerrar ✕</span></div>
+  </div>
+</div>
+
+<!-- Upsell modal (shown when a locked feature is hit) -->
+<div id="upsell-overlay" style="position:fixed;inset:0;z-index:9750;display:none;background:rgba(4,4,8,.86);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:440px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;text-align:center;">
+    <div style="font-size:34px;margin-bottom:8px;">🔒</div>
+    <div id="upsell-title" style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:19px;color:#fff;margin-bottom:8px;">Función bloqueada</div>
+    <div id="upsell-msg" style="color:#9a9aa4;font-size:12px;line-height:1.6;margin-bottom:20px;"></div>
+    <button onclick="HK23TIER.openChooser()" style="width:100%;background:#00F0FF;color:#06121a;border:none;border-radius:10px;padding:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:9px;">SUBIR DE TIER →</button>
+    <button id="upsell-rent" style="width:100%;background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px;font-family:inherit;font-size:11px;cursor:pointer;margin-bottom:9px;">Arrendar con tokens (próximamente)</button>
+    <div onclick="document.getElementById('upsell-overlay').style.display='none'" style="cursor:pointer;color:#666;font-size:11px;">ahora no</div>
+  </div>
+</div>
+
 <canvas id="constellation"></canvas>
 <div id="node-tooltip" class="node-tooltip"></div>
 
@@ -1540,9 +1562,85 @@
 
 <!-- ═══════════ I NEED MY GALAXY CTA ═══════════ -->
 <div id="galaxy-cta">
-  <button id="galaxy-cta-btn" onclick="window.location.href='galaxy-questionnaire.html'">I NEED MY GALAXY</button>
+  <button id="galaxy-cta-btn" onclick="HK23TIER.openChooser()">I NEED MY GALAXY</button>
   <div id="galaxy-cta-sub">build your own universe →</div>
 </div>
+
+<!-- ═══════════ TIER / SUBSCRIPTION SYSTEM (the platform foundation) ═══════════ -->
+<script>
+(function () {
+  const TIERS = {
+    visitante: { key: 'visitante', name: 'VISITANTE', level: 0, color: '#8a8a98', price: 'Gratis',
+      tag: 'Entrá y usá', perks: ['Explorá todo el universo', 'Usá una galaxia ya lista', 'Arrendá o comprá agentes con tokens', 'Sin crear nada — rápido'] },
+    premium: { key: 'premium', name: 'PREMIUM', level: 1, color: '#00F0FF', price: 'suscripción',
+      tag: 'Desbloqueá poder', perks: ['Todo lo de Visitante', 'Desbloqueás la Estación de Agentes', 'Sacás agentes a tu galaxia', 'Blueprint GUIADO para crear'] },
+    full: { key: 'full', name: 'FULL · ARQUITECTO', level: 2, color: '#FFD200', price: 'suscripción',
+      tag: 'Todo, sin límite', perks: ['Todo lo de Premium', 'Creás agentes, plugins y mundos', 'Todo lo que hace HK23', 'Acceso total al blueprint'] },
+  };
+  const ORDER = ['visitante', 'premium', 'full'];
+
+  const HK23TIER = {
+    _tiers: TIERS,
+    get() { return localStorage.getItem('hk23-user-tier') || 'visitante'; },
+    info() { return TIERS[HK23TIER.get()] || TIERS.visitante; },
+    level() { return HK23TIER.info().level; },
+    isPremium() { return HK23TIER.level() >= 1; },
+    isFull() { return HK23TIER.level() >= 2; },
+    set(k) { if (!TIERS[k]) return; localStorage.setItem('hk23-user-tier', k); HK23TIER.updateBadge(); },
+    // Gate a feature: returns true if allowed, else shows the upsell and returns false.
+    require(minLevel, feature) {
+      if (HK23TIER.level() >= minLevel) return true;
+      HK23TIER.upsell(minLevel, feature);
+      return false;
+    },
+    upsell(minLevel, feature) {
+      const need = ORDER.map(k => TIERS[k]).find(t => t.level >= minLevel) || TIERS.premium;
+      const ttl = document.getElementById('upsell-title'), msg = document.getElementById('upsell-msg');
+      if (ttl) ttl.textContent = (feature || 'Esta función') + ' es ' + need.name;
+      if (msg) msg.innerHTML = 'Sos <b style="color:' + HK23TIER.info().color + '">' + HK23TIER.info().name + '</b>. Para desbloquear <b style="color:' + need.color + '">' + (feature || 'esto') + '</b> necesitás el tier <b style="color:' + need.color + '">' + need.name + '</b>.';
+      const rent = document.getElementById('upsell-rent');
+      if (rent) rent.style.display = (feature && /agente/i.test(feature)) ? 'block' : 'none';
+      document.getElementById('upsell-overlay').style.display = 'flex';
+    },
+    openChooser() {
+      document.getElementById('upsell-overlay').style.display = 'none';
+      const cur = HK23TIER.get();
+      document.getElementById('tier-cards').innerHTML = ORDER.map(k => {
+        const t = TIERS[k], on = k === cur;
+        return '<div style="flex:1;min-width:230px;max-width:280px;background:rgba(10,10,16,.96);border:1px solid ' + (on ? t.color : '#24243a') + ';border-radius:16px;padding:22px;' + (on ? 'box-shadow:0 0 26px ' + t.color + '44;' : '') + '">'
+          + '<div style="color:' + t.color + ';font-weight:900;font-family:\'Space Grotesk\',sans-serif;font-size:18px;letter-spacing:1px;">' + t.name + '</div>'
+          + '<div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:3px 0 14px;">' + t.tag + ' · ' + t.price + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">' + t.perks.map(p => '<div style="color:#cdd6de;font-size:11px;line-height:1.4;">✦ ' + p + '</div>').join('') + '</div>'
+          + '<button onclick="HK23TIER.choose(\'' + k + '\')" style="width:100%;background:' + (on ? 'transparent' : t.color) + ';color:' + (on ? t.color : '#06121a') + ';border:1px solid ' + t.color + ';border-radius:10px;padding:11px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">' + (on ? '✓ TU GALAXIA' : 'ELEGIR') + '</button>'
+          + '</div>';
+      }).join('');
+      document.getElementById('tier-overlay').style.display = 'flex';
+    },
+    choose(k) {
+      HK23TIER.set(k);
+      document.getElementById('tier-overlay').style.display = 'none';
+      const t = HK23TIER.info();
+      if (window.showCmdToast) showCmdToast('◆ GALAXIA ' + t.name + ' ✦', t.color);
+      // Premium/Full → the guided blueprint (questionnaire). Visitante → the ready-made galaxies (coming next).
+      if (t.level >= 1) { setTimeout(() => { window.location.href = 'galaxy-questionnaire.html'; }, 700); }
+      else if (window.showCmdToast) setTimeout(() => showCmdToast('Elegí una galaxia lista (pronto) o subí de tier', '#8a8a98'), 900);
+    },
+    updateBadge() {
+      const btn = document.getElementById('galaxy-cta-btn'), sub = document.getElementById('galaxy-cta-sub');
+      const stored = localStorage.getItem('hk23-user-tier');
+      if (!btn) return;
+      if (!stored) { btn.textContent = 'I NEED MY GALAXY'; if (sub) sub.textContent = 'elegí tu suscripción →'; return; }
+      const t = HK23TIER.info();
+      btn.textContent = '◆ ' + t.name;
+      btn.style.borderColor = t.color; btn.style.color = t.color;
+      if (sub) sub.textContent = 'tu galaxia · cambiar tier →';
+    },
+  };
+  window.HK23TIER = HK23TIER;
+  document.addEventListener('DOMContentLoaded', HK23TIER.updateBadge);
+  HK23TIER.updateBadge();
+})();
+</script>
 
 <!-- AGENT BASE PANEL -->
 <div id="agent-base-panel">
@@ -6541,6 +6639,7 @@ loadQuotesThen(handleDeepLink);
         <button class="nh-btn" onclick="NH.createGalaxy()">＋ Crear galaxia</button>`;
     },
     createGalaxy(){
+      if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; // blueprint = Premium+
       const label=v('n-label'); if(!label) return;
       const id='nh-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
       // place as a NEIGHBOR of an existing galaxy + connect to it
@@ -7145,7 +7244,7 @@ loadQuotesThen(handleDeepLink);
     closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
     setDest(id){ const ts=document.getElementById('ad-t-'+id), vs=document.getElementById('ad-v-'+id); if(!ts) return;
       UDEST[id]={type:ts.value, value:(vs.value||'').trim()}; saveDest(); toast('Destino asignado ✓'); DASH.render(); },
-    newGalaxy(){ if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
+    newGalaxy(){ if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
     showDoor(id, obj){ obj=obj||(DASH._doorObj&&DASH._doorObj[id]); DASH._doorObj=DASH._doorObj||{}; if(obj) DASH._doorObj[id]=obj;
       const label=(obj&&obj.label)||id; const uni=obj&&obj.universe; const nodes=(uni&&uni.nodes)||[];
       const st=document.getElementById('wv-status'); st.textContent=id.indexOf('proj:')===0?'PLANETA':id.indexOf('gal:')===0?'GALAXIA':id.indexOf('nexus:')===0?'ORBITADOR':'NODO';
