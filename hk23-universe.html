@@ -1078,14 +1078,14 @@
   /* ─── I NEED MY GALAXY CTA ─── */
   #galaxy-cta {
     position: fixed;
-    bottom: 36px;
+    top: 18px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 400;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     pointer-events: all;
     opacity: 0;
     transition: opacity 0.6s ease;
@@ -1309,13 +1309,11 @@
 <div id="ytbg-layer" style="position:fixed;inset:0;z-index:-1;display:none;background:#000;">
   <iframe id="ytbg-iframe" style="width:100%;height:100%;border:none;pointer-events:none;" allow="autoplay; encrypted-media" title="YouTube background"></iframe>
 </div>
-<div id="ytbg-controls" style="position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:500;display:none;background:rgba(7,7,15,.90);border:1px solid rgba(255,58,31,.4);padding:10px 12px;font-family:'Space Mono',monospace;font-size:10px;color:#F0EDE8;width:230px;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-    <span style="letter-spacing:.12em;color:#FF3A1F;font-weight:700;font-size:9px;">🎬 YOUTUBE DE FONDO</span>
-    <button onclick="closeYtBg()" style="background:none;border:none;color:rgba(240,237,232,.5);cursor:pointer;font-family:inherit;font-size:12px;">✕</button>
-  </div>
-  <input id="ytbg-url" type="text" placeholder="pega URL o ID de YouTube" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#F0EDE8;padding:6px 8px;font-family:inherit;font-size:10px;margin-bottom:6px;" onkeydown="if(event.key==='Enter') setYtBgVideo(this.value)">
-  <button onclick="setYtBgVideo(document.getElementById('ytbg-url').value)" style="width:100%;background:rgba(255,58,31,.15);border:1px solid #FF3A1F;color:#FF3A1F;padding:6px;cursor:pointer;font-family:inherit;font-size:9px;letter-spacing:.1em;">▶ REPRODUCIR</button>
+<div id="ytbg-controls" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;display:none;align-items:center;gap:6px;background:rgba(7,7,12,.62);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:5px 8px 5px 14px;font-family:'Space Mono',monospace;color:#9a9aa4;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);">
+  <span style="font-size:11px;opacity:.55;">🎬</span>
+  <input id="ytbg-url" type="text" placeholder="YouTube URL" style="background:transparent;border:none;outline:none;color:#F0EDE8;font-family:inherit;font-size:10px;width:140px;" onkeydown="if(event.key==='Enter') setYtBgVideo(this.value)">
+  <button onclick="setYtBgVideo(document.getElementById('ytbg-url').value)" title="Reproducir" style="background:none;border:none;color:#FF3A1F;cursor:pointer;font-size:11px;padding:2px 5px;">▶</button>
+  <button onclick="closeYtBg()" title="Cerrar (Y)" style="background:none;border:none;color:rgba(240,237,232,.35);cursor:pointer;font-size:12px;padding:2px 6px;">✕</button>
 </div>
 
 <canvas id="constellation"></canvas>
@@ -4464,10 +4462,28 @@ mapCanvas.addEventListener('mousemove', e => {
   }
 });
 
+// ─── CATCH A FLYING KEY (grab, not a precise click on a moving target) ───
+function tryCatchKey(clientX, clientY) {
+  for (const k of KEYS) {
+    if (k.collected) continue;
+    const dx = clientX - k.cx, dy = clientY - k.cy;
+    if (Math.sqrt(dx * dx + dy * dy) < k.size + 28) {
+      k.collected = true; k.hovered = false; hoveredKey = null;
+      addCollectible(k.id, 'rare');
+      showCmdToast('🔑 LLAVE COLECTADA — abre una puerta', k.color);
+      const opn = (typeof PROJECTS !== 'undefined') ? PROJECTS.filter(p => p.universe && p.universe.nodes && p.universe.nodes.length) : [];
+      if (opn.length && window.openFractalUniverse) window.openFractalUniverse(opn[Math.floor(Math.random() * opn.length)]);
+      return true;
+    }
+  }
+  return false;
+}
+
 // ─── GRAB / THROW MALIGNANT ───
 mapCanvas.addEventListener('mousedown', e => {
   const W = mapCanvas.width, H = mapCanvas.height;
   const nx = e.clientX / W, ny = e.clientY / H;
+  if (tryCatchKey(e.clientX, e.clientY)) { e.stopPropagation(); return; } // keys are grabbable
   let closest = null, closestD = Infinity;
   malignants.forEach(m => {
     if (m.state === 'locked') return; // permanent — only the 'D' shortcut releases these
@@ -4512,6 +4528,7 @@ mapCanvas.addEventListener('touchstart', e => {
   const W = mapCanvas.width, H = mapCanvas.height;
   const nx = t.clientX / W, ny = t.clientY / H;
   mapMouseX = nx; mapMouseY = ny;
+  if (tryCatchKey(t.clientX, t.clientY)) { e.preventDefault(); return; } // keys are grabbable
   let closest = null, closestD = Infinity;
   malignants.forEach(m => {
     if (m.state === 'locked') return; // permanent — only the 'D' shortcut releases these
@@ -4671,7 +4688,7 @@ function setYtBgVideo(input) {
 
 function openYtBg() {
   document.getElementById('ytbg-layer').style.display = 'block';
-  document.getElementById('ytbg-controls').style.display = 'block';
+  document.getElementById('ytbg-controls').style.display = 'flex';
   document.body.classList.add('ytbg-active');
   const saved = localStorage.getItem('hk23-ytbg-video');
   if (saved) {
