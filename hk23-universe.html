@@ -1577,7 +1577,7 @@
   <div class="sc-row"><div class="sc-key">X</div><div class="sc-label">Entidad gigante</div></div>
   <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
   <div class="sc-row"><div class="sc-key">C</div><div class="sc-label">Cripto</div></div>
-  <div class="sc-row"><div class="sc-key">H</div><div class="sc-label">Modo: geometría / hoyos / greens</div></div>
+  <div class="sc-row"><div class="sc-key">H</div><div class="sc-label">Modo: geo / hoyos / greens / mandala / ondas</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -3693,12 +3693,37 @@ const GREEN_FIGURES = [
 ];
 
 // ─── BUILD MODES — what the entities assemble ───
+// ─── MANDALAS — ornate radial patterns ───
+const MANDALA_FIGURES = [
+  (function () { // 8-fold
+    const slots = [{ a: 0, r: 0 }, ...sgRing(8, 0.5), ...sgRing(8, 1, 22.5)];
+    const petals = Array.from({ length: 8 }, (_, i) => [9 + i, 1 + ((i + 1) % 8)]);
+    return { name: 'MANDALA · 8', slots, edges: [...sgSpokes(0, 1, 8), ...sgLoop(1, 8), ...sgLoop(9, 8), ...sgConnect(1, 9, 8), ...petals] };
+  })(),
+  (function () { // 12-fold, richer
+    const slots = [{ a: 0, r: 0 }, ...sgRing(12, 0.42), ...sgRing(12, 0.82, 15), ...sgRing(12, 1.15)];
+    const petals = Array.from({ length: 12 }, (_, i) => [13 + i, 1 + ((i + 1) % 12)]);
+    return { name: 'MANDALA · 12', slots, edges: [...sgSpokes(0, 1, 12), ...sgLoop(1, 12), ...sgLoop(13, 12), ...sgLoop(25, 12), ...sgConnect(1, 13, 12), ...sgConnect(13, 25, 12), ...petals] };
+  })(),
+];
+
+// ─── SOUND WAVES — waveform models ───
+function waveLine(n, amp, freq, yoff) { return Array.from({ length: n }, (_, i) => { const x = -1 + 2 * i / (n - 1); return { x, y: (yoff || 0) + Math.sin(x * Math.PI * freq) * amp }; }); }
+function chainEdges(start, n) { return Array.from({ length: n - 1 }, (_, i) => [start + i, start + i + 1]); }
+const WAVE_FIGURES = [
+  (function () { const w = waveLine(20, 0.42, 3, 0); return { name: 'ONDA SENOIDAL', slots: w, edges: chainEdges(0, 20) }; })(),
+  (function () { const top = waveLine(18, 0.45, 3, 0), bot = top.map(p => ({ x: p.x, y: -p.y })); return { name: 'ONDA DOBLE', slots: [...top, ...bot], edges: [...chainEdges(0, 18), ...chainEdges(18, 18)] }; })(),
+  (function () { const n = 16; const s = Array.from({ length: n }, (_, i) => ({ x: -1 + 2 * i / (n - 1), y: (Math.floor(i / 2) % 2 ? -0.4 : 0.4) })); return { name: 'PULSO', slots: s, edges: chainEdges(0, n) }; })(),
+];
+
 const BUILD_MODES = {
   sacred: { name: 'GEOMETRÍA SAGRADA', figs: SACRED_FIGURES, hero: 9, rgb: '255,210,0', hex: '#FFD200', lockHue: 45, defaultScale: 0.062 },
   golf:   { name: 'HOYOS DE GOLF',     figs: GOLF_FIGURES,   hero: 3, rgb: '120,220,120', hex: '#7CE07C', lockHue: 130, defaultScale: 0.11 },
   greens: { name: 'GREENS · PENDIENTES', figs: GREEN_FIGURES, hero: 0, rgb: '170,255,80', hex: '#AAFF00', lockHue: 92, defaultScale: 0.12 },
+  mandalas: { name: 'MANDALAS', figs: MANDALA_FIGURES, hero: 1, rgb: '184,77,255', hex: '#B84DFF', lockHue: 280, defaultScale: 0.09 },
+  waves:  { name: 'ONDAS DE SONIDO', figs: WAVE_FIGURES, hero: 1, rgb: '0,240,255', hex: '#00F0FF', lockHue: 190, defaultScale: 0.15 },
 };
-const BUILD_ORDER = ['sacred', 'golf', 'greens'];
+const BUILD_ORDER = ['sacred', 'golf', 'greens', 'mandalas', 'waves'];
 let buildMode = 'sacred';
 function ACTIVE() { return BUILD_MODES[buildMode]; }
 
@@ -7173,25 +7198,44 @@ loadQuotesThen(handleDeepLink);
     ctx.translate(cx, cy + floatY);
     if (cfg.tilt) ctx.rotate(Math.sin(t * 1.1) * cfg.tilt);
 
-    // aura
-    const auraR = 82 + pulse * 10 + think * 16;
+    // deep aura — double-layer iridescent
+    const auraR = 92 + pulse * 12 + think * 20;
     const ag = ctx.createRadialGradient(0, 0, 8, 0, 0, auraR);
-    ag.addColorStop(0, c(0.20 + think * 0.14 + (state === 'speak' ? pulse * 0.15 : 0)));
-    ag.addColorStop(0.5, c(0.07)); ag.addColorStop(1, c(0));
+    ag.addColorStop(0, c(0.22 + think * 0.16 + (state === 'speak' ? pulse * 0.16 : 0)));
+    ag.addColorStop(0.45, c(0.08)); ag.addColorStop(1, c(0));
     ctx.fillStyle = ag; ctx.beginPath(); ctx.arc(0, 0, auraR, 0, Math.PI * 2); ctx.fill();
 
-    // orbiting thought particles
+    // always-on rotating energy ring
+    ctx.save(); ctx.rotate(t * 0.6); ctx.strokeStyle = c(0.10 + pulse * 0.05); ctx.lineWidth = 1; ctx.setLineDash([3, 10]);
+    ctx.beginPath(); ctx.ellipse(0, -2, 74, 56, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    // intense thinking ring (counter-rotating)
+    if (think > 0.04) {
+      ctx.save(); ctx.rotate(-t * 1.8); ctx.strokeStyle = c(0.34 * think); ctx.lineWidth = 1.6; ctx.setLineDash([6, 8]);
+      ctx.beginPath(); ctx.ellipse(0, -4, 62, 46, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    }
+
+    // orbiting thought particles (always alive, faster when thinking) with tiny trails
     parts.forEach((p, i) => {
       p.a += p.sp * (1 + think * 6);
-      const px = Math.cos(p.a) * 58 * p.r, py = Math.sin(p.a) * 42 * p.r - 6;
-      ctx.beginPath(); ctx.arc(px, py, 1.5 + (i % 3 === 0 ? 1 : 0) + think * 1.6, 0, Math.PI * 2);
-      ctx.fillStyle = c(0.28 + think * 0.55); ctx.fill();
+      const rr = 60 * p.r, px = Math.cos(p.a) * rr, py = Math.sin(p.a) * rr * 0.72 - 6;
+      ctx.beginPath(); ctx.arc(px, py, 1.6 + (i % 3 === 0 ? 1 : 0) + think * 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = c(0.3 + think * 0.5); ctx.fill();
     });
-    // thinking ring
-    if (think > 0.04) {
-      ctx.save(); ctx.rotate(t * 1.7); ctx.strokeStyle = c(0.28 * think); ctx.lineWidth = 1.4; ctx.setLineDash([6, 9]);
-      ctx.beginPath(); ctx.ellipse(0, -4, 64, 48, 0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+    // orbiting alien glyphs
+    const GLYPH = ['✦', '◇', '△', '○', '⬡', '✧'];
+    ctx.font = "9px 'Space Mono', monospace"; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for (let i = 0; i < 6; i++) {
+      const a = -t * 0.5 + i / 6 * Math.PI * 2, rr = 84 + Math.sin(t * 2 + i) * 4;
+      ctx.fillStyle = c(0.22 + think * 0.3);
+      ctx.fillText(GLYPH[i], Math.cos(a) * rr, Math.sin(a) * rr * 0.7 - 4);
     }
+    ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+
+    // pulsing core behind the being
+    const coreR = 20 + pulse * 6 + think * 8;
+    const cg = ctx.createRadialGradient(0, -2, 0, 0, -2, coreR);
+    cg.addColorStop(0, c(0.5 + pulse * 0.3)); cg.addColorStop(1, c(0));
+    ctx.fillStyle = cg; ctx.beginPath(); ctx.arc(0, -2, coreR, 0, Math.PI * 2); ctx.fill();
 
     // body — alien phantom silhouette
     const R = 42;
