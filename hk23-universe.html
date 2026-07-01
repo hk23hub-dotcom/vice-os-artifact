@@ -3387,15 +3387,14 @@ function drawAgentBase(ctx, t) {
 let malignants = [];
 let lastMalignantTime = 0;
 const MALIGNANT_INTERVAL = 0.18; // seconds between spawns (mapT units)
-const MALIGNANT_MAX_LOOSE = 8;   // cap on concurrent non-locked entities — fixes unbounded on-screen growth
-const MALIGNANT_CONVERGE_DELAY = 2.0; // mapT units a wanderer must survive before it may join the formation
+const MALIGNANT_MAX_LOOSE = 14;  // cap on concurrent non-locked entities — feeds several formations at once
+const MALIGNANT_CONVERGE_DELAY = 1.6; // mapT units a wanderer must survive before it may join a formation
 
 // ─── SACRED GEOMETRY — an EVOLVING sequence of figures ───
 // The formation grows from the simplest shapes up through the Flower of Life and the
 // Platonic solids. Entities fly in and lock into the current figure's slots; when a figure
 // completes it MORPHS up to the next (locked pieces re-fly to their new positions — they
 // never scatter). Only the 'D' shortcut disarms everything back to the first figure.
-const SACRED_ANCHOR = { x: 0.82, y: 0.74 };
 const TAU = Math.PI * 2;
 function sgRing(count, r, offDeg) {
   const off = (offDeg || 0) * Math.PI / 180;
@@ -3440,52 +3439,58 @@ const SACRED_FIGURES = (function () {
   return F;
 })();
 
-let sacredFigureIdx = 0;
-let SACRED_SLOTS = [];
-let SACRED_EDGES = [];
-let sacredMaxR = 1;
-function loadSacredFigure(idx) {
-  sacredFigureIdx = Math.max(0, Math.min(idx, SACRED_FIGURES.length - 1));
-  const fig = SACRED_FIGURES[sacredFigureIdx];
-  SACRED_SLOTS = fig.slots.map(s => ({ a: s.a, r: s.r, occupant: null }));
-  SACRED_EDGES = fig.edges;
-  sacredMaxR = Math.max(1, ...fig.slots.map(s => s.r));
+// ─── MULTIPLE FORMATION SITES — sacred geometry grows ALL OVER the screen ───
+const SACRED_ANCHORS = [
+  { x: 0.20, y: 0.30 }, { x: 0.80, y: 0.27 }, { x: 0.50, y: 0.66 },
+  { x: 0.27, y: 0.75 }, { x: 0.78, y: 0.73 }, { x: 0.50, y: 0.20 },
+];
+function loadSiteFigure(site, idx) {
+  site.figureIdx = Math.max(0, Math.min(idx, SACRED_FIGURES.length - 1));
+  const fig = SACRED_FIGURES[site.figureIdx];
+  site.slots = fig.slots.map(s => ({ a: s.a, r: s.r, occupant: null }));
+  site.edges = fig.edges;
+  site.maxR = Math.max(1, ...fig.slots.map(s => s.r));
 }
-loadSacredFigure(0);
+function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1 }; loadSiteFigure(s, 0); return s; }
+let SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite);
+function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); }
 
-function advanceSacredFigure() {
-  if (sacredFigureIdx >= SACRED_FIGURES.length - 1) return false;
-  const locked = malignants.filter(m => m.state === 'locked');
-  loadSacredFigure(sacredFigureIdx + 1);
-  // Re-home existing locked pieces into the new (larger) figure — they morph, never scatter.
+function advanceSacredSite(site) {
+  if (site.figureIdx >= SACRED_FIGURES.length - 1) return false;
+  const si = SACRED_SITES.indexOf(site);
+  const locked = malignants.filter(m => m.state === 'locked' && m.siteIndex === si);
+  loadSiteFigure(site, site.figureIdx + 1);
+  // Re-home this site's locked pieces into its new (larger) figure — they morph, never scatter.
   locked.forEach((m, k) => {
-    if (k < SACRED_SLOTS.length) { m.slotIndex = k; SACRED_SLOTS[k].occupant = m; m.state = 'converging'; }
-    else { m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT; }
+    if (k < site.slots.length) { m.slotIndex = k; site.slots[k].occupant = m; m.state = 'converging'; }
+    else { m.slotIndex = null; m.siteIndex = null; m.state = 'wander'; m.bornAt = mapT; }
   });
-  showCmdToast('◆ ' + SACRED_FIGURES[sacredFigureIdx].name + ' ✦', '#FFD200');
+  showCmdToast('◆ ' + SACRED_FIGURES[site.figureIdx].name + ' ✦', '#FFD200');
   return true;
 }
 
-function sacredSlotPos(slot, W, H) {
-  const scale = (Math.min(W, H) * 0.13) / sacredMaxR;
-  return { x: SACRED_ANCHOR.x * W + Math.cos(slot.a) * slot.r * scale, y: SACRED_ANCHOR.y * H + Math.sin(slot.a) * slot.r * scale };
+function sacredSlotPos(site, slot, W, H) {
+  const scale = (Math.min(W, H) * 0.11) / site.maxR;
+  return { x: site.anchor.x * W + Math.cos(slot.a) * slot.r * scale, y: site.anchor.y * H + Math.sin(slot.a) * slot.r * scale };
 }
 function drawSacredGeometry(ctx, W, H) {
-  const positions = SACRED_SLOTS.map(s => ({ ...sacredSlotPos(s, W, H), locked: !!(s.occupant && s.occupant.state === 'locked') }));
-  if (positions.filter(p => p.locked).length < 2) return;
   const pulse = 0.5 + 0.5 * Math.sin(mapT * 1.1);
   ctx.save();
   ctx.strokeStyle = `rgba(255,210,0,${0.16 + pulse * 0.14})`;
   ctx.lineWidth = 1;
   ctx.shadowColor = 'rgba(255,210,0,0.5)';
   ctx.shadowBlur = 6;
-  SACRED_EDGES.forEach(([a, b]) => {
-    if (positions[a] && positions[b] && positions[a].locked && positions[b].locked) {
-      ctx.beginPath();
-      ctx.moveTo(positions[a].x, positions[a].y);
-      ctx.lineTo(positions[b].x, positions[b].y);
-      ctx.stroke();
-    }
+  SACRED_SITES.forEach(site => {
+    const positions = site.slots.map(s => ({ ...sacredSlotPos(site, s, W, H), locked: !!(s.occupant && s.occupant.state === 'locked') }));
+    if (positions.filter(p => p.locked).length < 2) return;
+    site.edges.forEach(([a, b]) => {
+      if (positions[a] && positions[b] && positions[a].locked && positions[b].locked) {
+        ctx.beginPath();
+        ctx.moveTo(positions[a].x, positions[a].y);
+        ctx.lineTo(positions[b].x, positions[b].y);
+        ctx.stroke();
+      }
+    });
   });
   ctx.restore();
 }
@@ -3535,6 +3540,7 @@ function spawnMalignant() {
     // sacred geometry lifecycle
     bornAt: mapT,
     slotIndex: null,
+    siteIndex: null,
   });
 }
 
@@ -3941,19 +3947,20 @@ function animateMap() {
     }
 
     if (m.state === 'converging') {
-      // ── CONVERGING: flying toward its reserved slot ──
-      const slot = SACRED_SLOTS[m.slotIndex];
-      // Figure may have morphed out from under this entity — if its slot is gone or reassigned, release it.
-      if (!slot || (slot.occupant && slot.occupant !== m)) { m.state = 'wander'; m.slotIndex = null; m.bornAt = mapT; return; }
+      // ── CONVERGING: flying toward its reserved slot in its site ──
+      const site = SACRED_SITES[m.siteIndex];
+      const slot = site && site.slots[m.slotIndex];
+      // Site/figure may have morphed out from under this entity — if its slot is gone or reassigned, release it.
+      if (!site || !slot || (slot.occupant && slot.occupant !== m)) { m.state = 'wander'; m.slotIndex = null; m.siteIndex = null; m.bornAt = mapT; return; }
       slot.occupant = m; // re-assert ownership across figure morphs
-      const target = sacredSlotPos(slot, W, H);
+      const target = sacredSlotPos(site, slot, W, H);
       const tx = target.x / W, ty = target.y / H;
       const dx = tx - m.x, dy = ty - m.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < 0.004) {
         m.x = tx; m.y = ty; m.vx = 0; m.vy = 0; m.state = 'locked'; m.hue = 45;
-        if (SACRED_SLOTS.every(s => s.occupant && s.occupant.state === 'locked')) {
-          if (!advanceSacredFigure()) showCmdToast('◆ ' + SACRED_FIGURES[sacredFigureIdx].name + ' COMPLETA ✦', '#FFD200');
+        if (site.slots.every(s => s.occupant && s.occupant.state === 'locked')) {
+          if (!advanceSacredSite(site)) showCmdToast('◆ ' + SACRED_FIGURES[site.figureIdx].name + ' COMPLETA ✦', '#FFD200');
         }
       } else {
         m.wanderAngle = Math.atan2(dy, dx);
@@ -3967,13 +3974,20 @@ function animateMap() {
       return;
     }
 
-    // ── CONVERGENCE ELIGIBILITY — only from a settled wander, if a slot is open ──
+    // ── CONVERGENCE ELIGIBILITY — join the NEAREST site that has a free slot ──
     if (m.state === 'wander' && (mapT - m.bornAt) > MALIGNANT_CONVERGE_DELAY) {
-      const freeIdx = SACRED_SLOTS.findIndex(s => !s.occupant);
-      if (freeIdx >= 0) {
+      let bestSite = -1, bestSlot = -1, bestD = Infinity;
+      SACRED_SITES.forEach((site, si) => {
+        const fi = site.slots.findIndex(s => !s.occupant);
+        if (fi < 0) return;
+        const d = Math.hypot(m.x - site.anchor.x, m.y - site.anchor.y);
+        if (d < bestD) { bestD = d; bestSite = si; bestSlot = fi; }
+      });
+      if (bestSite >= 0) {
         m.state = 'converging';
-        m.slotIndex = freeIdx;
-        SACRED_SLOTS[freeIdx].occupant = m;
+        m.siteIndex = bestSite;
+        m.slotIndex = bestSlot;
+        SACRED_SITES[bestSite].slots[bestSlot].occupant = m;
         drawMalignant(m, W, H);
         return;
       }
@@ -4492,9 +4506,10 @@ mapCanvas.addEventListener('mousedown', e => {
     if (d < grabR && d < closestD) { closest = m; closestD = d; }
   });
   if (closest) {
-    if (closest.state === 'converging' && closest.slotIndex != null) {
-      SACRED_SLOTS[closest.slotIndex].occupant = null;
-      closest.slotIndex = null;
+    if (closest.state === 'converging' && closest.siteIndex != null && closest.slotIndex != null) {
+      const st = SACRED_SITES[closest.siteIndex];
+      if (st && st.slots[closest.slotIndex]) st.slots[closest.slotIndex].occupant = null;
+      closest.slotIndex = null; closest.siteIndex = null;
     }
     grabbedMalignant = closest;
     closest.grabbed = true;
@@ -4537,9 +4552,10 @@ mapCanvas.addEventListener('touchstart', e => {
     if (d < grabR && d < closestD) { closest = m; closestD = d; }
   });
   if (closest) {
-    if (closest.state === 'converging' && closest.slotIndex != null) {
-      SACRED_SLOTS[closest.slotIndex].occupant = null;
-      closest.slotIndex = null;
+    if (closest.state === 'converging' && closest.siteIndex != null && closest.slotIndex != null) {
+      const st = SACRED_SITES[closest.siteIndex];
+      if (st && st.slots[closest.slotIndex]) st.slots[closest.slotIndex].occupant = null;
+      closest.slotIndex = null; closest.siteIndex = null;
     }
     grabbedMalignant = closest;
     closest.grabbed = true; closest.state = 'grabbed'; closest.tail = [];
@@ -5743,9 +5759,10 @@ document.addEventListener('keydown', e => {
         m.stunnedTimer = 70;
         m.vx = Math.cos(burstAngle) * 0.02;
         m.vy = Math.sin(burstAngle) * 0.02;
+        m.slotIndex = null; m.siteIndex = null;
         m.bornAt = mapT; // fresh converge-eligibility window before it can rejoin a formation
       });
-      loadSacredFigure(0); // reset the evolution back to the simplest figure
+      resetSacredSites(); // reset every formation back to the simplest figure
       showCmdToast('◇ GEOMETRÍA SAGRADA DESARMADA', '#B84DFF');
     }
     return;
