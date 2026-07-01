@@ -37,6 +37,7 @@
   /* YouTube ambient background — canvases clearRect (not opaque fill), so once the
      body's own black paint is turned off the video shows through empty space everywhere. */
   body.ytbg-active { background: transparent; }
+  #ytbg-player, #ytbg-player iframe { width: 100%; height: 100%; border: none; pointer-events: none; }
 
   body::after {
     content: '';
@@ -1307,13 +1308,27 @@
 
 <!-- ═══════════ YOUTUBE AMBIENT BACKGROUND (whole universe, key 'Y') ═══════════ -->
 <div id="ytbg-layer" style="position:fixed;inset:0;z-index:-1;display:none;background:#000;">
-  <iframe id="ytbg-iframe" style="width:100%;height:100%;border:none;pointer-events:none;" allow="autoplay; encrypted-media" title="YouTube background"></iframe>
+  <div id="ytbg-player" style="width:100%;height:100%;pointer-events:none;"></div>
 </div>
 <div id="ytbg-controls" style="position:fixed;bottom:14px;left:50%;transform:translateX(-50%);z-index:500;display:none;align-items:center;gap:6px;background:rgba(7,7,12,.62);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:5px 8px 5px 14px;font-family:'Space Mono',monospace;color:#9a9aa4;backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);">
   <span style="font-size:11px;opacity:.55;">🎬</span>
-  <input id="ytbg-url" type="text" placeholder="YouTube URL" style="background:transparent;border:none;outline:none;color:#F0EDE8;font-family:inherit;font-size:10px;width:140px;" onkeydown="if(event.key==='Enter') setYtBgVideo(this.value)">
+  <input id="ytbg-url" type="text" placeholder="YouTube URL" style="background:transparent;border:none;outline:none;color:#F0EDE8;font-family:inherit;font-size:10px;width:132px;" onkeydown="if(event.key==='Enter') setYtBgVideo(this.value)">
   <button onclick="setYtBgVideo(document.getElementById('ytbg-url').value)" title="Reproducir" style="background:none;border:none;color:#FF3A1F;cursor:pointer;font-size:11px;padding:2px 5px;">▶</button>
+  <button id="ytbg-mute" onclick="ytToggleMute()" title="Silenciar / activar sonido" style="background:none;border:none;color:#F0EDE8;cursor:pointer;font-size:12px;padding:2px 5px;">🔇</button>
+  <button onclick="favAddCurrent()" title="Guardar en favoritos" style="background:none;border:none;color:#FFD200;cursor:pointer;font-size:12px;padding:2px 5px;">★</button>
   <button onclick="closeYtBg()" title="Cerrar (Y)" style="background:none;border:none;color:rgba(240,237,232,.35);cursor:pointer;font-size:12px;padding:2px 6px;">✕</button>
+  <span style="opacity:.3;font-size:8px;letter-spacing:.08em;">← → seek</span>
+</div>
+
+<!-- Favorites panel -->
+<div id="fav-panel" style="position:fixed;inset:0;z-index:9600;display:none;background:rgba(5,5,9,.86);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:520px;max-width:94vw;max-height:80vh;overflow:auto;background:rgba(10,10,16,.97);border:1px solid rgba(255,210,0,.35);border-radius:14px;padding:22px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <span style="color:#FFD200;font-weight:700;letter-spacing:.14em;font-size:13px;">★ LUNA DE FAVORITOS</span>
+      <span onclick="document.getElementById('fav-panel').style.display='none'" style="cursor:pointer;color:#888;font-size:18px;">✕</span>
+    </div>
+    <div id="fav-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+  </div>
 </div>
 
 <canvas id="constellation"></canvas>
@@ -2938,6 +2953,13 @@ const CMDS_PLANET = {
   ],
 };
 
+// Big moon that holds your favorite YouTube videos.
+const FAV_MOON = {
+  id: 'fav_moon', label: 'FAVORITOS', color: '#FFD200',
+  r: 262, a: Math.PI * 1.78, speed: 0.000050, size: 15,
+  px: 0, py: 0, hovered: false,
+};
+
 const AGENT_BASE = {
   label: 'AGENT\nBASE', color: '#00F0FF',
   relX: 0.88, relY: 0.14,  // fixed position (top-right area)
@@ -2996,6 +3018,11 @@ function updateOrbitalPositions() {
     m.px = CMDS_PLANET.px + Math.cos(m.ma) * m.mr;
     m.py = CMDS_PLANET.py + Math.sin(m.ma) * m.mr * 0.65;
   });
+
+  // FAVORITES moon orbit
+  FAV_MOON.a += FAV_MOON.speed;
+  FAV_MOON.px = cx + Math.cos(FAV_MOON.a) * FAV_MOON.r;
+  FAV_MOON.py = cy + Math.sin(FAV_MOON.a) * FAV_MOON.r * EY;
 
   // Agent Base — fixed position, agents orbit it slowly
   AGENT_BASE.px = W * AGENT_BASE.relX;
@@ -3222,6 +3249,47 @@ function drawIdeasPlanet(ctx, t) {
     ctx.textAlign = 'center';
     mLines.forEach((line, i) => ctx.fillText(line, m.px, m.py + m.sz + 8 + i * 7));
   });
+}
+
+function drawFavMoon(ctx, t) {
+  const { px, py, color } = FAV_MOON;
+  const favs = (function () { try { return JSON.parse(localStorage.getItem('hk23-yt-favorites') || '[]'); } catch (_) { return []; } })();
+  const count = favs.length;
+  const isHov = FAV_MOON.hovered;
+  const pulse = 0.5 + 0.5 * Math.sin(t * 1.6);
+  const r = FAV_MOON.size + Math.min(count, 12) * 0.6 + (isHov ? 3 : 0); // grows a bit with favorites
+
+  // Glow
+  const grd = ctx.createRadialGradient(px, py, 0, px, py, r * 4.5);
+  grd.addColorStop(0, `rgba(255,210,0,${0.16 + pulse * 0.10})`);
+  grd.addColorStop(1, 'rgba(255,210,0,0)');
+  ctx.beginPath(); ctx.arc(px, py, r * 4.5, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill();
+
+  // Body
+  ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(24,20,6,0.92)`;
+  ctx.fill();
+  ctx.lineWidth = 1.4; ctx.strokeStyle = `rgba(255,210,0,${0.5 + pulse * 0.3})`; ctx.stroke();
+
+  // ★ in the middle
+  ctx.fillStyle = color;
+  ctx.font = `${Math.round(r * 1.1)}px 'Space Grotesk', sans-serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('★', px, py + 1);
+
+  // one small satellite dot per favorite, orbiting
+  for (let i = 0; i < Math.min(count, 12); i++) {
+    const a = t * 0.6 + (i / Math.min(count, 12)) * Math.PI * 2;
+    const dx = px + Math.cos(a) * (r + 8), dy = py + Math.sin(a) * (r + 8) * 0.7;
+    ctx.beginPath(); ctx.arc(dx, dy, 1.8, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,210,0,${0.6 + pulse * 0.3})`; ctx.fill();
+  }
+
+  // label
+  ctx.fillStyle = isHov ? color : 'rgba(255,210,0,0.55)';
+  ctx.font = `700 8px 'Space Mono', monospace`;
+  ctx.fillText('FAVORITOS' + (count ? ' · ' + count : ''), px, py + r + 12);
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 }
 
 function drawCmdsPlanet(ctx, t) {
@@ -3613,6 +3681,7 @@ let hoveredKey = null;
 let hoveredQuote = null;
 let hoveredMilestone = false;
 let hoveredIdeasPlanet = false;
+let hoveredFavMoon = false;
 
 // ─── LEGENDARY COLLECTIBLE — token milestone ───
 const MILESTONE = {
@@ -3791,6 +3860,7 @@ function animateMap() {
   // ─── Fase 2: IDEAS planet, CMDS planet, Agent Base ───
   drawIdeasPlanet(mapCtx, mapT);
   drawCmdsPlanet(mapCtx, mapT);
+  drawFavMoon(mapCtx, mapT);
   drawAgentBase(mapCtx, mapT);
 
   // ─── CENTER: HK23 ecosystem node ───
@@ -4390,9 +4460,13 @@ mapCanvas.addEventListener('mousemove', e => {
   const abDx = e.clientX - AGENT_BASE.px, abDy = e.clientY - AGENT_BASE.py;
   hoveredAgentBase = Math.sqrt(abDx*abDx + abDy*abDy) < 22;
   AGENT_BASE.hovered = hoveredAgentBase;
+  // Favorites moon
+  const fmDx = e.clientX - FAV_MOON.px, fmDy = e.clientY - FAV_MOON.py;
+  hoveredFavMoon = Math.sqrt(fmDx*fmDx + fmDy*fmDy) < FAV_MOON.size + 16;
+  FAV_MOON.hovered = hoveredFavMoon;
 
   const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote || foundMilestone
-    || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase;
+    || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase || hoveredFavMoon;
   mapCanvas.style.cursor = anyHovered ? 'pointer' : 'crosshair';
 
   if (foundProj) {
@@ -4617,6 +4691,8 @@ mapCanvas.addEventListener('click', e => {
     openIdeaPanel(IDEAS_PLANET.ideas[0]);
   } else if (hoveredCmdsMoonIdx >= 0) {
     executeCmdAction(CMDS_PLANET.cmds[hoveredCmdsMoonIdx].action);
+  } else if (hoveredFavMoon) {
+    openFavoritesPanel();
   } else if (hoveredAgentBase) {
     openAgentBasePanel();
   } else if (hoveredNode) {
@@ -4684,18 +4760,47 @@ function executeCmdAction(action) {
 function extractYoutubeId(input) {
   if (!input) return null;
   const s = input.trim();
-  const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/|v\/))([a-zA-Z0-9_-]{11})/);
   if (m) return m[1];
   if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
   return null;
+}
+
+// ── YouTube IFrame API player (enables real seek + reading the video title) ──
+let ytPlayer = null, ytApiReady = false, ytPendingId = null, ytCurrentId = null;
+function loadYtApi() {
+  if (window.YT && window.YT.Player) { ytApiReady = true; return; }
+  if (document.getElementById('yt-iframe-api')) return;
+  const s = document.createElement('script');
+  s.id = 'yt-iframe-api'; s.src = 'https://www.youtube.com/iframe_api';
+  document.head.appendChild(s);
+}
+window.onYouTubeIframeAPIReady = function () { ytApiReady = true; if (ytPendingId) { createYtPlayer(ytPendingId); ytPendingId = null; } };
+let ytMuted = true; // starts MUTED — the user unmutes deliberately (never blast audio unasked)
+function createYtPlayer(id) {
+  ytCurrentId = id;
+  if (!ytApiReady) { ytPendingId = id; loadYtApi(); return; }
+  if (ytPlayer && ytPlayer.loadVideoById) { ytPlayer.loadVideoById(id); if (ytMuted && ytPlayer.mute) try { ytPlayer.mute(); } catch (_) {} return; }
+  ytPlayer = new YT.Player('ytbg-player', {
+    videoId: id,
+    playerVars: { autoplay: 1, controls: 0, loop: 1, playlist: id, modestbranding: 1, rel: 0, playsinline: 1, iv_load_policy: 3, mute: 1 },
+    events: { onReady: e => { try { if (ytMuted) e.target.mute(); else e.target.unMute(); e.target.playVideo(); } catch (_) {} } },
+  });
+}
+function ytToggleMute() {
+  if (!ytPlayer || !ytPlayer.mute) return;
+  ytMuted = !ytMuted;
+  try { ytMuted ? ytPlayer.mute() : ytPlayer.unMute(); } catch (_) {}
+  const btn = document.getElementById('ytbg-mute');
+  if (btn) btn.textContent = ytMuted ? '🔇' : '🔊';
+  showCmdToast(ytMuted ? '🔇 SILENCIADO' : '🔊 CON SONIDO', ytMuted ? '#9a9aa4' : '#FF3A1F');
 }
 
 function setYtBgVideo(input) {
   const id = extractYoutubeId(input);
   if (!id) { showCmdToast('URL/ID DE YOUTUBE INVÁLIDO', '#FF3A1F'); return; }
   localStorage.setItem('hk23-ytbg-video', id);
-  document.getElementById('ytbg-iframe').src =
-    `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+  createYtPlayer(id);
   const urlInput = document.getElementById('ytbg-url');
   urlInput.value = '';
   urlInput.blur(); // release focus — otherwise the 'Y' shortcut can't reach the document listener
@@ -4707,16 +4812,13 @@ function openYtBg() {
   document.getElementById('ytbg-controls').style.display = 'flex';
   document.body.classList.add('ytbg-active');
   const saved = localStorage.getItem('hk23-ytbg-video');
-  if (saved) {
-    document.getElementById('ytbg-iframe').src =
-      `https://www.youtube.com/embed/${saved}?autoplay=1&mute=0&loop=1&playlist=${saved}&controls=0&modestbranding=1&rel=0`;
-  }
+  if (saved) createYtPlayer(saved);
 }
 
 function closeYtBg() {
   document.getElementById('ytbg-layer').style.display = 'none';
   document.getElementById('ytbg-controls').style.display = 'none';
-  document.getElementById('ytbg-iframe').src = ''; // actually stop playback/audio, not just hide it
+  if (ytPlayer && ytPlayer.stopVideo) { try { ytPlayer.stopVideo(); } catch (_) {} } // actually stop the audio
   document.getElementById('ytbg-url').blur();
   document.body.classList.remove('ytbg-active');
 }
@@ -4724,6 +4826,61 @@ function closeYtBg() {
 function toggleYtBg() {
   const isOpen = document.getElementById('ytbg-layer').style.display === 'block';
   if (isOpen) closeYtBg(); else openYtBg();
+}
+
+// ── Seek with arrow keys — step grows with rapid consecutive presses ──
+let ytSeekStep = 0, ytSeekTimer = null;
+const YT_SEEK_STEPS = [5, 10, 30, 60, 120];
+function ytSeek(dir) {
+  if (!ytPlayer || !ytPlayer.seekTo) { showCmdToast('YouTube no está listo', '#FF3A1F'); return; }
+  const delta = YT_SEEK_STEPS[Math.min(ytSeekStep, YT_SEEK_STEPS.length - 1)] * dir;
+  ytSeekStep++;
+  clearTimeout(ytSeekTimer); ytSeekTimer = setTimeout(() => { ytSeekStep = 0; }, 1400);
+  let t = 0;
+  try { t = ytPlayer.getCurrentTime() + delta; } catch (_) { t = 0; }
+  try { ytPlayer.seekTo(Math.max(0, t), true); } catch (_) {}
+  showCmdToast((dir > 0 ? '⏩ +' : '⏪ −') + Math.abs(delta) + 's', '#FF3A1F');
+}
+
+// ── FAVORITES (a big moon of saved videos) ──
+function favLoad() { try { return JSON.parse(localStorage.getItem('hk23-yt-favorites') || '[]'); } catch (_) { return []; } }
+function favSave(list) { localStorage.setItem('hk23-yt-favorites', JSON.stringify(list)); }
+function favAddCurrent() {
+  if (!ytCurrentId) { showCmdToast('No hay video sonando', '#FF3A1F'); return; }
+  const list = favLoad();
+  if (list.some(f => f.id === ytCurrentId)) { showCmdToast('Ya está en favoritos ★', '#FFD200'); return; }
+  let title = 'Video ' + ytCurrentId;
+  try { const d = ytPlayer && ytPlayer.getVideoData && ytPlayer.getVideoData(); if (d && d.title) title = d.title; } catch (_) {}
+  list.push({ id: ytCurrentId, title });
+  favSave(list);
+  showCmdToast('★ GUARDADO EN FAVORITOS', '#FFD200');
+}
+function openFavoritesPanel() {
+  const list = favLoad();
+  const box = document.getElementById('fav-list');
+  if (!list.length) {
+    box.innerHTML = '<div style="color:#6a6a78;font-size:12px;line-height:1.6;">Todavía no guardaste favoritos.<br>Abre un video (tecla Y), y toca ★ para guardarlo aquí.</div>';
+  } else {
+    box.innerHTML = list.map((f, i) => `
+      <div style="display:flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.08);border-radius:9px;padding:9px 11px;">
+        <span style="color:#FFD200;">★</span>
+        <span style="flex:1;color:#e6e6ee;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${(f.title || f.id).replace(/</g, '&lt;')}</span>
+        <button onclick="favPlay(${i})" style="background:rgba(255,58,31,.15);border:1px solid #FF3A1F;color:#FF3A1F;border-radius:6px;padding:4px 9px;cursor:pointer;font-family:inherit;font-size:10px;">▶</button>
+        <button onclick="favRemove(${i})" style="background:none;border:1px solid #333;color:#888;border-radius:6px;padding:4px 8px;cursor:pointer;font-family:inherit;font-size:10px;">✕</button>
+      </div>`).join('');
+  }
+  document.getElementById('fav-panel').style.display = 'flex';
+}
+function favPlay(i) {
+  const list = favLoad(); const f = list[i]; if (!f) return;
+  localStorage.setItem('hk23-ytbg-video', f.id);
+  if (document.getElementById('ytbg-layer').style.display !== 'block') openYtBg();
+  else createYtPlayer(f.id);
+  document.getElementById('fav-panel').style.display = 'none';
+  showCmdToast('▶ ' + (f.title || f.id).slice(0, 28), '#FFD200');
+}
+function favRemove(i) {
+  const list = favLoad(); list.splice(i, 1); favSave(list); openFavoritesPanel();
 }
 
 // ─── AGENT BASE PANEL ───
@@ -5670,6 +5827,13 @@ document.addEventListener('keydown', e => {
   if (['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
 
   const key = e.key;
+
+  // ── ← / → : seek the YouTube background (works from any screen while it's open) ──
+  if (document.getElementById('ytbg-layer').style.display === 'block' && (key === 'ArrowLeft' || key === 'ArrowRight')) {
+    ytSeek(key === 'ArrowRight' ? 1 : -1);
+    e.preventDefault();
+    return;
+  }
 
   // ── ESC ──
   if (key === 'Escape') {
