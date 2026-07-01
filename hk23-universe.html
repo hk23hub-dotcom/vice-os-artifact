@@ -1577,6 +1577,7 @@
   <div class="sc-row"><div class="sc-key">X</div><div class="sc-label">Entidad gigante</div></div>
   <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
   <div class="sc-row"><div class="sc-key">C</div><div class="sc-label">Cripto</div></div>
+  <div class="sc-row"><div class="sc-key">H</div><div class="sc-label">Modo: geometría / hoyos / greens</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -3663,19 +3664,58 @@ const SACRED_FIGURES = (function () {
   return F;
 })();
 
-// ─── MULTIPLE FORMATION SITES — sacred geometry grows ALL OVER the screen ───
+// cartesian point helpers (golf/greens use x,y layouts instead of polar)
+function ptRing(cx, cy, r, n, off) { off = off || 0; return Array.from({ length: n }, (_, i) => ({ x: cx + Math.cos(off + i / n * TAU) * r, y: cy + Math.sin(off + i / n * TAU) * r })); }
+function ptEllipse(cx, cy, rx, ry, n) { return Array.from({ length: n }, (_, i) => ({ x: cx + Math.cos(i / n * TAU) * rx, y: cy + Math.sin(i / n * TAU) * ry })); }
+
+// ─── GOLF HOLE MODELS — entities build complete holes ───
+const GOLF_FIGURES = [
+  (function () { const g = ptRing(0, -0.55, 0.32, 8); // PAR 3
+    return { name: 'PAR 3', slots: [{ x: 0, y: 1 }, ...g, { x: 0, y: -0.55 }], edges: [[0, 9], ...sgLoop(1, 8), [9, 1], [9, 3], [9, 5], [9, 7]] }; })(),
+  (function () { const g = ptRing(0.5, -0.6, 0.28, 8); // PAR 4 dogleg
+    return { name: 'PAR 4 · DOGLEG', slots: [{ x: -0.3, y: 1 }, { x: -0.1, y: 0.25 }, { x: 0.3, y: -0.1 }, ...g, { x: 0.5, y: -0.6 }], edges: [[0, 1], [1, 2], [2, 11], ...sgLoop(3, 8), [11, 3], [11, 5], [11, 7]] }; })(),
+  (function () { const g = ptRing(0.1, -0.68, 0.26, 8); // PAR 5
+    return { name: 'PAR 5', slots: [{ x: 0, y: 1 }, { x: 0.12, y: 0.45 }, { x: -0.1, y: -0.05 }, ...g, { x: 0.1, y: -0.68 }], edges: [[0, 1], [1, 2], [2, 11], ...sgLoop(3, 8), [11, 3], [11, 6]] }; })(),
+  (function () { const g = ptRing(0, -0.35, 0.3, 8), w = ptRing(0, -0.35, 0.62, 12); // ISLAND GREEN
+    return { name: 'ISLAND GREEN', slots: [{ x: 0, y: 1 }, ...g, { x: 0, y: -0.35 }, ...w], edges: [[0, 9], ...sgLoop(1, 8), ...sgLoop(10, 12)] }; })(),
+];
+
+// ─── GREENS + SLOPES — entities build a green with its contours ───
+const GREEN_FIGURES = [
+  (function () { const per = ptEllipse(0, 0, 0.72, 0.5, 12); // slope back→front (contours + arrow)
+    return { name: 'GREEN · PENDIENTE ATRÁS→ADELANTE',
+      slots: [...per, { x: -0.5, y: -0.2 }, { x: 0, y: -0.28 }, { x: 0.5, y: -0.2 }, { x: -0.56, y: 0 }, { x: 0, y: -0.06 }, { x: 0.56, y: 0 }, { x: -0.5, y: 0.2 }, { x: 0, y: 0.14 }, { x: 0.5, y: 0.2 }, { x: 0, y: -0.34 }, { x: 0, y: 0.34 }],
+      edges: [...sgLoop(0, 12), [12, 13], [13, 14], [15, 16], [16, 17], [18, 19], [19, 20], [21, 22]] }; })(),
+  (function () { const per = ptEllipse(0, 0, 0.76, 0.46, 12); // two-tier ridge + slope arrow
+    return { name: 'GREEN · DOS NIVELES',
+      slots: [...per, { x: -0.1, y: -0.42 }, { x: -0.04, y: 0 }, { x: -0.1, y: 0.42 }, { x: 0.12, y: -0.24 }, { x: 0.44, y: -0.2 }, { x: 0.12, y: 0.14 }, { x: 0.46, y: 0.14 }, { x: -0.34, y: 0 }, { x: 0.44, y: 0 }],
+      edges: [...sgLoop(0, 12), [12, 13], [13, 14], [15, 16], [17, 18], [19, 20]] }; })(),
+];
+
+// ─── BUILD MODES — what the entities assemble ───
+const BUILD_MODES = {
+  sacred: { name: 'GEOMETRÍA SAGRADA', figs: SACRED_FIGURES, hero: 9, rgb: '255,210,0', hex: '#FFD200', lockHue: 45, defaultScale: 0.062 },
+  golf:   { name: 'HOYOS DE GOLF',     figs: GOLF_FIGURES,   hero: 3, rgb: '120,220,120', hex: '#7CE07C', lockHue: 130, defaultScale: 0.11 },
+  greens: { name: 'GREENS · PENDIENTES', figs: GREEN_FIGURES, hero: 0, rgb: '170,255,80', hex: '#AAFF00', lockHue: 92, defaultScale: 0.12 },
+};
+const BUILD_ORDER = ['sacred', 'golf', 'greens'];
+let buildMode = 'sacred';
+function ACTIVE() { return BUILD_MODES[buildMode]; }
+
+// ─── MULTIPLE FORMATION SITES — the active model grows across the screen ───
 const SACRED_ANCHORS = [
   { x: 0.20, y: 0.30 }, { x: 0.80, y: 0.27 }, { x: 0.50, y: 0.66 },
   { x: 0.27, y: 0.75 }, { x: 0.78, y: 0.73 }, { x: 0.50, y: 0.20 },
 ];
 function loadSiteFigure(site, idx) {
-  site.figureIdx = Math.max(0, Math.min(idx, SACRED_FIGURES.length - 1));
-  const fig = SACRED_FIGURES[site.figureIdx];
-  site.slots = fig.slots.map(s => ({ a: s.a, r: s.r, occupant: null }));
+  const figs = ACTIVE().figs;
+  site.figureIdx = Math.max(0, Math.min(idx, figs.length - 1));
+  const fig = figs[site.figureIdx];
+  site.slots = fig.slots.map(s => ({ a: s.a, r: s.r, x: s.x, y: s.y, occupant: null }));
   site.edges = fig.edges;
-  site.maxR = Math.max(1, ...fig.slots.map(s => s.r));
+  site.maxR = Math.max(1, ...fig.slots.map(s => s.x != null ? Math.hypot(s.x, s.y) : s.r));
 }
-function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.062 }; loadSiteFigure(s, 0); return s; }
+function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: ACTIVE().defaultScale }; loadSiteFigure(s, 0); return s; }
 let SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite);
 let sacredFused = false;
 function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); sacredFused = false; }
@@ -3684,27 +3724,36 @@ function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite);
 function fuseSacred() {
   const locked = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
   const mega = { anchor: { x: 0.5, y: 0.47 }, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.30, noAdvance: true };
-  loadSiteFigure(mega, 9); // Flor de la Vida
+  loadSiteFigure(mega, ACTIVE().hero); // hero model of the active mode
   SACRED_SITES = [mega];
   locked.forEach((m, k) => {
     if (k < mega.slots.length) { m.siteIndex = 0; m.slotIndex = k; mega.slots[k].occupant = m; m.state = 'converging'; }
     else { m.siteIndex = null; m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT; }
   });
   sacredFused = true;
-  showCmdToast('✦ FLOR DE LA VIDA — FUSIÓN', '#FFD200');
+  showCmdToast('✦ ' + ACTIVE().figs[ACTIVE().hero].name + ' — FUSIÓN', ACTIVE().hex);
 }
 function toggleFuse() {
   if (sacredFused) {
     const stray = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
     resetSacredSites();
     stray.forEach(m => { m.state = 'wander'; m.siteIndex = null; m.slotIndex = null; m.bornAt = mapT; });
-    showCmdToast('◇ geometría restaurada', '#B84DFF');
+    showCmdToast('◇ restaurado', '#B84DFF');
   } else fuseSacred();
+}
+
+// Cycle what the entities build: sacred geometry → golf holes → greens.
+function cycleBuildMode() {
+  buildMode = BUILD_ORDER[(BUILD_ORDER.indexOf(buildMode) + 1) % BUILD_ORDER.length];
+  const stray = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
+  resetSacredSites(); // rebuilds sites with the new mode's first model + scale
+  stray.forEach(m => { m.state = 'wander'; m.siteIndex = null; m.slotIndex = null; m.bornAt = mapT; });
+  showCmdToast('⬖ CONSTRUYEN: ' + ACTIVE().name, ACTIVE().hex);
 }
 
 function advanceSacredSite(site) {
   if (site.noAdvance) return false;
-  if (site.figureIdx >= SACRED_FIGURES.length - 1) return false;
+  if (site.figureIdx >= ACTIVE().figs.length - 1) return false;
   const si = SACRED_SITES.indexOf(site);
   const locked = malignants.filter(m => m.state === 'locked' && m.siteIndex === si);
   loadSiteFigure(site, site.figureIdx + 1);
@@ -3713,23 +3762,26 @@ function advanceSacredSite(site) {
     if (k < site.slots.length) { m.slotIndex = k; site.slots[k].occupant = m; m.state = 'converging'; }
     else { m.slotIndex = null; m.siteIndex = null; m.state = 'wander'; m.bornAt = mapT; }
   });
-  showCmdToast('◆ ' + SACRED_FIGURES[site.figureIdx].name + ' ✦', '#FFD200');
+  showCmdToast('◆ ' + ACTIVE().figs[site.figureIdx].name + ' ✦', ACTIVE().hex);
   return true;
 }
 
 function sacredSlotPos(site, slot, W, H) {
   const scale = (Math.min(W, H) * (site.scale || 0.062)) / site.maxR; // per-site footprint
-  return { x: site.anchor.x * W + Math.cos(slot.a) * slot.r * scale, y: site.anchor.y * H + Math.sin(slot.a) * slot.r * scale };
+  const dx = slot.x != null ? slot.x : Math.cos(slot.a) * slot.r;
+  const dy = slot.y != null ? slot.y : Math.sin(slot.a) * slot.r;
+  return { x: site.anchor.x * W + dx * scale, y: site.anchor.y * H + dy * scale };
 }
 function drawSacredGeometry(ctx, W, H) {
   const pulse = 0.5 + 0.5 * Math.sin(mapT * 1.1);
+  const col = ACTIVE().rgb;
   ctx.save();
   ctx.lineWidth = 1;
-  ctx.shadowColor = 'rgba(255,210,0,0.4)';
+  ctx.shadowColor = `rgba(${col},0.4)`;
   ctx.shadowBlur = 4;
   SACRED_SITES.forEach(site => {
     const big = (site.scale || 0.062) > 0.2; // the fused mega formation is bright & prominent
-    ctx.strokeStyle = big ? `rgba(255,210,0,${0.30 + pulse * 0.22})` : `rgba(255,210,0,${0.09 + pulse * 0.08})`;
+    ctx.strokeStyle = big ? `rgba(${col},${0.30 + pulse * 0.22})` : `rgba(${col},${0.09 + pulse * 0.08})`;
     ctx.lineWidth = big ? 1.5 : 1;
     const positions = site.slots.map(s => ({ ...sacredSlotPos(site, s, W, H), locked: !!(s.occupant && s.occupant.state === 'locked') }));
     if (positions.filter(p => p.locked).length < 2) return;
@@ -4241,9 +4293,9 @@ function animateMap() {
       const dx = tx - m.x, dy = ty - m.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist < 0.004) {
-        m.x = tx; m.y = ty; m.vx = 0; m.vy = 0; m.state = 'locked'; m.hue = 45;
+        m.x = tx; m.y = ty; m.vx = 0; m.vy = 0; m.state = 'locked'; m.hue = ACTIVE().lockHue;
         if (site.slots.every(s => s.occupant && s.occupant.state === 'locked')) {
-          if (!advanceSacredSite(site)) showCmdToast('◆ ' + SACRED_FIGURES[site.figureIdx].name + ' COMPLETA ✦', '#FFD200');
+          if (!advanceSacredSite(site)) showCmdToast('◆ ' + ACTIVE().figs[site.figureIdx].name + ' COMPLETA ✦', ACTIVE().hex);
         }
       } else {
         m.wanderAngle = Math.atan2(dy, dx);
@@ -4251,7 +4303,7 @@ function animateMap() {
         m.vx = Math.cos(m.wanderAngle) * spd;
         m.vy = Math.sin(m.wanderAngle) * spd;
         m.x += m.vx; m.y += m.vy;
-        m.hue = m.hue + (45 - m.hue) * 0.05;
+        m.hue = m.hue + (ACTIVE().lockHue - m.hue) * 0.05;
       }
       drawMalignant(m, W, H);
       return;
@@ -6171,6 +6223,12 @@ document.addEventListener('keydown', e => {
   // ── C — Crypto charts (minimal) ──
   if (key === 'c' || key === 'C') {
     if (window.CRYPTO) CRYPTO.toggle();
+    return;
+  }
+
+  // ── H — Cycle what the entities build (sacred / golf holes / greens) ──
+  if (key === 'h' || key === 'H') {
+    cycleBuildMode();
     return;
   }
 
