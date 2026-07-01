@@ -3389,27 +3389,87 @@ function drawAgentBase(ctx, t) {
 let malignants = [];
 let lastMalignantTime = 0;
 const MALIGNANT_INTERVAL = 0.18; // seconds between spawns (mapT units)
-const MALIGNANT_MAX_LOOSE = 6;   // cap on concurrent non-locked entities — fixes unbounded on-screen growth
-const MALIGNANT_CONVERGE_DELAY = 3.0; // mapT units a wanderer must survive before it may join the formation
+const MALIGNANT_MAX_LOOSE = 8;   // cap on concurrent non-locked entities — fixes unbounded on-screen growth
+const MALIGNANT_CONVERGE_DELAY = 2.0; // mapT units a wanderer must survive before it may join the formation
 
-// ─── SACRED GEOMETRY (Metatron's Cube: 1 center + inner hexagon + outer hexagon = 13 slots) ───
-// Wanderers that survive long enough lock permanently into an open slot. They never leave on
-// their own — only the 'D' shortcut disarms the whole formation and releases every locked entity.
-const SACRED_SLOTS = (function () {
-  const slots = [{ a: 0, r: 0 }];
-  for (let i = 0; i < 6; i++) slots.push({ a: (i / 6) * Math.PI * 2, r: 1 });
-  for (let i = 0; i < 6; i++) slots.push({ a: (i / 6) * Math.PI * 2 + Math.PI / 6, r: Math.sqrt(3) });
-  return slots.map(s => ({ ...s, occupant: null }));
+// ─── SACRED GEOMETRY — an EVOLVING sequence of figures ───
+// The formation grows from the simplest shapes up through the Flower of Life and the
+// Platonic solids. Entities fly in and lock into the current figure's slots; when a figure
+// completes it MORPHS up to the next (locked pieces re-fly to their new positions — they
+// never scatter). Only the 'D' shortcut disarms everything back to the first figure.
+const SACRED_ANCHOR = { x: 0.82, y: 0.74 };
+const TAU = Math.PI * 2;
+function sgRing(count, r, offDeg) {
+  const off = (offDeg || 0) * Math.PI / 180;
+  return Array.from({ length: count }, (_, i) => ({ a: (i / count) * TAU - Math.PI / 2 + off, r }));
+}
+function sgLoop(start, count) { // edge indices forming a closed polygon over [start..start+count)
+  const e = [];
+  for (let i = 0; i < count; i++) e.push([start + i, start + ((i + 1) % count)]);
+  return e;
+}
+function sgSpokes(center, start, count) { return Array.from({ length: count }, (_, i) => [center, start + i]); }
+function sgConnect(aStart, bStart, count) { return Array.from({ length: count }, (_, i) => [aStart + i, bStart + i]); }
+
+const SACRED_FIGURES = (function () {
+  const F = [];
+  // 2 — Vesica Piscis (line / two circle centers)
+  F.push({ name: 'VESICA PISCIS', slots: [{ a: Math.PI, r: 1 }, { a: 0, r: 1 }], edges: [[0, 1]] });
+  // 3 — Triángulo
+  F.push({ name: 'TRIÁNGULO', slots: sgRing(3, 1), edges: sgLoop(0, 3) });
+  // 4 — Tetraedro (platónico)
+  F.push({ name: 'TETRAEDRO', slots: [{ a: 0, r: 0 }, ...sgRing(3, 1)], edges: [...sgSpokes(0, 1, 3), ...sgLoop(1, 3)] });
+  // 5 — Pentágono + pentagrama
+  F.push({ name: 'PENTÁGONO', slots: sgRing(5, 1), edges: [...sgLoop(0, 5), [0, 2], [2, 4], [4, 1], [1, 3], [3, 0]] });
+  // 6 — Octaedro (platónico) / hexagrama
+  F.push({ name: 'OCTAEDRO', slots: sgRing(6, 1), edges: [...sgLoop(0, 6), [0, 3], [1, 4], [2, 5]] });
+  // 7 — Semilla de la Vida
+  F.push({ name: 'SEMILLA DE LA VIDA', slots: [{ a: 0, r: 0 }, ...sgRing(6, 1)], edges: [...sgSpokes(0, 1, 6), ...sgLoop(1, 6)] });
+  // 8 — Cubo (hexaedro, platónico) — two nested squares
+  F.push({ name: 'CUBO', slots: [...sgRing(4, 1, 45), ...sgRing(4, 0.5, 45)], edges: [...sgLoop(0, 4), ...sgLoop(4, 4), ...sgConnect(0, 4, 4)] });
+  // 12 — Icosaedro (platónico) — two offset pentagons + poles
+  F.push({ name: 'ICOSAEDRO', slots: [...sgRing(5, 1), ...sgRing(5, 0.55, 36), { a: -Math.PI / 2, r: 0.16 }, { a: Math.PI / 2, r: 0.16 }],
+    edges: [...sgLoop(0, 5), ...sgLoop(5, 5), ...sgConnect(0, 5, 5), [10, 5], [10, 6], [10, 7], [11, 8], [11, 9]] });
+  // 13 — Cubo de Metatrón
+  F.push({ name: 'CUBO DE METATRÓN', slots: [{ a: 0, r: 0 }, ...sgRing(6, 1), ...sgRing(6, Math.sqrt(3), 30)],
+    edges: [...sgSpokes(0, 1, 6), ...sgLoop(1, 6), [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 7],
+      [1, 7], [1, 12], [2, 8], [2, 7], [3, 8], [3, 9], [4, 9], [4, 10], [5, 10], [5, 11], [6, 11], [6, 12]] });
+  // 19 — Flor de la Vida
+  F.push({ name: 'FLOR DE LA VIDA', slots: [{ a: 0, r: 0 }, ...sgRing(6, 1), ...sgRing(6, Math.sqrt(3), 30), ...sgRing(6, 2)],
+    edges: [...sgSpokes(0, 1, 6), ...sgLoop(1, 6), ...sgConnect(1, 13, 6), ...sgLoop(7, 6), ...sgLoop(13, 6)] });
+  // 20 — Dodecaedro (platónico) — two nested decagons
+  F.push({ name: 'DODECAEDRO', slots: [...sgRing(10, 1), ...sgRing(10, 0.52, 18)], edges: [...sgLoop(0, 10), ...sgLoop(10, 10), ...sgConnect(0, 10, 10)] });
+  return F;
 })();
-const SACRED_ANCHOR = { x: 0.86, y: 0.83 };
-const SACRED_EDGES = [
-  [0,1],[0,2],[0,3],[0,4],[0,5],[0,6],
-  [1,2],[2,3],[3,4],[4,5],[5,6],[6,1],
-  [7,8],[8,9],[9,10],[10,11],[11,12],[12,7],
-  [1,7],[1,12],[2,7],[2,8],[3,8],[3,9],[4,9],[4,10],[5,10],[5,11],[6,11],[6,12],
-];
+
+let sacredFigureIdx = 0;
+let SACRED_SLOTS = [];
+let SACRED_EDGES = [];
+let sacredMaxR = 1;
+function loadSacredFigure(idx) {
+  sacredFigureIdx = Math.max(0, Math.min(idx, SACRED_FIGURES.length - 1));
+  const fig = SACRED_FIGURES[sacredFigureIdx];
+  SACRED_SLOTS = fig.slots.map(s => ({ a: s.a, r: s.r, occupant: null }));
+  SACRED_EDGES = fig.edges;
+  sacredMaxR = Math.max(1, ...fig.slots.map(s => s.r));
+}
+loadSacredFigure(0);
+
+function advanceSacredFigure() {
+  if (sacredFigureIdx >= SACRED_FIGURES.length - 1) return false;
+  const locked = malignants.filter(m => m.state === 'locked');
+  loadSacredFigure(sacredFigureIdx + 1);
+  // Re-home existing locked pieces into the new (larger) figure — they morph, never scatter.
+  locked.forEach((m, k) => {
+    if (k < SACRED_SLOTS.length) { m.slotIndex = k; SACRED_SLOTS[k].occupant = m; m.state = 'converging'; }
+    else { m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT; }
+  });
+  showCmdToast('◆ ' + SACRED_FIGURES[sacredFigureIdx].name + ' ✦', '#FFD200');
+  return true;
+}
+
 function sacredSlotPos(slot, W, H) {
-  const scale = Math.min(W, H) * 0.06;
+  const scale = (Math.min(W, H) * 0.13) / sacredMaxR;
   return { x: SACRED_ANCHOR.x * W + Math.cos(slot.a) * slot.r * scale, y: SACRED_ANCHOR.y * H + Math.sin(slot.a) * slot.r * scale };
 }
 function drawSacredGeometry(ctx, W, H) {
@@ -3417,10 +3477,12 @@ function drawSacredGeometry(ctx, W, H) {
   if (positions.filter(p => p.locked).length < 2) return;
   const pulse = 0.5 + 0.5 * Math.sin(mapT * 1.1);
   ctx.save();
-  ctx.strokeStyle = `rgba(255,210,0,${0.18 + pulse * 0.12})`;
+  ctx.strokeStyle = `rgba(255,210,0,${0.16 + pulse * 0.14})`;
   ctx.lineWidth = 1;
+  ctx.shadowColor = 'rgba(255,210,0,0.5)';
+  ctx.shadowBlur = 6;
   SACRED_EDGES.forEach(([a, b]) => {
-    if (positions[a].locked && positions[b].locked) {
+    if (positions[a] && positions[b] && positions[a].locked && positions[b].locked) {
       ctx.beginPath();
       ctx.moveTo(positions[a].x, positions[a].y);
       ctx.lineTo(positions[b].x, positions[b].y);
@@ -3431,7 +3493,7 @@ function drawSacredGeometry(ctx, W, H) {
 }
 
 function spawnMalignant() {
-  const types = ['meteor','ufo','star','blob'];
+  const types = ['orb','orb','cube','cube','tetra','diamond']; // alien shapes — orbs & cubes weighted
   // tricky=dodges sideways | curious=orbits cursor | bold=charges then bolts | erratic=random chaos
   const personalities = ['tricky','curious','bold','erratic'];
   const type  = types[Math.floor(Math.random() * types.length)];
@@ -3883,6 +3945,9 @@ function animateMap() {
     if (m.state === 'converging') {
       // ── CONVERGING: flying toward its reserved slot ──
       const slot = SACRED_SLOTS[m.slotIndex];
+      // Figure may have morphed out from under this entity — if its slot is gone or reassigned, release it.
+      if (!slot || (slot.occupant && slot.occupant !== m)) { m.state = 'wander'; m.slotIndex = null; m.bornAt = mapT; return; }
+      slot.occupant = m; // re-assert ownership across figure morphs
       const target = sacredSlotPos(slot, W, H);
       const tx = target.x / W, ty = target.y / H;
       const dx = tx - m.x, dy = ty - m.y;
@@ -3890,7 +3955,7 @@ function animateMap() {
       if (dist < 0.004) {
         m.x = tx; m.y = ty; m.vx = 0; m.vy = 0; m.state = 'locked'; m.hue = 45;
         if (SACRED_SLOTS.every(s => s.occupant && s.occupant.state === 'locked')) {
-          showCmdToast('◆ GEOMETRÍA SAGRADA COMPLETA ✦', '#FFD200');
+          if (!advanceSacredFigure()) showCmdToast('◆ ' + SACRED_FIGURES[sacredFigureIdx].name + ' COMPLETA ✦', '#FFD200');
         }
       } else {
         m.wanderAngle = Math.atan2(dy, dx);
@@ -4134,51 +4199,97 @@ let mapMouseX = -1, mapMouseY = -1;
 let mapMouseVX = 0, mapMouseVY = 0;
 let grabbedMalignant = null;
 
-// ─── DRAW MALIGNANT ENTITY — minimal pulsating diamond ───
+// ─── DRAW MALIGNANT ENTITY — alien orbs / cubes / tetrahedra / diamonds ───
 function drawMalignant(m, W, H) {
+  const c = mapCtx;
   const px = m.x * W, py = m.y * H;
   const rgb = hslStr(m.hue);
+  const rgb2 = hslStr((m.hue + 40) % 360); // iridescent secondary hue
   const pulse = 0.5 + 0.5 * Math.sin(mapT * m.pulseSpeed + m.pulsePhase);
-  const sz = m.size * (0.75 + pulse * 0.5);
+  const sz = m.size * (0.85 + pulse * 0.5);
 
-  // Grab glow — only visual feedback kept
+  // Grab glow
   if (m.grabGlow > 0) {
-    const g = mapCtx.createRadialGradient(px, py, 0, px, py, sz * 5);
+    const g = c.createRadialGradient(px, py, 0, px, py, sz * 5);
     g.addColorStop(0, `rgba(255,255,200,${0.4 * m.grabGlow})`);
     g.addColorStop(1, 'rgba(0,0,0,0)');
-    mapCtx.beginPath(); mapCtx.arc(px, py, sz * 5, 0, Math.PI * 2);
-    mapCtx.fillStyle = g; mapCtx.fill();
+    c.beginPath(); c.arc(px, py, sz * 5, 0, TAU); c.fillStyle = g; c.fill();
   }
 
-  // Soft outer glow
-  const grd = mapCtx.createRadialGradient(px, py, 0, px, py, sz * 3.5);
-  grd.addColorStop(0, `rgba(${rgb},${0.12 + pulse * 0.08})`);
+  // Soft alien aura (iridescent)
+  const grd = c.createRadialGradient(px, py, 0, px, py, sz * 4);
+  grd.addColorStop(0, `rgba(${rgb},${0.16 + pulse * 0.10})`);
+  grd.addColorStop(0.5, `rgba(${rgb2},${0.06 + pulse * 0.05})`);
   grd.addColorStop(1, 'rgba(0,0,0,0)');
-  mapCtx.beginPath(); mapCtx.arc(px, py, sz * 3.5, 0, Math.PI * 2);
-  mapCtx.fillStyle = grd; mapCtx.fill();
+  c.beginPath(); c.arc(px, py, sz * 4, 0, TAU); c.fillStyle = grd; c.fill();
 
-  mapCtx.save();
-  mapCtx.translate(px, py);
-  mapCtx.rotate(Math.PI / 4 + m.spin);
+  c.save();
+  c.translate(px, py);
 
-  // Outer diamond
-  mapCtx.beginPath();
-  mapCtx.moveTo(0, -sz); mapCtx.lineTo(sz * 0.58, 0);
-  mapCtx.lineTo(0,  sz); mapCtx.lineTo(-sz * 0.58, 0);
-  mapCtx.closePath();
-  mapCtx.fillStyle = `rgba(${rgb},${0.6 + pulse * 0.35})`;
-  mapCtx.fill();
+  if (m.type === 'orb') {
+    // ── ALIEN ORB / SPHERE — glowing, specular highlight, rim light ──
+    const wob = 1 + Math.sin(mapT * 2.4 + m.pulsePhase) * 0.06;
+    const r = sz * 1.15 * wob;
+    const sph = c.createRadialGradient(-r * 0.35, -r * 0.4, r * 0.1, 0, 0, r);
+    sph.addColorStop(0, 'rgba(255,255,255,0.95)');
+    sph.addColorStop(0.35, `rgba(${rgb},0.92)`);
+    sph.addColorStop(0.8, `rgba(${rgb2},0.55)`);
+    sph.addColorStop(1, `rgba(${rgb},0)`);
+    c.beginPath(); c.arc(0, 0, r, 0, TAU); c.fillStyle = sph; c.fill();
+    // rim
+    c.beginPath(); c.arc(0, 0, r, 0, TAU);
+    c.strokeStyle = `rgba(${rgb2},${0.35 + pulse * 0.3})`; c.lineWidth = 1; c.stroke();
+    // orbiting speck (alien satellite)
+    const oa = mapT * 3 + m.speedPhase;
+    c.beginPath(); c.arc(Math.cos(oa) * r * 1.4, Math.sin(oa) * r * 0.8, sz * 0.16, 0, TAU);
+    c.fillStyle = `rgba(255,255,255,${0.5 + pulse * 0.4})`; c.fill();
 
-  // Inner highlight diamond
-  const is = sz * 0.38;
-  mapCtx.beginPath();
-  mapCtx.moveTo(0, -is); mapCtx.lineTo(is * 0.58, 0);
-  mapCtx.lineTo(0,  is); mapCtx.lineTo(-is * 0.58, 0);
-  mapCtx.closePath();
-  mapCtx.fillStyle = `rgba(255,255,255,${0.18 + pulse * 0.28})`;
-  mapCtx.fill();
+  } else if (m.type === 'cube') {
+    // ── ALIEN CUBE — tumbling isometric cube with glowing edges ──
+    c.rotate(m.spin * 0.5);
+    const h = sz * 0.95;
+    const faces = [
+      { pts: [[0, -h], [h, -h * 0.5], [0, 0], [-h, -h * 0.5]], a: 0.9 },   // top
+      { pts: [[-h, -h * 0.5], [0, 0], [0, h], [-h, h * 0.5]], a: 0.5 },    // left
+      { pts: [[h, -h * 0.5], [0, 0], [0, h], [h, h * 0.5]], a: 0.68 },     // right
+    ];
+    faces.forEach((f, i) => {
+      c.beginPath();
+      f.pts.forEach((p, j) => j ? c.lineTo(p[0], p[1]) : c.moveTo(p[0], p[1]));
+      c.closePath();
+      c.fillStyle = `rgba(${i === 0 ? rgb : rgb2},${f.a * (0.6 + pulse * 0.35)})`;
+      c.fill();
+      c.strokeStyle = `rgba(255,255,255,${0.25 + pulse * 0.3})`; c.lineWidth = 1; c.stroke();
+    });
 
-  mapCtx.restore();
+  } else if (m.type === 'tetra') {
+    // ── ALIEN TETRAHEDRON — triangle with inner glow ──
+    c.rotate(m.spin * 0.6);
+    c.beginPath();
+    for (let i = 0; i < 3; i++) {
+      const a = (i / 3) * TAU - Math.PI / 2;
+      const x = Math.cos(a) * sz * 1.1, y = Math.sin(a) * sz * 1.1;
+      i ? c.lineTo(x, y) : c.moveTo(x, y);
+    }
+    c.closePath();
+    c.fillStyle = `rgba(${rgb},${0.55 + pulse * 0.35})`; c.fill();
+    c.strokeStyle = `rgba(${rgb2},${0.5 + pulse * 0.3})`; c.lineWidth = 1; c.stroke();
+
+  } else {
+    // ── DIAMOND (fallback / classic) ──
+    c.rotate(Math.PI / 4 + m.spin);
+    c.beginPath();
+    c.moveTo(0, -sz); c.lineTo(sz * 0.58, 0); c.lineTo(0, sz); c.lineTo(-sz * 0.58, 0);
+    c.closePath();
+    c.fillStyle = `rgba(${rgb},${0.6 + pulse * 0.35})`; c.fill();
+    const is = sz * 0.38;
+    c.beginPath();
+    c.moveTo(0, -is); c.lineTo(is * 0.58, 0); c.lineTo(0, is); c.lineTo(-is * 0.58, 0);
+    c.closePath();
+    c.fillStyle = `rgba(255,255,255,${0.18 + pulse * 0.28})`; c.fill();
+  }
+
+  c.restore();
 }
 
 // ═══════════ MAP INTERACTIONS ═══════════
@@ -5617,7 +5728,7 @@ document.addEventListener('keydown', e => {
         m.vy = Math.sin(burstAngle) * 0.02;
         m.bornAt = mapT; // fresh converge-eligibility window before it can rejoin a formation
       });
-      SACRED_SLOTS.forEach(s => { s.occupant = null; });
+      loadSacredFigure(0); // reset the evolution back to the simplest figure
       showCmdToast('◇ GEOMETRÍA SAGRADA DESARMADA', '#B84DFF');
     }
     return;
