@@ -1331,6 +1331,61 @@
   </div>
 </div>
 
+<!-- ═══════════ CRYPTO — minimal glanceable charts (key 'C') ═══════════ -->
+<div id="crypto-panel" style="position:fixed;top:64px;right:16px;z-index:520;display:none;width:214px;background:rgba(7,7,12,.72);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 12px;font-family:'Space Mono',monospace;color:#cdd6de;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+    <span style="font-size:9px;letter-spacing:.16em;color:#7a7a88;">◈ CRYPTO · 7D</span>
+    <span style="display:flex;gap:9px;align-items:center;">
+      <span onclick="CRYPTO.load()" title="Actualizar" style="cursor:pointer;color:#7a7a88;font-size:11px;">↻</span>
+      <span onclick="CRYPTO.toggle()" title="Cerrar (C)" style="cursor:pointer;color:#7a7a88;font-size:12px;">✕</span>
+    </span>
+  </div>
+  <div id="crypto-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+  <input id="crypto-add" placeholder="+ agregar (btc, eth, sol…)" style="width:100%;margin-top:10px;background:transparent;border:none;border-top:1px solid rgba(255,255,255,.07);color:#cdd6de;font-family:inherit;font-size:9px;padding:7px 0 0;outline:none;" onkeydown="if(event.key==='Enter'){CRYPTO.add(this.value); this.value='';}">
+</div>
+<script>
+(function () {
+  const SYM = { btc:'bitcoin', eth:'ethereum', sol:'solana', bnb:'binancecoin', xrp:'ripple', ada:'cardano', doge:'dogecoin', avax:'avalanche-2', matic:'matic-network', pol:'matic-network', dot:'polkadot', link:'chainlink', ltc:'litecoin', near:'near', sui:'sui', trx:'tron', ton:'the-open-network', shib:'shiba-inu', pepe:'pepe', arb:'arbitrum', op:'optimism' };
+  function ids() { try { return JSON.parse(localStorage.getItem('hk23-crypto-coins') || 'null') || ['bitcoin','ethereum','solana']; } catch (_) { return ['bitcoin','ethereum','solana']; } }
+  function saveIds(a) { localStorage.setItem('hk23-crypto-coins', JSON.stringify(a)); }
+  function fmt(n) { if (n == null) return '—'; if (n >= 1000) return '$' + n.toLocaleString('en-US', { maximumFractionDigits: 0 }); if (n >= 1) return '$' + n.toFixed(2); return '$' + n.toPrecision(3); }
+  function spark(cv, arr, up) {
+    if (!cv || !arr || arr.length < 2) return;
+    const ctx = cv.getContext('2d'), W = cv.width, H = cv.height;
+    ctx.clearRect(0, 0, W, H);
+    const min = Math.min.apply(null, arr), max = Math.max.apply(null, arr), rng = (max - min) || 1;
+    ctx.beginPath();
+    arr.forEach((v, i) => { const x = i / (arr.length - 1) * W, y = H - ((v - min) / rng) * (H - 3) - 1.5; i ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+    ctx.strokeStyle = up ? '#2bd66a' : '#ff5b6b'; ctx.lineWidth = 1; ctx.stroke();
+  }
+  const CRYPTO = {
+    toggle() { const p = document.getElementById('crypto-panel'); const open = p.style.display === 'block'; p.style.display = open ? 'none' : 'block'; if (!open) CRYPTO.load(); },
+    add(v) { v = (v || '').trim().toLowerCase(); if (!v) return; const id = SYM[v] || v; const a = ids(); if (!a.includes(id)) { a.push(id); saveIds(a); CRYPTO.load(); } },
+    remove(id) { saveIds(ids().filter(x => x !== id)); CRYPTO.load(); },
+    async load() {
+      const box = document.getElementById('crypto-list'); if (!box) return;
+      box.innerHTML = '<div style="color:#555;font-size:9px;">cargando…</div>';
+      try {
+        const r = await fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=' + ids().join(',') + '&sparkline=true&price_change_percentage=24h');
+        const j = await r.json();
+        if (!Array.isArray(j) || !j.length) { box.innerHTML = '<div style="color:#555;font-size:9px;">sin datos</div>'; return; }
+        box.innerHTML = j.map((c, i) => {
+          const ch = c.price_change_percentage_24h || 0, up = ch >= 0, col = up ? '#2bd66a' : '#ff5b6b';
+          return '<div style="display:flex;align-items:center;gap:8px;">'
+            + '<div style="width:30px;font-size:10px;font-weight:700;color:#e6e6ee;text-transform:uppercase;">' + c.symbol + '</div>'
+            + '<canvas id="spk-' + i + '" width="54" height="20" style="flex:0 0 auto;"></canvas>'
+            + '<div style="flex:1;text-align:right;"><div style="font-size:10px;color:#e6e6ee;">' + fmt(c.current_price) + '</div><div style="font-size:8px;color:' + col + ';">' + (up ? '+' : '') + ch.toFixed(1) + '%</div></div>'
+            + '<span onclick="CRYPTO.remove(\'' + c.id + '\')" style="cursor:pointer;color:#3a3a44;font-size:9px;">✕</span>'
+            + '</div>';
+        }).join('');
+        j.forEach((c, i) => { if (c.sparkline_in_7d && c.sparkline_in_7d.price) spark(document.getElementById('spk-' + i), c.sparkline_in_7d.price, (c.price_change_percentage_24h || 0) >= 0); });
+      } catch (e) { box.innerHTML = '<div style="color:#555;font-size:9px;">error de red</div>'; }
+    },
+  };
+  window.CRYPTO = CRYPTO;
+})();
+</script>
+
 <!-- ═══════════ TIER CHOOSER (subscription = your galaxy) ═══════════ -->
 <div id="tier-overlay" style="position:fixed;inset:0;z-index:9700;display:none;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
   <div style="width:900px;max-width:96vw;max-height:92vh;overflow:auto;">
@@ -1521,6 +1576,7 @@
   <div class="sc-row"><div class="sc-key">Y</div><div class="sc-label">YouTube fondo</div></div>
   <div class="sc-row"><div class="sc-key">X</div><div class="sc-label">Entidad gigante</div></div>
   <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
+  <div class="sc-row"><div class="sc-key">C</div><div class="sc-label">Cripto</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -6109,6 +6165,12 @@ document.addEventListener('keydown', e => {
   // ── F — Fuse all geometry into one giant central Flower of Life (toggle) ──
   if (key === 'f' || key === 'F') {
     toggleFuse();
+    return;
+  }
+
+  // ── C — Crypto charts (minimal) ──
+  if (key === 'c' || key === 'C') {
+    if (window.CRYPTO) CRYPTO.toggle();
     return;
   }
 
