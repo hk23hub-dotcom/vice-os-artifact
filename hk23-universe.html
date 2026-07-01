@@ -1520,6 +1520,7 @@
   <div class="sc-row"><div class="sc-key">D</div><div class="sc-label">Disarm geometry</div></div>
   <div class="sc-row"><div class="sc-key">Y</div><div class="sc-label">YouTube fondo</div></div>
   <div class="sc-row"><div class="sc-key">X</div><div class="sc-label">Entidad gigante</div></div>
+  <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -3618,11 +3619,35 @@ function loadSiteFigure(site, idx) {
   site.edges = fig.edges;
   site.maxR = Math.max(1, ...fig.slots.map(s => s.r));
 }
-function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1 }; loadSiteFigure(s, 0); return s; }
+function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.062 }; loadSiteFigure(s, 0); return s; }
 let SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite);
-function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); }
+let sacredFused = false;
+function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); sacredFused = false; }
+
+// Fuse ALL formations into ONE giant central Flower of Life (toggle with 'F').
+function fuseSacred() {
+  const locked = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
+  const mega = { anchor: { x: 0.5, y: 0.47 }, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.30, noAdvance: true };
+  loadSiteFigure(mega, 9); // Flor de la Vida
+  SACRED_SITES = [mega];
+  locked.forEach((m, k) => {
+    if (k < mega.slots.length) { m.siteIndex = 0; m.slotIndex = k; mega.slots[k].occupant = m; m.state = 'converging'; }
+    else { m.siteIndex = null; m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT; }
+  });
+  sacredFused = true;
+  showCmdToast('✦ FLOR DE LA VIDA — FUSIÓN', '#FFD200');
+}
+function toggleFuse() {
+  if (sacredFused) {
+    const stray = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
+    resetSacredSites();
+    stray.forEach(m => { m.state = 'wander'; m.siteIndex = null; m.slotIndex = null; m.bornAt = mapT; });
+    showCmdToast('◇ geometría restaurada', '#B84DFF');
+  } else fuseSacred();
+}
 
 function advanceSacredSite(site) {
+  if (site.noAdvance) return false;
   if (site.figureIdx >= SACRED_FIGURES.length - 1) return false;
   const si = SACRED_SITES.indexOf(site);
   const locked = malignants.filter(m => m.state === 'locked' && m.siteIndex === si);
@@ -3637,17 +3662,19 @@ function advanceSacredSite(site) {
 }
 
 function sacredSlotPos(site, slot, W, H) {
-  const scale = (Math.min(W, H) * 0.062) / site.maxR; // smaller footprint — less invasive
+  const scale = (Math.min(W, H) * (site.scale || 0.062)) / site.maxR; // per-site footprint
   return { x: site.anchor.x * W + Math.cos(slot.a) * slot.r * scale, y: site.anchor.y * H + Math.sin(slot.a) * slot.r * scale };
 }
 function drawSacredGeometry(ctx, W, H) {
   const pulse = 0.5 + 0.5 * Math.sin(mapT * 1.1);
   ctx.save();
-  ctx.strokeStyle = `rgba(255,210,0,${0.09 + pulse * 0.08})`; // fainter lines
   ctx.lineWidth = 1;
   ctx.shadowColor = 'rgba(255,210,0,0.4)';
   ctx.shadowBlur = 4;
   SACRED_SITES.forEach(site => {
+    const big = (site.scale || 0.062) > 0.2; // the fused mega formation is bright & prominent
+    ctx.strokeStyle = big ? `rgba(255,210,0,${0.30 + pulse * 0.22})` : `rgba(255,210,0,${0.09 + pulse * 0.08})`;
+    ctx.lineWidth = big ? 1.5 : 1;
     const positions = site.slots.map(s => ({ ...sacredSlotPos(site, s, W, H), locked: !!(s.occupant && s.occupant.state === 'locked') }));
     if (positions.filter(p => p.locked).length < 2) return;
     site.edges.forEach(([a, b]) => {
@@ -6076,6 +6103,12 @@ document.addEventListener('keydown', e => {
   // ── X — Summon a GIANT entity ──
   if (key === 'x' || key === 'X') {
     spawnGiant();
+    return;
+  }
+
+  // ── F — Fuse all geometry into one giant central Flower of Life (toggle) ──
+  if (key === 'f' || key === 'F') {
+    toggleFuse();
     return;
   }
 
