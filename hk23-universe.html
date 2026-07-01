@@ -1393,7 +1393,7 @@
       <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;letter-spacing:1px;color:#fff;">◈ NFT VAULT</span>
       <span onclick="NFTVAULT.toggle()" style="cursor:pointer;color:#888;font-size:20px;">✕</span>
     </div>
-    <div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Tu colección · biblioteca + market · mint on-chain</div>
+    <div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Tu colección · biblioteca + market · mint on-chain · <span id="nft-count" style="color:#B84DFF;">—</span></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
       <input id="nft-title" placeholder="Título" style="flex:1;min-width:120px;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;">
       <input id="nft-img" placeholder="URL de imagen" style="flex:2;min-width:160px;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;">
@@ -1417,40 +1417,61 @@
 </div>
 <script>
 (function () {
-  let mintingId = null;
-  function load() { try { return JSON.parse(localStorage.getItem('hk23-nft-vault') || '[]'); } catch (_) { return []; } }
-  function save(a) { localStorage.setItem('hk23-nft-vault', JSON.stringify(a)); }
+  let mintingId = null, baseCol = null, baseLoaded = false;
+  function userItems() { try { return JSON.parse(localStorage.getItem('hk23-nft-vault') || '[]'); } catch (_) { return []; } }
+  function saveUser(a) { localStorage.setItem('hk23-nft-vault', JSON.stringify(a)); }
+  function ov() { try { return JSON.parse(localStorage.getItem('hk23-nft-ov') || '{}'); } catch (_) { return {}; } }
+  function saveOv(o) { localStorage.setItem('hk23-nft-ov', JSON.stringify(o)); }
+  async function ensureBase() {
+    if (baseLoaded) return;
+    try { const r = await fetch('nft-collection.json'); baseCol = await r.json(); } catch (_) { baseCol = []; }
+    baseLoaded = true;
+  }
+  function combined() {
+    const o = ov();
+    const base = (baseCol || []).filter(it => !(o[it.id] && o[it.id].removed))
+      .map(it => ({ ...it, status: (o[it.id] && o[it.id].status) || 'biblioteca', tx: (o[it.id] && o[it.id].tx) || '', base: true }));
+    return userItems().concat(base); // user additions first
+  }
   const NFTVAULT = {
-    toggle() { const p = document.getElementById('nft-panel'); const open = p.style.display === 'block'; p.style.display = open ? 'none' : 'block'; if (!open) NFTVAULT.render(); },
+    async toggle() { const p = document.getElementById('nft-panel'); const open = p.style.display === 'block'; p.style.display = open ? 'none' : 'block'; if (!open) { await ensureBase(); NFTVAULT.render(); } },
     add() {
       const t = document.getElementById('nft-title').value.trim(), img = document.getElementById('nft-img').value.trim();
       if (!t && !img) { if (window.showCmdToast) showCmdToast('Poné título o imagen', '#FF3A1F'); return; }
-      const item = { id: 'nft_' + (load().length + 1) + '_' + t.slice(0, 6).replace(/\W/g, ''), title: t || 'Sin título', img, coll: document.getElementById('nft-coll').value.trim(), chain: document.getElementById('nft-chain').value, status: 'biblioteca', tx: '' };
-      const a = load(); a.push(item); save(a);
-      // persist to Supabase too (kind='nft') if the cloud helper is present
+      const item = { id: 'nft_' + Date.now().toString(36), title: t || 'Sin título', img, coll: document.getElementById('nft-coll').value.trim(), chain: document.getElementById('nft-chain').value, status: 'biblioteca', tx: '' };
+      const a = userItems(); a.unshift(item); saveUser(a);
       if (window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity(item.id, { name: item.title, slug: 'nft-' + item.id, level: 'node', kind: 'system', summary: item.coll, meta: { nh: '1', kind: 'nft', img: item.img, chain: item.chain, status: 'biblioteca' } });
       document.getElementById('nft-title').value = ''; document.getElementById('nft-img').value = ''; document.getElementById('nft-coll').value = '';
       if (window.showCmdToast) showCmdToast('◈ AGREGADO AL VAULT', '#B84DFF');
       NFTVAULT.render();
     },
-    remove(id) { save(load().filter(x => x.id !== id)); NFTVAULT.render(); },
+    remove(id) {
+      const u = userItems();
+      if (u.some(x => x.id === id)) { saveUser(u.filter(x => x.id !== id)); }
+      else { const o = ov(); o[id] = { ...(o[id] || {}), removed: true }; saveOv(o); } // hide a base piece
+      NFTVAULT.render();
+    },
     mint(id) { mintingId = id; document.getElementById('nft-tx').value = ''; document.getElementById('nft-mint-modal').style.display = 'flex'; },
     confirmMint() {
-      const a = load(), it = a.find(x => x.id === mintingId); if (it) { it.status = 'minteado'; it.tx = document.getElementById('nft-tx').value.trim(); save(a); }
+      const tx = document.getElementById('nft-tx').value.trim();
+      const u = userItems(), it = u.find(x => x.id === mintingId);
+      if (it) { it.status = 'minteado'; it.tx = tx; saveUser(u); }
+      else { const o = ov(); o[mintingId] = { ...(o[mintingId] || {}), status: 'minteado', tx }; saveOv(o); }
       document.getElementById('nft-mint-modal').style.display = 'none';
       if (window.showCmdToast) showCmdToast('⛓️ Marcado como minteado', '#B84DFF');
       NFTVAULT.render();
     },
     render() {
-      const grid = document.getElementById('nft-grid'), a = load();
-      if (!a.length) { grid.innerHTML = '<div style="color:#6a6a82;font-size:12px;grid-column:1/-1;line-height:1.7;">Tu biblioteca está vacía.<br>Agregá tu primera pieza arriba (título + URL de imagen). Después podemos importar tu colección completa de una.</div>'; return; }
+      const grid = document.getElementById('nft-grid'), a = combined();
+      const cnt = document.getElementById('nft-count'); if (cnt) cnt.textContent = a.length + ' piezas';
+      if (!a.length) { grid.innerHTML = '<div style="color:#6a6a82;font-size:12px;grid-column:1/-1;line-height:1.7;">Tu biblioteca está vacía.<br>Agregá una pieza arriba (título + URL de imagen).</div>'; return; }
       grid.innerHTML = a.map(it => {
         const minted = it.status === 'minteado';
         return '<div style="background:rgba(12,12,20,.9);border:1px solid ' + (minted ? '#B84DFF' : '#24243a') + ';border-radius:12px;overflow:hidden;">'
-          + (it.img ? '<div style="aspect-ratio:1;background:#000 center/cover no-repeat url(\'' + it.img.replace(/'/g, '') + '\');"></div>' : '<div style="aspect-ratio:1;background:#0e0e16;display:flex;align-items:center;justify-content:center;color:#333;font-size:26px;">◈</div>')
+          + (it.img ? '<img loading="lazy" src="' + it.img.replace(/"/g, '') + '" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#000;">' : '<div style="aspect-ratio:1;background:#0e0e16;display:flex;align-items:center;justify-content:center;color:#333;font-size:26px;">◈</div>')
           + '<div style="padding:9px 10px;">'
-          + '<div style="font-size:11px;color:#e6e6ee;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + it.title.replace(/</g, '&lt;') + '</div>'
-          + '<div style="font-size:8px;color:#6a6a82;letter-spacing:1px;margin:2px 0 8px;text-transform:uppercase;">' + (it.coll ? it.coll + ' · ' : '') + it.chain + ' · ' + (minted ? '⛓️ MINTEADO' : 'BIBLIOTECA') + '</div>'
+          + '<div style="font-size:11px;color:#e6e6ee;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + String(it.title).replace(/</g, '&lt;') + '</div>'
+          + '<div style="font-size:8px;color:#6a6a82;letter-spacing:1px;margin:2px 0 8px;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (it.coll ? it.coll + ' · ' : '') + it.chain + ' · ' + (minted ? '⛓️ MINTEADO' : 'BIBLIOTECA') + '</div>'
           + '<div style="display:flex;gap:6px;">'
           + (minted && it.tx ? '<a href="' + it.tx + '" target="_blank" rel="noopener" style="flex:1;text-align:center;background:rgba(184,77,255,.15);border:1px solid #B84DFF;color:#B84DFF;border-radius:6px;padding:5px;font-size:9px;text-decoration:none;">ver tx →</a>'
               : '<button onclick="NFTVAULT.mint(\'' + it.id + '\')" style="flex:1;background:rgba(184,77,255,.15);border:1px solid #B84DFF;color:#B84DFF;border-radius:6px;padding:5px;font-family:inherit;font-size:9px;cursor:pointer;">◈ Mint</button>')
