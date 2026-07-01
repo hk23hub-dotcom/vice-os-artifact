@@ -34,6 +34,10 @@
     cursor: crosshair;
   }
 
+  /* YouTube ambient background — canvases clearRect (not opaque fill), so once the
+     body's own black paint is turned off the video shows through empty space everywhere. */
+  body.ytbg-active { background: transparent; }
+
   body::after {
     content: '';
     position: fixed;
@@ -1300,6 +1304,20 @@
 <body>
 
 <div class="scan-line"></div>
+
+<!-- ═══════════ YOUTUBE AMBIENT BACKGROUND (whole universe, key 'Y') ═══════════ -->
+<div id="ytbg-layer" style="position:fixed;inset:0;z-index:-1;display:none;background:#000;">
+  <iframe id="ytbg-iframe" style="width:100%;height:100%;border:none;pointer-events:none;" allow="autoplay; encrypted-media" title="YouTube background"></iframe>
+</div>
+<div id="ytbg-controls" style="position:fixed;top:16px;right:16px;z-index:500;display:none;background:rgba(7,7,15,.90);border:1px solid rgba(255,58,31,.4);padding:10px 12px;font-family:'Space Mono',monospace;font-size:10px;color:#F0EDE8;width:230px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+    <span style="letter-spacing:.12em;color:#FF3A1F;font-weight:700;font-size:9px;">🎬 YOUTUBE DE FONDO</span>
+    <button onclick="closeYtBg()" style="background:none;border:none;color:rgba(240,237,232,.5);cursor:pointer;font-family:inherit;font-size:12px;">✕</button>
+  </div>
+  <input id="ytbg-url" type="text" placeholder="pega URL o ID de YouTube" style="width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:#F0EDE8;padding:6px 8px;font-family:inherit;font-size:10px;margin-bottom:6px;" onkeydown="if(event.key==='Enter') setYtBgVideo(this.value)">
+  <button onclick="setYtBgVideo(document.getElementById('ytbg-url').value)" style="width:100%;background:rgba(255,58,31,.15);border:1px solid #FF3A1F;color:#FF3A1F;padding:6px;cursor:pointer;font-family:inherit;font-size:9px;letter-spacing:.1em;">▶ REPRODUCIR</button>
+</div>
+
 <canvas id="constellation"></canvas>
 <div id="node-tooltip" class="node-tooltip"></div>
 
@@ -1465,6 +1483,7 @@
   <div class="sc-row"><div class="sc-key">R</div><div class="sc-label">Arte world</div></div>
   <div class="sc-row"><div class="sc-key">S</div><div class="sc-label">Swarm art</div></div>
   <div class="sc-row"><div class="sc-key">D</div><div class="sc-label">Disarm geometry</div></div>
+  <div class="sc-row"><div class="sc-key">Y</div><div class="sc-label">YouTube fondo</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -4517,6 +4536,49 @@ function executeCmdAction(action) {
   }
 }
 
+// ─── YOUTUBE AMBIENT BACKGROUND — plays behind the entire universe, persists across navigation ───
+function extractYoutubeId(input) {
+  if (!input) return null;
+  const s = input.trim();
+  const m = s.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([a-zA-Z0-9_-]{11})/);
+  if (m) return m[1];
+  if (/^[a-zA-Z0-9_-]{11}$/.test(s)) return s;
+  return null;
+}
+
+function setYtBgVideo(input) {
+  const id = extractYoutubeId(input);
+  if (!id) { showCmdToast('URL/ID DE YOUTUBE INVÁLIDO', '#FF3A1F'); return; }
+  localStorage.setItem('hk23-ytbg-video', id);
+  document.getElementById('ytbg-iframe').src =
+    `https://www.youtube.com/embed/${id}?autoplay=1&mute=0&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0`;
+  document.getElementById('ytbg-url').value = '';
+  showCmdToast('🎬 YOUTUBE DE FONDO ✦', '#FF3A1F');
+}
+
+function openYtBg() {
+  document.getElementById('ytbg-layer').style.display = 'block';
+  document.getElementById('ytbg-controls').style.display = 'block';
+  document.body.classList.add('ytbg-active');
+  const saved = localStorage.getItem('hk23-ytbg-video');
+  if (saved) {
+    document.getElementById('ytbg-iframe').src =
+      `https://www.youtube.com/embed/${saved}?autoplay=1&mute=0&loop=1&playlist=${saved}&controls=0&modestbranding=1&rel=0`;
+  }
+}
+
+function closeYtBg() {
+  document.getElementById('ytbg-layer').style.display = 'none';
+  document.getElementById('ytbg-controls').style.display = 'none';
+  document.getElementById('ytbg-iframe').src = ''; // actually stop playback/audio, not just hide it
+  document.body.classList.remove('ytbg-active');
+}
+
+function toggleYtBg() {
+  const isOpen = document.getElementById('ytbg-layer').style.display === 'block';
+  if (isOpen) closeYtBg(); else openYtBg();
+}
+
 // ─── AGENT BASE PANEL ───
 function openAgentBasePanel() {
   const list = document.getElementById('abp-agents-list');
@@ -5476,6 +5538,12 @@ document.addEventListener('keydown', e => {
     if (ip  && ip.classList.contains('visible'))  { ip.classList.remove('visible');  return; }
     if (currentScreen !== 'portal' && currentScreen !== 'map') { goTo('map'); return; }
     if (currentScreen === 'map') goTo('portal');
+    return;
+  }
+
+  // ── Y — YouTube Ambient Background (works from any screen — persists across navigation) ──
+  if (key === 'y' || key === 'Y') {
+    toggleYtBg();
     return;
   }
 
