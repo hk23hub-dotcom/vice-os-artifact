@@ -1386,6 +1386,83 @@
 })();
 </script>
 
+<!-- ═══════════ NFT VAULT — your collection / market (key 'N') ═══════════ -->
+<div id="nft-panel" style="position:fixed;inset:0;z-index:9650;display:none;background:rgba(4,4,8,.9);backdrop-filter:blur(9px);padding:24px;font-family:'Space Mono',monospace;overflow:auto;">
+  <div style="max-width:940px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;letter-spacing:1px;color:#fff;">◈ NFT VAULT</span>
+      <span onclick="NFTVAULT.toggle()" style="cursor:pointer;color:#888;font-size:20px;">✕</span>
+    </div>
+    <div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;">Tu colección · biblioteca + market · mint on-chain</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center;">
+      <input id="nft-title" placeholder="Título" style="flex:1;min-width:120px;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;">
+      <input id="nft-img" placeholder="URL de imagen" style="flex:2;min-width:160px;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;">
+      <input id="nft-coll" placeholder="Colección" style="flex:1;min-width:100px;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;">
+      <select id="nft-chain" style="background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;"><option>Base</option><option>Ethereum</option><option>Solana</option><option>Polygon</option><option>Bitcoin · Ordinals</option></select>
+      <button onclick="NFTVAULT.add()" style="background:#B84DFF;color:#fff;border:none;border-radius:8px;padding:9px 16px;font-family:'Space Grotesk',sans-serif;font-weight:700;cursor:pointer;">＋ Agregar</button>
+    </div>
+    <div id="nft-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+  </div>
+</div>
+<!-- Mint seam modal -->
+<div id="nft-mint-modal" style="position:fixed;inset:0;z-index:9720;display:none;background:rgba(4,4,8,.86);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:440px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:24px;">
+    <div style="font-size:30px;text-align:center;margin-bottom:6px;">⛓️</div>
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:17px;color:#fff;text-align:center;margin-bottom:8px;">Mint on-chain</div>
+    <div style="color:#9a9aa4;font-size:11px;line-height:1.6;margin-bottom:16px;">Quemar/mintear de verdad necesita <b style="color:#B84DFF">tu wallet</b> (MetaMask/Phantom) + un contrato. Eso se firma desde tu wallet — no puede hacerse por vos. Por ahora la pieza queda en tu biblioteca. Si ya la minteaste en otro lado, pegá el link del tx para registrarlo:</div>
+    <input id="nft-tx" placeholder="https://… (tx / link del token, opcional)" style="width:100%;background:#0e0e16;border:1px solid #24243a;border-radius:8px;color:#e6e6ee;font-family:inherit;font-size:11px;padding:9px;outline:none;margin-bottom:10px;">
+    <button onclick="NFTVAULT.confirmMint()" style="width:100%;background:#B84DFF;color:#fff;border:none;border-radius:10px;padding:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:8px;">MARCAR COMO MINTEADO</button>
+    <div onclick="document.getElementById('nft-mint-modal').style.display='none'" style="cursor:pointer;color:#666;font-size:11px;text-align:center;">cancelar</div>
+  </div>
+</div>
+<script>
+(function () {
+  let mintingId = null;
+  function load() { try { return JSON.parse(localStorage.getItem('hk23-nft-vault') || '[]'); } catch (_) { return []; } }
+  function save(a) { localStorage.setItem('hk23-nft-vault', JSON.stringify(a)); }
+  const NFTVAULT = {
+    toggle() { const p = document.getElementById('nft-panel'); const open = p.style.display === 'block'; p.style.display = open ? 'none' : 'block'; if (!open) NFTVAULT.render(); },
+    add() {
+      const t = document.getElementById('nft-title').value.trim(), img = document.getElementById('nft-img').value.trim();
+      if (!t && !img) { if (window.showCmdToast) showCmdToast('Poné título o imagen', '#FF3A1F'); return; }
+      const item = { id: 'nft_' + (load().length + 1) + '_' + t.slice(0, 6).replace(/\W/g, ''), title: t || 'Sin título', img, coll: document.getElementById('nft-coll').value.trim(), chain: document.getElementById('nft-chain').value, status: 'biblioteca', tx: '' };
+      const a = load(); a.push(item); save(a);
+      // persist to Supabase too (kind='nft') if the cloud helper is present
+      if (window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity(item.id, { name: item.title, slug: 'nft-' + item.id, level: 'node', kind: 'system', summary: item.coll, meta: { nh: '1', kind: 'nft', img: item.img, chain: item.chain, status: 'biblioteca' } });
+      document.getElementById('nft-title').value = ''; document.getElementById('nft-img').value = ''; document.getElementById('nft-coll').value = '';
+      if (window.showCmdToast) showCmdToast('◈ AGREGADO AL VAULT', '#B84DFF');
+      NFTVAULT.render();
+    },
+    remove(id) { save(load().filter(x => x.id !== id)); NFTVAULT.render(); },
+    mint(id) { mintingId = id; document.getElementById('nft-tx').value = ''; document.getElementById('nft-mint-modal').style.display = 'flex'; },
+    confirmMint() {
+      const a = load(), it = a.find(x => x.id === mintingId); if (it) { it.status = 'minteado'; it.tx = document.getElementById('nft-tx').value.trim(); save(a); }
+      document.getElementById('nft-mint-modal').style.display = 'none';
+      if (window.showCmdToast) showCmdToast('⛓️ Marcado como minteado', '#B84DFF');
+      NFTVAULT.render();
+    },
+    render() {
+      const grid = document.getElementById('nft-grid'), a = load();
+      if (!a.length) { grid.innerHTML = '<div style="color:#6a6a82;font-size:12px;grid-column:1/-1;line-height:1.7;">Tu biblioteca está vacía.<br>Agregá tu primera pieza arriba (título + URL de imagen). Después podemos importar tu colección completa de una.</div>'; return; }
+      grid.innerHTML = a.map(it => {
+        const minted = it.status === 'minteado';
+        return '<div style="background:rgba(12,12,20,.9);border:1px solid ' + (minted ? '#B84DFF' : '#24243a') + ';border-radius:12px;overflow:hidden;">'
+          + (it.img ? '<div style="aspect-ratio:1;background:#000 center/cover no-repeat url(\'' + it.img.replace(/'/g, '') + '\');"></div>' : '<div style="aspect-ratio:1;background:#0e0e16;display:flex;align-items:center;justify-content:center;color:#333;font-size:26px;">◈</div>')
+          + '<div style="padding:9px 10px;">'
+          + '<div style="font-size:11px;color:#e6e6ee;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + it.title.replace(/</g, '&lt;') + '</div>'
+          + '<div style="font-size:8px;color:#6a6a82;letter-spacing:1px;margin:2px 0 8px;text-transform:uppercase;">' + (it.coll ? it.coll + ' · ' : '') + it.chain + ' · ' + (minted ? '⛓️ MINTEADO' : 'BIBLIOTECA') + '</div>'
+          + '<div style="display:flex;gap:6px;">'
+          + (minted && it.tx ? '<a href="' + it.tx + '" target="_blank" rel="noopener" style="flex:1;text-align:center;background:rgba(184,77,255,.15);border:1px solid #B84DFF;color:#B84DFF;border-radius:6px;padding:5px;font-size:9px;text-decoration:none;">ver tx →</a>'
+              : '<button onclick="NFTVAULT.mint(\'' + it.id + '\')" style="flex:1;background:rgba(184,77,255,.15);border:1px solid #B84DFF;color:#B84DFF;border-radius:6px;padding:5px;font-family:inherit;font-size:9px;cursor:pointer;">◈ Mint</button>')
+          + '<button onclick="NFTVAULT.remove(\'' + it.id + '\')" style="background:none;border:1px solid #333;color:#888;border-radius:6px;padding:5px 8px;font-family:inherit;font-size:9px;cursor:pointer;">✕</button>'
+          + '</div></div></div>';
+      }).join('');
+    },
+  };
+  window.NFTVAULT = NFTVAULT;
+})();
+</script>
+
 <!-- ═══════════ TIER CHOOSER (subscription = your galaxy) ═══════════ -->
 <div id="tier-overlay" style="position:fixed;inset:0;z-index:9700;display:none;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
   <div style="width:900px;max-width:96vw;max-height:92vh;overflow:auto;">
@@ -1578,6 +1655,7 @@
   <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
   <div class="sc-row"><div class="sc-key">C</div><div class="sc-label">Cripto</div></div>
   <div class="sc-row"><div class="sc-key">H</div><div class="sc-label">Modo: geo / hoyos / greens / mandala / ondas</div></div>
+  <div class="sc-row"><div class="sc-key">N</div><div class="sc-label">NFT Vault</div></div>
   <div class="sc-row"><div class="sc-key">I</div><div class="sc-label">Ideas</div></div>
   <div class="sc-row"><div class="sc-key">?</div><div class="sc-label">Shortcuts</div></div>
   <div class="sc-row"><div class="sc-key">ESC</div><div class="sc-label">Back</div></div>
@@ -6254,6 +6332,12 @@ document.addEventListener('keydown', e => {
   // ── H — Cycle what the entities build (sacred / golf holes / greens) ──
   if (key === 'h' || key === 'H') {
     cycleBuildMode();
+    return;
+  }
+
+  // ── N — NFT Vault (your collection / market) ──
+  if (key === 'n' || key === 'N') {
+    if (window.NFTVAULT) NFTVAULT.toggle();
     return;
   }
 
