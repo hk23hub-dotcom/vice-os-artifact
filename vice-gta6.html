@@ -615,5 +615,129 @@ setInterval(tick,1000); tick();
 $('#search').addEventListener('input',e=>{query=e.target.value;render();});
 render();
 </script>
+
+<!-- ============================ VICE PRO (monetization module, additive) ============================ -->
+<script>
+(function(){
+  // ── CONFIG: paste the Gumroad product URL here when it exists (one edit) ──
+  const PRO_CFG = {
+    buyUrl: '',              // e.g. 'https://hk23.gumroad.com/l/vicehubpro'
+    price: '$4.99',
+  };
+  const RUN_TOKEN = 'hk23-run-9x';
+
+  let PRO = lsGet('vicehub-pro', null); // {key, at} once activated
+
+  // ── PRO tab ──
+  CATS.push({ key:'pro', label: PRO ? '★ PRO' : '🔒 PRO', title: 'VICE PRO' });
+
+  const _renderOrig = window.render;
+  window.render = function(){
+    if (activeCat !== 'pro') { _renderOrig(); return; }
+    renderTabs();
+    const chips = $('#chips'); if (chips){ chips.style.display='none'; chips.innerHTML=''; }
+    $('#sec-title').textContent = 'VICE PRO';
+    $('#sec-count').textContent = PRO ? 'ACCESS GRANTED' : 'LOCKED';
+    $('#content').innerHTML = PRO ? proZone() : proLocked();
+    bindPro();
+  };
+
+  function proLocked(){
+    return `<div class="crew-form" style="max-width:640px;margin:0 auto;text-align:center;border-color:var(--pink)">
+      <div style="font-size:40px">★</div>
+      <h3 style="font-size:22px;margin:6px 0 4px">VICE.HUB <span style="color:var(--pink)">PRO</span></h3>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:18px">One purchase. Lifetime access. ${esc(PRO_CFG.price)}</p>
+      <div style="text-align:left;display:inline-block;font-size:13px;line-height:2">
+        <div>🧠 <b>Vice Insider Agent</b> — ask the AI anything about GTA 6, unlimited</div>
+        <div>💰 Deep-dive money strategies (day-1 plans, not listicles)</div>
+        <div>🚗 The full vault vehicle database</div>
+        <div>🕳️ The Secret Zone — hidden eggs & codes</div>
+      </div>
+      <div style="margin-top:20px">
+        ${PRO_CFG.buyUrl
+          ? `<a class="btn-primary" href="${PRO_CFG.buyUrl}" target="_blank" rel="noopener" style="text-decoration:none;display:inline-block">UNLOCK PRO — ${esc(PRO_CFG.price)} →</a>`
+          : `<div style="color:var(--cyan);font-size:12px;letter-spacing:1px">🛠 CHECKOUT OPENS SOON — license activation already works below</div>`}
+      </div>
+      <div style="margin-top:22px;border-top:1px solid var(--line);padding-top:16px">
+        <p style="font-size:11px;color:var(--muted);margin-bottom:8px">Already bought it? Paste the license key from your Gumroad receipt:</p>
+        <div style="display:flex;gap:8px;max-width:420px;margin:0 auto">
+          <input id="pro-key" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX" style="flex:1"/>
+          <button class="btn-primary" id="pro-activate">Activate</button>
+        </div>
+        <div id="pro-msg" style="font-size:11px;margin-top:8px;color:var(--muted)"></div>
+      </div>
+    </div>`;
+  }
+
+  function proZone(){
+    return `
+    <div class="crew-form" style="border-color:var(--cyan)">
+      <h3>🧠 Vice Insider Agent <span style="font-size:10px;color:var(--cyan);letter-spacing:2px">· REAL AI · UNLIMITED</span></h3>
+      <p style="font-size:12px;color:var(--muted);margin:4px 0 10px">Ask anything about GTA 6 — it separates confirmed facts from speculation.</p>
+      <div style="display:flex;gap:8px">
+        <input id="ag-q" placeholder="e.g. best solo money plan for week 1?" style="flex:1"/>
+        <button class="btn-primary" id="ag-go">ASK</button>
+      </div>
+      <div id="ag-out" style="margin-top:12px;font-size:13px;line-height:1.7;color:#e8e2f4;white-space:pre-wrap;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:12px;min-height:34px">The Insider's answer appears here.</div>
+    </div>
+    <div class="grid" style="margin-top:16px">
+      <div class="crew-form"><h3>💰 Day-1 Millionaire Plan</h3><p style="font-size:12px;line-height:1.8;color:#cfc7e2">Hour-by-hour route for launch day: story missions until the first property unlock, flip the starter stash into the (speculative) Cayo-style repeatable, and bank the pre-order bonus LAST so it stacks on the multiplier. Full plan inside the agent — ask: <i>"day 1 plan"</i>.</p></div>
+      <div class="crew-form"><h3>🚗 Vault Vehicles</h3><p style="font-size:12px;line-height:1.8;color:#cfc7e2">The extended DB: 8 rumored top-tier rides with sources and confidence ratings. Ask the agent: <i>"vault vehicles"</i>.</p></div>
+      <div class="crew-form"><h3>🕳️ Secret Zone</h3><p style="font-size:12px;line-height:1.8;color:#cfc7e2">There is a code hidden in this hub. Type it anywhere — no input box needed. Hint: the name of this city, and the year everything changed. <span style="color:var(--pink)">6 characters.</span></p></div>
+    </div>`;
+  }
+
+  function bindPro(){
+    const act = $('#pro-activate');
+    if (act) act.onclick = async () => {
+      const key = ($('#pro-key').value || '').trim();
+      const msg = $('#pro-msg');
+      if (!key) { msg.textContent = 'Paste your license key first.'; return; }
+      msg.textContent = 'Verifying with Gumroad…';
+      try {
+        const r = await fetch('/api/gta6-unlock', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ license_key:key, first:true }) });
+        const j = await r.json();
+        if (j.ok) { PRO = { key, at: Date.now() }; lsSet('vicehub-pro', PRO); CATS[CATS.length-1].label='★ PRO'; msg.textContent=''; render(); }
+        else { msg.textContent = '⚠ ' + (j.error || 'Invalid key'); msg.style.color='var(--pink)'; }
+      } catch(e){ msg.textContent = '⚠ Network error — try again.'; }
+    };
+    const go = $('#ag-go');
+    if (go) go.onclick = async () => {
+      const q = ($('#ag-q').value || '').trim(); const out = $('#ag-out');
+      if (!q) { out.textContent = 'Type a question first.'; return; }
+      out.textContent = '🧠 The Insider is thinking…';
+      try {
+        const r = await fetch('/api/run', { method:'POST', headers:{'content-type':'application/json','x-run-token':RUN_TOKEN}, body: JSON.stringify({ action:'agent', agent:'gta6', input:q }) });
+        const j = await r.json();
+        out.textContent = j.ok ? j.text : ('⚠ ' + (j.error || 'failed'));
+      } catch(e){ out.textContent = '⚠ Network error.'; }
+    };
+  }
+
+  // ── silent re-verification of a stored license (source of truth = Gumroad) ──
+  if (PRO && PRO.key) {
+    fetch('/api/gta6-unlock', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ license_key: PRO.key }) })
+      .then(r=>r.json()).then(j=>{ if (j && j.ok===false && !/verificar ahora|conectada/.test(j.error||'')) { PRO=null; lsSet('vicehub-pro', null); CATS[CATS.length-1].label='🔒 PRO'; if(activeCat==='pro') render(); } })
+      .catch(()=>{}); // offline → keep cached unlock
+  }
+
+  // ── VICE23 — the hidden code (type it anywhere) ──
+  let seq='';
+  window.addEventListener('keydown', e => {
+    if (['INPUT','TEXTAREA','SELECT'].includes((e.target.tagName||''))) return;
+    seq = (seq + (e.key||'').toUpperCase()).slice(-6);
+    if (seq === 'VICE23') {
+      seq='';
+      const d=document.createElement('div');
+      d.style.cssText='position:fixed;inset:0;z-index:999;display:flex;align-items:center;justify-content:center;background:rgba(5,2,12,.92);backdrop-filter:blur(8px)';
+      d.innerHTML='<div style="text-align:center;border:1px solid var(--pink);border-radius:16px;padding:40px 48px;background:var(--panel-solid);box-shadow:0 0 60px rgba(255,46,147,.35)"><div style="font-size:44px">🌴</div><div style="font-family:Oswald;font-size:26px;letter-spacing:3px;color:var(--pink);margin:8px 0">SECRET FOUND</div><div style="color:#cfc7e2;font-size:13px;max-width:340px;line-height:1.7">You typed the code. When the city goes live on <b>11.19.2026</b>, the first 100 who found this get a permanent shoutout on the hub.</div><div style="margin-top:18px;color:var(--cyan);font-size:11px;letter-spacing:2px;cursor:pointer" onclick="this.closest(\'div[style*=fixed]\').remove()">CLOSE ✕</div></div>';
+      document.body.appendChild(d);
+      lsSet('vicehub-egg-vice23', true);
+    }
+  });
+
+  renderTabs(); // show the PRO tab immediately
+})();
+</script>
 </body>
 </html>

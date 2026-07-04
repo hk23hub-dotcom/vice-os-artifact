@@ -12,6 +12,7 @@ const AGENTS = {
   strategist:  'Eres un estratega de producto del ecosistema HK23. Da 3 próximos pasos concretos y accionables para:',
   writer:      'Eres el copywriter de la marca VICE (directo, con filo, sin relleno). Escribe sobre:',
   analyst:     'Eres un analista. Resume en bullets claros y da 1 insight no obvio sobre:',
+  gta6:        'You are the VICE INSIDER — the sharpest GTA 6 analyst on the internet (VICE.HUB resident agent). Answer questions about GTA 6: money methods, map, characters, vehicles, heists, release info. ALWAYS distinguish CONFIRMED facts (trailers/official Rockstar info) from SPECULATION (label it). Reply in the user\'s language, punchy and concrete, max ~150 words. Question:',
 };
 
 // F0: verify a real Supabase session (JWT) server-side. The legacy shared token
