@@ -1714,6 +1714,11 @@
 <!-- ═══════════ GALAXY MODE ═══════════ -->
 <div id="galaxy-overlay">
   <canvas id="galaxy-canvas-bg"></canvas>
+  <div id="galaxy-defense" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Space Mono',monospace;pointer-events:auto;">
+    <div id="galaxy-threat" style="font-size:10px;letter-spacing:2px;color:#ff5b6b;opacity:0;transition:opacity .3s;">☄️ AMENAZA ENTRANTE</div>
+    <button id="galaxy-shield-btn" onclick="if(window.galaxyToggleShield)galaxyToggleShield()" style="background:rgba(0,240,255,.12);border:1px solid #00F0FF;color:#00F0FF;border-radius:30px;padding:9px 18px;font-family:inherit;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">🛡 Desplegar defensa</button>
+    <div style="font-size:8px;letter-spacing:1px;color:#5a5a68;">agente de HK23 · pedir / comprar / regalar</div>
+  </div>
 </div>
 <div id="galaxy-mode-label">MULTIVERSE VIEW — G TO EXIT</div>
 <div id="galaxy-exit-hint">[ G ] exit galaxy mode</div>
@@ -1776,6 +1781,7 @@
     },
     choose(k) {
       HK23TIER.set(k);
+      if (window.HK23AUTH) HK23AUTH.saveTier(k); // persist tier to the real Supabase account (F0)
       document.getElementById('tier-overlay').style.display = 'none';
       const t = HK23TIER.info();
       if (window.showCmdToast) showCmdToast('◆ GALAXIA ' + t.name + ' ✦', t.color);
@@ -1797,6 +1803,102 @@
   window.HK23TIER = HK23TIER;
   document.addEventListener('DOMContentLoaded', HK23TIER.updateBadge);
   HK23TIER.updateBadge();
+})();
+</script>
+
+<!-- ═══════════ HK23 AUTH (F0) — real Supabase sessions for every visitor ═══════════ -->
+<div id="auth-fab" onclick="HK23AUTH.open()" style="position:fixed;top:194px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">⏻ Cuenta</div>
+<div id="auth-overlay" style="position:fixed;inset:0;z-index:9800;display:none;background:rgba(4,4,8,.88);backdrop-filter:blur(9px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:400px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:19px;color:#fff;">HK23 ID</span>
+      <span onclick="document.getElementById('auth-overlay').style.display='none'" style="cursor:pointer;color:#888;font-size:18px;">✕</span>
+    </div>
+    <div id="auth-status" style="color:#6a6a82;font-size:10px;letter-spacing:1px;line-height:1.7;margin-bottom:16px;">—</div>
+    <input id="auth-email" type="email" placeholder="email" autocomplete="email" style="width:100%;background:#0e0e16;border:1px solid #20202c;border-radius:9px;padding:11px;color:#e6e6ee;font-family:inherit;font-size:12px;outline:none;margin-bottom:8px;">
+    <input id="auth-pass" type="password" placeholder="contraseña" autocomplete="current-password" style="width:100%;background:#0e0e16;border:1px solid #20202c;border-radius:9px;padding:11px;color:#e6e6ee;font-family:inherit;font-size:12px;outline:none;margin-bottom:12px;">
+    <button onclick="HK23AUTH.login()" style="width:100%;background:#00F0FF;color:#06121a;border:none;border-radius:10px;padding:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:8px;">ENTRAR</button>
+    <button onclick="HK23AUTH.signup()" style="width:100%;background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px;font-family:inherit;font-size:11px;cursor:pointer;margin-bottom:8px;">Crear cuenta</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="color:#4a4a58;font-size:9px;letter-spacing:1px;">misma cuenta que ViceGolfer</span>
+      <span id="auth-logout" onclick="HK23AUTH.logout()" style="cursor:pointer;color:#ff5b6b;font-size:10px;letter-spacing:1px;display:none;">salir →</span>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+(function () {
+  const SB_URL = 'https://iiqhhglgjsbnuihythko.supabase.co';
+  const SB_KEY = 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+  let client = null, sess = null;
+  function sb() {
+    if (!client && window.supabase) client = window.supabase.createClient(SB_URL, SB_KEY, { auth: { storageKey: 'hk23-universe-auth' } });
+    return client;
+  }
+  function shortId(u) { return u ? (u.email || ('anon·' + u.id.slice(0, 8))) : 'sin sesión'; }
+  function badge() {
+    const f = document.getElementById('auth-fab'); if (!f) return;
+    const u = sess && sess.user;
+    if (u && !u.is_anonymous) { f.textContent = '⏻ ' + (u.email || '').split('@')[0]; f.style.borderColor = '#00F0FF'; f.style.color = '#00F0FF'; }
+    else if (u) { f.textContent = '⏻ Invitado'; f.style.borderColor = '#2a2a36'; f.style.color = '#cdd'; }
+    else { f.textContent = '⏻ Cuenta'; }
+    const lo = document.getElementById('auth-logout'); if (lo) lo.style.display = (u && !u.is_anonymous) ? 'inline' : 'none';
+  }
+  function status(msg, col) { const el = document.getElementById('auth-status'); if (el) { el.textContent = msg; el.style.color = col || '#6a6a82'; } }
+  function syncTierFromUser() {
+    const u = sess && sess.user, t = u && u.user_metadata && u.user_metadata.tier;
+    if (t && window.HK23TIER && HK23TIER._tiers && HK23TIER._tiers[t]) { localStorage.setItem('hk23-user-tier', t); HK23TIER.updateBadge(); }
+  }
+  async function init() {
+    const c = sb(); if (!c) return;
+    try {
+      const { data: { session } } = await c.auth.getSession(); sess = session;
+      if (!sess) { const { data, error } = await c.auth.signInAnonymously(); if (!error) sess = data.session; }
+      c.auth.onAuthStateChange((_e, s) => { sess = s; badge(); });
+    } catch (_) {}
+    syncTierFromUser(); badge();
+  }
+  const HK23AUTH = {
+    token() { return sess ? sess.access_token : null; },
+    user() { return sess && sess.user; },
+    open() {
+      const u = sess && sess.user;
+      status(u ? ('Sesión: ' + shortId(u) + (u.is_anonymous ? ' — logueate para llevar tu galaxia a cualquier dispositivo' : ' ✓')) : 'Sin sesión — entrá con tu cuenta (la misma de ViceGolfer)');
+      document.getElementById('auth-overlay').style.display = 'flex';
+    },
+    async saveTier(k) { const c = sb(); if (c && sess) { try { await c.auth.updateUser({ data: { tier: k } }); } catch (_) {} } },
+    async login() {
+      const c = sb(); if (!c) return;
+      const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-pass').value;
+      if (!email || !password) { status('Poné email y contraseña', '#ff5b6b'); return; }
+      status('entrando…');
+      const { data, error } = await c.auth.signInWithPassword({ email, password });
+      if (error) { status('⚠ ' + error.message, '#ff5b6b'); return; }
+      sess = data.session; syncTierFromUser(); badge();
+      status('✓ Sesión iniciada como ' + email, '#2bd66a');
+      if (window.showCmdToast) showCmdToast('⏻ ' + email, '#00F0FF');
+      setTimeout(() => { document.getElementById('auth-overlay').style.display = 'none'; }, 900);
+    },
+    async signup() {
+      const c = sb(); if (!c) return;
+      const email = document.getElementById('auth-email').value.trim(), password = document.getElementById('auth-pass').value;
+      if (!email || password.length < 6) { status('Email + contraseña de 6+ caracteres', '#ff5b6b'); return; }
+      status('creando cuenta…');
+      const { error } = await c.auth.signUp({ email, password });
+      if (error) { status('⚠ ' + error.message, '#ff5b6b'); return; }
+      status('✓ Cuenta creada — revisá tu email para confirmarla y después ENTRAR', '#FFD200');
+    },
+    async logout() {
+      const c = sb(); if (!c) return;
+      try { await c.auth.signOut(); } catch (_) {}
+      sess = null;
+      const { data, error } = await c.auth.signInAnonymously(); // back to guest session
+      if (!error) sess = data.session;
+      badge(); status('Saliste — sesión de invitado activa');
+    },
+  };
+  window.HK23AUTH = HK23AUTH;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
 </script>
 
@@ -6123,6 +6225,43 @@ function drawGalaxyBg() {
   ];
 
   let t = 0;
+  const W = canvas.width, H = canvas.height;
+  const home = { x: cx, y: cy * 0.76 }; // YOUR galaxy (HK23) position in the multiverse
+
+  // ── NEBULAS — soft drifting colour clouds (life) ──
+  const NEB_COLS = ['184,77,255', '0,240,255', '255,58,31', '255,210,0', '120,220,120'];
+  const nebulas = Array.from({ length: 5 }, (_, i) => ({
+    x: Math.random() * W, y: Math.random() * H, r: 180 + Math.random() * 260,
+    col: NEB_COLS[i % NEB_COLS.length], vx: (Math.random() - 0.5) * 0.06, vy: (Math.random() - 0.5) * 0.05,
+    a: 0.05 + Math.random() * 0.05, ph: Math.random() * 6.28,
+  }));
+
+  // ── ASTEROIDS — small rocks drifting + tumbling ──
+  const asteroids = Array.from({ length: 22 }, () => ({
+    x: Math.random() * W, y: Math.random() * H, r: 1.5 + Math.random() * 3.5,
+    vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, spin: Math.random() * 6.28, ss: (Math.random() - 0.5) * 0.05,
+  }));
+
+  // ── METEORS — occasionally on a collision course with YOUR galaxy ──
+  const meteors = [];
+  let lastMeteor = -400, integrity = 1;
+  const shield = { active: false, energy: 1 };
+  window.galaxyToggleShield = function () {
+    shield.active = !shield.active;
+    const b = document.getElementById('galaxy-shield-btn');
+    if (b) { b.textContent = shield.active ? '🛡 DEFENSA ACTIVA' : '🛡 Desplegar defensa'; b.style.background = shield.active ? 'rgba(0,240,255,.25)' : 'rgba(0,240,255,.12)'; }
+    if (window.showCmdToast) showCmdToast(shield.active ? '🛡 ESCUDO DESPLEGADO' : 'escudo replegado', '#00F0FF');
+  };
+  function spawnMeteor() {
+    const edge = Math.floor(Math.random() * 4);
+    let x, y;
+    if (edge === 0) { x = -40; y = Math.random() * H; } else if (edge === 1) { x = W + 40; y = Math.random() * H; }
+    else if (edge === 2) { x = Math.random() * W; y = -40; } else { x = Math.random() * W; y = H + 40; }
+    // aim at your galaxy with a little scatter (bad placement = more direct hits)
+    const ang = Math.atan2(home.y - y, home.x - x) + (Math.random() - 0.5) * 0.25;
+    const sp = 1.3 + Math.random() * 1.1;
+    meteors.push({ x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp, r: 3 + Math.random() * 4, tail: [] });
+  }
 
   function frame() {
     if (!galaxyModeActive) return;
@@ -7466,6 +7605,8 @@ loadQuotesThen(handleDeepLink);
       why:'La puerta principal del universo — el front door coleccionable / marketplace.'},
     {id:'mundial',label:'Mundial 2026',sub:'dashboard · agente pro',status:'live',url:'mundial.html',
       why:'Dashboard interactivo del Mundial 2026 con un agente analista: quién va quedando y sus probabilidades de título.'},
+    {id:'vice-gta6',label:'VICE.HUB GTA6',sub:'fan hub · experiencia',status:'live',url:'vice-gta6.html',
+      why:'El fan hub de GTA 6: money methods, crews, guías, easter eggs y base de vehículos. Primera experiencia vendible del universo — acceso por tier en la próxima fase.'},
   ];
   const WSTATUS={live:{c:'#2bd66a',label:'EN VIVO'},build:{c:'#FFD200',label:'EN CONSTRUCCIÓN'},idea:{c:'#b06bff',label:'IDEA'}};
   // ── PUERTAS: cada nodo del universo tiene un destino asignable ──
@@ -7680,7 +7821,8 @@ loadQuotesThen(handleDeepLink);
     pick(a){ curAgent=a; document.querySelectorAll('#ar-agents .ar-agent').forEach((e,i)=>e.classList.toggle('on', AGENTS_UI[i][0]===a)); if(window.ARAgent) ARAgent.setAgent(a); },
     async go(){ const input=(document.getElementById('ar-input').value||'').trim(), out=document.getElementById('ar-out'), btn=document.getElementById('ar-runbtn'); if(!input){ out.textContent='Escribe una tarea primero.'; return; }
       btn.textContent='INVOCANDO…'; btn.disabled=true; out.textContent='⏳ El agente está procesando…'; if(window.ARAgent) ARAgent.setState('think');
-      try{ const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},body:JSON.stringify({action:'agent',agent:curAgent,input:input,context:RUNNER._ctx||''})}); const j=await r.json(); out.textContent=j.ok?j.text:('⚠️ '+(j.error||'falló')); if(window.ARAgent) ARAgent.setState('speak'); }
+      try{ const hdrs={'Content-Type':'application/json','x-run-token':RUN_TOKEN}; if(window.HK23AUTH&&HK23AUTH.token()) hdrs['Authorization']='Bearer '+HK23AUTH.token();
+        const r=await fetch('/api/run',{method:'POST',headers:hdrs,body:JSON.stringify({action:'agent',agent:curAgent,input:input,context:RUNNER._ctx||''})}); const j=await r.json(); out.textContent=j.ok?j.text:('⚠️ '+(j.error||'falló')); if(window.ARAgent) ARAgent.setState('speak'); }
       catch(e){ out.textContent='⚠️ Error de red: '+e; if(window.ARAgent) ARAgent.setState('idle'); }
       btn.textContent='▶ INVOCAR'; btn.disabled=false; },
   };
@@ -7689,7 +7831,8 @@ loadQuotesThen(handleDeepLink);
   window.whiteHoleGenerate = async function(){
     const t=(window.showCmdToast||function(){}); t('⌘ WHITE HOLE — generando idea…', '#ffffff');
     try{
-      const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},body:JSON.stringify({action:'agent',agent:'strategist',input:'Genera UNA idea nueva, concreta y original para el ecosistema HK23. Responde SOLO en una línea con formato: TÍTULO CORTO — descripción breve.',context:gatherContext()})});
+      const whHdrs={'Content-Type':'application/json','x-run-token':RUN_TOKEN}; if(window.HK23AUTH&&HK23AUTH.token()) whHdrs['Authorization']='Bearer '+HK23AUTH.token();
+      const r=await fetch('/api/run',{method:'POST',headers:whHdrs,body:JSON.stringify({action:'agent',agent:'strategist',input:'Genera UNA idea nueva, concreta y original para el ecosistema HK23. Responde SOLO en una línea con formato: TÍTULO CORTO — descripción breve.',context:gatherContext()})});
       const j=await r.json(); if(!j.ok){ t('⌘ falló: '+(j.error||''), '#ff5b6b'); return; }
       const text=(j.text||'').trim(); const title=(text.split(/—|:|-/)[0]||'IDEA').trim().slice(0,26); const desc=text.slice(0,220);
       if(typeof IDEAS_PLANET!=='undefined' && IDEAS_PLANET.ideas){ IDEAS_PLANET.ideas.push({ label:title.toUpperCase().slice(0,16), mr:48+Math.random()*34, ma:Math.random()*6.28, ms:(Math.random()>.5?1:-1)*0.0018, sz:5, col:'#ffffff', px:0, py:0, detail:{ title:title, desc:desc } }); }

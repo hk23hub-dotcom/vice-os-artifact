@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VICE.HUB — GTA 6 Fan Hub</title>
+<meta name="description" content="The GTA 6 fan hub. Money methods, crews, guides, easter eggs and a vehicle database — instead of digging through YouTube." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0612;
+    --bg2:#120a22;
+    --panel:rgba(28,16,48,.62);
+    --panel-solid:#160c28;
+    --line:rgba(150,90,220,.22);
+    --pink:#ff2e93;
+    --pink-soft:#ff5fae;
+    --cyan:#2ee6ff;
+    --amber:#ffb13d;
+    --purple:#9b5cff;
+    --text:#f3eaff;
+    --muted:#b29fce;
+    --easy:#2ee6ff;
+    --medium:#ffb13d;
+    --hard:#ff2e93;
+    --shadow:0 18px 50px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    color:var(--text);
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(255,46,147,.18), transparent 60%),
+      radial-gradient(1000px 500px at 0% 10%, rgba(46,230,255,.14), transparent 55%),
+      radial-gradient(900px 700px at 50% 110%, rgba(155,92,255,.16), transparent 60%),
+      linear-gradient(180deg,var(--bg),var(--bg2));
+    background-attachment:fixed;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(155,92,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(155,92,255,.05) 1px,transparent 1px);
+    background-size:46px 46px;
+    mask-image:radial-gradient(circle at 50% 30%,#000,transparent 85%);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px;position:relative;z-index:1}
+  h1,h2,h3,.disp{font-family:'Oswald',sans-serif;letter-spacing:.5px}
+
+  /* ===== HERO ===== */
+  header.hero{padding:34px 0 10px;text-align:center}
+  .logo{font-family:'Oswald';font-weight:700;font-size:clamp(40px,9vw,84px);line-height:.92;letter-spacing:2px;text-transform:uppercase}
+  .logo .v{color:var(--pink);text-shadow:0 0 24px rgba(255,46,147,.65)}
+  .logo .h{color:var(--cyan);text-shadow:0 0 24px rgba(46,230,255,.55)}
+  .logo .dot{color:var(--muted);-webkit-text-fill-color:var(--muted)}
+  .tagline{display:inline-block;margin-top:10px;font-family:'Oswald';font-weight:600;letter-spacing:6px;font-size:14px;color:var(--text);
+    border:1px solid var(--line);padding:6px 16px;border-radius:999px;background:rgba(255,255,255,.03)}
+  .hype{margin:16px auto 0;max-width:620px;color:var(--muted);font-size:15px;line-height:1.5}
+  .hype b{color:var(--pink-soft)}
+
+  /* countdown */
+  .countdown{display:flex;justify-content:center;gap:10px;margin:24px 0 6px;flex-wrap:wrap}
+  .cd-cell{min-width:78px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 8px;backdrop-filter:blur(10px)}
+  .cd-num{font-family:'Oswald';font-weight:700;font-size:34px;line-height:1;background:linear-gradient(180deg,#fff,var(--cyan));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .cd-lbl{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:6px}
+  .cd-tag{font-size:12px;color:var(--muted);letter-spacing:1px}
+  .cd-tag b{color:var(--cyan)}
+
+  /* stat ticker */
+  .stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:22px 0 4px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 18px;min-width:150px;backdrop-filter:blur(8px)}
+  .stat .n{font-family:'Oswald';font-weight:700;font-size:24px;color:var(--text)}
+  .stat .n.pink{color:var(--pink-soft)} .stat .n.cyan{color:var(--cyan)} .stat .n.amber{color:var(--amber)}
+  .stat .l{font-size:11px;color:var(--muted);letter-spacing:.5px;margin-top:2px}
+  .rumor{display:inline-flex;align-items:center;gap:7px;margin:18px auto 0;font-size:12px;color:var(--muted);
+    border:1px dashed rgba(255,177,61,.4);padding:7px 14px;border-radius:999px;background:rgba(255,177,61,.06)}
+  .rumor .d{width:7px;height:7px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber)}
+
+  /* ===== STICKY NAV ===== */
+  .navbar{position:sticky;top:0;z-index:30;margin-top:30px;padding:14px 0;background:rgba(10,6,18,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .navrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .search{flex:1;min-width:200px;position:relative}
+  .search input{width:100%;background:var(--panel-solid);border:1px solid var(--line);color:var(--text);
+    padding:12px 14px 12px 40px;border-radius:12px;font-size:14px;font-family:inherit;outline:none}
+  .search input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(255,46,147,.15)}
+  .search .ic{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+  .tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{white-space:nowrap;cursor:pointer;border:1px solid var(--line);background:var(--panel-solid);color:var(--muted);
+    padding:10px 15px;border-radius:11px;font-size:13px;font-weight:600;font-family:'Oswald';letter-spacing:.5px;transition:.18s}
+  .tab:hover{color:var(--text);border-color:var(--purple)}
+  .tab.on{color:#fff;background:linear-gradient(135deg,var(--pink),var(--purple));border-color:transparent;box-shadow:0 6px 20px rgba(255,46,147,.35)}
+
+  /* chips */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 6px}
+  .chip{cursor:pointer;font-size:12px;font-weight:600;letter-spacing:.5px;padding:7px 13px;border-radius:999px;
+    border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--muted);transition:.16s}
+  .chip:hover{color:var(--text)}
+  .chip.on{color:#0a0612;background:var(--cyan);border-color:transparent}
+  .chip.on.amber{background:var(--amber)} .chip.on.pink{background:var(--pink);color:#fff}
+
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:26px 0 14px}
+  .section-head h2{font-size:24px;font-weight:600;text-transform:uppercase}
+  .section-head .count{font-size:13px;color:var(--muted)}
+
+  /* ===== CARD GRID ===== */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+  .card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;
+    backdrop-filter:blur(10px);overflow:hidden;transition:transform .2s,border-color .2s,box-shadow .2s;display:flex;flex-direction:column}
+  .card:hover{transform:translateY(-4px);border-color:var(--purple);box-shadow:var(--shadow)}
+  .card::after{content:"";position:absolute;inset:0;border-radius:16px;pointer-events:none;
+    background:linear-gradient(180deg,transparent 60%,rgba(255,46,147,.06));opacity:0;transition:.2s}
+  .card:hover::after{opacity:1}
+  .card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+  .badge{font-family:'Oswald';font-weight:600;font-size:11px;letter-spacing:1.5px;padding:5px 10px;border-radius:8px;text-transform:uppercase}
+  .badge.EASY{color:var(--easy);border:1px solid var(--easy);background:rgba(46,230,255,.08)}
+  .badge.MEDIUM{color:var(--medium);border:1px solid var(--medium);background:rgba(255,177,61,.08)}
+  .badge.HARD{color:var(--hard);border:1px solid var(--hard);background:rgba(255,46,147,.08)}
+  .payout{font-family:'Oswald';font-weight:700;font-size:22px;text-align:right;line-height:1;
+    color:#7CFFB2;text-shadow:0 0 16px rgba(124,255,178,.45)}
+  .payout small{display:block;font-size:10px;letter-spacing:1px;color:var(--muted);text-shadow:none;font-weight:500;margin-top:3px}
+  .card h3{font-size:20px;font-weight:600;text-transform:uppercase;line-height:1.05;margin-bottom:12px}
+  .meta{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-bottom:16px}
+  .meta span{display:inline-flex;align-items:center;gap:5px}
+  .meta .hot{color:var(--pink-soft);font-weight:600}
+  .card .spacer{flex:1}
+  .btn-guide{width:100%;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);
+    font-family:'Oswald';font-weight:600;letter-spacing:1.5px;font-size:13px;padding:12px;border-radius:11px;transition:.18s;text-transform:uppercase}
+  .btn-guide:hover{background:linear-gradient(135deg,var(--pink),var(--purple));border-color:transparent;box-shadow:0 6px 18px rgba(255,46,147,.3)}
+  .heart{cursor:pointer;font-size:16px;line-height:1;filter:grayscale(1) opacity(.5);transition:.15s;user-select:none}
+  .heart:hover{filter:grayscale(.3) opacity(.85)}
+  .heart.on{filter:none;transform:scale(1.12)}
+  .likes-n{display:flex;align-items:center;justify-content:flex-end;gap:7px;font-size:11px;color:var(--muted);margin-top:8px}
+
+  /* crew + guide + egg specifics */
+  .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .pill{font-size:11px;color:var(--muted);border:1px solid var(--line);padding:4px 9px;border-radius:999px;letter-spacing:.5px}
+  .pill.mic{color:var(--cyan);border-color:rgba(46,230,255,.4)}
+  .card p.desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:14px}
+  .tagline-sm{font-size:11px;letter-spacing:1.5px;color:var(--amber);text-transform:uppercase;font-family:'Oswald';font-weight:600;margin-bottom:6px}
+  .veh-spec{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);padding:6px 0;border-top:1px solid var(--line)}
+  .veh-spec b{color:var(--text);font-weight:600}
+
+  /* crew form */
+  .crew-form{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:18px}
+  .crew-form h3{font-size:18px;text-transform:uppercase;margin-bottom:14px;color:var(--cyan)}
+  .ff{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .ff input,.ff select{background:var(--panel-solid);border:1px solid var(--line);color:var(--text);padding:10px 12px;border-radius:10px;font-family:inherit;font-size:13px;outline:none;width:100%}
+  .ff input:focus,.ff select:focus{border-color:var(--cyan)}
+  .ff .full{grid-column:1/-1}
+  .ff label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--muted)}
+  .btn-primary{cursor:pointer;border:none;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;
+    font-family:'Oswald';font-weight:600;letter-spacing:1.5px;font-size:14px;padding:12px 24px;border-radius:11px;text-transform:uppercase;margin-top:12px}
+  .btn-primary:hover{box-shadow:0 8px 22px rgba(255,46,147,.4)}
+
+  /* ===== MODAL ===== */
+  .overlay{position:fixed;inset:0;z-index:80;background:rgba(5,2,12,.7);backdrop-filter:blur(4px);display:none;animation:fade .2s}
+  .overlay.open{display:block}
+  @keyframes fade{from{opacity:0}to{opacity:1}}
+  .modal{position:fixed;top:0;right:0;height:100%;width:min(480px,100%);z-index:81;background:var(--panel-solid);
+    border-left:1px solid var(--line);box-shadow:-20px 0 60px rgba(0,0,0,.6);transform:translateX(100%);transition:transform .28s cubic-bezier(.2,.8,.2,1);
+    overflow-y:auto;padding:26px}
+  .modal.open{transform:translateX(0)}
+  .modal .x{position:absolute;top:18px;right:18px;cursor:pointer;font-size:22px;color:var(--muted);line-height:1}
+  .modal .x:hover{color:var(--pink)}
+  .modal .m-badge{margin-bottom:12px}
+  .modal h2{font-size:30px;text-transform:uppercase;line-height:1.05;margin-bottom:6px}
+  .modal .m-payout{font-family:'Oswald';font-weight:700;font-size:26px;color:#7CFFB2;text-shadow:0 0 16px rgba(124,255,178,.4);margin-bottom:18px}
+  .modal .m-meta{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+  .modal h4{font-family:'Oswald';font-size:14px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase;margin:20px 0 12px}
+  .steps{counter-reset:s;display:flex;flex-direction:column;gap:12px}
+  .step{display:flex;gap:13px;align-items:flex-start}
+  .step::before{counter-increment:s;content:counter(s);flex:0 0 28px;height:28px;border-radius:50%;
+    background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;font-family:'Oswald';font-weight:700;
+    display:flex;align-items:center;justify-content:center;font-size:14px}
+  .step p{font-size:14px;line-height:1.5;color:var(--text);padding-top:3px}
+  .tip{margin-top:22px;background:rgba(46,230,255,.07);border:1px solid rgba(46,230,255,.3);border-radius:12px;padding:14px 16px}
+  .tip b{color:var(--cyan);font-family:'Oswald';letter-spacing:1px}
+  .tip p{font-size:13px;color:var(--muted);line-height:1.5;margin-top:6px}
+
+  .empty{text-align:center;color:var(--muted);padding:60px 20px;font-size:15px}
+
+  footer{text-align:center;margin-top:50px;padding:30px 0;color:var(--muted);font-size:12px;border-top:1px solid var(--line)}
+  footer .spec{color:var(--amber)}
+  footer a{color:var(--cyan);text-decoration:none}
+
+  @media(max-width:520px){
+    .modal{width:100%}
+    .grid{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- HERO -->
+  <header class="hero">
+    <div class="logo"><span class="v">VICE</span><span class="dot">.</span><span class="h">HUB</span></div>
+    <div class="tagline">GTA&nbsp;6 FAN HUB</div>
+    <p class="hype">GTA 6 is about to make us all rich. Skip the YouTube rabbit holes — every <b>money method</b>, <b>crew</b>, <b>guide</b>, <b>easter egg</b> &amp; <b>vehicle</b>, searchable in one place.</p>
+
+    <div class="countdown" id="countdown">
+      <div class="cd-cell"><div class="cd-num" id="cd-d">--</div><div class="cd-lbl">Days</div></div>
+      <div class="cd-cell"><div class="cd-num" id="cd-h">--</div><div class="cd-lbl">Hours</div></div>
+      <div class="cd-cell"><div class="cd-num" id="cd-m">--</div><div class="cd-lbl">Mins</div></div>
+      <div class="cd-cell"><div class="cd-num" id="cd-s">--</div><div class="cd-lbl">Secs</div></div>
+    </div>
+    <div class="cd-tag">Counting down to the <b>Vice City</b> drop — Nov 19, 2026</div>
+
+    <div class="stats">
+      <div class="stat"><div class="n pink">39M+</div><div class="l">Reported pre-orders</div></div>
+      <div class="stat"><div class="n cyan">$3B</div><div class="l">Reported pre-sales</div></div>
+      <div class="stat"><div class="n amber">#1</div><div class="l">Biggest launch ever</div></div>
+    </div>
+    <div class="rumor"><span class="d"></span> Heads up: GTA 6 isn't out yet — methods, payouts &amp; stats here are <b style="color:var(--amber);margin:0 4px">speculative fan/community content</b>, not official.</div>
+  </header>
+</div>
+
+<!-- STICKY NAV -->
+<nav class="navbar">
+  <div class="wrap">
+    <div class="navrow">
+      <div class="search">
+        <span class="ic">🔍</span>
+        <input id="search" type="text" placeholder="Search methods, crews, guides, eggs, vehicles…" autocomplete="off" />
+      </div>
+      <div class="tabs" id="tabs"></div>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="chips" id="chips"></div>
+  <div class="section-head">
+    <h2 id="sec-title">Money Methods</h2>
+    <span class="count" id="sec-count"></span>
+  </div>
+  <div id="content"></div>
+</main>
+
+<footer class="wrap">
+  Built by a fan, for fans. <span class="spec">All content speculative — GTA 6 releases Nov 2026.</span><br/>
+  VICE.HUB is an unofficial fan project, not affiliated with Rockstar Games or Take-Two.
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay"></div>
+<aside class="modal" id="modal"></aside>
+
+<script>
+/* ============================ DATA ============================ */
+const MONEY = [
+  {id:'m1',t:'Cayo Perico 2: Solo Setup',diff:'EASY',pay:'$1.4M',unit:'per run',time:'45 min',players:'1+',hot:true,
+   tags:['heist','solo','grind'],
+   steps:['Buy the Leonida Keys hideout and the underwater approach upgrade — the cheapest reliable solo route.','Scope the island at night; mark the primary target (pink diamond) plus 2–3 secondary loot piles.','Cut the power, drop in via the drainage tunnel, and avoid the two guard patrols on the east wall.','Grab secondaries first, primary last, then exit through the water to your sub.','Cooldown is ~2.5 hrs between runs — stack other methods in between.'],
+   tip:'Solo stealth beats a sloppy 4-player run every time. One alarm and your payout tanks.'},
+  {id:'m2',t:'Vice Beach Bank Heist',diff:'HARD',pay:'$3.2M',unit:'split 2–4',time:'75 min',players:'2-4',hot:true,
+   tags:['heist','crew','high-risk'],
+   steps:['Recruit a crew with at least one dedicated driver and one hacker.','Run the 3 prep boards: thermite, getaway vehicles, and crowd-control.','Hit during the afternoon armored-truck window when the vault timer is shortest.','Hacker holds the alarm; the rest clear the floor and crack deposit boxes.','Lose the 4-star heat through the canals, not the highway — choppers own the highway.'],
+   tip:'Designate one person to ONLY watch cops. Coordination is worth more than firepower here.'},
+  {id:'m3',t:'Cargo Warehouse Flip',diff:'MEDIUM',pay:'$950K',unit:'per hour',time:'~60 min',players:'1+',hot:false,
+   tags:['business','passive','grind'],
+   steps:['Buy a mid-tier warehouse in Port Gellhorn (central = shorter source missions).','Source crates in batches of 3 to cut down on travel time.','Sell only at 111+ crates for the bulk bonus multiplier.','Run source missions back-to-back; never let the warehouse sit idle.','Reinvest profits into a second warehouse once you clear $4M.'],
+   tip:'Sell in a full lobby for the extra demand bonus — risky, but it stacks fast.'},
+  {id:'m4',t:'Street Race Circuit',diff:'EASY',pay:'$180K',unit:'per race',time:'~20 min',players:'1-8',hot:false,
+   tags:['races','fun','fast'],
+   steps:['Tune a sports car for grip over top speed on the Vice Beach street circuits.','Enter the recurring "Sunset Sprint" playlist for the highest base payout.','Hold the inside line through the marina hairpins — that\'s where races are won.','Finish top 3 consistently; podiums pay nearly as much as wins with less risk.','Chain 4 races for the playlist completion bonus.'],
+   tip:'Consistency > wins. Three 2nd-places out-earn one win and three crashes.'},
+  {id:'m5',t:'Vicedade Casino Heist',diff:'HARD',pay:'$4.5M',unit:'split 2–4',time:'90 min',players:'2-4',hot:true,
+   tags:['heist','crew','endgame'],
+   steps:['Buy the penthouse and complete all optional scope shots for the highest take.','Choose the Big Con approach for the smoothest stealth exit.','Set loadout to diamonds if available (rotating high-value vault content).','Split roles: 2 inside on the vault, 1 on the drill, 1 on overwatch.','Exit via the service tunnel — the front is a death trap on hard.'],
+   tip:'Diamonds aren\'t always in the vault. Reset the heist until you roll the high-value loot.'},
+  {id:'m6',t:'Port Gellhorn Smuggler Run',diff:'MEDIUM',pay:'$720K',unit:'per hour',time:'~40 min',players:'1+',hot:false,
+   tags:['business','air','grind'],
+   steps:['Set up a coastal hangar with a fast cargo plane.','Source contraband on solo public sessions to dodge griefers.','Fly low along the coastline to avoid being tagged on the map.','Sell in single-vehicle batches early; bulk sells need a crew.','Pair with nightclub passive income for double stacking.'],
+   tip:'Low altitude over water keeps your blip off rival players\' radar. Stay off the highway corridors.'},
+  {id:'m7',t:'Neon District Nightclub',diff:'EASY',pay:'$500K',unit:'per day · passive',time:'set & forget',players:'1+',hot:false,
+   tags:['passive','business','afk'],
+   steps:['Buy a nightclub in the Neon District for maximum walk-in popularity.','Assign technicians to the 5 most profitable goods (cargo, cash, weapons).','Keep popularity above 80% with the quick promotion missions.','Empty the safe before it caps at $250K.','Sell accrued warehouse stock weekly via the basement.'],
+   tip:'It earns while you do other methods. The closest thing to truly passive income.'},
+  {id:'m8',t:'Gator Keys Lab Run',diff:'HARD',pay:'$2.4M',unit:'per cycle',time:'~55 min',players:'1-2',hot:false,
+   tags:['business','high-risk','crew'],
+   steps:['Establish a lab deep in the Gator Keys swamp — remote means fewer rivals.','Keep both supply slots stocked at all times to never stall production.','Upgrade equipment + security before you scale up batch size.','Sell in the cheaper local market when solo; distant sells need backup.','Defend against raid events — losing stock here hurts.'],
+   tip:'Remote location = fewer griefers but longer sell drives. Run with one trusted partner.'},
+  {id:'m9',t:'Leonida Keys Yacht Job',diff:'MEDIUM',pay:'$1.1M',unit:'per job',time:'~50 min',players:'2',hot:false,
+   tags:['mission','duo','sea'],
+   steps:['Accept the high-roller yacht contract from the marina contact.','One player pilots the interceptor, the other boards and clears the deck.','Disable the yacht\'s comms before it calls in private security.','Crack the onboard safe and grab the briefcase from the master suite.','Escape by sea — the coast guard owns the air on this one.'],
+   tip:'Bring a fast boat for the getaway. The yacht\'s own tender is a trap — too slow.'},
+  {id:'m10',t:'Beach Patrol Bounty Hunt',diff:'EASY',pay:'$250K',unit:'per bounty',time:'~15 min',players:'1+',hot:false,
+   tags:['bounty','solo','quick'],
+   steps:['Pick up bounty boards from the Vice Beach pier contact.','Prioritize "alive" bounties — they pay roughly double.','Use a stun-capable weapon to bring high-value targets in unharmed.','Chain 3 bounties in one area to minimize travel.','Cash in before the timer expires for the full reward.'],
+   tip:'Quickest filler method on the list. Perfect while waiting out heist cooldowns.'},
+  {id:'m11',t:'Ambrosia Exotic Exports',diff:'MEDIUM',pay:'$880K',unit:'per hour',time:'~45 min',players:'1+',hot:false,
+   tags:['business','cars','grind'],
+   steps:['Open the Ambrosia exotic-car export business near the docks.','Source only top-range exotic vehicles — they clear the most profit.','Repair every car to pristine before delivery for the full bonus.','Deliver during low-traffic hours to avoid rival interception.','Run alongside cargo for a double-business loop.'],
+   tip:'Never deliver a damaged car. The repair cost is tiny next to the condition bonus you lose.'},
+];
+
+const CREWS = [
+  {id:'c1',name:'Vice Kings',platform:'PS5',region:'NA-East',mic:true,style:'Heists',members:'12',vibe:'Grinding the Vicedade Casino nightly. Sweats welcome, we split even and we don\'t leave anyone behind.'},
+  {id:'c2',name:'Leonida Lowriders',platform:'PC',region:'EU',mic:false,style:'Roleplay',members:'30',vibe:'Cruise nights + car meets across Vice Beach. Chill vibes, no grind pressure, all builds welcome.'},
+  {id:'c3',name:'Cayo Crew',platform:'Xbox',region:'NA-West',mic:true,style:'Grind',members:'8',vibe:'Daily Cayo 2 runs, even splits. Looking for one reliable hacker to round out the rotation.'},
+  {id:'c4',name:'Gator Squad',platform:'PS5',region:'OCE',mic:true,style:'PvP',members:'20',vibe:'We run the streets of Leonida. Tryhards and gunfight grinders only — bring your A-game.'},
+  {id:'c5',name:'Sunset Syndicate',platform:'PC',region:'Global',mic:false,style:'Chill',members:'45',vibe:'Casual all-timezones crew. No pressure, no requirements — just good people to play with.'},
+  {id:'c6',name:'Neon Mafia',platform:'Xbox',region:'NA-East',mic:true,style:'Heists',members:'15',vibe:'Organized scheduled heists Tue/Thu/Sat 8pm ET. Discord required, 18+, mic mandatory.'},
+];
+
+const GUIDES = [
+  {id:'g1',t:'First 24 Hours in Vice City',cat:'Beginner',read:'6 min',hot:true,
+   steps:['Do the opening story missions — they hand you starter cash and your first safehouse.','Don\'t blow your cash on a supercar yet; buy an income business first.','Set up a nightclub or warehouse for passive income before anything flashy.','Find a crew early — almost everything pays better with backup.','Bookmark one easy money method and one passive one. Alternate them.'],
+   tip:'The players who get rich aren\'t the fastest — they\'re the ones who set up passive income on day one.'},
+  {id:'g2',t:'How to Never Go Broke',cat:'Money',read:'5 min',hot:false,
+   steps:['Always have one passive business running (nightclub is the gold standard).','Never repair-spam expensive cars; insure them and let the system replace them.','Keep $500K liquid for heist setups so you\'re never locked out of a run.','Sell business stock before it caps — capped production is wasted money.','Avoid impulse-buying cosmetics until you clear $5M net worth.'],
+   tip:'Cashflow beats a big balance. A steady $500K/hr loop makes you richer than one lucky heist.'},
+  {id:'g3',t:'Solo Player\'s Survival Kit',cat:'Solo',read:'7 min',hot:true,
+   steps:['Play in solo or invite-only public sessions to dodge griefers while you grind.','Master the solo Cayo 2 route — it\'s the backbone of any solo economy.','Buy a defensive vehicle for sell missions (armor + weapons).','Use the nightclub + one source business for hands-off income.','Learn the canal escape routes — they break cop and player chases fast.'],
+   tip:'You don\'t need a crew to get rich. You need a route you can run in your sleep.'},
+  {id:'g4',t:'Beginner\'s Heist Roadmap',cat:'Heists',read:'8 min',hot:false,
+   steps:['Start with the Yacht Job or Cayo 2 — forgiving heists with clear roles.','Learn one role really well (driver, hacker, or breacher) before juggling all of them.','Always run the prep boards — skipping prep makes the finale brutal.','Communicate over voice; text chat is too slow mid-heist.','Graduate to the Casino and Bank heists once you can clear the basics clean.'],
+   tip:'A coordinated crew on an "easy" heist out-earns a chaotic crew on a "hard" one. Every time.'},
+  {id:'g5',t:'PvP: Win Every Gunfight',cat:'PvP',read:'6 min',hot:false,
+   steps:['Lock your sensitivity and stick with it until aiming is muscle memory.','Always fight from cover; never peek the same angle twice.','Carry a balanced loadout — close-range + a marksman option.','Use the environment: rooftops and canals give you the high ground in Vice City.','Disengage when you\'re outnumbered. Living to re-engage wins the fight.'],
+   tip:'Movement beats aim at the top level. Strafe, slide, and never stand still in the open.'},
+  {id:'g6',t:'Map Secrets of Leonida',cat:'Map',read:'5 min',hot:false,
+   steps:['Explore the Gator Keys swamp — hidden stashes spawn deep in the mangroves.','Climb Mount Kalaga for the best vantage point and rumored secret events.','Check the abandoned marina at night for collectible drops.','The Neon District alleys hide graffiti clues and stash spots.','Coastal caves are only reachable by boat at low tide.'],
+   tip:'Half the map\'s value is off the roads. Get a boat and a dirt bike early.'},
+];
+
+const EGGS = [
+  {id:'e1',t:'Vice City 1986 Throwback Billboard',loc:'Ocean Beach',ref:'GTA: Vice City',
+   desc:'A faded, sun-bleached billboard on the Ocean Beach strip references the original 1986 Vice City skyline — a quiet nod to where it all began.'},
+  {id:'e2',t:'The Everglades Creature',loc:'Leonida Swamps',ref:'Bigfoot myth',
+   desc:'Locals whisper about something moving through the mangroves around 3AM in-game. Players report glowing eyes deep in the Gator Keys — Rockstar\'s classic cryptid tease.'},
+  {id:'e3',t:'Mount Kalaga Lights',loc:'Mount Kalaga peak',ref:'GTA V UFO',
+   desc:'A strange light pattern is rumored to appear over the peak after 100% completion — continuing the franchise\'s long-running UFO mystery.'},
+  {id:'e4',t:'"The World Is Yours" Mansion',loc:'Vice Beach Hills',ref:'Scarface',
+   desc:'A familiar white hillside mansion with a fountain and a statue out front. If you know, you know.'},
+  {id:'e5',t:'Cigarette Speedboat',loc:'Vice Beach Marina',ref:'Miami Vice',
+   desc:'A retro 80s cigarette boat with a teal-and-pink paint job sits at the marina — a love letter to the show that defined the aesthetic.'},
+  {id:'e6',t:'Sunrise Robes',loc:'Hidden coastal cove',ref:'GTA V Epsilon',
+   desc:'Robed figures gather at a remote cove at sunrise. Approach quietly — the franchise\'s favorite "cult" is rumored to return.'},
+];
+
+const VEHICLES = [
+  {id:'v1',name:'Declasse Vigero ZX',cls:'Muscle',speed:'142 mph',price:'$1.8M',where:'Vice City auto dealer'},
+  {id:'v2',name:'Pfister Comet S2',cls:'Sports',speed:'135 mph',price:'$2.1M',where:'Legendary Motorsport'},
+  {id:'v3',name:'Shitzu Hakuchou Drag',cls:'Motorcycle',speed:'150 mph',price:'$1.5M',where:'Bike dealer (online)'},
+  {id:'v4',name:'Överflöd Entity XXR',cls:'Super',speed:'158 mph',price:'$2.3M',where:'Legendary Motorsport'},
+  {id:'v5',name:'Bravado Banshee GTS',cls:'Sports',speed:'138 mph',price:'$900K',where:'Southern Auto'},
+  {id:'v6',name:'Annis Euros',cls:'Sports',speed:'140 mph',price:'$1.2M',where:'Legendary Motorsport'},
+  {id:'v7',name:'Dinka Akuma',cls:'Motorcycle',speed:'137 mph',price:'$440K',where:'Bike dealer'},
+  {id:'v8',name:'Pegassi Tezeract',cls:'Super',speed:'161 mph',price:'$2.8M',where:'Legendary Motorsport'},
+  {id:'v9',name:'Albany Brigham',cls:'Muscle',speed:'128 mph',price:'$650K',where:'Vice City dealer'},
+  {id:'v10',name:'Lampadati Tropos Rallye',cls:'Sports',speed:'130 mph',price:'$710K',where:'Southern Auto'},
+  {id:'v11',name:'Shitzu Tropic',cls:'Boat',speed:'70 mph',price:'$120K',where:'Marina dealer'},
+  {id:'v12',name:'Buckingham Conada',cls:'Helicopter',speed:'155 mph',price:'$1.6M',where:'Elitás Travel'},
+];
+
+/* ============================ STATE ============================ */
+const CATS = [
+  {key:'money',label:'💰 Money',title:'Money Methods'},
+  {key:'crews',label:'👥 Crews',title:'Find a Crew'},
+  {key:'guides',label:'📖 Guides',title:'Guides'},
+  {key:'eggs',label:'🥚 Easter Eggs',title:'Easter Eggs'},
+  {key:'vehicles',label:'🚗 Vehicles',title:'Vehicle Database'},
+];
+let activeCat = 'money';
+let query = '';
+let diffFilter = null;   // EASY/MEDIUM/HARD
+let hotOnly = false;
+let soloOnly = false;
+
+// localStorage can throw on file:// or in private mode — fall back to in-memory so the hub still runs.
+const MEM = {};
+function lsGet(k,def){ try{ const v=localStorage.getItem(k); return v==null?def:JSON.parse(v);}catch(e){ return k in MEM?MEM[k]:def; } }
+function lsSet(k,val){ MEM[k]=val; try{ localStorage.setItem(k,JSON.stringify(val)); }catch(e){} }
+
+const LIKES = lsGet('vicehub-likes',{});     // {id:true}
+const BASE_LIKES = {m1:1247,m2:892,m3:2103,m5:3450,m7:1876,g1:980,g3:1421,e2:2890}; // seeded popularity
+let USER_CREWS = lsGet('vicehub-crews',[]);
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const matches = (...fields) => fields.join(' ').toLowerCase().includes(query.toLowerCase());
+
+function likeCount(id){ return (BASE_LIKES[id]||0) + (LIKES[id]?1:0); }
+function fmtLikes(n){ return n>=1000 ? (n/1000).toFixed(1).replace('.0','')+'k' : n; }
+
+/* ============================ RENDER ============================ */
+function renderTabs(){
+  $('#tabs').innerHTML = CATS.map(c=>`<div class="tab ${c.key===activeCat?'on':''}" data-cat="${c.key}">${c.label}</div>`).join('');
+  document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{activeCat=t.dataset.cat;diffFilter=null;hotOnly=false;soloOnly=false;render();});
+}
+
+function renderChips(){
+  const box = $('#chips');
+  if(activeCat==='money'){
+    box.style.display='flex';
+    box.innerHTML = `
+      <div class="chip ${diffFilter==='EASY'?'on':''}" data-d="EASY">Easy</div>
+      <div class="chip ${diffFilter==='MEDIUM'?'on amber':''}" data-d="MEDIUM">Medium</div>
+      <div class="chip ${diffFilter==='HARD'?'on pink':''}" data-d="HARD">Hard</div>
+      <div class="chip ${hotOnly?'on pink':''}" data-h="1">🔥 Hot</div>
+      <div class="chip ${soloOnly?'on':''}" data-s="1">👤 Solo-friendly</div>`;
+    box.querySelectorAll('[data-d]').forEach(c=>c.onclick=()=>{diffFilter=diffFilter===c.dataset.d?null:c.dataset.d;render();});
+    box.querySelector('[data-h]').onclick=()=>{hotOnly=!hotOnly;render();};
+    box.querySelector('[data-s]').onclick=()=>{soloOnly=!soloOnly;render();};
+  } else {
+    box.style.display='none';box.innerHTML='';
+  }
+}
+
+function moneyCard(m){
+  return `<div class="card">
+    <div class="card-top">
+      <span class="badge ${m.diff}">${m.diff}</span>
+      <div class="payout">${esc(m.pay)}<small>${esc(m.unit)}</small></div>
+    </div>
+    <h3>${esc(m.t)}</h3>
+    <div class="meta">
+      <span>⏱ ${esc(m.time)}</span>
+      <span>👥 ${esc(m.players)}</span>
+      ${m.hot?'<span class="hot">↗ Hot</span>':''}
+    </div>
+    <div class="spacer"></div>
+    <button class="btn-guide" data-guide="${m.id}">Read Guide →</button>
+    <div class="likes-n"><span class="heart ${LIKES[m.id]?'on':''}" data-like="${m.id}">❤️</span> ${fmtLikes(likeCount(m.id))} likes</div>
+  </div>`;
+}
+
+function crewCard(c){
+  return `<div class="card">
+    <div class="card-top">
+      <span class="badge EASY" style="border-color:var(--purple);color:var(--purple);background:rgba(155,92,255,.08)">${esc(c.platform)}</span>
+      <span class="payout" style="font-size:16px;color:var(--cyan);text-shadow:0 0 12px rgba(46,230,255,.4)">${esc(c.members)}<small>members</small></span>
+    </div>
+    <h3>${esc(c.name)}</h3>
+    <div class="pill-row">
+      <span class="pill">${esc(c.region)}</span>
+      <span class="pill">${esc(c.style)}</span>
+      <span class="pill ${c.mic?'mic':''}">${c.mic?'🎙 Mic req':'No mic'}</span>
+    </div>
+    <p class="desc">${esc(c.vibe)}</p>
+    <div class="spacer"></div>
+    <button class="btn-guide" data-join="${esc(c.name)}">Request to Join →</button>
+  </div>`;
+}
+
+function guideCard(g){
+  return `<div class="card">
+    <div class="card-top">
+      <span class="badge EASY">${esc(g.cat)}</span>
+      ${g.hot?'<span class="payout" style="font-size:14px;color:var(--pink-soft)">↗ Hot</span>':''}
+    </div>
+    <h3>${esc(g.t)}</h3>
+    <div class="meta"><span>📖 ${esc(g.read)} read</span></div>
+    <div class="spacer"></div>
+    <button class="btn-guide" data-guideid="${g.id}">Read Guide →</button>
+  </div>`;
+}
+
+function eggCard(e){
+  return `<div class="card">
+    <div class="tagline-sm">🥚 Easter Egg · ${esc(e.ref)}</div>
+    <h3>${esc(e.t)}</h3>
+    <div class="meta"><span>📍 ${esc(e.loc)}</span></div>
+    <p class="desc">${esc(e.desc)}</p>
+  </div>`;
+}
+
+function vehCard(v){
+  return `<div class="card">
+    <div class="card-top">
+      <span class="badge EASY">${esc(v.cls)}</span>
+      <span class="payout" style="color:var(--amber);text-shadow:0 0 12px rgba(255,177,61,.4)">${esc(v.price)}</span>
+    </div>
+    <h3 style="font-size:18px">${esc(v.name)}</h3>
+    <div class="veh-spec"><span>Top speed</span><b>${esc(v.speed)}</b></div>
+    <div class="veh-spec"><span>Class</span><b>${esc(v.cls)}</b></div>
+    <div class="veh-spec"><span>Where</span><b>${esc(v.where)}</b></div>
+  </div>`;
+}
+
+function render(){
+  renderTabs(); renderChips();
+  const cat = CATS.find(c=>c.key===activeCat);
+  $('#sec-title').textContent = cat.title;
+  const content = $('#content');
+  let items='', n=0;
+
+  if(activeCat==='money'){
+    let list = MONEY.filter(m=>matches(m.t,m.diff,m.tags.join(' '),m.unit));
+    if(diffFilter) list=list.filter(m=>m.diff===diffFilter);
+    if(hotOnly) list=list.filter(m=>m.hot);
+    if(soloOnly) list=list.filter(m=>/1/.test(m.players)||m.tags.includes('solo'));
+    n=list.length; items = list.map(moneyCard).join('');
+  } else if(activeCat==='crews'){
+    const all=[...USER_CREWS,...CREWS].filter(c=>matches(c.name,c.platform,c.region,c.style,c.vibe));
+    n=all.length;
+    items = crewForm() + (all.length?`<div class="grid">${all.map(crewCard).join('')}</div>`:'<div class="empty">No crews match your search.</div>');
+    $('#sec-count').textContent = `${n} crew${n!==1?'s':''} recruiting`;
+    content.innerHTML = items;
+    bindEvents();
+    return;
+  } else if(activeCat==='guides'){
+    const list=GUIDES.filter(g=>matches(g.t,g.cat));
+    n=list.length; items=list.map(guideCard).join('');
+  } else if(activeCat==='eggs'){
+    const list=EGGS.filter(e=>matches(e.t,e.loc,e.ref,e.desc));
+    n=list.length; items=list.map(eggCard).join('');
+  } else if(activeCat==='vehicles'){
+    const list=VEHICLES.filter(v=>matches(v.name,v.cls,v.where,v.price));
+    n=list.length; items=list.map(vehCard).join('');
+  }
+
+  $('#sec-count').textContent = `${n} result${n!==1?'s':''}`;
+  content.innerHTML = items ? `<div class="grid">${items}</div>` : '<div class="empty">Nothing matches your search — try another keyword.</div>';
+  bindEvents();
+}
+
+function crewForm(){
+  return `<div class="crew-form">
+    <h3>👥 Post Your Crew</h3>
+    <div class="ff">
+      <input id="cf-name" placeholder="Crew name" maxlength="28"/>
+      <select id="cf-plat"><option>PS5</option><option>Xbox</option><option>PC</option><option>Cross-play</option></select>
+      <select id="cf-region"><option>NA-East</option><option>NA-West</option><option>EU</option><option>OCE</option><option>Asia</option><option>Global</option></select>
+      <select id="cf-style"><option>Heists</option><option>Grind</option><option>PvP</option><option>Roleplay</option><option>Chill</option><option>Races</option></select>
+      <label class="full"><input type="checkbox" id="cf-mic" style="width:auto"/> Mic required</label>
+      <input class="full" id="cf-vibe" placeholder="What's your crew about? (e.g. nightly Cayo runs, even splits)" maxlength="160"/>
+    </div>
+    <button class="btn-primary" id="cf-post">Post Crew</button>
+  </div>`;
+}
+
+/* ============================ EVENTS ============================ */
+function bindEvents(){
+  document.querySelectorAll('[data-like]').forEach(h=>h.onclick=e=>{
+    const id=e.target.dataset.like;
+    LIKES[id]=!LIKES[id];
+    lsSet('vicehub-likes',LIKES);
+    render();
+  });
+  document.querySelectorAll('[data-guide]').forEach(b=>b.onclick=()=>openMethod(b.dataset.guide));
+  document.querySelectorAll('[data-guideid]').forEach(b=>b.onclick=()=>openGuide(b.dataset.guideid));
+  document.querySelectorAll('[data-join]').forEach(b=>b.onclick=()=>{
+    b.textContent='✓ Request sent (demo)'; b.style.background='linear-gradient(135deg,var(--cyan),var(--purple))'; b.style.color='#04121a';
+  });
+  const post=$('#cf-post');
+  if(post) post.onclick=postCrew;
+}
+
+function postCrew(){
+  const name=$('#cf-name').value.trim();
+  if(!name){ $('#cf-name').focus(); $('#cf-name').style.borderColor='var(--pink)'; return; }
+  const crew={id:'u'+(USER_CREWS.length+1),name,
+    platform:$('#cf-plat').value,region:$('#cf-region').value,style:$('#cf-style').value,
+    mic:$('#cf-mic').checked,members:'1',vibe:$('#cf-vibe').value.trim()||'New crew recruiting — be the first to join!'};
+  USER_CREWS.unshift(crew);
+  lsSet('vicehub-crews',USER_CREWS);
+  render();
+}
+
+/* ============================ MODAL ============================ */
+function showModal(html){
+  $('#modal').innerHTML = `<span class="x" onclick="closeModal()">✕</span>`+html;
+  $('#modal').classList.add('open'); $('#overlay').classList.add('open');
+}
+function closeModal(){ $('#modal').classList.remove('open'); $('#overlay').classList.remove('open'); }
+$('#overlay').onclick=closeModal;
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+
+function openMethod(id){
+  const m=MONEY.find(x=>x.id===id); if(!m)return;
+  showModal(`
+    <div class="m-badge"><span class="badge ${m.diff}">${m.diff}</span></div>
+    <h2>${esc(m.t)}</h2>
+    <div class="m-payout">${esc(m.pay)} <span style="font-size:13px;color:var(--muted)">${esc(m.unit)}</span></div>
+    <div class="m-meta"><span>⏱ ${esc(m.time)}</span><span>👥 ${esc(m.players)}</span>${m.hot?'<span class="hot" style="color:var(--pink-soft)">↗ Hot</span>':''}</div>
+    <h4>Step-by-step</h4>
+    <div class="steps">${m.steps.map(s=>`<div class="step"><p>${esc(s)}</p></div>`).join('')}</div>
+    <div class="tip"><b>💡 PRO TIP</b><p>${esc(m.tip)}</p></div>
+    <p style="font-size:11px;color:var(--muted);margin-top:24px;font-style:italic">Speculative fan strategy — GTA 6 isn't out yet. Methods will be confirmed at launch.</p>
+  `);
+}
+function openGuide(id){
+  const g=GUIDES.find(x=>x.id===id); if(!g)return;
+  showModal(`
+    <div class="m-badge"><span class="badge EASY">${esc(g.cat)}</span></div>
+    <h2>${esc(g.t)}</h2>
+    <div class="m-meta"><span>📖 ${esc(g.read)} read</span></div>
+    <h4>The breakdown</h4>
+    <div class="steps">${g.steps.map(s=>`<div class="step"><p>${esc(s)}</p></div>`).join('')}</div>
+    <div class="tip"><b>💡 KEY TAKEAWAY</b><p>${esc(g.tip)}</p></div>
+    <p style="font-size:11px;color:var(--muted);margin-top:24px;font-style:italic">Speculative fan guide based on the GTA franchise — details may change at launch.</p>
+  `);
+}
+
+/* ============================ COUNTDOWN ============================ */
+const LAUNCH = new Date('2026-11-19T00:00:00Z').getTime();
+function tick(){
+  const d = LAUNCH - Date.now();
+  if(d<=0){ $('#countdown').innerHTML='<div class="cd-cell" style="min-width:auto;padding:14px 28px"><div class="cd-num">IT\'S LIVE 🎉</div></div>'; return; }
+  const days=Math.floor(d/864e5), hrs=Math.floor(d%864e5/36e5), mins=Math.floor(d%36e5/6e4), secs=Math.floor(d%6e4/1e3);
+  $('#cd-d').textContent=days; $('#cd-h').textContent=String(hrs).padStart(2,'0');
+  $('#cd-m').textContent=String(mins).padStart(2,'0'); $('#cd-s').textContent=String(secs).padStart(2,'0');
+}
+setInterval(tick,1000); tick();
+
+/* ============================ INIT ============================ */
+$('#search').addEventListener('input',e=>{query=e.target.value;render();});
+render();
+</script>
+</body>
+</html>

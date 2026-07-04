@@ -14,22 +14,42 @@ const AGENTS = {
   analyst:     'Eres un analista. Resume en bullets claros y da 1 insight no obvio sobre:',
 };
 
+// F0: verify a real Supabase session (JWT) server-side. The legacy shared token
+// remains only as the guest fallback. Tier comes from the VERIFIED user, never the client.
+const SB_URL = process.env.SUPABASE_URL || 'https://iiqhhglgjsbnuihythko.supabase.co';
+const SB_ANON = process.env.SUPABASE_ANON_KEY || 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+
+async function verifyUser(req) {
+  const auth = req.headers['authorization'] || '';
+  if (!auth.startsWith('Bearer ')) return null;
+  try {
+    const r = await fetch(SB_URL + '/auth/v1/user', { headers: { apikey: SB_ANON, authorization: auth } });
+    if (!r.ok) return null;
+    const u = await r.json();
+    if (!u || !u.id) return null;
+    return { id: u.id, email: u.email || null, anon: !!u.is_anonymous, tier: (u.user_metadata && u.user_metadata.tier) || 'visitante' };
+  } catch (_) { return null; }
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'content-type, x-run-token');
+  res.setHeader('Access-Control-Allow-Headers', 'content-type, x-run-token, authorization');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
 
-  const token = req.headers['x-run-token'] || '';
-  if (token !== TOKEN) { res.status(401).json({ error: 'token inválido' }); return; }
+  const who = await verifyUser(req); // real session first
+  if (!who) {
+    const token = req.headers['x-run-token'] || '';
+    if (token !== TOKEN) { res.status(401).json({ error: 'sesión o token inválido' }); return; }
+  }
 
   const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   const action = body.action;
   if (!ALLOW.includes(action)) { res.status(400).json({ error: 'acción no permitida', allow: ALLOW }); return; }
 
   try {
-    if (action === 'echo') { res.status(200).json({ ok: true, action, echo: body.args ?? null, ts: Date.now() }); return; }
+    if (action === 'echo') { res.status(200).json({ ok: true, action, echo: body.args ?? null, ts: Date.now(), who: who ? { id: who.id, tier: who.tier, anon: who.anon } : { guest: true } }); return; }
 
     const input = (body.prompt || body.input || '').toString().slice(0, 8000);
     if (!input) { res.status(400).json({ error: 'falta prompt/input' }); return; }
