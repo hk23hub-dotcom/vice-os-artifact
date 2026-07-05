@@ -750,19 +750,64 @@ render();
 
   let PRO = lsGet('vicehub-pro', null); // {key, at} once activated
 
-  // ── PRO tab ──
+  // ── INTEL + PRO tabs ──
+  CATS.push({ key:'intel', label:'📰 Intel', title:'GTA 6 Intel' });
   CATS.push({ key:'pro', label: PRO ? '★ PRO' : '🔒 PRO', title: 'VICE PRO' });
 
   const _renderOrig = window.render;
   window.render = function(){
+    if (activeCat === 'intel') { renderShell('GTA 6 INTEL', ''); renderIntel(); return; }
     if (activeCat !== 'pro') { _renderOrig(); return; }
-    renderTabs();
-    const chips = $('#chips'); if (chips){ chips.style.display='none'; chips.innerHTML=''; }
-    $('#sec-title').textContent = 'VICE PRO';
-    $('#sec-count').textContent = PRO ? 'ACCESS GRANTED' : 'LOCKED';
+    renderShell('VICE PRO', PRO ? 'ACCESS GRANTED' : 'LOCKED');
     $('#content').innerHTML = PRO ? proZone() : proLocked();
     bindPro();
   };
+  function renderShell(title, count){
+    renderTabs();
+    const chips = $('#chips'); if (chips){ chips.style.display='none'; chips.innerHTML=''; }
+    $('#sec-title').textContent = title;
+    $('#sec-count').textContent = count;
+  }
+
+  // ── DAILY INTEL — output of the research agent (Supabase, hk23 schema) ──
+  const SBI = { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  let intelCache = null;
+  async function loadIntel(){
+    if (intelCache) return intelCache;
+    try {
+      const r = await fetch(SBI.url + '/entities?select=name,summary,meta,created_at&meta-%3E%3Ekind=eq.gta6-intel&order=created_at.desc&limit=40',
+        { headers: { apikey: SBI.key, Authorization: 'Bearer '+SBI.key, 'Accept-Profile':'hk23' } });
+      intelCache = r.ok ? await r.json() : [];
+    } catch(e){ intelCache = []; }
+    return intelCache;
+  }
+  const ST_COL = { 'CONFIRMADO':'#2ee6ff', 'RUMOR':'#ffb46b', 'FILTRACIÓN':'#ff2e93' };
+  function intelCard(it, blurred){
+    const m = it.meta || {}; const col = ST_COL[m.status] || '#ffb46b';
+    return '<div class="crew-form" style="'+(blurred?'filter:blur(7px);pointer-events:none;user-select:none;':'')+'margin:0">'
+      + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px"><span style="font-size:9px;letter-spacing:2px;font-weight:700;color:'+col+';border:1px solid '+col+';border-radius:999px;padding:3px 10px">'+esc(m.status||'RUMOR')+'</span>'
+      + '<span style="font-size:10px;color:var(--muted)">'+esc(m.day||'')+(m.source?' · '+esc(m.source):'')+'</span></div>'
+      + '<h3 style="font-size:15px;margin:2px 0 6px">'+esc(it.name)+'</h3>'
+      + '<p style="font-size:12px;line-height:1.7;color:#cfc7e2">'+esc(it.summary||'')+'</p>'
+      + (m.url && !blurred ? '<a href="'+esc(m.url)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--cyan);letter-spacing:1px">FUENTE →</a>' : '')
+      + '</div>';
+  }
+  async function renderIntel(){
+    $('#content').innerHTML = '<div class="empty">🛰 Cargando el reporte del agente…</div>';
+    const items = await loadIntel();
+    if (activeCat !== 'intel') return; // user switched tabs while loading
+    $('#sec-count').textContent = items.length ? (items.length + ' reportes') : '';
+    if (!items.length){ $('#content').innerHTML = '<div class="empty">El agente aún no publica su primer reporte. Vuelve en unas horas 🛰</div>'; return; }
+    const FREE_N = 3;
+    let html = '<div style="font-size:11px;color:var(--muted);margin-bottom:14px">🛰 Investigado a diario por el <b style="color:var(--cyan)">VICE INSIDER</b> — noticias reales, separando lo confirmado del ruido.</div><div class="grid">';
+    items.forEach((it,i)=>{ html += intelCard(it, !PRO && i >= FREE_N); });
+    html += '</div>';
+    if (!PRO && items.length > FREE_N){
+      html += '<div style="text-align:center;margin-top:18px"><button class="btn-primary" id="intel-pro-cta">🔓 Desbloquear el archivo completo — PRO '+esc(PRO_CFG.price)+'</button></div>';
+    }
+    $('#content').innerHTML = html;
+    const cta = $('#intel-pro-cta'); if (cta) cta.onclick = ()=>{ activeCat='pro'; render(); };
+  }
 
   function proLocked(){
     return `<div class="crew-form" style="max-width:640px;margin:0 auto;text-align:center;border-color:var(--pink)">
