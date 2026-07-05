@@ -1,7 +1,7 @@
 // VICE.HUB PRO — server-side license verification against Gumroad.
 // The buyer pastes the license key from their Gumroad receipt; we verify it
 // here (source of truth = Gumroad's API), so the unlock can't be faked client-side.
-const PERMALINK = process.env.GUMROAD_PERMALINK || 'PENDING'; // product slug from the Gumroad URL (…/l/<slug>)
+const PERMALINK = process.env.GUMROAD_PERMALINK || 'luzaug'; // VICE.HUB PRO — Full Access (gumroad.com/l/luzaug)
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
