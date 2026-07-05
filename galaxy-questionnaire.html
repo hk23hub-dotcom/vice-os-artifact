@@ -804,6 +804,16 @@ function showFinal() {
 // ═══════════ CONFIRMATION ═══════════
 function showConfirmation() {
   const galaxyName = answers[1] ? answers[1].toUpperCase() : 'YOUR GALAXY';
+  // Persist the blueprint — the universe picks this up on load and creates the
+  // REAL universe row (Supabase) tied to your HK23 account, visible to others.
+  try {
+    localStorage.setItem('hk23-my-galaxy', JSON.stringify({
+      name: galaxyName,
+      color: answers[5] ? answers[5].color : '#B84DFF',
+      obs: answers[2] || '',
+      ts: Date.now(),
+    }));
+  } catch (e) {}
   document.getElementById('cf-title').textContent = galaxyName + ' — REGISTERED';
   document.getElementById('confirm-flash').classList.add('show');
 

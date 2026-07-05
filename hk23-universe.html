@@ -1501,7 +1501,7 @@
     <div id="upsell-title" style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:19px;color:#fff;margin-bottom:8px;">Función bloqueada</div>
     <div id="upsell-msg" style="color:#9a9aa4;font-size:12px;line-height:1.6;margin-bottom:20px;"></div>
     <button onclick="HK23TIER.openChooser()" style="width:100%;background:#00F0FF;color:#06121a;border:none;border-radius:10px;padding:12px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:9px;">SUBIR DE TIER →</button>
-    <button id="upsell-rent" style="width:100%;background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px;font-family:inherit;font-size:11px;cursor:pointer;margin-bottom:9px;">Arrendar con tokens (próximamente)</button>
+    <button id="upsell-rent" onclick="HK23TIER.rentPending()" style="width:100%;background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px;font-family:inherit;font-size:11px;cursor:pointer;margin-bottom:9px;">⚡ Arrendar 24h con tokens</button>
     <div onclick="document.getElementById('upsell-overlay').style.display='none'" style="cursor:pointer;color:#666;font-size:11px;">ahora no</div>
   </div>
 </div>
@@ -1750,19 +1750,38 @@
     isPremium() { return HK23TIER.level() >= 1; },
     isFull() { return HK23TIER.level() >= 2; },
     set(k) { if (!TIERS[k]) return; localStorage.setItem('hk23-user-tier', k); HK23TIER.updateBadge(); },
-    // Gate a feature: returns true if allowed, else shows the upsell and returns false.
+    // Gate a feature: allowed by tier OR by an active 24h token rental; else upsell.
     require(minLevel, feature) {
       if (HK23TIER.level() >= minLevel) return true;
+      if (HK23TIER.hasRent(feature)) return true;
       HK23TIER.upsell(minLevel, feature);
       return false;
     },
+    // ── VICE TOKENS (⚡) — real spendable balance; rents a gated feature for 24h ──
+    tokens() {
+      const v = parseInt(localStorage.getItem('hk23-tokens') || '', 10);
+      if (isNaN(v)) { localStorage.setItem('hk23-tokens', '100'); return 100; } // welcome balance
+      return v;
+    },
+    _rentKey(f) { return 'hk23-rent-' + String(f || 'x').toLowerCase().replace(/[^a-z0-9]+/g, '-'); },
+    hasRent(f) { try { return parseInt(localStorage.getItem(HK23TIER._rentKey(f)) || '0', 10) > Date.now(); } catch (_) { return false; } },
+    rentPending() {
+      const p = HK23TIER._pending; if (!p) return;
+      const COST = 30, bal = HK23TIER.tokens();
+      if (bal < COST) { if (window.showCmdToast) showCmdToast('⚡ Te faltan tokens (' + bal + '/' + COST + ') — subí de tier', '#ff5b6b'); return; }
+      localStorage.setItem('hk23-tokens', String(bal - COST));
+      localStorage.setItem(HK23TIER._rentKey(p.feature), String(Date.now() + 24 * 3600 * 1000));
+      document.getElementById('upsell-overlay').style.display = 'none';
+      if (window.showCmdToast) showCmdToast('⚡ ' + (p.feature || 'FUNCIÓN') + ' ARRENDADA 24H · quedan ' + (bal - COST) + ' ⚡', '#00F0FF');
+    },
     upsell(minLevel, feature) {
+      HK23TIER._pending = { minLevel, feature };
       const need = ORDER.map(k => TIERS[k]).find(t => t.level >= minLevel) || TIERS.premium;
       const ttl = document.getElementById('upsell-title'), msg = document.getElementById('upsell-msg');
       if (ttl) ttl.textContent = (feature || 'Esta función') + ' es ' + need.name;
       if (msg) msg.innerHTML = 'Sos <b style="color:' + HK23TIER.info().color + '">' + HK23TIER.info().name + '</b>. Para desbloquear <b style="color:' + need.color + '">' + (feature || 'esto') + '</b> necesitás el tier <b style="color:' + need.color + '">' + need.name + '</b>.';
       const rent = document.getElementById('upsell-rent');
-      if (rent) rent.style.display = (feature && /agente/i.test(feature)) ? 'block' : 'none';
+      if (rent) { rent.style.display = 'block'; rent.textContent = '⚡ Arrendar 24h — 30 tokens (tenés ' + HK23TIER.tokens() + ')'; }
       document.getElementById('upsell-overlay').style.display = 'flex';
     },
     openChooser() {
@@ -1857,6 +1876,37 @@
       c.auth.onAuthStateChange((_e, s) => { sess = s; badge(); });
     } catch (_) {}
     syncTierFromUser(); badge();
+    syncMyUniverse(); loadNeighbors();
+  }
+
+  // ── YOUR UNIVERSE AS DATA — one real Supabase row per user; Galaxy Mode reads them all ──
+  const REST = 'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1';
+  function restH(rep) { const h = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Content-Profile': 'hk23', 'Accept-Profile': 'hk23' }; if (rep) h.Prefer = 'return=representation'; return h; }
+  async function syncMyUniverse() {
+    const u = sess && sess.user; if (!u) return;
+    let bp = null; try { bp = JSON.parse(localStorage.getItem('hk23-my-galaxy') || 'null'); } catch (_) {}
+    const slug = 'universe-' + u.id.slice(0, 8);
+    const tier = localStorage.getItem('hk23-user-tier') || 'visitante';
+    const name = (bp && bp.name) ? String(bp.name).toUpperCase().slice(0, 40)
+      : (u.email ? 'GALAXIA DE ' + u.email.split('@')[0].toUpperCase() : 'GALAXIA ' + u.id.slice(0, 6).toUpperCase());
+    const row = { name, slug, level: 'node', kind: 'system', color: (bp && bp.color) || '#B84DFF',
+      summary: (bp && bp.obs) ? String(bp.obs).slice(0, 200) : ('universo ' + tier),
+      meta: { nh: '1', kind: 'universe', owner: u.id, tier, anon: !!u.is_anonymous } };
+    try {
+      const q = await fetch(REST + '/entities?select=id&slug=eq.' + slug + '&limit=1', { headers: restH(false) });
+      const ex = q.ok ? await q.json() : [];
+      if (ex.length) { await fetch(REST + '/entities?id=eq.' + ex[0].id, { method: 'PATCH', headers: restH(false), body: JSON.stringify(row) }); }
+      else {
+        const r = await fetch(REST + '/entities', { method: 'POST', headers: restH(true), body: JSON.stringify(row) });
+        if (r.ok && bp && window.showCmdToast) showCmdToast('✦ TU GALAXIA "' + name + '" YA EXISTE EN EL MULTIVERSO', row.color);
+      }
+    } catch (_) {}
+  }
+  async function loadNeighbors() {
+    try {
+      const r = await fetch(REST + '/entities?select=name,color,summary,meta,created_at&meta-%3E%3Ekind=eq.universe&order=created_at.desc&limit=10', { headers: restH(false) });
+      if (r.ok) window.__nbUniverses = await r.json();
+    } catch (_) {}
   }
   const HK23AUTH = {
     token() { return sess ? sess.access_token : null; },
@@ -4085,10 +4135,31 @@ function spawnGiant() {
 const collectedSet = new Set();
 let collectCount = 0;
 
+// ── PERSISTENCE: the collection is real — survives reloads ──
+function saveCollection() {
+  try { localStorage.setItem('hk23-collect', JSON.stringify({ ids: Array.from(collectedSet), count: collectCount })); } catch (_) {}
+}
+function restoreCollection() {
+  try {
+    const st = JSON.parse(localStorage.getItem('hk23-collect') || 'null');
+    if (!st || !Array.isArray(st.ids)) return;
+    st.ids.forEach(id => collectedSet.add(id));
+    collectCount = st.count || st.ids.length;
+    const numEl = document.getElementById('collect-num');
+    if (numEl) numEl.textContent = collectCount;
+    // re-mark collected objects so they don't respawn
+    if (typeof KEYS !== 'undefined') KEYS.forEach(k => { if (collectedSet.has(k.id)) k.collected = true; });
+    if (typeof MILESTONE !== 'undefined' && collectedSet.has(MILESTONE.id)) MILESTONE.collected = true;
+    if (typeof QUOTE_PORTALS !== 'undefined') QUOTE_PORTALS.forEach(q => { if (collectedSet.has(q.id)) q.collected = true; });
+  } catch (_) {}
+}
+restoreCollection();
+
 function addCollectible(id, rarity) {
   if (collectedSet.has(id)) return;
   collectedSet.add(id);
   collectCount++;
+  saveCollection();
   const numEl = document.getElementById('collect-num');
   numEl.textContent = collectCount;
   numEl.classList.add('new');
@@ -6026,10 +6097,18 @@ function openFractalNodePanel(node, projectColor, projectLabel) {
     ctaLive.style.display = '';
     ctaSoon.style.display = 'none';
     const btn = document.getElementById('fnp-action');
-    btn.textContent = d.action || 'OPEN IN APP →';
+    btn.textContent = d.link ? (d.action || 'OPEN IN APP →') : '▶ CONSTRUIR CON AGENTE';
     btn.style.background = node.color;
     btn.style.color = '#080808';
-    btn.onclick = () => { if (d.link) window.open(d.link, '_blank'); };
+    btn.onclick = () => {
+      if (d.link) { window.open(d.link, '_blank'); return; }
+      // no link → never a dead click: hand it to the real agent with context
+      if (window.RUNNER) {
+        RUNNER.open('Ayúdame a construir "' + (d.title || node.label || '') + '" del universo HK23: dame el plan concreto de 3 pasos para dejarlo VIVO esta semana.',
+          'Nodo: ' + (d.title || '') + ' — ' + (d.desc || ''));
+        if (RUNNER.pick) RUNNER.pick('strategist');
+      }
+    };
   } else {
     ctaLive.style.display = 'none';
     ctaSoon.style.display = '';
@@ -6197,6 +6276,32 @@ function deactivateGalaxyMode() {
   }, 900);
 }
 
+// ── Visit a neighbor universe (click a galaxy in multiverse view) ──
+function showNeighborCard(g) {
+  let el = document.getElementById('nb-card');
+  if (!el) { el = document.createElement('div'); el.id = 'nb-card'; document.body.appendChild(el); }
+  const u = g.real, m = (u && u.meta) || {};
+  el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9860;background:rgba(8,8,14,.97);border:1px solid ' + g.col + ';border-radius:16px;padding:24px 28px;font-family:\'Space Mono\',monospace;color:#e6e6ee;max-width:360px;text-align:center;box-shadow:0 0 40px ' + g.col + '44;';
+  el.innerHTML = u
+    ? '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
+      + '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">UNIVERSO REAL · TIER ' + String(m.tier || 'visitante').toUpperCase() + (m.anon ? ' · VIAJERO ANÓNIMO' : '') + '</div>'
+      + '<div style="font-size:11px;line-height:1.7;color:#aab">' + String(u.summary || 'Un universo vecino del multiverso HK23.').replace(/</g, '&lt;') + '</div>'
+      + '<div style="font-size:9px;color:#555;margin-top:10px">registrado ' + String(u.created_at || '').slice(0, 10) + '</div>'
+      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>'
+    : '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:' + g.col + '">SIN EXPLORAR</div>'
+      + '<div style="font-size:11px;line-height:1.7;color:#aab;margin-top:8px">Este rincón del multiverso todavía no tiene dueño. Cuando un nuevo viajero cree su galaxia, aparecerá aquí.</div>'
+      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
+}
+(function wireNeighborClicks() {
+  const ov = document.getElementById('galaxy-overlay');
+  if (!ov) return;
+  ov.addEventListener('click', e => {
+    if (!galaxyModeActive || !window.__galaxySlots) return;
+    const hit = window.__galaxySlots.find(g => Math.hypot(e.clientX - g.x, e.clientY - g.y) < Math.max(44, g.r * 2.2));
+    if (hit) showNeighborCard(hit);
+  });
+})();
+
 function drawGalaxyBg() {
   const canvas = document.getElementById('galaxy-canvas-bg');
   canvas.width = window.innerWidth;
@@ -6215,7 +6320,8 @@ function drawGalaxyBg() {
     ts: (Math.random() * 0.3 + 0.1) * 0.001,
   }));
 
-  // Distant galaxies (not HK23 — other players)
+  // Distant galaxies — REAL neighbor universes (other users' rows) take these slots;
+  // any slot without a real universe stays as an unexplored '???'.
   const distantGalaxies = [
     { x: cx * 0.18, y: cy * 0.42, r: 28, col: '#FFD200', label: 'UNKNOWN', angle: 0.3 },
     { x: cx * 1.82, y: cy * 0.55, r: 22, col: '#00F0FF', label: '???', angle: -0.8 },
@@ -6223,6 +6329,13 @@ function drawGalaxyBg() {
     { x: cx * 1.75, y: cy * 1.48, r: 20, col: '#FF6600', label: '???', angle: 0.6 },
     { x: cx * 1.0,  y: cy * 0.14, r: 14, col: '#B84DFF', label: '???', angle: -0.4 },
   ];
+  const meU = window.HK23AUTH && HK23AUTH.user();
+  const realNb = (window.__nbUniverses || []).filter(u => !meU || ((u.meta || {}).owner !== meU.id));
+  distantGalaxies.forEach((g, i) => {
+    const u = realNb[i];
+    if (u) { g.label = String(u.name || '???').toUpperCase().slice(0, 16); g.col = u.color || g.col; g.real = u; }
+  });
+  window.__galaxySlots = distantGalaxies;
 
   let t = 0;
   const W = canvas.width, H = canvas.height;
@@ -7170,7 +7283,7 @@ loadQuotesThen(handleDeepLink);
 <div id="games-launch"><div class="gl-card">
   <div class="gl-eye">◈ HK23 ARCADE</div>
   <input id="gl-input" placeholder="escribe un juego…" autocomplete="off">
-  <div class="gl-hint">disponibles: <b>tetris</b> · <b>pacman</b> (pronto) · <span style="color:#555">enter para jugar · esc para salir</span></div>
+  <div class="gl-hint">disponibles: <b>tetris</b> · <span style="color:#555">enter para jugar · esc para salir</span></div>
 </div></div>
 <div id="game-stage">
   <div class="gs-top"><span class="gs-title" id="gs-title">TETRIS</span>
@@ -7221,7 +7334,7 @@ loadQuotesThen(handleDeepLink);
   function loop(t){ if(!stage.classList.contains('open'))return; if(t-lastDrop> (auto?70:520)){ step(); lastDrop=t; } draw(); raf=requestAnimationFrame(loop); }
 
   const GAMES={
-    play(g){ if(g==='tetris'){ GAMES.tetris(); } else if(g==='pacman'){ if(window.__nhToast)__nhToast('Pacman: próximamente 🟡'); else alert('Pacman: próximamente'); } else { if(window.__nhToast)__nhToast('Juego no encontrado: '+g); } },
+    play(g){ if(g==='tetris'){ GAMES.tetris(); } else { if(window.__nhToast)__nhToast('Juego no encontrado: '+g); } },
     tetris(){ document.getElementById('gs-title').textContent='TETRIS'; document.getElementById('gs-foot').style.display=auto?'none':''; stage.classList.add('open');
       cvs=document.getElementById('game-canvas'); cvs.width=COLS*CELL; cvs.height=ROWS*CELL; cvs.style.cssText='border-radius:8px;box-shadow:0 0 50px rgba(57,208,255,.18)'; ctx=cvs.getContext('2d');
       reset(); lastDrop=0; cancelAnimationFrame(raf); raf=requestAnimationFrame(loop); },
