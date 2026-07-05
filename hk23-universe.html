@@ -1748,7 +1748,7 @@
   <div class="sc-row"><div class="sc-key">Y</div><div class="sc-label">YouTube fondo</div></div>
   <div class="sc-row"><div class="sc-key">V</div><div class="sc-label">Tu arte de fondo</div></div>
   <div class="sc-row"><div class="sc-key">X</div><div class="sc-label">Entidad gigante</div></div>
-  <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión · Flor de la Vida</div></div>
+  <div class="sc-row"><div class="sc-key">F</div><div class="sc-label">Fusión: figura · 🔊 parlantes · 🎚 tornamesa</div></div>
   <div class="sc-row"><div class="sc-key">C</div><div class="sc-label">Cripto</div></div>
   <div class="sc-row"><div class="sc-key">H</div><div class="sc-label">Modo: geo / hoyos / greens / mandala / ondas</div></div>
   <div class="sc-row"><div class="sc-key">N</div><div class="sc-label">NFT Vault</div></div>
@@ -4068,29 +4068,75 @@ function loadSiteFigure(site, idx) {
 function makeSacredSite(anchor) { const s = { anchor, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: ACTIVE().defaultScale }; loadSiteFigure(s, 0); return s; }
 let SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite);
 let sacredFused = false;
-function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); sacredFused = false; }
+function resetSacredSites() { SACRED_SITES = SACRED_ANCHORS.map(makeSacredSite); sacredFused = false; fusionForm = 0; }
 
 // Fuse ALL formations into ONE giant central Flower of Life (toggle with 'F').
-function fuseSacred() {
+// 'F' cycles the FUSION FORM: hero figure → GIANT SPEAKERS (one per side) → GIANT TURNTABLE → scattered.
+let fusionForm = 0;
+function customSite(anchor, slots, edges, scale, rgb) {
+  return { anchor, slots: slots.map(s => ({ x: s.x, y: s.y, occupant: null })), edges,
+    maxR: Math.max(1, ...slots.map(s => Math.hypot(s.x, s.y))), scale, noAdvance: true, figureIdx: 0, rgb };
+}
+function speakerFigure() { // Cygnus-style tower: cabinet + woofer / mid / tweeter
+  const slots = [
+    { x: -0.6, y: -1.05 }, { x: 0.6, y: -1.05 }, { x: 0.6, y: 1.05 }, { x: -0.6, y: 1.05 },
+    ...ptRing(0, 0.5, 0.42, 8),   // woofer
+    ...ptRing(0, -0.12, 0.27, 6), // mid
+    ...ptRing(0, -0.62, 0.15, 4), // tweeter
+  ];
+  const edges = [[0, 1], [1, 2], [2, 3], [3, 0], ...sgLoop(4, 8), ...sgLoop(12, 6), ...sgLoop(18, 4)];
+  return { slots, edges };
+}
+function turntableFigure() { // platter + label ring + spindle + tonearm
+  const slots = [
+    ...ptRing(0, 0, 1, 12),      // platter (0-11)
+    ...ptRing(0, 0, 0.42, 6),    // label (12-17)
+    { x: 0, y: 0 },              // spindle (18)
+    { x: 1.02, y: -0.92 },       // pivot (19)
+    { x: 1.16, y: -1.06 },       // counterweight (20)
+    { x: 0.6, y: -0.48 },        // arm (21)
+    { x: 0.28, y: -0.12 },       // stylus (22)
+  ];
+  const edges = [...sgLoop(0, 12), ...sgLoop(12, 6), [18, 12], [18, 15], [19, 20], [19, 21], [21, 22]];
+  return { slots, edges };
+}
+function applyFusion() {
   const locked = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
-  const mega = { anchor: { x: 0.5, y: 0.47 }, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.30, noAdvance: true };
-  loadSiteFigure(mega, ACTIVE().hero); // hero model of the active mode
-  SACRED_SITES = [mega];
-  locked.forEach((m, k) => {
-    if (k < mega.slots.length) { m.siteIndex = 0; m.slotIndex = k; mega.slots[k].occupant = m; m.state = 'converging'; }
-    else { m.siteIndex = null; m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT; }
-  });
-  sacredFused = true;
-  showCmdToast('✦ ' + ACTIVE().figs[ACTIVE().hero].name + ' — FUSIÓN', ACTIVE().hex);
-}
-function toggleFuse() {
-  if (sacredFused) {
-    const stray = malignants.filter(m => m.state === 'locked' || m.state === 'converging');
+  if (fusionForm === 0) {
     resetSacredSites();
-    stray.forEach(m => { m.state = 'wander'; m.siteIndex = null; m.slotIndex = null; m.bornAt = mapT; });
-    showCmdToast('◇ restaurado', '#B84DFF');
-  } else fuseSacred();
+    locked.forEach(m => { m.state = 'wander'; m.siteIndex = null; m.slotIndex = null; m.bornAt = mapT; });
+    showCmdToast('◇ formas dispersas', '#B84DFF');
+    return;
+  }
+  let sites, label, col;
+  if (fusionForm === 1) {
+    const mega = { anchor: { x: 0.5, y: 0.47 }, figureIdx: 0, slots: [], edges: [], maxR: 1, scale: 0.30, noAdvance: true };
+    loadSiteFigure(mega, ACTIVE().hero);
+    sites = [mega]; label = '✦ ' + ACTIVE().figs[ACTIVE().hero].name + ' — FUSIÓN'; col = ACTIVE().hex;
+  } else if (fusionForm === 2) {
+    const f = speakerFigure();
+    sites = [customSite({ x: 0.14, y: 0.5 }, f.slots, f.edges, 0.26, '0,240,255'),
+             customSite({ x: 0.86, y: 0.5 }, f.slots, f.edges, 0.26, '0,240,255')];
+    label = '🔊 PARLANTES GIGANTES'; col = '#00F0FF';
+  } else {
+    const f = turntableFigure();
+    sites = [customSite({ x: 0.5, y: 0.52 }, f.slots, f.edges, 0.33, '255,46,147')];
+    label = '🎚 TORNAMESA GIGANTE'; col = '#ff2e93';
+  }
+  SACRED_SITES = sites; sacredFused = true;
+  // re-home locked pieces round-robin across the new form's sites
+  let si = 0;
+  locked.forEach(m => {
+    for (let k = 0; k < sites.length; k++) {
+      const s = sites[(si + k) % sites.length];
+      const fi = s.slots.findIndex(x => !x.occupant);
+      if (fi >= 0) { m.siteIndex = (si + k) % sites.length; m.slotIndex = fi; s.slots[fi].occupant = m; m.state = 'converging'; si = (si + k + 1) % sites.length; return; }
+    }
+    m.siteIndex = null; m.slotIndex = null; m.state = 'wander'; m.bornAt = mapT;
+  });
+  showCmdToast(label, col);
 }
+function toggleFuse() { fusionForm = (fusionForm + 1) % 4; applyFusion(); }
 
 // Cycle what the entities build: sacred geometry → golf holes → greens.
 function cycleBuildMode() {
@@ -4131,7 +4177,9 @@ function drawSacredGeometry(ctx, W, H) {
   ctx.shadowBlur = 4;
   SACRED_SITES.forEach(site => {
     const big = (site.scale || 0.062) > 0.2; // the fused mega formation is bright & prominent
-    ctx.strokeStyle = big ? `rgba(${col},${0.30 + pulse * 0.22})` : `rgba(${col},${0.09 + pulse * 0.08})`;
+    const colS = site.rgb || col; // fusion forms can carry their own colour (speakers cyan, turntable pink)
+    ctx.shadowColor = `rgba(${colS},0.4)`;
+    ctx.strokeStyle = big ? `rgba(${colS},${0.30 + pulse * 0.22})` : `rgba(${colS},${0.09 + pulse * 0.08})`;
     ctx.lineWidth = big ? 1.5 : 1;
     const positions = site.slots.map(s => ({ ...sacredSlotPos(site, s, W, H), locked: !!(s.occupant && s.occupant.state === 'locked') }));
     if (positions.filter(p => p.locked).length < 2) return;
@@ -4206,7 +4254,7 @@ function spawnGiant() {
 }
 
 // ─── EL GATSBY — legendary art-deco car touring every galaxy; nearly impossible to catch ───
-const GATSBY = { x: 0.08, y: 0.12, vx: 0.001, vy: 0.0004, ang: 0, tgt: -1, wheel: 0, boost: 0, sparks: [] };
+const GATSBY = { x: 0.08, y: 0.12, vx: 0.001, vy: 0.0004, ang: 0, tgt: -1, wheel: 0, boost: 0, sparks: [], riding: false };
 function gatsbyPickTarget() {
   if (typeof NODES === 'undefined' || !NODES.length) return;
   let i; do { i = Math.floor(Math.random() * NODES.length); } while (i === GATSBY.tgt && NODES.length > 1);
@@ -4219,7 +4267,15 @@ function updateGatsby(W, H) {
   const tn = (typeof NODES !== 'undefined') ? NODES[g.tgt] : null;
   const cd = (mapMouseX > 0) ? Math.hypot(mapMouseX - g.x, mapMouseY - g.y) : 9;
   let maxSp = 0.0035;
-  if (!tamed && cd < 0.14) {
+  if (tamed && g.riding && mapMouseX > 0) {
+    // AL VOLANTE — your car chases the cursor across the galaxies
+    maxSp = 0.009; g.boost = 0.6;
+    const rd = Math.hypot(mapMouseX - g.x, mapMouseY - g.y);
+    if (rd > 0.02) {
+      const ra = Math.atan2(mapMouseY - g.y, mapMouseX - g.x);
+      g.vx += Math.cos(ra) * 0.003; g.vy += Math.sin(ra) * 0.003;
+    } else { g.vx *= 0.88; g.vy *= 0.88; }
+  } else if (!tamed && cd < 0.14) {
     // FLEE — the party never lets you in
     g.boost = 1; maxSp = 0.011;
     const fa = Math.atan2(g.y - mapMouseY, g.x - mapMouseX);
@@ -4281,17 +4337,33 @@ function drawGatsby(W, H, tamed) {
   if (cdp < 95) {
     c.font = '400 6px "Space Mono",monospace';
     c.fillStyle = 'rgba(255,215,0,.78)';
-    c.fillText(tamed ? 'EL GATSBY — TUYO, VIEJO AMIGO' : '🏁 EL GATSBY — atrapalo si podés', px, py + 16);
+    c.fillText(tamed ? (GATSBY.riding ? '🚗 AL VOLANTE — click para estacionar' : 'EL GATSBY — TUYO · click para manejar') : '🏁 EL GATSBY — atrapalo si podés', px, py + 16);
   }
   c.textAlign = 'left';
 }
 function tryCatchGatsby(clientX, clientY) {
   const W = mapCanvas.width, H = mapCanvas.height, g = GATSBY;
-  if (collectedSet.has('gatsby_car')) return false;
-  if (Math.hypot(clientX - g.x * W, clientY - g.y * H) < 13) {
+  const near = Math.hypot(clientX - g.x * W, clientY - g.y * H);
+  if (collectedSet.has('gatsby_car')) {
+    if (near < 18) { // it's YOUR car now — hop in / park it
+      g.riding = !g.riding;
+      if (window.showCmdToast) showCmdToast(g.riding ? '🚗 AL VOLANTE — el Gatsby sigue tu cursor' : '🅿️ Gatsby en tour automático', '#FFD700');
+      return true;
+    }
+    return false;
+  }
+  if (near < 13) {
     addCollectible('gatsby_car', 'legendary');
+    // catching it = grabbing an ENORMOUS blueprint → +100 ⚡ tokens
+    try {
+      const bal = window.HK23TIER ? HK23TIER.tokens() : (parseInt(localStorage.getItem('hk23-tokens') || '100', 10) || 100);
+      localStorage.setItem('hk23-tokens', String(bal + 100));
+    } catch (_) {}
     for (let s = 0; s < 26; s++) g.sparks.push({ x: g.x * W, y: g.y * H, vx: (Math.random() - .5) * 4, vy: (Math.random() - .5) * 4, l: 24 });
-    if (window.showCmdToast) showCmdToast('🏆 ATRAPASTE EL GATSBY — LEYENDA VIVA', '#FFD700');
+    if (window.showCmdToast) {
+      showCmdToast('🏆 ATRAPASTE EL GATSBY — LEYENDA VIVA', '#FFD700');
+      setTimeout(() => showCmdToast('📜 BLUEPRINT ENORME DESBLOQUEADO · +100 ⚡', '#FFD700'), 2600);
+    }
     return true;
   }
   return false;
@@ -8183,7 +8255,7 @@ loadQuotesThen(handleDeepLink);
   const SPECIES = [
     { key: 'prioritizer', name: 'SENTINELA', role: 'priorizador · jefe de operaciones', color: '#FF6600', eyes: 1, pointy: true },
     { key: 'strategist',  name: 'ORÁCULO',   role: 'estratega · próximos pasos',        color: '#00F0FF', eyes: 1, pointy: false },
-    { key: 'writer',      name: 'HEYOKA',    role: 'copywriter · el trickster',          color: '#FFD200', eyes: 2, pointy: false },
+    { key: 'writer',      name: 'HEYOKA',    role: 'payaso sagrado · trueno inverso · el área de JC', color: '#FF3A1F', eyes: 2, pointy: false, hk: true },
     { key: 'analyst',     name: 'VIGÍA',     role: 'analista · ve lo que no ves',        color: '#B84DFF', eyes: 3, pointy: false },
     { key: 'gta6',        name: 'INSIDER',   role: 'inteligencia GTA 6 · vice.hub',      color: '#ff2e93', eyes: 2, pointy: true },
   ];
@@ -8221,12 +8293,35 @@ loadQuotesThen(handleDeepLink);
     bg.addColorStop(0, c(0.95)); bg.addColorStop(1, 'rgba(' + (r * 0.3 | 0) + ',' + (g * 0.3 | 0) + ',' + (b * 0.3 | 0) + ',0.95)');
     ctx.fillStyle = bg; ctx.fill();
     ctx.strokeStyle = c(0.6 + pulse * 0.3); ctx.lineWidth = 1.4; ctx.stroke();
-    // antennae
-    for (const sd of [-1, 1]) {
-      const tx = sd * (13 + Math.sin(t * 2 + sd) * 3) * s, ty = (-R * 1.5 - 6 * s) + Math.cos(t * 2) * 2 * s;
-      ctx.beginPath(); ctx.moveTo(sd * 8 * s, -R * 0.9); ctx.quadraticCurveTo(sd * 15 * s, -R * 1.4, tx, ty);
-      ctx.strokeStyle = c(0.7); ctx.lineWidth = 1.6 * s; ctx.stroke();
-      ctx.beginPath(); ctx.arc(tx, ty, (2 + pulse * 1.4) * s, 0, 6.283); ctx.fillStyle = c(0.95); ctx.fill();
+    if (cfg.hk) {
+      // ── sacred-clown markings (HK23 = Heyoka 23): logo white lightning over logo red ──
+      ctx.beginPath();
+      ctx.moveTo(-3 * s, -R * 0.05); ctx.lineTo(4 * s, -R * 0.05); ctx.lineTo(0, R * 0.28);
+      ctx.lineTo(6 * s, R * 0.28); ctx.lineTo(-4 * s, R * 0.72); ctx.lineTo(-0.5 * s, R * 0.4);
+      ctx.lineTo(-6 * s, R * 0.4); ctx.closePath();
+      ctx.fillStyle = 'rgba(240,237,232,.92)'; ctx.fill();
+      // black diamond face-paint over the left eye
+      ctx.beginPath();
+      ctx.moveTo(-8 * s, -R * 0.25 - 8 * s); ctx.lineTo(-1 * s, -R * 0.25);
+      ctx.lineTo(-8 * s, -R * 0.25 + 8 * s); ctx.lineTo(-15 * s, -R * 0.25);
+      ctx.closePath(); ctx.fillStyle = 'rgba(8,8,8,.85)'; ctx.fill();
+    }
+    // antennae — the heyoka wears inverted thunder (zigzag), the rest curve
+    if (cfg.hk) {
+      for (const sd of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(sd * 8 * s, -R * 0.9);
+        ctx.lineTo(sd * 12 * s, -R * 1.15); ctx.lineTo(sd * 7 * s, -R * 1.32); ctx.lineTo(sd * 14 * s, -R * 1.62);
+        ctx.strokeStyle = 'rgba(240,237,232,.9)'; ctx.lineWidth = 1.7 * s; ctx.stroke();
+        ctx.beginPath(); ctx.arc(sd * 14 * s, -R * 1.62, (2 + pulse * 1.5) * s, 0, 6.283); ctx.fillStyle = c(0.95); ctx.fill();
+      }
+    } else {
+      for (const sd of [-1, 1]) {
+        const tx = sd * (13 + Math.sin(t * 2 + sd) * 3) * s, ty = (-R * 1.5 - 6 * s) + Math.cos(t * 2) * 2 * s;
+        ctx.beginPath(); ctx.moveTo(sd * 8 * s, -R * 0.9); ctx.quadraticCurveTo(sd * 15 * s, -R * 1.4, tx, ty);
+        ctx.strokeStyle = c(0.7); ctx.lineWidth = 1.6 * s; ctx.stroke();
+        ctx.beginPath(); ctx.arc(tx, ty, (2 + pulse * 1.4) * s, 0, 6.283); ctx.fillStyle = c(0.95); ctx.fill();
+      }
     }
     // eyes
     const blink = (t + x) % 3.4 < 0.12 ? 0.1 : 1;
@@ -8240,6 +8335,7 @@ loadQuotesThen(handleDeepLink);
     else { eye(-8 * s, -R * 0.2, 5 * s); eye(8 * s, -R * 0.2, 5 * s); eye(0, -R * 0.75, 4 * s); }
     // mouth
     if (state === 'speak' && selected) { const mo = (2 + Math.abs(Math.sin(t * 9)) * 4) * s; ctx.beginPath(); ctx.ellipse(0, R * 0.35, 4 * s, mo, 0, 0, 6.283); ctx.fillStyle = 'rgba(5,5,10,.9)'; ctx.fill(); }
+    else if (cfg.hk) { ctx.beginPath(); ctx.moveTo(-4 * s, R * 0.4); ctx.quadraticCurveTo(0, R * 0.4 - 3 * s, 4 * s, R * 0.4); ctx.strokeStyle = 'rgba(240,237,232,.85)'; ctx.lineWidth = 1.4; ctx.stroke(); } // his smile is upside-down — that's the heyoka way
     else { ctx.beginPath(); ctx.moveTo(-4 * s, R * 0.35); ctx.quadraticCurveTo(0, R * 0.35 + 2.5 * s, 4 * s, R * 0.35); ctx.strokeStyle = c(0.6); ctx.lineWidth = 1.2; ctx.stroke(); }
     ctx.restore();
   }
