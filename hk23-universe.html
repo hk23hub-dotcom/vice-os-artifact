@@ -4254,7 +4254,8 @@ function spawnGiant() {
 }
 
 // ─── EL GATSBY — legendary art-deco car touring every galaxy; nearly impossible to catch ───
-const GATSBY = { x: 0.08, y: 0.12, vx: 0.001, vy: 0.0004, ang: 0, tgt: -1, wheel: 0, boost: 0, sparks: [], riding: false };
+const GATSBY = { x: 0.08, y: 0.12, vx: 0.001, vy: 0.0004, ang: 0, tgt: -1, wheel: 0, boost: 0, sparks: [], riding: false,
+  mode: 'tour', modeT: 0, wx: 0.5, wy: 0.5, away: 0 }; // free will: tour | wander | exit (leaves the map when HE wants)
 function gatsbyPickTarget() {
   if (typeof NODES === 'undefined' || !NODES.length) return;
   let i; do { i = Math.floor(Math.random() * NODES.length); } while (i === GATSBY.tgt && NODES.length > 1);
@@ -4263,6 +4264,20 @@ function gatsbyPickTarget() {
 function updateGatsby(W, H) {
   const g = GATSBY;
   const tamed = collectedSet.has('gatsby_car');
+  // OFF-MAP — he left because he wanted to; comes back when HE decides
+  if (g.away > 0) {
+    g.away--;
+    if (g.away === 0) {
+      const side = Math.floor(Math.random() * 4);
+      if (side === 0) { g.x = -0.04; g.y = Math.random(); g.vx = 0.003; g.vy = 0; }
+      else if (side === 1) { g.x = 1.04; g.y = Math.random(); g.vx = -0.003; g.vy = 0; }
+      else if (side === 2) { g.x = Math.random(); g.y = -0.04; g.vx = 0; g.vy = 0.003; }
+      else { g.x = Math.random(); g.y = 1.04; g.vx = 0; g.vy = -0.003; }
+      g.mode = 'tour'; g.modeT = 400 + Math.random() * 600; g.tgt = -1;
+      if (window.showCmdToast) showCmdToast('🚗 EL GATSBY VOLVIÓ — porque quiso', '#FFD700');
+    }
+    return; // invisible while away
+  }
   if (g.tgt < 0) gatsbyPickTarget();
   const tn = (typeof NODES !== 'undefined') ? NODES[g.tgt] : null;
   const cd = (mapMouseX > 0) ? Math.hypot(mapMouseX - g.x, mapMouseY - g.y) : 9;
@@ -4285,17 +4300,45 @@ function updateGatsby(W, H) {
       g.x += Math.cos(fa) * 0.30; g.y += Math.sin(fa) * 0.22;
       if (window.showCmdToast && Math.random() < 0.35) showCmdToast('🚗💨 EL GATSBY SE ESFUMÓ', '#FFD700');
     }
-  } else if (tn) {
+  } else {
+    // FREE WILL — tours galaxies, wanders empty space, or leaves the map entirely. Nobody tells him where to go.
     g.boost = Math.max(0, g.boost - 0.03);
-    const ta = Math.atan2(tn.y - g.y, tn.x - g.x);
-    g.vx += Math.cos(ta) * 0.0009; g.vy += Math.sin(ta) * 0.0009;
-    if (Math.hypot(tn.x - g.x, tn.y - g.y) < 0.05) gatsbyPickTarget(); // next galaxy on the tour
+    g.modeT = (g.modeT || 0) - 1;
+    if (g.modeT <= 0) {
+      const r = Math.random();
+      g.mode = r < 0.55 ? 'tour' : (r < 0.85 ? 'wander' : 'exit');
+      g.modeT = 500 + Math.random() * 900;
+      if (g.mode === 'wander') { g.wx = Math.random(); g.wy = Math.random(); }
+      if (g.mode === 'exit') { // picks an edge and drives straight out
+        const s = Math.floor(Math.random() * 4);
+        if (s === 0) { g.wx = -0.2; g.wy = Math.random(); }
+        else if (s === 1) { g.wx = 1.2; g.wy = Math.random(); }
+        else if (s === 2) { g.wx = Math.random(); g.wy = -0.2; }
+        else { g.wx = Math.random(); g.wy = 1.2; }
+      }
+    }
+    if (g.mode === 'tour' && tn) {
+      const ta = Math.atan2(tn.y - g.y, tn.x - g.x);
+      g.vx += Math.cos(ta) * 0.0009; g.vy += Math.sin(ta) * 0.0009;
+      if (Math.hypot(tn.x - g.x, tn.y - g.y) < 0.05) gatsbyPickTarget(); // next galaxy on the tour
+    } else {
+      const wa = Math.atan2(g.wy - g.y, g.wx - g.x);
+      g.vx += Math.cos(wa) * 0.0009; g.vy += Math.sin(wa) * 0.0009;
+      if (g.mode === 'wander' && Math.hypot(g.wx - g.x, g.wy - g.y) < 0.05) { g.wx = Math.random(); g.wy = Math.random(); }
+    }
   }
   const v = Math.hypot(g.vx, g.vy) || 1e-6;
   if (v > maxSp) { g.vx = g.vx / v * maxSp; g.vy = g.vy / v * maxSp; }
   g.x += g.vx; g.y += g.vy;
-  if (g.x < -0.06) g.x = 1.05; if (g.x > 1.06) g.x = -0.05;
-  if (g.y < -0.06) g.y = 1.05; if (g.y > 1.06) g.y = -0.05;
+  if (g.x < -0.06 || g.x > 1.06 || g.y < -0.06 || g.y > 1.06) {
+    if (g.mode === 'exit' && !(tamed && g.riding)) {
+      g.away = 360 + Math.floor(Math.random() * 780); // 6–19s off-map, HIS call
+      if (window.showCmdToast) showCmdToast('🚗💨 EL GATSBY SE FUE DEL MAPA — vuelve cuando él quiera', '#FFD700');
+      return;
+    }
+    if (g.x < -0.06) g.x = 1.05; if (g.x > 1.06) g.x = -0.05;
+    if (g.y < -0.06) g.y = 1.05; if (g.y > 1.06) g.y = -0.05;
+  }
   g.ang = Math.atan2(g.vy, g.vx);
   g.wheel += v * 900;
   drawGatsby(W, H, tamed);
@@ -5384,6 +5427,7 @@ function tryCatchKey(clientX, clientY) {
 mapCanvas.addEventListener('mousedown', e => {
   const W = mapCanvas.width, H = mapCanvas.height;
   const nx = e.clientX / W, ny = e.clientY / H;
+  if (window.NH && NH._placing) return; // placing a galaxy — let the click handler take it
   if (tryCatchKey(e.clientX, e.clientY)) { e.stopPropagation(); return; } // keys are grabbable
   if (tryCatchGatsby(e.clientX, e.clientY)) { e.stopPropagation(); return; } // good luck with this one
   let closest = null, closestD = Infinity;
@@ -5431,6 +5475,7 @@ mapCanvas.addEventListener('touchstart', e => {
   const W = mapCanvas.width, H = mapCanvas.height;
   const nx = t.clientX / W, ny = t.clientY / H;
   mapMouseX = nx; mapMouseY = ny;
+  if (window.NH && NH._placing) { NH.placeAt(nx, ny); e.preventDefault(); return; } // placing a galaxy by touch
   if (tryCatchKey(t.clientX, t.clientY)) { e.preventDefault(); return; } // keys are grabbable
   let closest = null, closestD = Infinity;
   malignants.forEach(m => {
@@ -5474,6 +5519,7 @@ mapCanvas.addEventListener('touchend', e => {
 });
 
 mapCanvas.addEventListener('click', e => {
+  if (window.NH && NH._placing) { NH.placeAt(e.clientX / mapCanvas.width, e.clientY / mapCanvas.height); return; }
   if (hoveredProject) {
     const proj = PROJECTS.find(p => p.id === hoveredProject);
     openFractalUniverse(proj);
@@ -7468,23 +7514,49 @@ loadQuotesThen(handleDeepLink);
         <label>Nombre</label><input id="n-label" placeholder="MI GALAXIA">
         <label>Tagline</label><input id="n-sub" placeholder="Qué es">
         <label>Color</label><select id="n-color">${cols.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
-        <button class="nh-btn" onclick="NH.createGalaxy()">＋ Crear galaxia</button>`;
+        <button class="nh-btn" onclick="NH.startPlacing()">🎯 Crear DONDE YO QUIERA (click en el mapa)</button>
+        <button class="nh-btn ghost" onclick="NH.createGalaxy()">＋ Crear junto a otra (auto)</button>`;
+    },
+    _readForm(){ const label=v('n-label'); if(!label){ NH.toast('Ponele un nombre primero'); return null; }
+      return { label, sub:v('n-sub'), color:v('n-color')||'#FFD200' }; },
+    // ── free placement: click anywhere on the map, galaxy is born THERE ──
+    startPlacing(){
+      if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; // blueprint = Premium+
+      const f=NH._readForm(); if(!f) return;
+      NH._placing=f; NH.close();
+      if(typeof mapCanvas!=='undefined') mapCanvas.style.cursor='crosshair';
+      NH.toast('🎯 Click en CUALQUIER punto del mapa — ESC cancela');
+    },
+    cancelPlacing(){ NH._placing=null; if(typeof mapCanvas!=='undefined') mapCanvas.style.cursor=''; },
+    placeAt(nx,ny){
+      const f=NH._placing; if(!f) return false;
+      NH.cancelPlacing();
+      NH._spawn(f, Math.min(0.97,Math.max(0.03,nx)), Math.min(0.97,Math.max(0.03,ny)), false);
+      return true;
     },
     createGalaxy(){
       if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; // blueprint = Premium+
-      const label=v('n-label'); if(!label) return;
-      const id='nh-'+label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
+      const f=NH._readForm(); if(!f) return;
       // place as a NEIGHBOR of an existing galaxy + connect to it
       const base=(NODES&&NODES.length)?NODES[Math.floor(Math.random()*NODES.length)]:{x:0.5,y:0.5};
       const ang=Math.random()*Math.PI*2, dist=0.10+Math.random()*0.04;
       const nx=Math.min(0.92,Math.max(0.08, (base.x||0.5)+Math.cos(ang)*dist));
       const ny=Math.min(0.92,Math.max(0.08, (base.y||0.5)+Math.sin(ang)*dist*0.7));
-      const g={id,label,sub:v('n-sub'),color:v('n-color'),size:11,x:nx,y:ny};
+      NH._spawn(f,nx,ny,true,base);
+      NH.tab('edit');
+    },
+    _spawn(f,nx,ny,auto,base){
+      const id='nh-'+f.label.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Math.random().toString(36).slice(2,5);
+      const g={id,label:f.label,sub:f.sub,color:f.color,size:11,x:nx,y:ny};
       NODES.push(g); ov.newGalaxies.push(g);
-      if(base.id && typeof CONNECTIONS!=='undefined'){ CONNECTIONS.push([base.id,id]); ov.addConns.push([base.id,id]); }
-      NH.persist(); NH.tab('edit'); NH.toast('Galaxia vecina creada ✓'+(base.label?(' (junto a '+base.label+')'):''));
+      // link: auto mode uses its base; free mode links to the NEAREST galaxy so it's never an orphan
+      let link=base||null;
+      if(!auto){ let bd=1e9; NODES.forEach(n=>{ if(n.id===id) return; const d=Math.hypot((n.x||0.5)-nx,(n.y||0.5)-ny); if(d<bd){bd=d;link=n;} }); }
+      if(link && link.id && typeof CONNECTIONS!=='undefined'){ CONNECTIONS.push([link.id,id]); ov.addConns.push([link.id,id]); }
+      NH.persist();
+      NH.toast(auto ? ('Galaxia vecina creada ✓'+(link&&link.label?(' (junto a '+link.label+')'):'')) : '🌌 Galaxia creada donde quisiste ✓');
       sbEntity('gx:'+id,{name:g.label,slug:'nh-gx-'+id,level:'node',kind:'system',color:g.color,summary:g.sub,meta:{nh:'1',role:'galaxy'}}).then(ok=>{ if(ok) NH.toast('Galaxia creada ✓ DB'); });
-      if(base.id && window.__nhCloud && window.__nhCloud.sbRel){ window.__nhCloud.ensureGx(base.id).then(()=>window.__nhCloud.sbRel(base.id+'|'+id,'gx:'+base.id,'gx:'+id)); }
+      if(link && link.id && window.__nhCloud && window.__nhCloud.sbRel){ window.__nhCloud.ensureGx(link.id).then(()=>window.__nhCloud.sbRel(link.id+'|'+id,'gx:'+link.id,'gx:'+id)); }
     },
     renderRel(){
       const opts=NODES.map(g=>`<option value="${g.id}">${esc(g.label)}</option>`).join('');
@@ -7506,6 +7578,7 @@ loadQuotesThen(handleDeepLink);
       t.textContent=msg; t.style.opacity='1'; clearTimeout(t._h); t._h=setTimeout(function(){t.style.opacity='0'},1600); },
   };
   function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+  window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&NH._placing){ NH.cancelPlacing(); NH.toast('Colocación cancelada'); } });
   window.NH=NH;
   window.__nhToast = NH.toast;
 })();
