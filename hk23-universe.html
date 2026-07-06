@@ -1,9 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>HK23 — HEYOKA UNIVERSE</title>
+<title>HK23 Universe — tu universo vivo: galaxias, agentes IA y mundos reales</title>
+<meta name="description" content="HK23 es un universo interactivo donde tus proyectos son galaxias: explorá mundos en vivo (golf, arte, crypto, GTA 6), creá tu propia galaxia y ponela a trabajar con agentes de IA reales."/>
+<link rel="canonical" href="https://hk23universe.vercel.app/hk23-universe"/>
+<meta name="theme-color" content="#080808"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="HK23 Universe"/>
+<meta property="og:title" content="HK23 Universe — tu universo vivo"/>
+<meta property="og:description" content="Un universo interactivo donde tus proyectos son galaxias: explorá mundos en vivo, creá tu galaxia y ponela a trabajar con agentes de IA."/>
+<meta property="og:url" content="https://hk23universe.vercel.app/hk23-universe"/>
+<meta property="og:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="HK23 Universe — tu universo vivo"/>
+<meta name="twitter:description" content="Explorá mundos en vivo, creá tu galaxia y ponela a trabajar con agentes de IA."/>
+<meta name="twitter:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080808'/%3E%3Ctext x='32' y='42' font-family='Arial Black,sans-serif' font-weight='900' font-size='26' text-anchor='middle' fill='%23F0EDE8'%3EHK%3C/text%3E%3Ctext x='32' y='58' font-family='Arial Black,sans-serif' font-weight='900' font-size='18' text-anchor='middle' fill='%23FF3A1F'%3E23%3C/text%3E%3C/svg%3E"/>
+<script defer src="/_vercel/insights/script.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
@@ -150,6 +167,10 @@
     font-family: 'Space Mono', monospace;
     letter-spacing: 2px;
     white-space: nowrap;
+    text-align: center;
+  }
+  @media (max-width: 720px) {
+    .portal-quote { white-space: normal; width: 92vw; font-size: 9px; line-height: 1.6; }
   }
 
   /* ─── MAP ─── */
@@ -1662,9 +1683,26 @@
       <span>HK</span><span class="red">23</span>
     </div>
     <div class="subtitle">HEYOKA 23 — UNIVERSE OS</div>
+    <div style="max-width:520px;margin:14px auto 4px;font-family:'Space Mono',monospace;font-size:12px;line-height:1.75;color:#9a9aa8;">
+      Un universo vivo donde tus proyectos son <b style="color:#F0EDE8">galaxias</b>.
+      Explorá mundos reales, creá la tuya y ponela a trabajar con <b style="color:#F0EDE8">agentes de IA</b>.
+    </div>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:14px 0 6px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#7a7a8a;">
+      <span style="border:1px solid #24243a;border-radius:20px;padding:6px 12px;">🌌 Explorá gratis</span>
+      <span style="border:1px solid #24243a;border-radius:20px;padding:6px 12px;">⚡ Agentes IA reales</span>
+      <span style="border:1px solid #24243a;border-radius:20px;padding:6px 12px;">🎯 Creá tu galaxia</span>
+    </div>
     <button class="enter-btn" onclick="goTo('map')">ENTER THE UNIVERSE</button>
   </div>
-  <div class="portal-quote">EVERYTHING IS MONETIZABLE. EVERYTHING IS DOCUMENTED. EVERYTHING IS RAW.</div>
+  <div class="portal-quote">EVERYTHING IS MONETIZABLE. EVERYTHING IS DOCUMENTED. EVERYTHING IS RAW.
+    <div style="margin-top:10px;font-size:9px;letter-spacing:1px;">
+      <a href="privacy.html" style="color:#55556a;text-decoration:none;">privacidad</a>
+      <span style="color:#33333f;"> · </span>
+      <a href="terms.html" style="color:#55556a;text-decoration:none;">términos</a>
+      <span style="color:#33333f;"> · </span>
+      <a href="mailto:hk23hub@gmail.com" style="color:#55556a;text-decoration:none;">contacto</a>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════════ SCREEN: MAP ═══════════ -->
@@ -1810,9 +1848,9 @@
   const TIERS = {
     visitante: { key: 'visitante', name: 'VISITANTE', level: 0, color: '#8a8a98', price: 'Gratis',
       tag: 'Entrá y usá', perks: ['Explorá todo el universo', 'Usá una galaxia ya lista', 'Arrendá o comprá agentes con tokens', 'Sin crear nada — rápido'] },
-    premium: { key: 'premium', name: 'PREMIUM', level: 1, color: '#00F0FF', price: 'suscripción',
+    premium: { key: 'premium', name: 'PREMIUM', level: 1, color: '#00F0FF', price: '$4.99/mes · precio fundador',
       tag: 'Desbloqueá poder', perks: ['Todo lo de Visitante', 'Desbloqueás la Estación de Agentes', 'Sacás agentes a tu galaxia', 'Blueprint GUIADO para crear'] },
-    full: { key: 'full', name: 'FULL · ARQUITECTO', level: 2, color: '#FFD200', price: 'suscripción',
+    full: { key: 'full', name: 'FULL · ARQUITECTO', level: 2, color: '#FFD200', price: '$14.99/mes · precio fundador',
       tag: 'Todo, sin límite', perks: ['Todo lo de Premium', 'Creás agentes, plugins y mundos', 'Todo lo que hace HK23', 'Acceso total al blueprint'] },
   };
   const ORDER = ['visitante', 'premium', 'full'];
@@ -8133,6 +8171,8 @@ loadQuotesThen(handleDeepLink);
       why:'El fan hub de GTA 6: money methods, crews, guías, easter eggs y base de vehículos. Primera experiencia vendible del universo — acceso por tier en la próxima fase.'},
     {id:'multiverse',label:'Multiverse',sub:'galería de universos',status:'live',url:'multiverse.html',
       why:'La galería del multiverso — todos los universos HK23 vistos desde afuera, en una sola página.'},
+    {id:'albatros',label:'Albatros',sub:'torneos de golf · SaaS',status:'live',url:'https://albatros.vercel.app',
+      why:'La app de torneos de golf para clubes: armá el torneo, cargá scores en vivo y compartí el leaderboard. El producto golf del universo que ya está EN VIVO.'},
   ];
   const WSTATUS={live:{c:'#2bd66a',label:'EN VIVO'},build:{c:'#FFD200',label:'EN CONSTRUCCIÓN'},idea:{c:'#b06bff',label:'IDEA'}};
   // ── PUERTAS: cada nodo del universo tiene un destino asignable ──
