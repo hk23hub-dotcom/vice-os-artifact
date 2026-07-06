@@ -1879,9 +1879,9 @@
       document.getElementById('tier-overlay').style.display = 'none';
       const t = HK23TIER.info();
       if (window.showCmdToast) showCmdToast('◆ GALAXIA ' + t.name + ' ✦', t.color);
-      // Premium/Full → the guided blueprint (questionnaire). Visitante → the ready-made galaxies (coming next).
+      // Premium/Full → the guided blueprint (questionnaire). Visitante → the ready-made galaxies (piece 2).
       if (t.level >= 1) { setTimeout(() => { window.location.href = 'galaxy-questionnaire.html'; }, 700); }
-      else if (window.showCmdToast) setTimeout(() => showCmdToast('Elegí una galaxia lista (pronto) o subí de tier', '#8a8a98'), 900);
+      else setTimeout(() => { if (window.HK23READY) HK23READY.open(); }, 700);
     },
     updateBadge() {
       const btn = document.getElementById('galaxy-cta-btn'), sub = document.getElementById('galaxy-cta-sub');
@@ -1897,6 +1897,67 @@
   window.HK23TIER = HK23TIER;
   document.addEventListener('DOMContentLoaded', HK23TIER.updateBadge);
   HK23TIER.updateBadge();
+})();
+</script>
+
+<!-- ═══════════ GALAXIAS LISTAS (piece 2) — Visitante picks a ready-made galaxy ═══════════ -->
+<div id="ready-overlay" style="position:fixed;inset:0;z-index:9700;display:none;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
+  <div style="width:860px;max-width:96vw;max-height:92vh;overflow:auto;">
+    <div style="text-align:center;margin-bottom:6px;"><span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:26px;letter-spacing:2px;color:#fff;">GALAXIAS LISTAS</span></div>
+    <div style="text-align:center;color:#6a6a82;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-bottom:22px;">Elegí una y es tuya al instante · sin crear nada</div>
+    <div id="ready-cards" style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;"></div>
+    <div style="text-align:center;margin-top:18px;"><span onclick="document.getElementById('ready-overlay').style.display='none'" style="cursor:pointer;color:#666;font-size:11px;letter-spacing:1px;">cerrar ✕</span></div>
+  </div>
+</div>
+<script>
+(function () {
+  const KEY = 'hk23-ready-galaxy';
+  const TEMPLATES = [
+    { id: 'golf-one',   icon: '⛳', label: 'GOLF ONE',   sub: 'Performance de golf lista para usar', color: '#AAFF00',
+      perks: ['Stats + práctica', 'Rutinas de putting', 'Conectada a VICEGOLFER'] },
+    { id: 'arte-nova',  icon: '🎨', label: 'ARTE NOVA',  sub: 'Tu galería creativa instantánea',     color: '#FF3A1F',
+      perks: ['Muro de obras', 'Colección + market', 'Conectada a ARTE'] },
+    { id: 'crypto-core',icon: '🪙', label: 'CRYPTO CORE',sub: 'Radar cripto sin configurar nada',    color: '#FFD200',
+      perks: ['Charts en vivo (C)', 'Watchlist', 'Conectada a CRYPTO'] },
+    { id: 'sound-wave', icon: '🎧', label: 'SOUND WAVE', sub: 'Tu rincón de música y ambient',       color: '#00F0FF',
+      perks: ['YouTube ambient (Y)', 'Ondas de sonido', 'Conectada a MÚSICA'] },
+  ];
+  const HK23READY = {
+    mine() { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { return null; } },
+    open() {
+      const mine = HK23READY.mine();
+      document.getElementById('ready-cards').innerHTML = TEMPLATES.map(t => {
+        const on = mine && mine.tpl === t.id;
+        return '<div style="flex:1;min-width:200px;max-width:240px;background:rgba(10,10,16,.96);border:1px solid ' + (on ? t.color : '#24243a') + ';border-radius:16px;padding:20px;' + (on ? 'box-shadow:0 0 26px ' + t.color + '44;' : '') + '">'
+          + '<div style="font-size:26px;margin-bottom:6px;">' + t.icon + '</div>'
+          + '<div style="color:' + t.color + ';font-weight:900;font-family:\'Space Grotesk\',sans-serif;font-size:16px;letter-spacing:1px;">' + t.label + '</div>'
+          + '<div style="color:#6a6a82;font-size:10px;letter-spacing:1px;margin:3px 0 12px;">' + t.sub + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px;">' + t.perks.map(p => '<div style="color:#cdd6de;font-size:10px;line-height:1.4;">✦ ' + p + '</div>').join('') + '</div>'
+          + '<button onclick="HK23READY.pick(\'' + t.id + '\')" style="width:100%;background:' + (on ? 'transparent' : t.color) + ';color:' + (on ? t.color : '#06121a') + ';border:1px solid ' + t.color + ';border-radius:10px;padding:10px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">' + (on ? '✓ ES TUYA' : 'LA QUIERO') + '</button>'
+          + '</div>';
+      }).join('');
+      document.getElementById('ready-overlay').style.display = 'flex';
+    },
+    pick(id) {
+      const t = TEMPLATES.find(x => x.id === id); if (!t) return;
+      const mine = HK23READY.mine();
+      if (mine && mine.tpl === id) { if (window.showCmdToast) showCmdToast('✓ Ya es tuya — ' + t.label, t.color); return; }
+      if (mine) { if (window.showCmdToast) showCmdToast('Ya tenés ' + String(mine.label || 'tu galaxia') + ' — una galaxia lista por viajero', '#8a8a98'); return; }
+      // spawn through the NeuralHub pipeline (map + persistence + Supabase mirror)
+      if (!window.NH || !NH._spawn) { if (window.showCmdToast) showCmdToast('El universo todavía está cargando…', '#8a8a98'); return; }
+      const ang = Math.random() * Math.PI * 2, dist = 0.14 + Math.random() * 0.06;
+      const nx = Math.min(0.92, Math.max(0.08, 0.5 + Math.cos(ang) * dist));
+      const ny = Math.min(0.92, Math.max(0.08, 0.45 + Math.sin(ang) * dist * 0.7));
+      NH._spawn({ label: t.label, sub: t.sub, color: t.color }, nx, ny, false);
+      localStorage.setItem(KEY, JSON.stringify({ tpl: t.id, label: t.label, ts: Date.now() }));
+      document.getElementById('ready-overlay').style.display = 'none';
+      if (window.showCmdToast) {
+        showCmdToast(t.icon + ' ' + t.label + ' ES TUYA — YA ESTÁS EN EL MAPA', t.color);
+        setTimeout(() => showCmdToast('Apretá G para verla como vecina en el multiverso', '#8a8a98'), 2800);
+      }
+    },
+  };
+  window.HK23READY = HK23READY;
 })();
 </script>
 
@@ -8070,6 +8131,8 @@ loadQuotesThen(handleDeepLink);
       why:'Dashboard interactivo del Mundial 2026 con un agente analista: quién va quedando y sus probabilidades de título.'},
     {id:'vice-gta6',label:'VICE.HUB GTA6',sub:'fan hub · experiencia',status:'live',url:'vice-gta6.html',
       why:'El fan hub de GTA 6: money methods, crews, guías, easter eggs y base de vehículos. Primera experiencia vendible del universo — acceso por tier en la próxima fase.'},
+    {id:'multiverse',label:'Multiverse',sub:'galería de universos',status:'live',url:'multiverse.html',
+      why:'La galería del multiverso — todos los universos HK23 vistos desde afuera, en una sola página.'},
   ];
   const WSTATUS={live:{c:'#2bd66a',label:'EN VIVO'},build:{c:'#FFD200',label:'EN CONSTRUCCIÓN'},idea:{c:'#b06bff',label:'IDEA'}};
   // ── PUERTAS: cada nodo del universo tiene un destino asignable ──
