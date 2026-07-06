@@ -6570,6 +6570,13 @@ function showNeighborCard(g) {
   if (!el) { el = document.createElement('div'); el.id = 'nb-card'; document.body.appendChild(el); }
   const u = g.real, m = (u && u.meta) || {};
   el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9860;background:rgba(8,8,14,.97);border:1px solid ' + g.col + ';border-radius:16px;padding:24px 28px;font-family:\'Space Mono\',monospace;color:#e6e6ee;max-width:360px;text-align:center;box-shadow:0 0 40px ' + g.col + '44;';
+  if (g.mine) {
+    el.innerHTML = '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
+      + '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">★ GALAXIA VECINA · CREADA POR VOS</div>'
+      + '<div style="font-size:11px;line-height:1.7;color:#aab">' + String(g.sub || 'Una galaxia tuya, vecina de HK23 en el multiverso.').replace(/</g, '&lt;') + '</div>'
+      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
+    return;
+  }
   el.innerHTML = u
     ? '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
       + '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">UNIVERSO REAL · TIER ' + String(m.tier || 'visitante').toUpperCase() + (m.anon ? ' · VIAJERO ANÓNIMO' : '') + '</div>'
@@ -6628,6 +6635,23 @@ function drawGalaxyBg() {
   let t = 0;
   const W = canvas.width, H = canvas.height;
   const home = { x: cx, y: cy * 0.76 }; // YOUR galaxy (HK23) position in the multiverse
+
+  // ── YOUR created galaxies (NeuralHub) join the multiverse as NEIGHBORS of HK23 ──
+  let myGxRaw = [];
+  try { myGxRaw = (JSON.parse(localStorage.getItem('hk23nh-overrides') || '{}').newGalaxies) || []; } catch (_) {}
+  const myNeighbors = myGxRaw.map((g, i) => {
+    let h = 0; for (let k = 0; k < g.id.length; k++) h = (h * 31 + g.id.charCodeAt(k)) >>> 0; // stable spot per id
+    const ang = (h % 628) / 100 + i * 2.1;
+    const dist = Math.min(cx, cy) * (0.55 + ((h >> 4) % 30) / 100);
+    return {
+      x: Math.min(W - 70, Math.max(70, home.x + Math.cos(ang) * dist)),
+      y: Math.min(H - 80, Math.max(70, home.y + Math.sin(ang) * dist * 0.8)),
+      r: 16, col: g.color || '#FFD200', label: String(g.label || '???').toUpperCase().slice(0, 16),
+      angle: ((h % 100) / 50 - 1), mine: true, sub: g.sub || '',
+    };
+  });
+  const allGalaxies = distantGalaxies.concat(myNeighbors);
+  window.__galaxySlots = allGalaxies;
 
   // ── NEBULAS — soft drifting colour clouds (life) ──
   const NEB_COLS = ['184,77,255', '0,240,255', '255,58,31', '255,210,0', '120,220,120'];
@@ -6700,8 +6724,8 @@ function drawGalaxyBg() {
     ctx.fillText('HK23', 0, 82);
     ctx.restore();
 
-    // Distant galaxies
-    distantGalaxies.forEach(g => {
+    // Distant galaxies + YOUR created neighbors
+    allGalaxies.forEach(g => {
       ctx.save();
       ctx.translate(g.x, g.y);
       ctx.rotate(g.angle + t * 0.00015);
@@ -6737,14 +6761,19 @@ function drawGalaxyBg() {
       ctx.fillStyle = g.col + '55';
       ctx.textAlign = 'center';
       ctx.fillText(g.label, 0, g.r * 1.6);
+      if (g.mine) { // yours wear the mark
+        ctx.font = '400 5px Space Mono, monospace';
+        ctx.fillStyle = g.col + '88';
+        ctx.fillText('★ TUYA · VECINA', 0, g.r * 1.6 + 9);
+      }
       ctx.restore();
     });
 
-    // Subtle connecting filaments between galaxies
+    // Subtle connecting filaments between galaxies (your created neighbors link to home)
     const fil = [
       [{ x: cx * 0.18, y: cy * 0.42 }, { x: cx, y: cy * 0.78 }],
       [{ x: cx * 1.82, y: cy * 0.55 }, { x: cx, y: cy * 0.78 }],
-    ];
+    ].concat(myNeighbors.map(g => [{ x: g.x, y: g.y }, home]));
     fil.forEach(([a, b]) => {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
