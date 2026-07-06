@@ -1851,9 +1851,18 @@
     premium: { key: 'premium', name: 'PREMIUM', level: 1, color: '#00F0FF', price: '$4.99/mes · precio fundador',
       tag: 'Desbloqueá poder', perks: ['Todo lo de Visitante', 'Desbloqueás la Estación de Agentes', 'Sacás agentes a tu galaxia', 'Blueprint GUIADO para crear'] },
     full: { key: 'full', name: 'FULL · ARQUITECTO', level: 2, color: '#FFD200', price: '$14.99/mes · precio fundador',
-      tag: 'Todo, sin límite', perks: ['Todo lo de Premium', 'Creás agentes, plugins y mundos', 'Todo lo que hace HK23', 'Acceso total al blueprint'] },
+      tag: 'Todo, sin límite', perks: ['Todo lo de Premium', '🔑 ÚNICA llave al universo REAL de HK23', 'Acceso a planetas-bóveda (juntando llaves)', 'Creás agentes, plugins y mundos'] },
   };
   const ORDER = ['visitante', 'premium', 'full'];
+  // ── TEMPLATES — universos replicables al tiro (pago único, Gumroad) ──
+  const TPL = {
+    template_hk23: { key: 'template_hk23', name: 'TEMPLATE HK23', price: '$29 · pago único', color: '#FF3A1F',
+      tag: 'La estructura completa del universo HK23, tuya al tiro',
+      galaxies: [['VICE SPORTS','deporte como sistema','#AAFF00'],['ARTE','tu galería viva','#FF3A1F'],['CRYPTO','radar de mercado','#FFD200'],['MÚSICA','tu rincón ambient','#00F0FF'],['PROYECTOS','todo lo que construís','#B84DFF'],['LORE','tu filosofía','#FF6600']] },
+    template_genesis: { key: 'template_genesis', name: 'TEMPLATE GÉNESIS', price: '$19 · pago único', color: '#B84DFF',
+      tag: 'Un universo en blanco para armar el tuyo desde cero',
+      galaxies: [['GÉNESIS','tu universo desde cero','#B84DFF']] },
+  };
 
   const HK23TIER = {
     _tiers: TIERS,
@@ -1908,14 +1917,55 @@
           + '<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px;">' + t.perks.map(p => '<div style="color:#cdd6de;font-size:11px;line-height:1.4;">✦ ' + p + '</div>').join('') + '</div>'
           + '<button onclick="HK23TIER.choose(\'' + k + '\')" style="width:100%;background:' + (on ? 'transparent' : t.color) + ';color:' + (on ? t.color : '#06121a') + ';border:1px solid ' + t.color + ';border-radius:10px;padding:11px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">' + (on ? '✓ TU GALAXIA' : 'ELEGIR') + '</button>'
           + '</div>';
-      }).join('');
+      }).join('')
+        // ── vitrina de UNIVERSOS REPLICABLES (pago único) ──
+        + '<div style="flex-basis:100%;text-align:center;margin-top:26px;">'
+        + '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;letter-spacing:2px;color:#fff;">UNIVERSOS REPLICABLES</div>'
+        + '<div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:4px 0 16px;">Llevate el template · tu universo nace al tiro</div>'
+        + '<div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;">'
+        + Object.values(TPL).map(t =>
+            '<div style="flex:1;min-width:230px;max-width:300px;background:rgba(10,10,16,.96);border:1px solid #24243a;border-radius:16px;padding:20px;text-align:left;">'
+          + '<div style="color:' + t.color + ';font-weight:900;font-family:\'Space Grotesk\',sans-serif;font-size:16px;letter-spacing:1px;">' + t.name + '</div>'
+          + '<div style="color:#6a6a82;font-size:10px;letter-spacing:1px;margin:3px 0 12px;">' + t.tag + '</div>'
+          + '<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px;">' + t.galaxies.map(g => '<div style="color:#cdd6de;font-size:10px;">✦ <b style="color:' + g[2] + '">' + g[0] + '</b> — ' + g[1] + '</div>').join('') + '</div>'
+          + '<button onclick="HK23TIER.buyTemplate(\'' + t.key + '\')" style="width:100%;background:transparent;border:1px solid ' + t.color + ';color:' + t.color + ';border-radius:10px;padding:10px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">' + t.price.toUpperCase() + ' →</button>'
+          + '</div>').join('')
+        + '</div></div>';
       document.getElementById('tier-overlay').style.display = 'flex';
     },
     // ── PAGOS (piece 3) — suscripciones vía Gumroad. Mientras un permalink diga
     // 'PENDING' ese tier no está a la venta y elegirlo se comporta como siempre.
     PAY: {
-      premium: { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
-      full:    { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+      premium:          { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+      full:             { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+      template_hk23:    { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+      template_genesis: { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+    },
+    _prod(k) { return TIERS[k] || TPL[k]; },
+    buyTemplate(k) {
+      const pay = HK23TIER.PAY[k];
+      if (!pay || pay.permalink === 'PENDING') { if (window.showCmdToast) showCmdToast('🌌 Muy pronto en la vitrina — el template se está horneando', '#8a8a98'); return; }
+      if (HK23TIER.unlocked(k)) { HK23TIER._activateTemplate(k); return; } // ya comprado → re-replicar
+      HK23TIER.openPay(k);
+    },
+    _activateTemplate(k) {
+      const t = TPL[k]; if (!t) return;
+      const el = document.getElementById('pay-overlay'); if (el) el.remove();
+      document.getElementById('tier-overlay').style.display = 'none';
+      if (!window.NH || !NH._spawn) { if (window.showCmdToast) showCmdToast('El universo todavía está cargando…', '#8a8a98'); return; }
+      // replicable AL TIRO: el set completo de galaxias nace en anillo, ya conectado
+      const n = t.galaxies.length;
+      t.galaxies.forEach((g, i) => {
+        const ang = (i / n) * Math.PI * 2 - Math.PI / 2, dist = n > 1 ? 0.22 : 0.16;
+        const nx = Math.min(0.92, Math.max(0.08, 0.5 + Math.cos(ang) * dist));
+        const ny = Math.min(0.92, Math.max(0.08, 0.45 + Math.sin(ang) * dist * 0.75));
+        NH._spawn({ label: g[0], sub: g[1], color: g[2] }, nx, ny, false);
+      });
+      if (HK23TIER.level() < 1) HK23TIER.set('premium'); // el template incluye las herramientas para construir
+      if (window.showCmdToast) {
+        showCmdToast('🌌 ' + t.name + ' REPLICADO — TU UNIVERSO ESTÁ VIVO', t.color);
+        setTimeout(() => showCmdToast('Apretá G para verlo desde lejos · NeuralHub para editarlo', '#8a8a98'), 2800);
+      }
     },
     unlocked(k) { try { return !!(JSON.parse(localStorage.getItem('hk23-tier-license') || '{}')[k]); } catch (_) { return false; } },
     choose(k) {
@@ -1934,7 +1984,7 @@
       else setTimeout(() => { if (window.HK23READY) HK23READY.open(); }, 700);
     },
     openPay(k) {
-      const t = TIERS[k], pay = HK23TIER.PAY[k];
+      const t = HK23TIER._prod(k), pay = HK23TIER.PAY[k];
       document.getElementById('tier-overlay').style.display = 'none';
       let el = document.getElementById('pay-overlay');
       if (!el) { el = document.createElement('div'); el.id = 'pay-overlay'; document.body.appendChild(el); }
@@ -1968,10 +2018,10 @@
         if (j && j.ok) {
           try { const lic = JSON.parse(localStorage.getItem('hk23-tier-license') || '{}'); lic[k] = key; localStorage.setItem('hk23-tier-license', JSON.stringify(lic)); } catch (_) {}
           const el = document.getElementById('pay-overlay'); if (el) el.remove();
-          HK23TIER._grant(k);
+          if (TIERS[k]) HK23TIER._grant(k); else HK23TIER._activateTemplate(k);
         } else if (msg) msg.textContent = (j && j.error) || 'No se pudo verificar — probá de nuevo.';
       } catch (_) { if (msg) msg.textContent = 'Error de red — probá de nuevo.'; }
-      if (btn) { btn.disabled = false; btn.textContent = '2 · ACTIVAR ' + TIERS[k].name; }
+      if (btn) { btn.disabled = false; btn.textContent = '2 · ACTIVAR ' + HK23TIER._prod(k).name; }
     },
     updateBadge() {
       const btn = document.getElementById('galaxy-cta-btn'), sub = document.getElementById('galaxy-cta-sub');
@@ -5673,6 +5723,7 @@ mapCanvas.addEventListener('click', e => {
   if (window.NH && NH._placing) { NH.placeAt(e.clientX / mapCanvas.width, e.clientY / mapCanvas.height); return; }
   if (hoveredProject) {
     const proj = PROJECTS.find(p => p.id === hoveredProject);
+    if (window.VAULT && VAULT.gate(proj)) return; // planeta-bóveda: tier + llaves + interés declarado
     openFractalUniverse(proj);
   } else if (hoveredBlackHole) {
     const bh = BLACK_HOLES.find(b => b.id === hoveredBlackHole);
@@ -7761,6 +7812,90 @@ loadQuotesThen(handleDeepLink);
   window.addEventListener('keydown',e=>{ if(e.key==='Escape'&&NH._placing){ NH.cancelPlacing(); NH.toast('Colocación cancelada'); } });
   window.NH=NH;
   window.__nhToast = NH.toast;
+})();
+</script>
+<!-- ═══════════ PLANETAS-BÓVEDA — llaves + interés declarado para entrar (leads reales) ═══════════ -->
+<script>
+(function(){
+  const KEY='hk23-vault-access';
+  const SB={ url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const VAULTS={
+    laiglesia:{ keys:3, name:'LA IGLESIA', color:'#FFD200', icon:'⛏️',
+      tag:'ORO · IV REGIÓN · 3.676 ha',
+      pitch:'Proyecto REAL de exploración de oro en Chile. Este planeta no se compra: se gana. Contanos quién sos y por qué querés entrar.' },
+  };
+  const access=()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(_){ return {}; } };
+  const keysHave=()=>{ try{ return (typeof KEYS!=='undefined')?KEYS.filter(k=>collectedSet.has(k.id)).length:0; }catch(_){ return 0; } };
+  const VAULT={
+    _vaults:VAULTS,
+    has(id){ return !!access()[id]; },
+    // returns true if the click was CONSUMED by the gate (planet stays locked)
+    gate(proj){
+      const id=proj&&proj.id, v=VAULTS[id]; if(!v) return false;
+      if(VAULT.has(id)) return false; // ya adentro → abre normal
+      if(window.HK23TIER && !HK23TIER.require(2,'El universo REAL · '+v.name)) return true; // solo ARQUITECTO
+      const have=keysHave();
+      if(have<v.keys){ if(window.showCmdToast) showCmdToast('🔑 '+have+'/'+v.keys+' LLAVES — atrapá las llaves que orbitan el universo',v.color); return true; }
+      VAULT.openForm(id);
+      return true;
+    },
+    openForm(id){
+      const v=VAULTS[id];
+      let el=document.getElementById('vault-overlay');
+      if(!el){ el=document.createElement('div'); el.id='vault-overlay'; document.body.appendChild(el); }
+      el.style.cssText='position:fixed;inset:0;z-index:9750;display:flex;align-items:center;justify-content:center;background:rgba(4,4,8,.93);backdrop-filter:blur(10px);font-family:\'Space Mono\',monospace;padding:24px;';
+      el.innerHTML='<div style="width:430px;max-width:94vw;background:rgba(10,10,16,.97);border:1px solid '+v.color+';border-radius:16px;padding:26px;box-shadow:0 0 40px '+v.color+'33;">'
+        +'<div style="text-align:center;font-size:26px;margin-bottom:4px;">'+v.icon+' 🔑🔑🔑</div>'
+        +'<div style="text-align:center;font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:'+v.color+';letter-spacing:1px;">'+v.name+'</div>'
+        +'<div style="text-align:center;color:#6a6a82;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin:3px 0 14px;">'+v.tag+' · LLAVES COMPLETAS</div>'
+        +'<div style="color:#9aa2ab;font-size:11px;line-height:1.7;margin-bottom:16px;text-align:center;">'+v.pitch+'</div>'
+        +'<input id="vault-email" type="email" placeholder="tu@email.com" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;padding:11px;border-radius:10px;outline:none;margin-bottom:10px;">'
+        +'<select id="vault-who" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#cdd;font-family:inherit;font-size:12px;padding:11px;border-radius:10px;outline:none;margin-bottom:10px;">'
+        +'<option value="">¿Quién sos?</option><option>Inversor</option><option>Geólogo / técnico</option><option>Socio estratégico</option><option>Explorador curioso</option></select>'
+        +'<textarea id="vault-why" placeholder="¿Por qué querés entrar a '+v.name+'?" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;padding:11px;border-radius:10px;outline:none;min-height:70px;resize:vertical;margin-bottom:12px;"></textarea>'
+        +'<button id="vault-submit" style="width:100%;background:'+v.color+';color:#06121a;border:none;border-radius:10px;padding:12px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">USAR LAS LLAVES · ENTRAR →</button>'
+        +'<div id="vault-msg" style="min-height:16px;font-size:10px;color:#8a8a98;margin-top:10px;text-align:center;"></div>'
+        +'<div onclick="document.getElementById(\'vault-overlay\').remove()" style="text-align:center;margin-top:4px;cursor:pointer;color:#666;font-size:11px;">cerrar ✕</div></div>';
+      document.getElementById('vault-submit').onclick=()=>VAULT.submit(id);
+      setTimeout(()=>{ const i=document.getElementById('vault-email'); if(i) i.focus(); },60);
+    },
+    async submit(id){
+      const v=VAULTS[id], msg=document.getElementById('vault-msg'), btn=document.getElementById('vault-submit');
+      const email=(document.getElementById('vault-email').value||'').trim();
+      const who=(document.getElementById('vault-who').value||'').trim();
+      const why=(document.getElementById('vault-why').value||'').trim();
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){ if(msg) msg.textContent='Poné un email real — es tu llave maestra.'; return; }
+      if(!who){ if(msg) msg.textContent='Contanos quién sos.'; return; }
+      if(btn){ btn.disabled=true; btn.textContent='GIRANDO LAS LLAVES…'; }
+      let saved=false;
+      try{
+        const r=await fetch(SB.url+'/entities',{ method:'POST',
+          headers:{ apikey:SB.key, Authorization:'Bearer '+SB.key, 'Content-Type':'application/json', 'Content-Profile':'hk23' },
+          body:JSON.stringify({ name:'LEAD · '+v.name+' · '+email, slug:('lead-'+id+'-'+Date.now()), level:'node', kind:'node',
+            summary:why||('Interés en '+v.name), meta:{ nh:'1', role:'lead', vault:id, email:email, who:who, keys:keysHave(), ts:new Date().toISOString() } }) });
+        saved=r.ok;
+      }catch(_){ saved=false; }
+      // el acceso se concede igual (el lead quedó local si falló la red) — la experiencia manda
+      try{ const a=access(); a[id]={ email:email, who:who, ts:Date.now(), synced:saved }; localStorage.setItem(KEY,JSON.stringify(a)); }catch(_){}
+      const el=document.getElementById('vault-overlay'); if(el) el.remove();
+      const p=(typeof PROJECTS!=='undefined')?PROJECTS.find(x=>x.id===id):null;
+      if(p && VAULT._origSub[id]!==undefined) p.sub=VAULT._origSub[id]; // el candado se abre en el mapa
+      if(window.showCmdToast){
+        showCmdToast('🏆 LAS LLAVES GIRARON — BIENVENIDO A '+v.name, v.color);
+        if(!saved) setTimeout(()=>showCmdToast('(sin conexión — tu acceso quedó guardado local)', '#8a8a98'), 2600);
+      }
+      if(p && window.openFractalUniverse) setTimeout(()=>openFractalUniverse(p), 900);
+    },
+    _origSub:{},
+  };
+  // candado visible en el mapa mientras la bóveda esté cerrada
+  try{
+    Object.keys(VAULTS).forEach(id=>{
+      const p=(typeof PROJECTS!=='undefined')?PROJECTS.find(x=>x.id===id):null;
+      if(p && !VAULT.has(id)){ VAULT._origSub[id]=p.sub; p.sub='🔒 '+VAULTS[id].keys+' llaves · solo ARQUITECTO'; }
+    });
+  }catch(_){}
+  window.VAULT=VAULT;
 })();
 </script>
 <!-- ═══════════ HK23 Modo Juegos — arcade overlay (additive) ═══════════ -->

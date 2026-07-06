@@ -6,6 +6,9 @@
 const PERMALINKS = {
   premium: process.env.GUMROAD_PREMIUM_PERMALINK || 'PENDING',
   full: process.env.GUMROAD_FULL_PERMALINK || 'PENDING',
+  // universe templates — one-time products, replicables al tiro
+  template_hk23: process.env.GUMROAD_TEMPLATE_HK23_PERMALINK || 'PENDING',
+  template_genesis: process.env.GUMROAD_TEMPLATE_GENESIS_PERMALINK || 'PENDING',
 };
 
 const SB_URL = process.env.SUPABASE_URL || 'https://iiqhhglgjsbnuihythko.supabase.co';
@@ -63,7 +66,8 @@ export default async function handler(req, res) {
     const p = j.purchase || {};
     if (p.refunded || p.chargebacked || p.disputed) { res.status(200).json({ ok: false, error: 'Esta compra fue reembolsada o disputada.' }); return; }
     if (p.subscription_cancelled_at || p.subscription_failed_at) { res.status(200).json({ ok: false, error: 'Esta suscripción está cancelada o con pago fallido.' }); return; }
-    const savedToAccount = await saveTierToAccount(req, tier);
+    // only real tiers persist to the account — templates are products, not access levels
+    const savedToAccount = (tier === 'premium' || tier === 'full') ? await saveTierToAccount(req, tier) : false;
     res.status(200).json({ ok: true, tier, savedToAccount, uses: j.uses ?? null, email: p.email || null, sale_ts: p.sale_timestamp || null });
   } catch (e) {
     res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — probá de nuevo.' });
