@@ -3656,6 +3656,85 @@ const AGENT_BASE = {
   ],
 };
 
+// ─── PLANET GLYPHS — cada planeta ES lo que es: pelota de golf, moneda, pelota de rugby… ───
+function drawPlanetGlyph(c, id, x, y, r) {
+  switch (id) {
+    case 'vicegolfer': { // pelota de golf sobre un tee
+      c.fillStyle = '#d9a066';
+      c.beginPath();
+      c.moveTo(x - r * 0.38, y + r * 0.72); c.lineTo(x + r * 0.38, y + r * 0.72);
+      c.lineTo(x + r * 0.12, y + r * 0.95); c.lineTo(x + r * 0.12, y + r * 1.3);
+      c.lineTo(x - r * 0.12, y + r * 1.3); c.lineTo(x - r * 0.12, y + r * 0.95);
+      c.closePath(); c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.3)'; c.lineWidth = 0.8; c.stroke();
+      const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+      g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#c3c8d2');
+      c.beginPath(); c.arc(x, y, r * 0.95, 0, 6.29); c.fillStyle = g; c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.25)'; c.lineWidth = 1; c.stroke();
+      c.fillStyle = 'rgba(60,70,90,0.16)'; // dimples
+      for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) {
+        const dx = x + i * r * 0.4 + (j % 2 ? r * 0.14 : 0), dy = y + j * r * 0.4;
+        if (Math.hypot(dx - x, dy - y) < r * 0.72) { c.beginPath(); c.arc(dx, dy, r * 0.085, 0, 6.29); c.fill(); }
+      }
+      return true;
+    }
+    case 'cryptovice': { // moneda de oro
+      const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+      g.addColorStop(0, '#FFE886'); g.addColorStop(1, '#C9971C');
+      c.beginPath(); c.arc(x, y, r * 0.95, 0, 6.29); c.fillStyle = g; c.fill();
+      c.strokeStyle = '#8a6a10'; c.lineWidth = 1.4; c.stroke();
+      c.beginPath(); c.arc(x, y, r * 0.72, 0, 6.29); c.strokeStyle = 'rgba(120,90,10,.6)'; c.lineWidth = 0.8; c.stroke();
+      c.save(); c.font = '900 ' + Math.round(r * 1.05) + 'px "Space Grotesk", sans-serif';
+      c.fillStyle = '#7a5c08'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText('₿', x, y + r * 0.06); c.restore();
+      return true;
+    }
+    case 'rugbyvice': { // pelota de rugby con costura
+      c.save(); c.translate(x, y); c.rotate(-0.45);
+      const g = c.createRadialGradient(-r * 0.3, -r * 0.3, 0, 0, 0, r * 1.25);
+      g.addColorStop(0, '#a86a3a'); g.addColorStop(1, '#63381a');
+      c.beginPath(); c.ellipse(0, 0, r * 1.25, r * 0.72, 0, 0, 6.29); c.fillStyle = g; c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.35)'; c.lineWidth = 1; c.stroke();
+      c.strokeStyle = 'rgba(255,255,255,.85)'; c.lineWidth = 1.1; // lacing
+      c.beginPath(); c.moveTo(-r * 0.62, 0); c.lineTo(r * 0.62, 0); c.stroke();
+      for (let i = -2; i <= 2; i++) { c.beginPath(); c.moveTo(i * r * 0.24, -r * 0.14); c.lineTo(i * r * 0.24, r * 0.14); c.stroke(); }
+      c.restore();
+      return true;
+    }
+    case 'laiglesia': { // montaña de oro con destellos
+      const g = c.createLinearGradient(x, y - r, x, y + r);
+      g.addColorStop(0, '#FFE886'); g.addColorStop(1, '#8a6210');
+      c.beginPath();
+      c.moveTo(x - r, y + r * 0.72); c.lineTo(x - r * 0.25, y - r * 0.8);
+      c.lineTo(x + r * 0.12, y - r * 0.02); c.lineTo(x + r * 0.5, y - r * 0.5);
+      c.lineTo(x + r, y + r * 0.72); c.closePath();
+      c.fillStyle = g; c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.3)'; c.lineWidth = 1; c.stroke();
+      c.fillStyle = '#FFF7D6';
+      [[x - r * 0.32, y - r * 0.05], [x + r * 0.36, y + r * 0.12], [x - r * 0.02, y + r * 0.4]].forEach(s => {
+        c.beginPath(); c.arc(s[0], s[1], r * 0.07, 0, 6.29); c.fill();
+      });
+      return true;
+    }
+    case 'arteworld': { // paleta de pintor
+      c.save(); c.translate(x, y);
+      const g = c.createRadialGradient(-r * 0.3, -r * 0.3, 0, 0, 0, r);
+      g.addColorStop(0, '#e8d9c4'); g.addColorStop(1, '#a8916c');
+      c.beginPath(); c.arc(0, 0, r * 0.95, 0, 6.29); c.fillStyle = g; c.fill();
+      c.strokeStyle = 'rgba(0,0,0,.3)'; c.lineWidth = 1; c.stroke();
+      c.globalCompositeOperation = 'destination-out'; // agujero del pulgar
+      c.beginPath(); c.arc(r * 0.45, r * 0.32, r * 0.2, 0, 6.29); c.fill();
+      c.globalCompositeOperation = 'source-over';
+      [['#FF3A1F', -0.42, -0.34], ['#FFD200', 0.06, -0.52], ['#00F0FF', 0.44, -0.18], ['#AAFF00', -0.5, 0.18], ['#B84DFF', -0.06, 0.42]].forEach(b => {
+        c.beginPath(); c.arc(b[1] * r, b[2] * r, r * 0.13, 0, 6.29); c.fillStyle = b[0]; c.fill();
+      });
+      c.restore();
+      return true;
+    }
+  }
+  return false;
+}
+
 function updateOrbitalPositions() {
   const W = _orW, H = _orH;
   const cx = W * 0.50, cy = H * 0.47;
@@ -3808,6 +3887,30 @@ function drawNexusPlanets(ctx) {
   });
 }
 
+// lunas icónicas: el protocolo de putting ES un putter, el de patear ES la H
+function drawMoonGlyph(ctx, m) {
+  const s = m.sz;
+  if (/PUTTING/.test(m.label)) { // putter estilo Scotty Cameron: shaft + cabeza blade
+    ctx.save(); ctx.translate(m.px, m.py); ctx.rotate(0.5);
+    ctx.strokeStyle = '#d8dce4'; ctx.lineWidth = 1.1;
+    ctx.beginPath(); ctx.moveTo(s * 0.8, -s * 1.7); ctx.lineTo(-s * 0.3, s * 0.8); ctx.stroke();
+    ctx.fillStyle = '#c9cdd6'; ctx.fillRect(-s * 1.3, s * 0.8, s * 2.0, s * 0.55);
+    ctx.fillStyle = '#8b8f98'; ctx.fillRect(-s * 1.3, s * 1.32, s * 2.0, s * 0.2);
+    ctx.restore(); return true;
+  }
+  if (/KICK/.test(m.label)) { // la H de rugby
+    ctx.save(); ctx.translate(m.px, m.py);
+    ctx.strokeStyle = m.col; ctx.lineWidth = 1.3; ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-s, s); ctx.lineTo(-s, -s * 1.7);
+    ctx.moveTo(s, s); ctx.lineTo(s, -s * 1.7);
+    ctx.moveTo(-s, -s * 0.2); ctx.lineTo(s, -s * 0.2);
+    ctx.stroke();
+    ctx.restore(); return true;
+  }
+  return false;
+}
+
 function drawMoons(ctx) {
   PROJECTS.forEach(p => {
     const moons = ORBITAL_MOONS[p.id];
@@ -3821,11 +3924,13 @@ function drawMoons(ctx) {
       ctx.arc(m.px, m.py, m.sz * 3.5, 0, Math.PI * 2);
       ctx.fillStyle = grd;
       ctx.fill();
-      // Body
+      // Body (o glifo icónico)
+      if (!drawMoonGlyph(ctx, m)) {
       ctx.beginPath();
       ctx.arc(m.px, m.py, m.sz, 0, Math.PI * 2);
       ctx.fillStyle = m.col + 'BB';
       ctx.fill();
+      }
       // Label
       const lines = m.label.split('\n');
       ctx.font = `400 5.5px 'Space Mono', monospace`;
@@ -4841,38 +4946,49 @@ function animateMap() {
     mapCtx.fillStyle = p.color + '80';
     mapCtx.fill();
 
-    // Core glow
-    const coreGrd = mapCtx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
-    coreGrd.addColorStop(0, p.color + 'FF');
-    coreGrd.addColorStop(0.5, p.color + 'CC');
-    coreGrd.addColorStop(1, p.color + '55');
-    mapCtx.beginPath();
-    mapCtx.arc(x, y, r, 0, Math.PI * 2);
-    mapCtx.fillStyle = coreGrd;
-    mapCtx.fill();
+    // Planet body — iconic glyph when the planet IS something (golf ball, coin, rugby ball…)
+    const drewGlyph = drawPlanetGlyph(mapCtx, p.id, x, y, r);
+    if (!drewGlyph) {
+      // Core glow (default colored orb)
+      const coreGrd = mapCtx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
+      coreGrd.addColorStop(0, p.color + 'FF');
+      coreGrd.addColorStop(0.5, p.color + 'CC');
+      coreGrd.addColorStop(1, p.color + '55');
+      mapCtx.beginPath();
+      mapCtx.arc(x, y, r, 0, Math.PI * 2);
+      mapCtx.fillStyle = coreGrd;
+      mapCtx.fill();
 
-    // Surface ring
-    mapCtx.beginPath();
-    mapCtx.arc(x, y, r, 0, Math.PI * 2);
-    mapCtx.strokeStyle = 'rgba(0,0,0,0.3)';
-    mapCtx.lineWidth = 1;
-    mapCtx.stroke();
+      // Surface ring
+      mapCtx.beginPath();
+      mapCtx.arc(x, y, r, 0, Math.PI * 2);
+      mapCtx.strokeStyle = 'rgba(0,0,0,0.3)';
+      mapCtx.lineWidth = 1;
+      mapCtx.stroke();
 
-    // Label inside
-    mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
-    mapCtx.fillStyle = 'rgba(0,0,0,0.85)';
-    mapCtx.textAlign = 'center';
-    mapCtx.fillText(p.label, x, y + 3);
+      // Label inside
+      mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
+      mapCtx.fillStyle = 'rgba(0,0,0,0.85)';
+      mapCtx.textAlign = 'center';
+      mapCtx.fillText(p.label, x, y + 3);
+    } else {
+      // glyph planets wear their name below the body
+      mapCtx.font = `900 ${isHovered ? 10 : 8.5}px 'Space Grotesk', system-ui`;
+      mapCtx.fillStyle = isHovered ? '#F0EDE8' : 'rgba(240,237,232,.75)';
+      mapCtx.textAlign = 'center';
+      mapCtx.fillText(p.label, x, y + r + 14);
+    }
 
     // Sub label below orb
+    const subY = drewGlyph ? y + r + 26 : y + r + 16;
     mapCtx.font = `400 8px 'Space Mono', monospace`;
     mapCtx.fillStyle = isHovered ? p.color : p.color + '70';
-    mapCtx.fillText(p.sub, x, y + r + 16);
+    mapCtx.fillText(p.sub, x, subY);
 
     if (isHovered) {
       mapCtx.font = `700 8px 'Space Mono', monospace`;
       mapCtx.fillStyle = p.color;
-      mapCtx.fillText('▶ ENTER UNIVERSE', x, y + r + 28);
+      mapCtx.fillText('▶ ENTER UNIVERSE', x, subY + 12);
     }
   });
 
@@ -4884,6 +5000,7 @@ function animateMap() {
   drawCmdsPlanet(mapCtx, mapT);
   drawFavMoon(mapCtx, mapT);
   drawAgentBase(mapCtx, mapT);
+  if (window.CODEX_UI) CODEX_UI.draw(mapCtx, mapT);
 
   // ─── CENTER: HK23 ecosystem node ───
   const cx = W * 0.50, cy = H * 0.47;
@@ -5521,9 +5638,12 @@ mapCanvas.addEventListener('mousemove', e => {
   const fmDx = e.clientX - FAV_MOON.px, fmDy = e.clientY - FAV_MOON.py;
   hoveredFavMoon = Math.sqrt(fmDx*fmDx + fmDy*fmDy) < FAV_MOON.size + 16;
   FAV_MOON.hovered = hoveredFavMoon;
+  // Códice
+  if (window.CODEX_UI) { const cdx = e.clientX - CODEX_UI.px, cdy = e.clientY - CODEX_UI.py; CODEX_UI.hovered = Math.sqrt(cdx*cdx + cdy*cdy) < 24; }
 
   const anyHovered = foundNode || foundProj || foundBH || hoveredCenter || foundKey || foundQuote || foundMilestone
-    || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase || hoveredFavMoon;
+    || hoveredIdeasPlanet || hoveredIdeaMoonIdx >= 0 || hoveredCmdsMoonIdx >= 0 || hoveredAgentBase || hoveredFavMoon
+    || (window.CODEX_UI && CODEX_UI.hovered);
   mapCanvas.style.cursor = anyHovered ? 'pointer' : 'crosshair';
 
   if (foundProj) {
@@ -5615,7 +5735,14 @@ function tryCatchKey(clientX, clientY) {
     if (Math.sqrt(dx * dx + dy * dy) < k.size + 28) {
       k.collected = true; k.hovered = false; hoveredKey = null;
       addCollectible(k.id, 'rare');
-      showCmdToast('🔑 LLAVE COLECTADA — abre una puerta', k.color);
+      // las llaves HACEN cosas: +10 ⚡, abren la bóveda de La Iglesia (3) y el CÓDICE
+      try {
+        const bal = parseInt(localStorage.getItem('hk23-tokens') || '100', 10) || 100;
+        localStorage.setItem('hk23-tokens', String(bal + 10));
+      } catch (_) {}
+      const nKeys = KEYS.filter(x => x.collected).length;
+      showCmdToast('🔑 LLAVE ' + nKeys + '/5 · +10 ⚡ — con 3 se abre la bóveda de LA IGLESIA ⛏️', k.color);
+      if (nKeys === 3) setTimeout(() => showCmdToast('⛏️ 3 LLAVES — LA IGLESIA te espera (planeta dorado 🔒)', '#FFD200'), 2600);
       const opn = (typeof PROJECTS !== 'undefined') ? PROJECTS.filter(p => p.universe && p.universe.nodes && p.universe.nodes.length) : [];
       if (opn.length && window.openFractalUniverse) window.openFractalUniverse(opn[Math.floor(Math.random() * opn.length)]);
       return true;
@@ -5755,6 +5882,8 @@ mapCanvas.addEventListener('click', e => {
     executeCmdAction(CMDS_PLANET.cmds[hoveredCmdsMoonIdx].action);
   } else if (hoveredFavMoon) {
     openFavoritesPanel();
+  } else if (window.CODEX_UI && CODEX_UI.hovered) {
+    CODEX_UI.open();
   } else if (hoveredAgentBase) {
     openAgentBasePanel();
   } else if (hoveredNode) {
@@ -7896,6 +8025,125 @@ loadQuotesThen(handleDeepLink);
     });
   }catch(_){}
   window.VAULT=VAULT;
+})();
+</script>
+<!-- ═══════════ EL CÓDICE — censo vivo del universo + Mission Control de agentes ═══════════
+     Sellado hasta coleccionar UNA de cada cosa: llave 🔑, entidad atrapada 🕳️, portal de quote ✦ -->
+<script>
+(function(){
+  const SBQ='https://iiqhhglgjsbnuihythko.supabase.co/rest/v1';
+  const SBK='sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+  const CODEX_UI={
+    relX:0.93, relY:0.80, px:0, py:0, hovered:false,
+    status(){
+      const keys=(typeof KEYS!=='undefined')?KEYS.filter(k=>k.collected).length:0;
+      const ids=(typeof collectedSet!=='undefined')?Array.from(collectedSet):[];
+      const catches=ids.filter(id=>id.indexOf('catch_')===0).length;
+      const quotes=ids.filter(id=>/^q\d/.test(id)).length;
+      const missing=[];
+      if(!keys) missing.push('1 llave 🔑'); if(!catches) missing.push('atrapar 1 entidad 🕳️'); if(!quotes) missing.push('1 portal ✦');
+      return { unlocked:missing.length===0, keys, catches, quotes, missing,
+        gatsby:(typeof collectedSet!=='undefined')&&collectedSet.has('gatsby_car') };
+    },
+    draw(c,t){
+      const W=mapCanvas.width,H=mapCanvas.height;
+      this.px=W*this.relX; this.py=H*this.relY;
+      const x=this.px,y=this.py,hov=this.hovered,st=this.status();
+      const glow=c.createRadialGradient(x,y,0,x,y,34);
+      glow.addColorStop(0,'rgba(184,77,255,'+(hov?0.28:0.13+0.05*Math.sin(t*0.8))+')'); glow.addColorStop(1,'rgba(184,77,255,0)');
+      c.fillStyle=glow; c.beginPath(); c.arc(x,y,34,0,6.29); c.fill();
+      // el libro
+      c.save(); c.translate(x,y); c.rotate(-0.12);
+      c.fillStyle='#1a1426'; c.fillRect(-11,-8,22,16);
+      c.fillStyle='#2a2040'; c.fillRect(-11,-8,4,16); // lomo
+      c.strokeStyle=st.unlocked?'#B84DFF':'#4a3a66'; c.lineWidth=1; c.strokeRect(-11,-8,22,16);
+      c.fillStyle=st.unlocked?'#FFD200':'#665a80';
+      c.beginPath(); c.arc(1,0,2.6,0,6.29); c.fill(); // gema central
+      c.restore();
+      c.textAlign='center';
+      c.font='700 7px "Space Mono",monospace';
+      c.fillStyle=hov?'#B84DFF':'rgba(184,77,255,.6)';
+      c.fillText('EL CÓDICE',x,y+22);
+      c.font='400 6px "Space Mono",monospace';
+      c.fillStyle=hov?'rgba(240,237,232,.8)':'rgba(240,237,232,.35)';
+      c.fillText(st.unlocked?'✦ censo del universo':'🔒 1 de cada cosa lo abre',x,y+31);
+    },
+    open(){
+      const st=this.status();
+      if(!st.unlocked){
+        if(window.showCmdToast){
+          showCmdToast('📖 CÓDICE SELLADO — te falta: '+st.missing.join(' · '),'#B84DFF');
+          setTimeout(()=>showCmdToast('🔑 llaves y ✦ portales orbitan el mapa · 🕳️ las entidades se agarran con el mouse','#8a8a98'),2600);
+        }
+        return;
+      }
+      let el=document.getElementById('codex-overlay');
+      if(!el){ el=document.createElement('div'); el.id='codex-overlay'; document.body.appendChild(el); }
+      const nGx=(()=>{ try{ return (JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){ return 0; } })();
+      const nMal=(typeof malignants!=='undefined')?malignants.length:0;
+      const nColl=(typeof collectedSet!=='undefined')?collectedSet.size:0;
+      const vaultOpen=window.VAULT&&VAULT.has('laiglesia');
+      const tok=(()=>{ try{ return parseInt(localStorage.getItem('hk23-tokens')||'100',10); }catch(_){ return 100; } })();
+      const sec=(t,items)=>'<div style="margin-bottom:16px;"><div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:12px;letter-spacing:2px;color:#B84DFF;margin-bottom:7px;">'+t+'</div>'
+        +items.map(i=>'<div style="font-size:10px;line-height:1.7;color:#aab;">'+i+'</div>').join('')+'</div>';
+      el.style.cssText='position:fixed;inset:0;z-index:9750;display:flex;align-items:center;justify-content:center;background:rgba(4,4,8,.93);backdrop-filter:blur(10px);font-family:\'Space Mono\',monospace;padding:24px;';
+      el.innerHTML='<div style="width:640px;max-width:95vw;max-height:88vh;overflow:auto;background:rgba(12,10,18,.97);border:1px solid #B84DFF;border-radius:16px;padding:28px;box-shadow:0 0 50px #B84DFF33;">'
+        +'<div style="text-align:center;margin-bottom:4px;font-size:24px;">📖</div>'
+        +'<div style="text-align:center;font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:22px;color:#B84DFF;letter-spacing:2px;">EL CÓDICE</div>'
+        +'<div style="text-align:center;color:#6a6a82;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin:3px 0 20px;">todo lo que vive en el universo · lo abriste coleccionando 🏆</div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
+        +sec('🪐 CUERPOS',[
+          '<b style="color:#cdd">'+((typeof PROJECTS!=='undefined')?PROJECTS.length:0)+' planetas</b> — cada uno abre su universo real',
+          '⛳ VICEGOLFER es una pelota de golf · 🪙 CRYPTO una moneda · 🏉 RUGBY una pelota · ⛏️ LA IGLESIA una montaña de oro · 🎨 ARTE una paleta',
+          '<b style="color:#cdd">'+nGx+' galaxias creadas</b> por viajeros (NeuralHub / templates)',
+          'Zonas: LORE · ARTE · VICE OS · SYSTEMS · AGENTS · $ FLOW'])
+        +sec('🔑 LLAVES ('+st.keys+'/5)',[
+          'Atraparlas da <b style="color:#FFD200">+10 ⚡</b> cada una',
+          '<b style="color:#FFD200">3 llaves</b> abren la bóveda de LA IGLESIA (siendo ARQUITECTO)',
+          '1 llave cuenta para abrir este CÓDICE',
+          'Al atrapar una se abre la puerta de un mundo al azar'])
+        +sec('🕳️ ENTIDADES ('+nMal+' vivas)',[
+          'Vagan por el mapa y construyen <b style="color:#cdd">geometría sagrada</b> (D las libera, F las fusiona)',
+          'Agarralas con el mouse y lanzalas — atraparlas da coleccionables raros',
+          'A veces aparece una GIGANTE (X)'])
+        +sec('🚗 EL GATSBY',[
+          st.gatsby?'<b style="color:#FFD200">TUYO 👑</b> — click para manejarlo con el cursor':'Suelto — casi imposible de atrapar (+100 ⚡ si lo lográs)',
+          'Tiene libre albedrío: tourea galaxias, deambula y se VA del mapa cuando quiere'])
+        +sec('🏆 COLECCIÓN ('+nColl+')',[
+          'Llaves, entidades atrapadas, portales ✦, milestones, el Gatsby…',
+          'Tenés <b style="color:#FFD200">'+tok+' ⚡ tokens</b> — sirven para arrendar features 24h',
+          'Bóveda LA IGLESIA: '+(vaultOpen?'<b style="color:#AAFF00">ABIERTA</b>':'<b style="color:#FFD200">sellada 🔒</b> (FULL + 3 llaves + tu interés)')])
+        +sec('⌨️ GADGETS DEL MAPA',[
+          '<b style="color:#cdd">G</b> multiverso · <b style="color:#cdd">C</b> crypto charts · <b style="color:#cdd">Y</b> YouTube ambient · <b style="color:#cdd">V</b> fondo NFT',
+          '<b style="color:#cdd">N</b> NFT Vault · <b style="color:#cdd">J</b> arcade · <b style="color:#cdd">B/W</b> agujeros negro/blanco · <b style="color:#cdd">A</b> agentes',
+          '<b style="color:#cdd">H</b> hoyos de golf · <b style="color:#cdd">S</b> swarm art · <b style="color:#cdd">M</b> mover planetas'])
+        +'</div>'
+        +'<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:12px;letter-spacing:2px;color:#00F0FF;margin:4px 0 8px;">🛰️ MISSION CONTROL — AGENTES</div>'
+        +'<div id="codex-agents" style="font-size:10px;line-height:1.8;color:#aab;">cargando estado real…</div>'
+        +'<div onclick="document.getElementById(\'codex-overlay\').remove()" style="text-align:center;margin-top:18px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px;">cerrar ✕</div></div>';
+      CODEX_UI.loadAgents();
+    },
+    async loadAgents(){
+      const box=document.getElementById('codex-agents'); if(!box) return;
+      const row=(dot,name,where,state)=>'<div style="display:flex;gap:8px;align-items:baseline;"><span style="color:'+dot+'">●</span><b style="color:#cdd;min-width:130px;display:inline-block;">'+name+'</b><span style="color:#6a6a82;">'+where+'</span><span style="margin-left:auto;">'+state+'</span></div>';
+      let gta6='sin datos'; let gum='verificando…';
+      try{
+        const r=await fetch(SBQ+'/entities?meta-%3E%3Ekind=eq.gta6-intel&select=created_at&order=created_at.desc&limit=1',{headers:{apikey:SBK,Authorization:'Bearer '+SBK,'Accept-Profile':'hk23'}});
+        const j=await r.json(); if(j&&j[0]) gta6='última corrida '+String(j[0].created_at).slice(0,16).replace('T',' ');
+      }catch(_){ gta6='sin conexión'; }
+      try{
+        const r=await fetch('/api/gumroad-agent'); const j=await r.json();
+        gum=j.ok?('<b style="color:#AAFF00">'+j.totalSales+' ventas · $'+(j.totalRevenue||0).toFixed(0)+'</b>'):(j.dormant?'dormido — falta access token':'error');
+      }catch(_){ gum='offline (local)'; }
+      box.innerHTML=
+        row('#2bd66a','GTA6 INTEL','cron diario · Vercel + Sonar → Supabase',gta6)
+        +row(gum.indexOf('ventas')>=0?'#2bd66a':'#FFD200','GUMROAD AGENT','serverless · vigila tu tienda',gum)
+        +row('#00F0FF','ACTION RUNNER ×5','on-demand · prioritizer/strategist/writer/analyst/gta6','entrá por AGENTS o tecla A')
+        +row('#FFD200','VICE SELLER','local · Etsy/Printify/Pinterest (926 prints)','corre desde tu Mac')
+        +row('#B84DFF','DAILY RESEARCH','api/run + contexto real del universo','a pedido');
+    },
+  };
+  window.CODEX_UI=CODEX_UI;
 })();
 </script>
 <!-- ═══════════ HK23 Modo Juegos — arcade overlay (additive) ═══════════ -->
