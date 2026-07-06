@@ -1911,7 +1911,19 @@
       }).join('');
       document.getElementById('tier-overlay').style.display = 'flex';
     },
+    // ── PAGOS (piece 3) — suscripciones vía Gumroad. Mientras un permalink diga
+    // 'PENDING' ese tier no está a la venta y elegirlo se comporta como siempre.
+    PAY: {
+      premium: { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+      full:    { permalink: 'PENDING', url: 'https://gumroad.com/l/PENDING' },
+    },
+    unlocked(k) { try { return !!(JSON.parse(localStorage.getItem('hk23-tier-license') || '{}')[k]); } catch (_) { return false; } },
     choose(k) {
+      const t = TIERS[k], pay = HK23TIER.PAY[k];
+      if (t && t.level >= 1 && pay && pay.permalink !== 'PENDING' && !HK23TIER.unlocked(k)) { HK23TIER.openPay(k); return; }
+      HK23TIER._grant(k);
+    },
+    _grant(k) {
       HK23TIER.set(k);
       if (window.HK23AUTH) HK23AUTH.saveTier(k); // persist tier to the real Supabase account (F0)
       document.getElementById('tier-overlay').style.display = 'none';
@@ -1920,6 +1932,46 @@
       // Premium/Full → the guided blueprint (questionnaire). Visitante → the ready-made galaxies (piece 2).
       if (t.level >= 1) { setTimeout(() => { window.location.href = 'galaxy-questionnaire.html'; }, 700); }
       else setTimeout(() => { if (window.HK23READY) HK23READY.open(); }, 700);
+    },
+    openPay(k) {
+      const t = TIERS[k], pay = HK23TIER.PAY[k];
+      document.getElementById('tier-overlay').style.display = 'none';
+      let el = document.getElementById('pay-overlay');
+      if (!el) { el = document.createElement('div'); el.id = 'pay-overlay'; document.body.appendChild(el); }
+      el.style.cssText = 'position:fixed;inset:0;z-index:9750;display:flex;align-items:center;justify-content:center;background:rgba(4,4,8,.92);backdrop-filter:blur(10px);font-family:\'Space Mono\',monospace;padding:24px;';
+      el.innerHTML = '<div style="width:400px;max-width:94vw;background:rgba(10,10,16,.97);border:1px solid ' + t.color + ';border-radius:16px;padding:26px;text-align:center;box-shadow:0 0 40px ' + t.color + '33;">'
+        + '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + t.color + ';letter-spacing:1px;">' + t.name + '</div>'
+        + '<div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:4px 0 18px;">' + t.price + '</div>'
+        + '<button onclick="window.open(\'' + pay.url + '\',\'_blank\',\'noopener\')" style="width:100%;background:' + t.color + ';color:#06121a;border:none;border-radius:10px;padding:12px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:14px;">1 · COMPRAR EN GUMROAD →</button>'
+        + '<div style="color:#8a8a98;font-size:10px;line-height:1.6;margin-bottom:8px;">Al terminar la compra, Gumroad te da una <b style="color:#cdd">license key</b>. Pegala acá:</div>'
+        + '<input id="pay-key" placeholder="XXXXXXXX-XXXXXXXX-…" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;text-align:center;padding:11px;border-radius:10px;outline:none;margin-bottom:10px;">'
+        + '<button id="pay-activate" style="width:100%;background:transparent;border:1px solid ' + t.color + ';color:' + t.color + ';border-radius:10px;padding:11px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">2 · ACTIVAR ' + t.name + '</button>'
+        + '<div id="pay-msg" style="min-height:16px;font-size:10px;color:#8a8a98;margin-top:10px;"></div>'
+        + '<div onclick="document.getElementById(\'pay-overlay\').remove()" style="margin-top:6px;cursor:pointer;color:#666;font-size:11px;">cerrar ✕</div>'
+        + '</div>';
+      document.getElementById('pay-activate').onclick = () => HK23TIER.activate(k);
+      const inp = document.getElementById('pay-key');
+      inp.addEventListener('keydown', e => { if (e.key === 'Enter') HK23TIER.activate(k); });
+      setTimeout(() => inp.focus(), 60);
+    },
+    async activate(k) {
+      const msg = document.getElementById('pay-msg'), btn = document.getElementById('pay-activate');
+      const key = (document.getElementById('pay-key').value || '').trim();
+      if (key.length < 8) { if (msg) msg.textContent = 'Pegá la license key completa.'; return; }
+      if (btn) { btn.disabled = true; btn.textContent = 'VERIFICANDO…'; }
+      try {
+        const h = { 'content-type': 'application/json' };
+        const tok = window.HK23AUTH && HK23AUTH.token && HK23AUTH.token();
+        if (tok) h.authorization = 'Bearer ' + tok;
+        const r = await fetch('/api/tier-unlock', { method: 'POST', headers: h, body: JSON.stringify({ tier: k, license_key: key, first: true }) });
+        const j = await r.json().catch(() => ({}));
+        if (j && j.ok) {
+          try { const lic = JSON.parse(localStorage.getItem('hk23-tier-license') || '{}'); lic[k] = key; localStorage.setItem('hk23-tier-license', JSON.stringify(lic)); } catch (_) {}
+          const el = document.getElementById('pay-overlay'); if (el) el.remove();
+          HK23TIER._grant(k);
+        } else if (msg) msg.textContent = (j && j.error) || 'No se pudo verificar — probá de nuevo.';
+      } catch (_) { if (msg) msg.textContent = 'Error de red — probá de nuevo.'; }
+      if (btn) { btn.disabled = false; btn.textContent = '2 · ACTIVAR ' + TIERS[k].name; }
     },
     updateBadge() {
       const btn = document.getElementById('galaxy-cta-btn'), sub = document.getElementById('galaxy-cta-sub');
