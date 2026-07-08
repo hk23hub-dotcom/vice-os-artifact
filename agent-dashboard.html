@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Mercury · Revenue Director</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --fg:#f5f5f7;
+    --dim:#7a7a86;
+    --line:#1a1a24;
+    --accent:#c4ff3d;
+    --money:#33e07a;
+    --warn:#ff8a00;
+    --danger:#ff4d5e;
+    --card:#101018;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--fg);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,system-ui,sans-serif;font-feature-settings:"ss01","tnum"}
+  a{color:var(--accent);text-decoration:none}
+  header{padding:32px 40px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{width:44px;height:44px;border-radius:12px;background:radial-gradient(circle at 30% 30%,#fff 0%,#c4ff3d 40%,#0a0a0f 100%);box-shadow:0 0 40px rgba(196,255,61,.35)}
+  .brand h1{margin:0;font-size:20px;letter-spacing:-.5px}
+  .brand small{color:var(--dim);font-size:12px}
+  .status{display:flex;align-items:center;gap:8px;color:var(--dim);font-size:13px}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--money);box-shadow:0 0 12px var(--money);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+  main{max-width:1200px;margin:0 auto;padding:32px 40px 80px}
+
+  .hero{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:24px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .card .label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:12px}
+  .money{font-family:"SF Mono","JetBrains Mono",ui-monospace,monospace;font-size:56px;font-weight:600;letter-spacing:-2px;line-height:1;color:var(--money)}
+  .money.small{font-size:32px}
+  .money.pending{color:var(--warn)}
+  .money.neutral{color:var(--fg)}
+  .delta{margin-top:8px;font-size:13px;color:var(--dim)}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+  .kpi .num{font-size:28px;font-weight:600;letter-spacing:-.5px}
+  .kpi .lbl{color:var(--dim);font-size:12px;margin-top:4px}
+
+  section{margin-top:32px}
+  section h2{font-size:14px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 12px;font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:12px 16px;text-align:left;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:500;font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  tbody tr:hover{background:#12121c}
+  .pill{display:inline-block;padding:3px 8px;border-radius:999px;font-size:11px;background:#1a1a24}
+  .pill.active{background:rgba(51,224,122,.12);color:var(--money)}
+  .pill.pending{background:rgba(255,138,0,.12);color:var(--warn)}
+  .pill.paid{background:rgba(196,255,61,.12);color:var(--accent)}
+  .pill.expired{background:rgba(255,77,94,.12);color:var(--danger)}
+  .empty{padding:40px;text-align:center;color:var(--dim);border:1px dashed var(--line);border-radius:12px}
+
+  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+  .action{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .action strong{display:block;margin-bottom:6px}
+  .action span{color:var(--dim);font-size:12px}
+
+  footer{max-width:1200px;margin:40px auto 0;padding:24px 40px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;display:flex;justify-content:space-between}
+  @media(max-width:800px){.hero,.kpis,.actions{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <a href="/vice-gta6" style="text-decoration:none;color:var(--dim);font-size:15px;margin-right:4px" title="Back to VICE.HUB">←</a>
+    <div class="logo"></div>
+    <div>
+      <h1>Mercury</h1>
+      <small>Revenue Director · HK23 OS</small>
+    </div>
+  </div>
+  <div class="status">
+    <span class="dot"></span>
+    <span id="last-run">loading…</span>
+  </div>
+</header>
+
+<main>
+
+  <div class="hero">
+    <div class="card">
+      <div class="label">Today · Revenue</div>
+      <div class="money" id="today-revenue">$0.00</div>
+      <div class="delta" id="today-delta">no data yet</div>
+    </div>
+    <div class="card">
+      <div class="label">Pending</div>
+      <div class="money small pending" id="pending">$0.00</div>
+      <div class="delta">awaiting payout</div>
+    </div>
+    <div class="card">
+      <div class="label">Lifetime</div>
+      <div class="money small neutral" id="lifetime">$0.00</div>
+      <div class="delta">since day 1</div>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="card kpi"><div class="num" id="k-campaigns">0</div><div class="lbl">Active campaigns</div></div>
+    <div class="card kpi"><div class="num" id="k-posts">0</div><div class="lbl">Posts published</div></div>
+    <div class="card kpi"><div class="num" id="k-views">0</div><div class="lbl">Views (24h)</div></div>
+    <div class="card kpi"><div class="num" id="k-rpm">$0.00</div><div class="lbl">RPM</div></div>
+  </div>
+
+  <section>
+    <h2>Top campaigns</h2>
+    <div id="campaigns-wrap"></div>
+  </section>
+
+  <section>
+    <h2>Content pipeline</h2>
+    <div id="posts-wrap"></div>
+  </section>
+
+  <section>
+    <h2>Next actions</h2>
+    <div class="actions" id="actions-wrap"></div>
+  </section>
+
+</main>
+
+<footer>
+  <span>Mercury · Local dashboard</span>
+  <span>Refresh: <a href="#" onclick="location.reload();return false">reload</a></span>
+</footer>
+
+<script>
+/* Self-contained demo data — this public page ships its own snapshot so it needs
+   no data folder or API. The private Mercury dashboard reads live JSON instead. */
+const DATA = {
+  revenue: {
+    updated_at: "live · HK23 OS agent org",
+    totals: { lifetime_usd: 0, pending_usd: 0, paid_usd: 0 },
+    daily: [{ date: "day 0", revenue_usd: 0, pending_usd: 0, posts_published: 0, views: 0, rpm: 0 }]
+  },
+  campaigns: { campaigns: [
+    { name: "Whop clipping — mid-tier CPM", brand: "Content Rewards", platform: "whop", rpm: 2.0, ceiling_usd: 5000, status: "active" },
+    { name: "Whop UGC — high-RPM tranche", brand: "Multiple", platform: "whop", rpm: 15.0, ceiling_usd: 250, status: "active" }
+  ]},
+  posts: { posts: [
+    { hooks: ["Nobody talks about this AI money glitch."], platform_target: "tiktok", views: 0, revenue_usd: 0, status: "brief" },
+    { hooks: ["$5000/month clipping videos. Real numbers."], platform_target: "tiktok", views: 0, revenue_usd: 0, status: "brief" },
+    { hooks: ["Day 1 of using AI to make money for me."], platform_target: "instagram_reel", views: 0, revenue_usd: 0, status: "brief" }
+  ]},
+  opportunities: { opportunities: [
+    { source: "Whop Content Rewards", campaign: "primary battleground", payout_ceiling: 5000, roi_score: 9.5, action: "apply to 3-5 campaigns" },
+    { source: "EasySlice.AI", campaign: "auto-clip execution arm", payout_ceiling: 0, roi_score: 8.0, action: "connect accounts" },
+    { source: "Whop Pro network", campaign: "higher-tier brands", payout_ceiling: 10000, roi_score: 9.0, action: "apply after first payout" }
+  ]}
+};
+
+function fmt$(n){
+  n = Number(n||0);
+  return '$' + n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtN(n){ return Number(n||0).toLocaleString('en-US'); }
+
+function pill(status){
+  const s = (status||'').toLowerCase();
+  return `<span class="pill ${s}">${status||'—'}</span>`;
+}
+
+function renderCampaigns(list){
+  const wrap = document.getElementById('campaigns-wrap');
+  if(!list || !list.length){
+    wrap.innerHTML = '<div class="empty">No campaigns tracked yet. Run Opportunity Hunter.</div>';
+    return;
+  }
+  const rows = list.map(c => `
+    <tr>
+      <td><strong>${c.name||'—'}</strong><br><span style="color:var(--dim);font-size:11px">${c.brand||''}</span></td>
+      <td>${c.platform||''}</td>
+      <td>${fmt$(c.rpm)}/1k</td>
+      <td>${fmt$(c.ceiling_usd)}</td>
+      <td>${pill(c.status)}</td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table>
+    <thead><tr><th>Campaign</th><th>Platform</th><th>RPM</th><th>Ceiling</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+function renderPosts(list){
+  const wrap = document.getElementById('posts-wrap');
+  if(!list || !list.length){
+    wrap.innerHTML = '<div class="empty">No posts in pipeline. Delegate to EasySlice Agent to generate briefs.</div>';
+    return;
+  }
+  const rows = list.slice(0,20).map(p => `
+    <tr>
+      <td><strong>${(p.hooks && p.hooks[0]) || p.id}</strong></td>
+      <td>${p.platform_target||''}</td>
+      <td>${fmtN(p.views)}</td>
+      <td>${fmt$(p.revenue_usd)}</td>
+      <td>${pill(p.status)}</td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table>
+    <thead><tr><th>Hook / ID</th><th>Platform</th><th>Views</th><th>Revenue</th><th>Status</th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+function renderActions(opps){
+  const wrap = document.getElementById('actions-wrap');
+  const top = (opps||[]).slice(0,3);
+  if(!top.length){
+    wrap.innerHTML = '<div class="empty" style="grid-column:1/-1">No opportunities scanned yet. Run: <code>./mercury.sh hunt</code></div>';
+    return;
+  }
+  wrap.innerHTML = top.map(o => `
+    <div class="action">
+      <strong>${o.source} · ${o.campaign||o.notes||''}</strong>
+      <span>est ${fmt$(o.payout_ceiling||0)} · ROI ${o.roi_score||'—'} · ${o.action||''}</span>
+    </div>`).join('');
+}
+
+(() => {
+  const rev = DATA.revenue, camps = DATA.campaigns, posts = DATA.posts, opps = DATA.opportunities;
+
+  const today = rev?.daily?.[rev.daily.length-1] || {};
+  document.getElementById('today-revenue').textContent = fmt$(today.revenue_usd);
+  document.getElementById('today-delta').textContent = today.date ? `on ${today.date}` : 'no data yet';
+  document.getElementById('pending').textContent = fmt$(rev?.totals?.pending_usd);
+  document.getElementById('lifetime').textContent = fmt$(rev?.totals?.lifetime_usd);
+  document.getElementById('last-run').textContent = 'Last update: ' + (rev?.updated_at || 'never');
+
+  const activeCamps = (camps?.campaigns||[]).filter(c => c.status==='active');
+  document.getElementById('k-campaigns').textContent = activeCamps.length;
+  document.getElementById('k-posts').textContent = (posts?.posts||[]).filter(p => p.status==='published').length;
+  document.getElementById('k-views').textContent = fmtN(today.views);
+  document.getElementById('k-rpm').textContent = fmt$(today.rpm);
+
+  renderCampaigns(camps?.campaigns);
+  renderPosts(posts?.posts);
+  renderActions(opps?.opportunities);
+})();
+</script>
+
+</body>
+</html>
