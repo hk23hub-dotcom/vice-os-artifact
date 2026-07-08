@@ -7183,6 +7183,17 @@ document.addEventListener('keydown', e => {
 
   // ── ESC ──
   if (key === 'Escape') {
+    // Cerrar PRIMERO cualquier overlay/colocación activa — no caer al portal por debajo.
+    if (window.NH && NH._placing) { NH.cancelPlacing(); if (NH.toast) NH.toast('Colocación cancelada'); return; }
+    const warpOv = document.getElementById('warp-overlay');
+    if (warpOv && warpOv.classList.contains('on')) { if (window.WARP) WARP.skip(); return; }
+    if (document.getElementById('agrid-overlay') && document.getElementById('agrid-overlay').classList.contains('on')) { if (window.AGRID) AGRID.close(); return; }
+    if (document.getElementById('station-overlay') && document.getElementById('station-overlay').classList.contains('open')) { if (window.STATION) STATION.close(); return; }
+    const modalIds = ['pay-overlay', 'vault-overlay', 'codex-overlay', 'tier-overlay', 'ready-overlay', 'upsell-overlay'];
+    for (let mi = 0; mi < modalIds.length; mi++) {
+      const el = document.getElementById(modalIds[mi]);
+      if (el && el.style.display && el.style.display !== 'none') { el.style.display = 'none'; if (el.id === 'pay-overlay' || el.id === 'vault-overlay' || el.id === 'codex-overlay') el.remove(); return; }
+    }
     if (galaxyModeActive) { deactivateGalaxyMode(); return; }
     const fractal = document.getElementById('fractal-overlay');
     const affirmation = document.getElementById('affirmation-overlay');
@@ -9427,23 +9438,35 @@ loadQuotesThen(handleDeepLink);
     { t:'COORDENADAS · HK23', s:'bloqueo de destino · confirmado' },
     { t:'BIENVENIDO AL UNIVERSO', s:'heyoka 23 — universe os' },
   ];
-  let cvs,ctx,raf,startT,stars=[],speed,skipped,arrived;
+  let cvs,ctx,raf,startT,stars=[],speed,skipped,arrived,hardTimer;
   const WARP={
     _seen:false,
     enter(){
       // una vez por sesión; si ya lo vio, va directo al mapa
       if(WARP._seen){ goTo('map'); return; }
-      WARP._seen=true; skipped=false; arrived=false;
+      WARP._seen=true;
+      // si la pestaña está oculta no tiene sentido animar (y rAF estaría pausado) → al mapa directo
+      if(document.hidden){ goTo('map'); return; }
+      skipped=false; arrived=false;
       const ov=document.getElementById('warp-overlay'); ov.classList.add('on');
       cvs=document.getElementById('warp-canvas'); ctx=cvs.getContext('2d');
       resize(); window.addEventListener('resize',resize);
       // campo de estrellas 3D
       stars=Array.from({length:520},()=>mkStar());
       speed=0; startT=performance.now();
+      // red de seguridad: si rAF se throttlea (pestaña de fondo, ahorro de batería),
+      // este timeout garantiza que NUNCA quedes atrapado en la pantalla negra.
+      clearTimeout(hardTimer); hardTimer=setTimeout(function(){ if(!arrived) finish(); }, 7600);
       loop();
     },
     skip(){ if(skipped||arrived) return; skipped=true; finish(); },
   };
+  // si el usuario vuelve a la pestaña y el warp ya cumplió su tiempo, aterrizá al toque
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden && !arrived && document.getElementById('warp-overlay').classList.contains('on')){
+      if((performance.now()-startT)/1000 >= 6.4) finish();
+    }
+  });
   function resize(){ if(!cvs) return; cvs.width=innerWidth; cvs.height=innerHeight; }
   function mkStar(){ return { x:(Math.random()*2-1), y:(Math.random()*2-1), z:Math.random(), pz:0 }; }
   function beat(i){
@@ -9479,7 +9502,8 @@ loadQuotesThen(handleDeepLink);
     raf=requestAnimationFrame(loop);
   }
   function finish(){
-    arrived=true; if(raf) cancelAnimationFrame(raf);
+    if(arrived) return; // guarda: nunca correr dos veces (rAF + timeout + visibilitychange)
+    arrived=true; if(raf) cancelAnimationFrame(raf); clearTimeout(hardTimer);
     const flash=document.getElementById('warp-flash');
     flash.style.transition='opacity .18s'; flash.style.opacity='1';
     beat(-1);
