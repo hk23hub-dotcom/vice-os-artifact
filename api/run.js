@@ -1,6 +1,7 @@
 // HK23 Universe — Action Runner. Real execution from inside the universe.
 // AI routes through the Vercel AI Gateway (zero-config via the deployment's OIDC token).
 import { generateText } from 'ai';
+import { parseBody, applyCors, clientIp, rateLimit } from './_lib.js';
 
 const TOKEN = process.env.RUN_TOKEN || 'hk23-run-9x';
 const MODEL = process.env.RUN_MODEL || 'deepseek/deepseek-v3.2';
@@ -33,9 +34,7 @@ async function verifyUser(req) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'content-type, x-run-token, authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  applyCors(req, res, 'POST, OPTIONS');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
 
@@ -45,12 +44,22 @@ export default async function handler(req, res) {
     if (token !== TOKEN) { res.status(401).json({ error: 'sesión o token inválido' }); return; }
   }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const parsed = parseBody(req);
+  if (!parsed.ok) { res.status(400).json({ error: 'JSON inválido' }); return; }
+  const body = parsed.body;
   const action = body.action;
   if (!ALLOW.includes(action)) { res.status(400).json({ error: 'acción no permitida', allow: ALLOW }); return; }
 
   try {
     if (action === 'echo') { res.status(200).json({ ok: true, action, echo: body.args ?? null, ts: Date.now(), who: who ? { id: who.id, tier: who.tier, anon: who.anon } : { guest: true } }); return; }
+
+    // Billed path (ask/agent → generateText). Rate-limit per verified user or IP so
+    // the client-embedded guest token can't be looped to burn AI Gateway budget.
+    const rlKey = who ? ('u:' + who.id) : ('ip:' + clientIp(req));
+    const quota = who && !who.anon ? 40 : 12; // signed-in gets more; guests/anon limited
+    if (!rateLimit(rlKey, quota, 5 * 60 * 1000)) {
+      res.status(429).json({ error: 'Demasiadas solicitudes — esperá unos minutos.' }); return;
+    }
 
     const input = (body.prompt || body.input || '').toString().slice(0, 8000);
     if (!input) { res.status(400).json({ error: 'falta prompt/input' }); return; }

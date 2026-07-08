@@ -1500,7 +1500,7 @@
 </div>
 <!-- Mint seam modal -->
 <div id="nft-mint-modal" style="position:fixed;inset:0;z-index:9720;display:none;background:rgba(4,4,8,.86);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
-  <div style="width:440px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:24px;">
+  <div style="width:440px;max-width:94vw;max-height:92vh;overflow-y:auto;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:24px;">
     <div style="font-size:30px;text-align:center;margin-bottom:6px;">⛓️</div>
     <div style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:17px;color:#fff;text-align:center;margin-bottom:8px;">Mint on-chain</div>
     <div style="color:#9a9aa4;font-size:11px;line-height:1.6;margin-bottom:16px;">Quemar/mintear de verdad necesita <b style="color:#B84DFF">tu wallet</b> (MetaMask/Phantom) + un contrato. Eso se firma desde tu wallet — no puede hacerse por vos. Por ahora la pieza queda en tu biblioteca. Si ya la minteaste en otro lado, pegá el link del tx para registrarlo:</div>
@@ -1591,7 +1591,7 @@
 
 <!-- Upsell modal (shown when a locked feature is hit) -->
 <div id="upsell-overlay" style="position:fixed;inset:0;z-index:9750;display:none;background:rgba(4,4,8,.86);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
-  <div style="width:440px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;text-align:center;">
+  <div style="width:440px;max-width:94vw;max-height:92vh;overflow-y:auto;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;text-align:center;">
     <div style="font-size:34px;margin-bottom:8px;">🔒</div>
     <div id="upsell-title" style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:19px;color:#fff;margin-bottom:8px;">Función bloqueada</div>
     <div id="upsell-msg" style="color:#9a9aa4;font-size:12px;line-height:1.6;margin-bottom:20px;"></div>
@@ -1722,7 +1722,7 @@
   <style>@keyframes worldPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}</style>
   <div id="milestone-modal" style="display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.9);align-items:center;justify-content:center;flex-direction:column;gap:18px;">
     <div style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:#FFD200;">✦ LEGENDARY COLLECTIBLE UNLOCKED</div>
-    <iframe src="token-milestone-card.html" style="width:440px;height:700px;max-width:94vw;border:none;background:transparent;"></iframe>
+    <iframe src="token-milestone-card.html" style="width:440px;height:min(700px,82vh);max-width:94vw;border:none;background:transparent;"></iframe>
     <button onclick="document.getElementById('milestone-modal').style.display='none'" style="font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;background:none;border:1px solid #FFD200;color:#FFD200;padding:10px 24px;cursor:pointer;">✕ CLOSE</button>
   </div>
   <canvas id="swarm-live-canvas" style="position:absolute;inset:0;pointer-events:none;display:none;"></canvas>
@@ -1953,6 +1953,9 @@
       const el = document.getElementById('pay-overlay'); if (el) el.remove();
       document.getElementById('tier-overlay').style.display = 'none';
       if (!window.NH || !NH._spawn) { if (window.showCmdToast) showCmdToast('El universo todavía está cargando…', '#8a8a98'); return; }
+      // no re-replicar: si este template ya nació, solo avisar (evita sets duplicados)
+      let rep = {}; try { rep = JSON.parse(localStorage.getItem('hk23-tpl-replicated') || '{}'); } catch (_) {}
+      if (rep[k]) { if (window.showCmdToast) showCmdToast('🌌 ' + t.name + ' ya está en tu universo — apretá G', t.color); return; }
       // replicable AL TIRO: el set completo de galaxias nace en anillo, ya conectado
       const n = t.galaxies.length;
       t.galaxies.forEach((g, i) => {
@@ -1961,6 +1964,7 @@
         const ny = Math.min(0.92, Math.max(0.08, 0.45 + Math.sin(ang) * dist * 0.75));
         NH._spawn({ label: g[0], sub: g[1], color: g[2] }, nx, ny, false);
       });
+      try { rep[k] = Date.now(); localStorage.setItem('hk23-tpl-replicated', JSON.stringify(rep)); } catch (_) {}
       if (HK23TIER.level() < 1) HK23TIER.set('premium'); // el template incluye las herramientas para construir
       if (window.showCmdToast) {
         showCmdToast('🌌 ' + t.name + ' REPLICADO — TU UNIVERSO ESTÁ VIVO', t.color);
@@ -1989,7 +1993,7 @@
       let el = document.getElementById('pay-overlay');
       if (!el) { el = document.createElement('div'); el.id = 'pay-overlay'; document.body.appendChild(el); }
       el.style.cssText = 'position:fixed;inset:0;z-index:9750;display:flex;align-items:center;justify-content:center;background:rgba(4,4,8,.92);backdrop-filter:blur(10px);font-family:\'Space Mono\',monospace;padding:24px;';
-      el.innerHTML = '<div style="width:400px;max-width:94vw;background:rgba(10,10,16,.97);border:1px solid ' + t.color + ';border-radius:16px;padding:26px;text-align:center;box-shadow:0 0 40px ' + t.color + '33;">'
+      el.innerHTML = '<div style="width:400px;max-width:94vw;max-height:90vh;overflow-y:auto;background:rgba(10,10,16,.97);border:1px solid ' + t.color + ';border-radius:16px;padding:26px;text-align:center;box-shadow:0 0 40px ' + t.color + '33;">'
         + '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + t.color + ';letter-spacing:1px;">' + t.name + '</div>'
         + '<div style="color:#6a6a82;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin:4px 0 18px;">' + t.price + '</div>'
         + '<button onclick="window.open(\'' + pay.url + '\',\'_blank\',\'noopener\')" style="width:100%;background:' + t.color + ';color:#06121a;border:none;border-radius:10px;padding:12px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;margin-bottom:14px;">1 · COMPRAR EN GUMROAD →</button>'
@@ -2104,7 +2108,7 @@
 <!-- ═══════════ HK23 AUTH (F0) — real Supabase sessions for every visitor ═══════════ -->
 <div id="auth-fab" onclick="HK23AUTH.open()" style="position:fixed;top:194px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">⏻ Cuenta</div>
 <div id="auth-overlay" style="position:fixed;inset:0;z-index:9800;display:none;background:rgba(4,4,8,.88);backdrop-filter:blur(9px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
-  <div style="width:400px;max-width:94vw;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;">
+  <div style="width:400px;max-width:94vw;max-height:92vh;overflow-y:auto;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:19px;color:#fff;">HK23 ID</span>
       <span onclick="document.getElementById('auth-overlay').style.display='none'" style="cursor:pointer;color:#888;font-size:18px;">✕</span>
@@ -2158,8 +2162,13 @@
   // ── YOUR UNIVERSE AS DATA — one real Supabase row per user; Galaxy Mode reads them all ──
   const REST = 'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1';
   function restH(rep) { const h = { apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Content-Profile': 'hk23', 'Accept-Profile': 'hk23' }; if (rep) h.Prefer = 'return=representation'; return h; }
+  let _syncingUniverse = false;
   async function syncMyUniverse() {
     const u = sess && sess.user; if (!u) return;
+    if (_syncingUniverse) return; _syncingUniverse = true; // guarda: nunca correr en paralelo (evita filas duplicadas)
+    try { await _syncMyUniverse(u); } finally { _syncingUniverse = false; }
+  }
+  async function _syncMyUniverse(u) {
     let bp = null; try { bp = JSON.parse(localStorage.getItem('hk23-my-galaxy') || 'null'); } catch (_) {}
     const slug = 'universe-' + u.id.slice(0, 8);
     const tier = localStorage.getItem('hk23-user-tier') || 'visitante';
@@ -2772,6 +2781,8 @@ function goTo(id) {
     target.classList.add('active');
     currentScreen = id;
     if (id === 'map') startMapCanvas();
+    else if (typeof mapAnimId !== 'undefined' && mapAnimId) { cancelAnimationFrame(mapAnimId); mapAnimId = null; } // no dejar corriendo el loop del mapa fuera del mapa
+    if (id === 'portal' && !bgAnimId) animateBg(); // reanudar la constelación del portal
     if (id === 'ecosystem' && window.refreshEcosystemStats) window.refreshEcosystemStats();
   }
   // Show galaxy CTA and shortcut legend only on the map screen
@@ -2804,7 +2815,11 @@ function initBgCanvas() {
   }));
 }
 
+let bgAnimId = null;
 function animateBg() {
+  // pausar cuando el portal no está visible — la constelación solo se ve en el portal
+  // (evita el bucle O(n²) de 120 partículas corriendo por siempre en todas las pantallas)
+  if (typeof currentScreen !== 'undefined' && currentScreen !== 'portal') { bgAnimId = null; return; }
   bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
   bgParticles.forEach(p => {
     p.x += p.vx; p.y += p.vy;
@@ -2832,7 +2847,7 @@ function animateBg() {
       }
     }
   }
-  requestAnimationFrame(animateBg);
+  bgAnimId = requestAnimationFrame(animateBg);
 }
 
 // ═══════════ MAP DATA ═══════════
@@ -2860,7 +2875,7 @@ const VICEGOLFER_URL = 'https://vicegolfer.vercel.app';
 
 // Public base URL of THIS universe. Used to build the deep-link a social
 // QR points back to. Swap when GitHub Pages (or a custom domain) goes live.
-const UNIVERSE_URL = 'https://hk23neo.github.io/vice-os';
+const UNIVERSE_URL = 'https://hk23universe.vercel.app';
 
 // ─── PROJECT ORBS (fractal planets) ───
 const PROJECTS = [
@@ -2938,7 +2953,7 @@ const PROJECTS = [
               'Full history to compare progression between sessions',
             ],
             stats: [{ l:'SESSIONS', v:'41' },{ l:'KICKS', v:'1,240' },{ l:'CONVERSION', v:'68%' },{ l:'BEST', v:'94%' }],
-            action: 'START TRACKING →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+            action: 'START TRACKING →', actionColor: '#00F0FF', link: '' }},
         { label: 'DNA 7\nAXES',       x: 0.82, y: 0.38, color: '#00F0FF', size: 13,
           detail: { title: 'PERFORMANCE DNA', status: 'build', eyebrow: 'RUGBY SPECIFIC',
             desc: '7 rugby performance axes: Kick, Tackle, Speed, Endurance, Power, Mental, and Positioning.',
@@ -5840,6 +5855,7 @@ mapCanvas.addEventListener('mouseup', e => {
     addCollectible(cid, grabbedMalignant.personality === 'erratic' ? 'legendary' : 'rare');
     grabbedMalignant = null;
     mapMouseVX = 0; mapMouseVY = 0;
+    window.__suppressMapClick = Date.now(); // no abrir el planeta debajo tras soltar la entidad
   }
 });
 
@@ -5893,6 +5909,7 @@ mapCanvas.addEventListener('touchend', e => {
 });
 
 mapCanvas.addEventListener('click', e => {
+  if (window.__suppressMapClick && Date.now() - window.__suppressMapClick < 250) { window.__suppressMapClick = 0; return; } // acabás de lanzar una entidad
   if (window.NH && NH._placing) { NH.placeAt(e.clientX / mapCanvas.width, e.clientY / mapCanvas.height); return; }
   if (hoveredProject) {
     const proj = PROJECTS.find(p => p.id === hoveredProject);
@@ -6205,27 +6222,27 @@ const SUBNODES_MAP = {
       detail: { title: 'PLACE KICK', status: 'live', eyebrow: 'CONVERSIONS & PENALTIES',
         desc: 'Stationary kicks from tee or penalty spots. Tracks position, angle, distance, and conversion result.',
         stats: [{l:'CONVERSION',v:'72%'},{l:'SESSIONS',v:'28'},{l:'KICKS',v:'560'},{l:'BEST ANGLE',v:'CENTER'}],
-        action: 'TRACK KICK →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+        action: 'TRACK KICK →', actionColor: '#00F0FF', link: '' }},
     { label: 'DROP\nKICK', color: '#00F0FF', size: 13,
       detail: { title: 'DROP KICK', status: 'live', eyebrow: 'IN-PLAY SCORING',
         desc: 'Drop goals from open play. Angle, pressure, and distance tracked on the 2D field map.',
         stats: [{l:'ATTEMPTS',v:'84'},{l:'CONVERSION',v:'54%'},{l:'BEST DIST',v:'42m'},{l:'TREND',v:'↑ +8%'}],
-        action: 'TRACK KICK →', actionColor: '#00F0FF', link: 'https://rugbyvice.com' }},
+        action: 'TRACK KICK →', actionColor: '#00F0FF', link: '' }},
     { label: 'LEFT\nSIDE', color: '#AAFF00', size: 12,
       detail: { title: 'LEFT SIDE ANALYSIS', status: 'live', eyebrow: 'ZONE ANALYSIS',
         desc: 'Kick performance from the left side of the field. Most kickers have a weaker side — this is how you close the gap.',
         stats: [{l:'CONVERSION',v:'61%'},{l:'VS RIGHT',v:'-11%'},{l:'TREND',v:'↑ +4%'},{l:'SESSIONS',v:'18'}],
-        action: 'VIEW ZONES →', actionColor: '#AAFF00', link: 'https://rugbyvice.com' }},
+        action: 'VIEW ZONES →', actionColor: '#AAFF00', link: '' }},
     { label: 'RIGHT\nSIDE', color: '#FFD200', size: 12,
       detail: { title: 'RIGHT SIDE ANALYSIS', status: 'live', eyebrow: 'STRONG SIDE',
         desc: 'Your dominant side. Tracks how far ahead this is from your weak side and where diminishing returns start.',
         stats: [{l:'CONVERSION',v:'82%'},{l:'VS LEFT',v:'+21%'},{l:'TARGET',v:'85%'},{l:'SESSIONS',v:'28'}],
-        action: 'VIEW ZONES →', actionColor: '#FFD200', link: 'https://rugbyvice.com' }},
+        action: 'VIEW ZONES →', actionColor: '#FFD200', link: '' }},
     { label: 'LONG\nRANGE 40m+', color: '#FF3A1F', size: 11,
       detail: { title: 'LONG RANGE 40m+', status: 'live', eyebrow: 'RANGE EXTENSION',
         desc: 'Kicks beyond 40m. Separates the kickers who change games from the ones who only score easy ones.',
         stats: [{l:'CONVERSION',v:'38%'},{l:'ATTEMPTS',v:'52'},{l:'BEST',v:'58m'},{l:'TARGET',v:'50%'}],
-        action: 'TRACK KICK →', actionColor: '#FF3A1F', link: 'https://rugbyvice.com' }},
+        action: 'TRACK KICK →', actionColor: '#FF3A1F', link: '' }},
   ],
 
   // ── MVB ──
@@ -6426,6 +6443,8 @@ function closeFractalUniverse() {
     overlay.style.display = 'none';
     if (fractalAnimId) { cancelAnimationFrame(fractalAnimId); fractalAnimId = null; }
     fractalStack = [];
+    const canvas = document.getElementById('fractal-canvas'); // soltar los listeners al cerrar
+    if (canvas) { if (canvas._fmove) canvas.removeEventListener('mousemove', canvas._fmove); if (canvas._fclick) canvas.removeEventListener('click', canvas._fclick); canvas._fmove = null; canvas._fclick = null; }
   }, 700);
   hideFractalCTA();
 }
@@ -6583,6 +6602,10 @@ function startFractalAnimation() {
     }
   }
 
+  // remover el par anterior antes de agregar (evita acumular listeners en cada apertura/back)
+  if (canvas._fmove) canvas.removeEventListener('mousemove', canvas._fmove);
+  if (canvas._fclick) canvas.removeEventListener('click', canvas._fclick);
+  canvas._fmove = onMove; canvas._fclick = onClick;
   canvas.addEventListener('mousemove', onMove);
   canvas.addEventListener('click', onClick);
 
@@ -6975,6 +6998,7 @@ function showNeighborCard(g) {
 })();
 
 function drawGalaxyBg() {
+  if (galaxyAnimId) { cancelAnimationFrame(galaxyAnimId); galaxyAnimId = null; } // auto-guard: nunca doblar el loop
   const canvas = document.getElementById('galaxy-canvas-bg');
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -7223,6 +7247,14 @@ document.addEventListener('keydown', e => {
 
   // Only fire map shortcuts when on the map
   if (currentScreen !== 'map') return;
+  // ...y no cuando hay un overlay abierto o una acción en curso (si no, teclas como
+  // G/B/W/A abren cosas por debajo del panel activo).
+  if (window.NH && NH._placing) return;
+  if (window.MOVE && typeof MOVE.on === 'function' && MOVE.on()) return;
+  const _ov = ['agrid-overlay', 'station-overlay'];
+  for (let _i = 0; _i < _ov.length; _i++) { const _e = document.getElementById(_ov[_i]); if (_e && (_e.classList.contains('on') || _e.classList.contains('open'))) return; }
+  const _md = ['pay-overlay', 'vault-overlay', 'codex-overlay', 'tier-overlay', 'ready-overlay', 'upsell-overlay'];
+  for (let _i = 0; _i < _md.length; _i++) { const _e = document.getElementById(_md[_i]); if (_e && _e.style.display && _e.style.display !== 'none') return; }
 
   // ── G — Galaxy mode ──
   if (key === 'g' || key === 'G') {
@@ -7827,7 +7859,7 @@ loadQuotesThen(handleDeepLink);
     ov.addConns.forEach(c=>{ if(!CONNECTIONS.some(x=>x[0]===c[0]&&x[1]===c[1])) CONNECTIONS.push([c[0],c[1]]); });
     // edited project sub-nodes (by title key)
     (typeof PROJECTS!=='undefined'?PROJECTS:[]).forEach(p=>{
-      (p.universe&&p.universe.nodes||[]).forEach(n=>{ const o=ov.nodes[p.id+'/'+nkey(n)]; if(o){ n.detail=Object.assign({},n.detail,o); } });
+      (p.universe&&p.universe.nodes||[]).forEach(n=>{ const o=ov.nodes[p.id+'/'+nkey(n).replace(/'/g,'')]; if(o){ n.detail=Object.assign({},n.detail,o); } });
     });
   }
   apply();
@@ -7896,7 +7928,7 @@ loadQuotesThen(handleDeepLink);
     editNode(pid,key){
       if(!pid){ NH.tab('edit'); return; }
       const p=PROJECTS.find(x=>x.id===pid); if(!p) return;
-      const n=(p.universe.nodes||[]).find(x=>nkey(x)===key); if(!n) return;
+      const n=(p.universe.nodes||[]).find(x=>nkey(x).replace(/'/g,'')===key); if(!n) return;
       const d=n.detail||(n.detail={title:n.label||'',desc:''});
       body.innerHTML=`<label>Título</label><input id="e-title" value="${esc(d.title)}">
         <label>Estado</label><select id="e-status">
@@ -7914,7 +7946,7 @@ loadQuotesThen(handleDeepLink);
       if(!ed.classList.contains('open')) NH.toggle();
     },
     saveNode(pid,key){
-      const p=PROJECTS.find(x=>x.id===pid); const n=(p.universe.nodes||[]).find(x=>nkey(x)===key); if(!n) return;
+      const p=PROJECTS.find(x=>x.id===pid); const n=(p.universe.nodes||[]).find(x=>nkey(x).replace(/'/g,'')===key); if(!n) return;
       const patch={ title:v('e-title'), status:v('e-status'), desc:v('e-desc'), notes:v('e-notes'),
         nextActions:v('e-next').split('\n').map(s=>s.trim()).filter(Boolean),
         tags:v('e-tags').split(',').map(s=>s.trim()).filter(Boolean), monetization:v('e-mon'), prompt:v('e-prompt') };
@@ -8019,7 +8051,8 @@ loadQuotesThen(handleDeepLink);
     gate(proj){
       const id=proj&&proj.id, v=VAULTS[id]; if(!v) return false;
       if(VAULT.has(id)) return false; // ya adentro → abre normal
-      if(window.HK23TIER && !HK23TIER.require(2,'El universo REAL · '+v.name)) return true; // solo ARQUITECTO
+      // solo ARQUITECTO (nivel 2) — la bóveda NO se arrienda con tokens; se gana
+      if(window.HK23TIER && HK23TIER.level() < 2){ HK23TIER.upsell(2,'El universo REAL · '+v.name); return true; }
       const have=keysHave();
       if(have<v.keys){ if(window.showCmdToast) showCmdToast('🔑 '+have+'/'+v.keys+' LLAVES — atrapá las llaves que orbitan el universo',v.color); return true; }
       VAULT.openForm(id);
@@ -8046,6 +8079,7 @@ loadQuotesThen(handleDeepLink);
       setTimeout(()=>{ const i=document.getElementById('vault-email'); if(i) i.focus(); },60);
     },
     async submit(id){
+      if(VAULT.has(id)) { const el=document.getElementById('vault-overlay'); if(el) el.remove(); return; } // ya adentro → no re-otorgar tokens
       const v=VAULTS[id], msg=document.getElementById('vault-msg'), btn=document.getElementById('vault-submit');
       const email=(document.getElementById('vault-email').value||'').trim();
       const who=(document.getElementById('vault-who').value||'').trim();
@@ -8339,10 +8373,10 @@ loadQuotesThen(handleDeepLink);
     return null;
   }
   if(cv){
-    cv.addEventListener('mousedown',e=>{ if(!EDIT) return; const g=grab(); if(g){ drag=g; cv.style.cursor='grabbing'; e.preventDefault(); } },true);
+    cv.addEventListener('mousedown',e=>{ if(!EDIT||(window.NH&&NH._placing)) return; const g=grab(); if(g){ drag=g; cv.style.cursor='grabbing'; e.preventDefault(); } },true);
     window.addEventListener('mousemove',e=>{ if(!drag) return; const p=pos(e); drag.place(p.x,p.y); },true);
     window.addEventListener('mouseup',()=>{ if(!drag) return; drag.persist(); save(); drag=null; cv.style.cursor=EDIT?'grab':''; },true);
-    cv.addEventListener('click',e=>{ if(EDIT){ e.stopImmediatePropagation(); e.preventDefault(); } },true);
+    cv.addEventListener('click',e=>{ if(EDIT && !(window.NH&&NH._placing)){ e.stopImmediatePropagation(); e.preventDefault(); } },true); // dejar pasar el click cuando se está colocando una galaxia
   }
   window.MOVE={ setEdit, on:()=>EDIT, reset(){ localStorage.removeItem(KEY); location.reload(); } };
 })();
@@ -8819,7 +8853,7 @@ loadQuotesThen(handleDeepLink);
     showWorld(w){ const s=WSTATUS[w.status]||WSTATUS.idea; const st=document.getElementById('wv-status');
       st.textContent=s.label; st.style.color=s.c; st.style.background=s.c+'22'; st.style.border='1px solid '+s.c+'55';
       document.getElementById('wv-title').textContent=w.label; document.getElementById('wv-sub').textContent=w.sub;
-      document.getElementById('wv-why').textContent=w.why||''; document.getElementById('wv-road').textContent=w.roadmap||'Aún sin fecha — es una idea viva en el universo.';
+      document.getElementById('wv-why').textContent=w.why||''; const _rd=document.getElementById('wv-road'); _rd.style.display=''; _rd.textContent=w.roadmap||'Aún sin fecha — es una idea viva en el universo.';
       document.getElementById('wv-actions').innerHTML = (w.url? `<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open('${w.url}','_blank','noopener')">Entrar →</button>`:'') + `<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>`;
       document.getElementById('world-view').classList.add('open'); },
     closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
@@ -9504,6 +9538,7 @@ loadQuotesThen(handleDeepLink);
   function finish(){
     if(arrived) return; // guarda: nunca correr dos veces (rAF + timeout + visibilitychange)
     arrived=true; if(raf) cancelAnimationFrame(raf); clearTimeout(hardTimer);
+    window.removeEventListener('resize',resize); // no dejar el listener colgado tras el warp
     const flash=document.getElementById('warp-flash');
     flash.style.transition='opacity .18s'; flash.style.opacity='1';
     beat(-1);

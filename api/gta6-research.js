@@ -45,13 +45,17 @@ function parseItems(text) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
   const ua = req.headers['user-agent'] || '';
-  const tok = req.headers['x-run-token'] || (req.query && req.query.token) || '';
-  if (!ua.startsWith('vercel-cron') && tok !== TOKEN) { res.status(401).json({ error: 'no autorizado' }); return; }
+  const isCron = ua.startsWith('vercel-cron');
+  // Token ONLY via header (never the query string — that leaks into logs/history).
+  const tok = (req.headers['x-run-token'] || '').toString();
+  if (!isCron && tok !== TOKEN) { res.status(401).json({ error: 'no autorizado' }); return; }
 
   const day = new Date().toISOString().slice(0, 10);
-  const force = !!(req.query && req.query.force);
+  // `force` re-runs the billed model + writes DB rows on demand — gate it behind a
+  // dedicated admin secret with NO public fallback, so the client token can't spam it.
+  const ADMIN = process.env.GTA6_ADMIN_TOKEN || '';
+  const force = !!(ADMIN && (req.headers['x-admin-token'] || '') === ADMIN);
 
   try {
     // already ran today? (idempotent cron)

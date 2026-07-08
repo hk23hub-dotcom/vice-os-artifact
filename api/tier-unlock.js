@@ -3,6 +3,8 @@
 // we verify server-side (source of truth = Gumroad), so tiers can't be faked.
 // While a permalink is 'PENDING' that tier simply isn't purchasable yet and
 // the client keeps today's behavior.
+import { parseBody, applyCors, maskEmail } from './_lib.js';
+
 const PERMALINKS = {
   premium: process.env.GUMROAD_PREMIUM_PERMALINK || 'PENDING',
   full: process.env.GUMROAD_FULL_PERMALINK || 'PENDING',
@@ -10,6 +12,7 @@ const PERMALINKS = {
   template_hk23: process.env.GUMROAD_TEMPLATE_HK23_PERMALINK || 'PENDING',
   template_genesis: process.env.GUMROAD_TEMPLATE_GENESIS_PERMALINK || 'PENDING',
 };
+const MAX_SEATS = parseInt(process.env.GUMROAD_MAX_SEATS || '5', 10); // installs allowed per license
 
 const SB_URL = process.env.SUPABASE_URL || 'https://iiqhhglgjsbnuihythko.supabase.co';
 const SB_ANON = process.env.SUPABASE_ANON_KEY || 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
@@ -36,13 +39,13 @@ async function saveTierToAccount(req, tier) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'content-type, authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  applyCors(req, res, 'POST, OPTIONS');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
 
-  const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+  const parsed = parseBody(req);
+  if (!parsed.ok) { res.status(400).json({ ok: false, error: 'JSON inválido' }); return; }
+  const body = parsed.body;
   const tier = (body.tier || '').toString();
   const permalink = PERMALINKS[tier];
   if (!permalink) { res.status(400).json({ ok: false, error: 'tier inválido' }); return; }
@@ -55,7 +58,9 @@ export default async function handler(req, res) {
     const form = new URLSearchParams();
     form.set('product_permalink', permalink);
     form.set('license_key', key);
-    form.set('increment_uses_count', body.first ? 'true' : 'false');
+    // ALWAYS increment server-side — never trust the client. Each activation counts
+    // one seat; a single key can't unlock unlimited installs.
+    form.set('increment_uses_count', 'true');
     const r = await fetch('https://api.gumroad.com/v2/licenses/verify', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -66,9 +71,10 @@ export default async function handler(req, res) {
     const p = j.purchase || {};
     if (p.refunded || p.chargebacked || p.disputed) { res.status(200).json({ ok: false, error: 'Esta compra fue reembolsada o disputada.' }); return; }
     if (p.subscription_cancelled_at || p.subscription_failed_at) { res.status(200).json({ ok: false, error: 'Esta suscripción está cancelada o con pago fallido.' }); return; }
+    if (typeof j.uses === 'number' && j.uses > MAX_SEATS) { res.status(200).json({ ok: false, error: 'Esta license key ya se usó en demasiados dispositivos.' }); return; }
     // only real tiers persist to the account — templates are products, not access levels
     const savedToAccount = (tier === 'premium' || tier === 'full') ? await saveTierToAccount(req, tier) : false;
-    res.status(200).json({ ok: true, tier, savedToAccount, uses: j.uses ?? null, email: p.email || null, sale_ts: p.sale_timestamp || null });
+    res.status(200).json({ ok: true, tier, savedToAccount, uses: j.uses ?? null, email: maskEmail(p.email) });
   } catch (e) {
     res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — probá de nuevo.' });
   }
