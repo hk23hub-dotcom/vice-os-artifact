@@ -1692,7 +1692,7 @@
       <span style="border:1px solid #24243a;border-radius:20px;padding:6px 12px;">⚡ Agentes IA reales</span>
       <span style="border:1px solid #24243a;border-radius:20px;padding:6px 12px;">🎯 Creá tu galaxia</span>
     </div>
-    <button class="enter-btn" onclick="goTo('map')">ENTER THE UNIVERSE</button>
+    <button class="enter-btn" onclick="window.WARP?WARP.enter():goTo('map')">ENTER THE UNIVERSE</button>
   </div>
   <div class="portal-quote">EVERYTHING IS MONETIZABLE. EVERYTHING IS DOCUMENTED. EVERYTHING IS RAW.
     <div style="margin-top:10px;font-size:9px;letter-spacing:1px;">
@@ -2673,88 +2673,80 @@
     <div class="tag live">HK23 CORE</div>
   </div>
   <div class="zone-body">
-    <div class="section-label">EL SISTEMA COMPLETO</div>
-    <div class="mega-text" style="color:#F0EDE8">HK23<br>STACK</div>
-    <p style="color:#666;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      Un ecosistema vivo. Cada pieza alimenta a la otra. El arte genera lore. El lore genera proyectos. Los proyectos generan datos. Los datos generan contenido. El contenido genera comunidad. La comunidad genera dinero. El dinero genera libertad.
+    <div class="section-label">EL NÚCLEO · ESTADO DEL UNIVERSO</div>
+    <div class="mega-text" style="color:#F0EDE8">HK23<br>UNIVERSE OS</div>
+    <p style="color:#888;font-size:13px;line-height:1.8;max-width:640px;margin-bottom:24px">
+      Ya no es solo un stack de proyectos: es un <b style="color:#F0EDE8">universo que se puede entrar, jugar, replicar y monetizar</b>. Cada proyecto es una galaxia. Cualquiera explora gratis, se lleva un template y arma el suyo, o se gana las llaves del universo real. Los agentes trabajan 24/7 mientras vos vivís.
     </p>
 
+    <!-- LIVE STATS -->
+    <div id="eco-stats" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px"></div>
+
     <div class="grid-2" style="--accent:#F0EDE8;margin-bottom:24px">
+      <!-- WORLDS -->
       <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
-        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">PROYECTOS ACTIVOS</div>
-        <div style="display:flex;flex-direction:column;gap:12px;margin-top:8px">
-          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:10px">
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#AAFF00">⛳ ViceGolfer</div>
-              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Golf Performance OS</div>
-            </div>
-            <span class="tag live">LIVE</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:10px">
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#00F0FF">🏉 Rugby Vice</div>
-              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Kick Tracker 2D</div>
-            </div>
-            <span class="tag" style="border-color:#00F0FF;color:#00F0FF">BUILD</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-size:13px;font-weight:700;color:#FFD200">⛏ La Iglesia</div>
-              <div style="font-size:10px;color:#444;font-family:'Space Mono',monospace;letter-spacing:1px">Gold · IV Región · 3,676ha</div>
-            </div>
-            <span class="tag gold">ACTIVO</span>
-          </div>
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">MUNDOS · GALAXIAS</div>
+        <div style="display:flex;flex-direction:column;gap:11px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#AAFF00">⛳ VICEGOLFER</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Golf performance OS</div></div><span class="tag live">LIVE</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FFD200">⛏ LA IGLESIA</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Mina de oro · IV Región · 3.676 ha</div></div><span class="tag gold">ACTIVO</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#ff2e93">🎮 VICE.HUB GTA6</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Fan hub · intel diario · PRO</div></div><span class="tag live">LIVE</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#AAFF00">🏆 ALBATROS</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Torneos de golf · SaaS clubes</div></div><span class="tag live">LIVE</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FF3A1F">🎨 ARTE</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Galería + colección + market</div></div><span class="tag live">LIVE</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:700;color:#00F0FF">🏉 RUGBY VICE</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Kick tracker · performance</div></div><span class="tag" style="border-color:#00F0FF;color:#00F0FF">BUILD</span></div>
         </div>
       </div>
 
+      <!-- PLATFORM -->
       <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
-        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">CAPAS DEL UNIVERSO</div>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#FF3A1F;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Arte & Identidad Visual</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#FFD200;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Lore & Philosophy</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#AAFF00;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Vice OS — Tech Sports</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#B84DFF;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Systems & Frameworks</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#FFD200;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">$ Flow — Revenue Engine</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:6px;height:6px;border-radius:50%;background:#00F0FF;flex-shrink:0"></div>
-            <div style="font-size:12px;color:#666">Agents — AI 24/7</div>
-          </div>
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">LA PLATAFORMA · CÓMO ENTRÁS</div>
+        <div style="display:flex;flex-direction:column;gap:11px;margin-top:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#8a8a98">VISITANTE</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Explorá + galaxia lista</div></div><span class="tag" style="border-color:#8a8a98;color:#8a8a98">GRATIS</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#00F0FF">PREMIUM</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Estación de agentes + blueprint</div></div><span class="tag" style="border-color:#00F0FF;color:#00F0FF">$4.99/MES</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FFD200">FULL · ARQUITECTO</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Llave al universo real + bóveda</div></div><span class="tag gold">$14.99/MES</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FF3A1F">TEMPLATE HK23</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">6 galaxias · replicable al tiro</div></div><span class="tag" style="border-color:#FF3A1F;color:#FF3A1F">$29</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><div><div style="font-size:13px;font-weight:700;color:#B84DFF">TEMPLATE GÉNESIS</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Universo en blanco desde cero</div></div><span class="tag" style="border-color:#B84DFF;color:#B84DFF">$19</span></div>
         </div>
+        <button onclick="goTo('map');setTimeout(function(){window.HK23TIER&&HK23TIER.openChooser()},400)" style="margin-top:14px;width:100%;background:#00F0FF;color:#06121a;border:none;border-radius:9px;padding:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ELEGÍ TU GALAXIA →</button>
+      </div>
+    </div>
+
+    <div class="grid-2" style="--accent:#F0EDE8;margin-bottom:24px">
+      <!-- THE GAME -->
+      <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">EL JUEGO · ACCESO POR MÉRITO</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;font-size:12px;color:#888;line-height:1.5">
+          <div>🔑 <b style="color:#FFD200">Llaves</b> — orbitan el mapa · +10 ⚡ c/u · <b style="color:#cdd">3 abren LA BÓVEDA</b></div>
+          <div>🏦 <b style="color:#FFD200">La Bóveda</b> — el planeta que no se compra: se gana (FULL + 3 llaves + tu interés). Adentro: tesoro, Inner Circle, la mina real, blueprints secretos</div>
+          <div>📖 <b style="color:#B84DFF">El Códice</b> — el censo vivo del universo · se abre coleccionando 1 de cada cosa</div>
+          <div>🚗 <b style="color:#FFD200">El Gatsby</b> — el auto legendario con libre albedrío (+100 ⚡ si lo atrapás)</div>
+          <div>🕳️ <b style="color:#cdd">Entidades</b> — vagan y construyen geometría sagrada · atrapables</div>
+        </div>
+      </div>
+
+      <!-- AGENTS -->
+      <div style="border:1px solid #2A2A2A;padding:24px;position:relative">
+        <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">AGENTES · TRABAJAN 24/7</div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px;font-size:12px;color:#888;line-height:1.5">
+          <div>◆ <b style="color:#2bd66a">GTA6 Intel</b> — research diario autónomo (cron)</div>
+          <div>◐ <b style="color:#FFD200">Gumroad Agent</b> — vigila tu tienda</div>
+          <div>○ <b style="color:#00F0FF">Action Runner ×5</b> — Oráculo, Sentinela, Heyoka, Vigía, Insider</div>
+          <div>◐ <b style="color:#FF2D78">Vice Seller</b> — 926 prints en Etsy/Printify</div>
+          <div style="color:#555">+ Vault · Content · DNA (en obra)</div>
+        </div>
+        <button onclick="goTo('map');setTimeout(function(){window.AGRID&&AGRID.open()},300)" style="margin-top:14px;width:100%;background:transparent;border:1px solid #00F0FF;color:#00F0FF;border-radius:9px;padding:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">▦ VER LA GRILLA DE AGENTES →</button>
       </div>
     </div>
 
     <div class="raw-card" style="--accent:#F0EDE8;margin-bottom:16px">
       <div class="card-label">EL LOOP INFINITO</div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">VIDA</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">IDEAS</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">PROYECTOS</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">DATOS</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">CONTENIDO</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">COMUNIDAD</span>
-        <span style="color:#2A2A2A">→</span>
-        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">$$$</span>
-        <span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">VIDA</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">IDEAS</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">GALAXIAS</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">AGENTES</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">CONTENIDO</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">COMUNIDAD</span><span style="color:#2A2A2A">→</span>
+        <span style="font-size:12px;color:#555;border:1px solid #2A2A2A;padding:6px 10px">$$$</span><span style="color:#2A2A2A">→</span>
         <span style="font-size:12px;color:#AAFF00;border:1px solid rgba(170,255,0,0.3);padding:6px 10px">LIBERTAD</span>
       </div>
     </div>
@@ -2780,6 +2772,7 @@ function goTo(id) {
     target.classList.add('active');
     currentScreen = id;
     if (id === 'map') startMapCanvas();
+    if (id === 'ecosystem' && window.refreshEcosystemStats) window.refreshEcosystemStats();
   }
   // Show galaxy CTA and shortcut legend only on the map screen
   const galaxyCta = document.getElementById('galaxy-cta');
@@ -3019,6 +3012,36 @@ const PROJECTS = [
             action: 'VIEW TEAM →', actionColor: '#B84DFF' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,4]]
+    }
+  },
+  {
+    id: 'laboveda', label: 'LA BÓVEDA', sub: '???', // el planeta que no se compra — se gana
+    x: 0.78, y: 0.74, color: '#FFD200', size: 17,
+    universe: {
+      title: 'LA BÓVEDA', color: '#FFD200',
+      nodes: [
+        { label: 'EL\nTESORO', x: 0.50, y: 0.16, color: '#FFD200', size: 16,
+          detail: { title: 'EL TESORO', status: 'live', eyebrow: 'RECOMPENSA',
+            desc: 'Abriste la bóveda del universo. +100 ⚡ tokens, coleccionable legendario y un lugar en el registro de los que llegaron.',
+            stats: [{ l:'RECOMPENSA', v:'+100 ⚡' },{ l:'RANGO', v:'LEGENDARIO' },{ l:'ACCESO', v:'DE POR VIDA' },{ l:'LLAVES USADAS', v:'3' }],
+            action: 'RECLAMADO ✓', actionColor: '#FFD200' }},
+        { label: 'INNER\nCIRCLE', x: 0.82, y: 0.45, color: '#FF3A1F', size: 13,
+          detail: { title: 'INNER CIRCLE', status: 'live', eyebrow: 'CONTACTO DIRECTO',
+            desc: 'Línea directa con HK23: acceso anticipado a todo lo que se construye y voz en lo que viene. Tu email ya está en la lista.',
+            stats: [{ l:'CANAL', v:'EMAIL' },{ l:'PRIORIDAD', v:'MÁXIMA' },{ l:'MIEMBROS', v:'POCOS' },{ l:'COSTO', v:'LLAVES' }],
+            action: 'YA ADENTRO →', actionColor: '#FF3A1F' }},
+        { label: 'LA MINA\nDE ORO', x: 0.50, y: 0.80, color: '#FFD200', size: 13,
+          detail: { title: 'LA MINA — PROYECTO LA IGLESIA', status: 'live', eyebrow: 'OPORTUNIDAD REAL',
+            desc: 'El tesoro más grande de la bóveda: acceso a LA IGLESIA, proyecto real de exploración de oro (IV Región, 3.676 ha). El planeta dorado con la montaña.',
+            stats: [{ l:'MINERAL', v:'GOLD' },{ l:'HECTÁREAS', v:'3,676' },{ l:'RAISING', v:'USD 2M' },{ l:'ETAPA', v:'EXPLORACIÓN' }],
+            action: 'IR A LA IGLESIA →', actionColor: '#FFD200' }},
+        { label: 'BLUEPRINTS\nSECRETOS', x: 0.18, y: 0.45, color: '#B84DFF', size: 12,
+          detail: { title: 'BLUEPRINTS SECRETOS', status: 'build', eyebrow: 'CONOCIMIENTO',
+            desc: 'Los planos de cómo se construye un universo: arquitectura, agentes, monetización. Se van revelando a los del Inner Circle.',
+            stats: [{ l:'PLANOS', v:'4' },{ l:'REVELADOS', v:'1' },{ l:'PRÓXIMO', v:'AGENTES' },{ l:'FORMATO', v:'VIVO' }],
+            action: 'LEER →', actionColor: '#B84DFF' }},
+      ],
+      connections: [[0,1],[0,3],[1,2],[2,3],[0,2]]
     }
   },
   {
@@ -3515,6 +3538,7 @@ const ORBITAL_CONFIG = {
   vicegolfer:  { r: 145, a: Math.PI * 0.22, speed: 0.00016  },
   rugbyvice:   { r: 145, a: Math.PI * 1.22, speed: 0.00013  },
   laiglesia:   { r: 272, a: Math.PI * 0.70, speed: 0.000090 },
+  laboveda:    { r: 330, a: Math.PI * 1.72, speed: 0.000045 }, // órbita exterior — lejos, como corresponde a una bóveda
   arteworld:   { r: 272, a: Math.PI * 1.10, speed: 0.000075 },
   projects_pl: { r: 272, a: Math.PI * 1.50, speed: 0.000060 },
   cryptovice:  { r: 272, a: Math.PI * 1.90, speed: 0.000050 },
@@ -3714,6 +3738,28 @@ function drawPlanetGlyph(c, id, x, y, r) {
       [[x - r * 0.32, y - r * 0.05], [x + r * 0.36, y + r * 0.12], [x - r * 0.02, y + r * 0.4]].forEach(s => {
         c.beginPath(); c.arc(s[0], s[1], r * 0.07, 0, 6.29); c.fill();
       });
+      return true;
+    }
+    case 'laboveda': { // puerta de bóveda de banco: anillo de acero, rayos y cerradura
+      const locked = !(window.VAULT && VAULT.has('laboveda'));
+      const g = c.createRadialGradient(x - r * 0.3, y - r * 0.3, 0, x, y, r);
+      g.addColorStop(0, '#3a3a46'); g.addColorStop(1, '#15151d');
+      c.beginPath(); c.arc(x, y, r * 0.98, 0, 6.29); c.fillStyle = g; c.fill();
+      c.strokeStyle = '#FFD200'; c.lineWidth = 1.6; c.stroke();
+      c.beginPath(); c.arc(x, y, r * 0.66, 0, 6.29); c.strokeStyle = 'rgba(255,210,0,.55)'; c.lineWidth = 1; c.stroke();
+      // rayos de la manivela
+      c.strokeStyle = locked ? 'rgba(255,210,0,.8)' : 'rgba(170,255,0,.9)'; c.lineWidth = 1.4; c.lineCap = 'round';
+      for (let i = 0; i < 6; i++) {
+        const a = i * Math.PI / 3 + (locked ? 0 : 0.5);
+        c.beginPath(); c.moveTo(x + Math.cos(a) * r * 0.2, y + Math.sin(a) * r * 0.2);
+        c.lineTo(x + Math.cos(a) * r * 0.6, y + Math.sin(a) * r * 0.6); c.stroke();
+      }
+      c.beginPath(); c.arc(x, y, r * 0.16, 0, 6.29); c.fillStyle = locked ? '#FFD200' : '#AAFF00'; c.fill();
+      if (locked) { // cerradura
+        c.fillStyle = '#0a0a0f';
+        c.beginPath(); c.arc(x, y - r * 0.02, r * 0.07, 0, 6.29); c.fill();
+        c.fillRect(x - r * 0.025, y, r * 0.05, r * 0.1);
+      }
       return true;
     }
     case 'arteworld': { // paleta de pintor
@@ -5741,8 +5787,8 @@ function tryCatchKey(clientX, clientY) {
         localStorage.setItem('hk23-tokens', String(bal + 10));
       } catch (_) {}
       const nKeys = KEYS.filter(x => x.collected).length;
-      showCmdToast('🔑 LLAVE ' + nKeys + '/5 · +10 ⚡ — con 3 se abre la bóveda de LA IGLESIA ⛏️', k.color);
-      if (nKeys === 3) setTimeout(() => showCmdToast('⛏️ 3 LLAVES — LA IGLESIA te espera (planeta dorado 🔒)', '#FFD200'), 2600);
+      showCmdToast('🔑 LLAVE ' + nKeys + '/5 · +10 ⚡ — con 3 se abre LA BÓVEDA 🏦', k.color);
+      if (nKeys === 3) setTimeout(() => showCmdToast('🏦 3 LLAVES — LA BÓVEDA te espera (la puerta de acero en la órbita exterior)', '#FFD200'), 2600);
       const opn = (typeof PROJECTS !== 'undefined') ? PROJECTS.filter(p => p.universe && p.universe.nodes && p.universe.nodes.length) : [];
       if (opn.length && window.openFractalUniverse) window.openFractalUniverse(opn[Math.floor(Math.random() * opn.length)]);
       return true;
@@ -7949,9 +7995,9 @@ loadQuotesThen(handleDeepLink);
   const KEY='hk23-vault-access';
   const SB={ url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
   const VAULTS={
-    laiglesia:{ keys:3, name:'LA IGLESIA', color:'#FFD200', icon:'⛏️',
-      tag:'ORO · IV REGIÓN · 3.676 ha',
-      pitch:'Proyecto REAL de exploración de oro en Chile. Este planeta no se compra: se gana. Contanos quién sos y por qué querés entrar.' },
+    laboveda:{ keys:3, name:'LA BÓVEDA', color:'#FFD200', icon:'🏦',
+      tag:'EL PLANETA QUE NO SE COMPRA — SE GANA',
+      pitch:'Adentro: el tesoro (+100 ⚡), el Inner Circle, la mina de oro real y los blueprints secretos. Contanos quién sos y por qué querés entrar.' },
   };
   const access=()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(_){ return {}; } };
   const keysHave=()=>{ try{ return (typeof KEYS!=='undefined')?KEYS.filter(k=>collectedSet.has(k.id)).length:0; }catch(_){ return 0; } };
@@ -8009,8 +8055,13 @@ loadQuotesThen(handleDeepLink);
       const el=document.getElementById('vault-overlay'); if(el) el.remove();
       const p=(typeof PROJECTS!=='undefined')?PROJECTS.find(x=>x.id===id):null;
       if(p && VAULT._origSub[id]!==undefined) p.sub=VAULT._origSub[id]; // el candado se abre en el mapa
+      try{ // EL TESORO: +100 ⚡ por abrir la bóveda (una sola vez)
+        const bal=parseInt(localStorage.getItem('hk23-tokens')||'100',10)||100;
+        localStorage.setItem('hk23-tokens',String(bal+100));
+      }catch(_){}
+      if(typeof addCollectible==='function') addCollectible('vault_'+id,'legendary');
       if(window.showCmdToast){
-        showCmdToast('🏆 LAS LLAVES GIRARON — BIENVENIDO A '+v.name, v.color);
+        showCmdToast('🏆 LAS LLAVES GIRARON — BIENVENIDO A '+v.name+' · +100 ⚡', v.color);
         if(!saved) setTimeout(()=>showCmdToast('(sin conexión — tu acceso quedó guardado local)', '#8a8a98'), 2600);
       }
       if(p && window.openFractalUniverse) setTimeout(()=>openFractalUniverse(p), 900);
@@ -8082,7 +8133,7 @@ loadQuotesThen(handleDeepLink);
       const nGx=(()=>{ try{ return (JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){ return 0; } })();
       const nMal=(typeof malignants!=='undefined')?malignants.length:0;
       const nColl=(typeof collectedSet!=='undefined')?collectedSet.size:0;
-      const vaultOpen=window.VAULT&&VAULT.has('laiglesia');
+      const vaultOpen=window.VAULT&&VAULT.has('laboveda');
       const tok=(()=>{ try{ return parseInt(localStorage.getItem('hk23-tokens')||'100',10); }catch(_){ return 100; } })();
       const sec=(t,items)=>'<div style="margin-bottom:16px;"><div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:12px;letter-spacing:2px;color:#B84DFF;margin-bottom:7px;">'+t+'</div>'
         +items.map(i=>'<div style="font-size:10px;line-height:1.7;color:#aab;">'+i+'</div>').join('')+'</div>';
@@ -8099,7 +8150,7 @@ loadQuotesThen(handleDeepLink);
           'Zonas: LORE · ARTE · VICE OS · SYSTEMS · AGENTS · $ FLOW'])
         +sec('🔑 LLAVES ('+st.keys+'/5)',[
           'Atraparlas da <b style="color:#FFD200">+10 ⚡</b> cada una',
-          '<b style="color:#FFD200">3 llaves</b> abren la bóveda de LA IGLESIA (siendo ARQUITECTO)',
+          '<b style="color:#FFD200">3 llaves</b> abren LA BÓVEDA 🏦 (siendo ARQUITECTO)',
           '1 llave cuenta para abrir este CÓDICE',
           'Al atrapar una se abre la puerta de un mundo al azar'])
         +sec('🕳️ ENTIDADES ('+nMal+' vivas)',[
@@ -8112,13 +8163,14 @@ loadQuotesThen(handleDeepLink);
         +sec('🏆 COLECCIÓN ('+nColl+')',[
           'Llaves, entidades atrapadas, portales ✦, milestones, el Gatsby…',
           'Tenés <b style="color:#FFD200">'+tok+' ⚡ tokens</b> — sirven para arrendar features 24h',
-          'Bóveda LA IGLESIA: '+(vaultOpen?'<b style="color:#AAFF00">ABIERTA</b>':'<b style="color:#FFD200">sellada 🔒</b> (FULL + 3 llaves + tu interés)')])
+          'LA BÓVEDA 🏦: '+(vaultOpen?'<b style="color:#AAFF00">ABIERTA</b>':'<b style="color:#FFD200">sellada 🔒</b> (FULL + 3 llaves + tu interés)')])
         +sec('⌨️ GADGETS DEL MAPA',[
           '<b style="color:#cdd">G</b> multiverso · <b style="color:#cdd">C</b> crypto charts · <b style="color:#cdd">Y</b> YouTube ambient · <b style="color:#cdd">V</b> fondo NFT',
           '<b style="color:#cdd">N</b> NFT Vault · <b style="color:#cdd">J</b> arcade · <b style="color:#cdd">B/W</b> agujeros negro/blanco · <b style="color:#cdd">A</b> agentes',
           '<b style="color:#cdd">H</b> hoyos de golf · <b style="color:#cdd">S</b> swarm art · <b style="color:#cdd">M</b> mover planetas'])
         +'</div>'
-        +'<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:12px;letter-spacing:2px;color:#00F0FF;margin:4px 0 8px;">🛰️ MISSION CONTROL — AGENTES</div>'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px;"><span style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:12px;letter-spacing:2px;color:#00F0FF;">🛰️ MISSION CONTROL — AGENTES</span>'
+        +'<span onclick="document.getElementById(\'codex-overlay\').remove();window.AGRID&&AGRID.open()" style="font-size:9px;letter-spacing:1px;color:#00F0FF;border:1px solid #00F0FF55;border-radius:14px;padding:4px 10px;cursor:pointer;">▦ VER GRILLA →</span></div>'
         +'<div id="codex-agents" style="font-size:10px;line-height:1.8;color:#aab;">cargando estado real…</div>'
         +'<div onclick="document.getElementById(\'codex-overlay\').remove()" style="text-align:center;margin-top:18px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px;">cerrar ✕</div></div>';
       CODEX_UI.loadAgents();
@@ -8881,6 +8933,7 @@ loadQuotesThen(handleDeepLink);
 </style>
 <div id="station-overlay">
   <div id="st-title">HK23 · AGENT STATION — ELEGÍ TU AGENTE</div>
+  <div id="st-grid-btn" onclick="AGRID.open()" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);z-index:4;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#00F0FF;background:rgba(8,8,16,.7);border:1px solid #00F0FF55;border-radius:20px;padding:8px 16px;cursor:pointer;">▦ VER TODOS LOS AGENTES</div>
   <div id="st-close" onclick="STATION.close()">✕ ESC</div>
   <canvas id="st-canvas"></canvas>
   <div id="st-console">
@@ -9154,14 +9207,21 @@ loadQuotesThen(handleDeepLink);
       if (!input) { out.textContent = 'Dale una misión primero.'; return; }
       btn.disabled = true; btn.textContent = 'INVOCANDO…'; out.textContent = '⏳ ' + SPECIES[selIdx].name + ' está procesando…';
       state = 'think'; setStateTxt();
+      const akey = SPECIES[selIdx].key;
+      try { (window.__agentsInUse = window.__agentsInUse || new Set()).add(akey); } catch (_) {}
       try {
         const hdrs = { 'Content-Type': 'application/json', 'x-run-token': TOKEN };
         if (window.HK23AUTH && HK23AUTH.token()) hdrs['Authorization'] = 'Bearer ' + HK23AUTH.token();
-        const r = await fetch('/api/run', { method: 'POST', headers: hdrs, body: JSON.stringify({ action: 'agent', agent: SPECIES[selIdx].key, input, context: ctxText }) });
+        const r = await fetch('/api/run', { method: 'POST', headers: hdrs, body: JSON.stringify({ action: 'agent', agent: akey, input, context: ctxText }) });
         const j = await r.json();
         out.textContent = j.ok ? j.text : ('⚠️ ' + (j.error || 'falló'));
         state = 'speak'; stateEnd = t + 2; setStateTxt();
+        try { // registrar una corrida real → sube "runs" del agente (para eficiencia observada)
+          const runs = JSON.parse(localStorage.getItem('hk23-agent-runs') || '{}');
+          runs[akey] = (runs[akey] || 0) + 1; localStorage.setItem('hk23-agent-runs', JSON.stringify(runs));
+        } catch (_) {}
       } catch (e) { out.textContent = '⚠️ Error de red.'; state = 'idle'; setStateTxt(); }
+      try { window.__agentsInUse && window.__agentsInUse.delete(akey); } catch (_) {}
       btn.disabled = false; btn.textContent = '⚡ INVOCAR';
     },
   };
@@ -9184,6 +9244,267 @@ loadQuotesThen(handleDeepLink);
   }
   window.openAgentBasePanel = () => STATION.open();
 })();
+</script>
+
+<!-- ═══════════ AGENT GRID — la grilla de TODOS los agentes como mini-personajes ═══════════ -->
+<style>
+  #agrid-overlay{position:fixed;inset:0;z-index:9800;display:none;background:radial-gradient(130% 100% at 50% 0%,#0a0a1c 0%,#030309 72%);font-family:'Space Mono',monospace;overflow:auto;}
+  #agrid-overlay.on{display:block;}
+  #agrid-head{position:sticky;top:0;z-index:2;backdrop-filter:blur(8px);background:rgba(3,3,9,.72);padding:22px 26px 16px;border-bottom:1px solid #1a1a2a;}
+  #agrid-head h2{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:22px;letter-spacing:2px;color:#F0EDE8;}
+  #agrid-head .sub{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin-top:3px;}
+  #agrid-head .x{position:absolute;top:22px;right:26px;cursor:pointer;color:#8a8a98;font-size:12px;letter-spacing:1px;}
+  #agrid-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  #agrid-filters span{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#8a8a98;border:1px solid #24243a;border-radius:20px;padding:5px 11px;cursor:pointer;}
+  #agrid-filters span.on{color:#06121a;background:#00F0FF;border-color:#00F0FF;}
+  #agrid-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;padding:20px 26px 60px;max-width:1200px;margin:0 auto;}
+  .ag-card{background:rgba(12,12,20,.9);border:1px solid #1e1e2e;border-radius:16px;padding:16px;transition:border-color .2s,transform .2s;cursor:pointer;}
+  .ag-card:hover{border-color:#3a3a52;transform:translateY(-2px);}
+  .ag-top{display:flex;gap:12px;align-items:center;}
+  .ag-av{flex-shrink:0;}
+  .ag-name{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:14px;letter-spacing:1px;}
+  .ag-badge{font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:2px 7px;border-radius:10px;display:inline-block;margin-top:3px;}
+  .ag-fn{font-size:10px;color:#aab;line-height:1.5;margin:11px 0 8px;min-height:30px;}
+  .ag-effrow{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+  .ag-effbar{flex:1;height:5px;background:#1a1a26;border-radius:3px;overflow:hidden;}
+  .ag-efffill{height:100%;border-radius:3px;}
+  .ag-efftxt{font-size:8px;color:#8a8a98;letter-spacing:1px;}
+  .ag-stars{font-size:14px;letter-spacing:2px;margin-bottom:9px;}
+  .ag-stars span{cursor:pointer;color:#33333f;}
+  .ag-stars span.lit{color:#FFD200;}
+  .ag-projs{display:flex;gap:5px;flex-wrap:wrap;}
+  .ag-projs b{font-size:8px;letter-spacing:.5px;color:#9aa2ab;border:1px solid #24243a;border-radius:8px;padding:2px 6px;}
+  .ag-detail{margin-top:12px;padding-top:12px;border-top:1px solid #1e1e2e;font-size:10px;color:#8a92a0;line-height:1.65;display:none;}
+  .ag-card.open .ag-detail{display:block;}
+  .ag-invoke{margin-top:10px;width:100%;background:transparent;border:1px solid #00F0FF;color:#00F0FF;border-radius:9px;padding:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;}
+  @keyframes agpulse{0%,100%{opacity:1}50%{opacity:.4}}
+</style>
+<div id="agrid-overlay">
+  <div id="agrid-head">
+    <h2>▦ TUS AGENTES</h2>
+    <div class="sub">el escuadrón completo · qué hacen · qué tan eficientes · tu nota</div>
+    <div class="x" onclick="AGRID.close()">✕ ESC</div>
+    <div id="agrid-filters"></div>
+  </div>
+  <div id="agrid-grid"></div>
+</div>
+<script>
+(function(){
+  // ── REGISTRO MAESTRO DE AGENTES ──
+  const AGENTS = [
+    { id:'strategist', name:'ORÁCULO', color:'#00F0FF', eyes:1, pointy:false, kind:'ai', status:'idle', eff:88, where:'Action Runner · /api/run',
+      fn:'Estratega — te da 3 próximos pasos concretos y accionables.',
+      how:'Toma tu idea + el contexto real del universo y devuelve un plan corto y ejecutable. Modelo vía AI Gateway.',
+      projs:['TODOS'] },
+    { id:'prioritizer', name:'SENTINELA', color:'#FF6600', eyes:1, pointy:true, kind:'ai', status:'idle', eff:85, where:'Action Runner · /api/run',
+      fn:'Jefe de operaciones — ordena todo por prioridad.',
+      how:'Clasifica tareas/ideas en ALTA/MEDIA/BAJA con el porqué de cada una.',
+      projs:['TODOS'] },
+    { id:'writer', name:'HEYOKA', color:'#FF3A1F', eyes:2, pointy:false, kind:'ai', status:'idle', eff:82, where:'Action Runner · /api/run',
+      fn:'Copywriter de marca VICE — directo, con filo, sin relleno.',
+      how:'Escribe textos con la voz de la marca. El payaso sagrado: trueno inverso.',
+      projs:['ARTE','MARKETING'] },
+    { id:'analyst', name:'VIGÍA', color:'#B84DFF', eyes:3, pointy:false, kind:'ai', status:'idle', eff:84, where:'Action Runner · /api/run',
+      fn:'Analista — resume en bullets y da 1 insight no obvio.',
+      how:'Ve patrones que no ves. Resume data y dispara la observación que importa.',
+      projs:['TODOS'] },
+    { id:'gta6', name:'INSIDER', color:'#ff2e93', eyes:2, pointy:true, kind:'ai', status:'idle', eff:90, where:'Action Runner · /api/run',
+      fn:'Inteligencia GTA 6 — el analista más filoso de internet.',
+      how:'Responde sobre GTA 6 separando CONFIRMADO de ESPECULACIÓN. Residente de VICE.HUB.',
+      projs:['VICE.HUB GTA6'] },
+    { id:'gta6intel', name:'GTA6 INTEL', color:'#2bd66a', eyes:1, pointy:false, kind:'infra', status:'live', eff:94, where:'Vercel cron · 13:00 UTC',
+      fn:'Research diario de GTA 6, solo, todos los días.',
+      how:'Cron → Google News RSS + Perplexity Sonar → clasifica CONFIRMADO/RUMOR/FILTRACIÓN → guarda en Supabase.',
+      projs:['VICE.HUB GTA6'] },
+    { id:'gumroad', name:'GUMROAD AGENT', color:'#FFD200', eyes:2, pointy:false, kind:'infra', status:'dormant', eff:70, where:'serverless · /api/gumroad-agent',
+      fn:'Vigila tu tienda: ventas, revenue, productos.',
+      how:'Lee la API de Gumroad y reporta al Mission Control. Se despierta con el access token.',
+      projs:['STORE','TIERS'] },
+    { id:'viceseller', name:'VICE SELLER', color:'#FF2D78', eyes:2, pointy:true, kind:'local', status:'local', eff:80, where:'tu Mac · Node',
+      fn:'Vende prints en Etsy/Printify/Pinterest.',
+      how:'926 prints curados por visión, sube listings y arma captions. Corre desde tu máquina.',
+      projs:['VICE SELLER'] },
+    { id:'vaultagent', name:'VAULT AGENT', color:'#B84DFF', eyes:3, pointy:false, kind:'infra', status:'build', eff:40, where:'Agent Base',
+      fn:'Cura la bóveda NFT y el marketplace.',
+      how:'Ordena tu colección y prepara el seam de mint. En construcción.',
+      projs:['NFT VAULT'] },
+    { id:'contentagent', name:'CONTENT AGENT', color:'#00F0FF', eyes:2, pointy:false, kind:'infra', status:'build', eff:38, where:'Agent Base',
+      fn:'Genera contenido para tus mundos.',
+      how:'Pipeline de contenido conectado a los proyectos. En construcción.',
+      projs:['CONTENT'] },
+    { id:'dnaagent', name:'DNA AGENT', color:'#AAFF00', eyes:1, pointy:false, kind:'infra', status:'build', eff:36, where:'Agent Base',
+      fn:'Perfil de performance (golf / rugby).',
+      how:'Modela el "ADN" del atleta a partir de stats. En construcción.',
+      projs:['VICEGOLFER','RUGBY VICE'] },
+  ];
+  const STATUS = {
+    live:{ label:'◆ EN VIVO', c:'#2bd66a', bg:'rgba(43,214,106,.14)' },
+    use:{ label:'● EN USO', c:'#00F0FF', bg:'rgba(0,240,255,.14)', pulse:true },
+    idle:{ label:'○ LIBRE', c:'#8a92a0', bg:'rgba(138,146,160,.12)' },
+    local:{ label:'◐ LOCAL', c:'#FFD200', bg:'rgba(255,210,0,.12)' },
+    dormant:{ label:'⏸ DORMIDO', c:'#FF6600', bg:'rgba(255,102,0,.12)' },
+    build:{ label:'▲ EN OBRA', c:'#B84DFF', bg:'rgba(184,77,255,.12)' },
+  };
+  const FILTERS = [['all','Todos'],['ai','IA on-demand'],['infra','Autónomos'],['local','Locales']];
+  let filter='all';
+
+  function rgb(h){h=h.replace('#','');return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+  function avatar(a,s){
+    const cx=s/2,cy=s/2,col=a.color;
+    const pos=a.eyes===1?[[0,-1]]:a.eyes===2?[[-6,-1],[6,-1]]:[[-8,-1],[0,-4],[8,-1]];
+    let eyeEls=''; pos.forEach(p=>{ const r=a.eyes>=3?2.3:3.2; eyeEls+='<circle cx="'+(cx+p[0])+'" cy="'+(cy+p[1])+'" r="'+r+'" fill="#0a0a0f"/><circle cx="'+(cx+p[0]+0.9)+'" cy="'+(cy+p[1]-0.9)+'" r="1" fill="#fff"/>'; });
+    const body=a.pointy
+      ? '<path d="M'+(cx-13)+' '+(cy+6)+' L'+cx+' '+(cy-15)+' L'+(cx+13)+' '+(cy+6)+' L'+(cx+11)+' '+(cy+13)+' L'+(cx-11)+' '+(cy+13)+' Z" fill="url(#ag'+a.id+')" stroke="'+col+'" stroke-width="1.2"/>'
+      : '<path d="M'+(cx-13)+' '+(cy+5)+' A13 13 0 0 1 '+(cx+13)+' '+(cy+5)+' L'+(cx+11)+' '+(cy+13)+' Q'+(cx+5)+' '+(cy+16)+' '+cx+' '+(cy+13)+' Q'+(cx-5)+' '+(cy+16)+' '+(cx-11)+' '+(cy+13)+' Z" fill="url(#ag'+a.id+')" stroke="'+col+'" stroke-width="1.2"/>';
+    const ant='<line x1="'+(cx-5)+'" y1="'+(cy-13)+'" x2="'+(cx-8)+'" y2="'+(cy-22)+'" stroke="'+col+'" stroke-width="1.1"/><circle cx="'+(cx-8)+'" cy="'+(cy-22)+'" r="1.6" fill="'+col+'"/><line x1="'+(cx+5)+'" y1="'+(cy-13)+'" x2="'+(cx+8)+'" y2="'+(cy-22)+'" stroke="'+col+'" stroke-width="1.1"/><circle cx="'+(cx+8)+'" cy="'+(cy-22)+'" r="1.6" fill="'+col+'"/>';
+    return '<svg viewBox="0 0 '+s+' '+s+'" width="'+s+'" height="'+s+'"><defs><radialGradient id="ag'+a.id+'" cx="40%" cy="32%"><stop offset="0" stop-color="'+col+'"/><stop offset="1" stop-color="'+col+'33"/></radialGradient></defs><circle cx="'+cx+'" cy="'+cy+'" r="'+(s*0.42)+'" fill="'+col+'1a"/>'+ant+body+eyeEls+'</svg>';
+  }
+  const ratings=()=>{ try{ return JSON.parse(localStorage.getItem('hk23-agent-ratings')||'{}'); }catch(_){ return {}; } };
+  function liveStatus(a){
+    try{ if(window.__agentsInUse && window.__agentsInUse.has(a.id)) return 'use'; }catch(_){}
+    return a.status;
+  }
+  function card(a){
+    const st=STATUS[liveStatus(a)]||STATUS.idle, rt=ratings()[a.id]||0;
+    let stars=''; for(let i=1;i<=5;i++) stars+='<span class="'+(i<=rt?'lit':'')+'" onclick="event.stopPropagation();AGRID.rate(\''+a.id+'\','+i+')">★</span>';
+    const eff=(window.__effObs&&window.__effObs[a.id])||a.eff;
+    return '<div class="ag-card" data-kind="'+a.kind+'" onclick="AGRID.toggle(this)">'
+      +'<div class="ag-top"><div class="ag-av">'+avatar(a,58)+'</div>'
+      +'<div><div class="ag-name" style="color:'+a.color+'">'+a.name+'</div>'
+      +'<span class="ag-badge" style="color:'+st.c+';background:'+st.bg+(st.pulse?';animation:agpulse 1.1s infinite':'')+'">'+st.label+'</span></div></div>'
+      +'<div class="ag-fn">'+a.fn+'</div>'
+      +'<div class="ag-effrow"><span class="ag-efftxt">EFIC</span><div class="ag-effbar"><div class="ag-efffill" style="width:'+eff+'%;background:'+a.color+'"></div></div><span class="ag-efftxt">'+eff+'%</span></div>'
+      +'<div class="ag-stars" title="tu nota">'+stars+'</div>'
+      +'<div class="ag-projs">'+a.projs.map(p=>'<b>'+p+'</b>').join('')+'</div>'
+      +'<div class="ag-detail"><b style="color:#cdd">Cómo lo hace:</b> '+a.how+'<br><b style="color:#cdd">Corre en:</b> '+a.where
+      +(a.kind==='ai'?'<button class="ag-invoke" style="border-color:'+a.color+';color:'+a.color+'" onclick="event.stopPropagation();AGRID.invoke(\''+a.id+'\')">⚡ INVOCAR '+a.name+'</button>':'')
+      +'</div></div>';
+  }
+  const AGRID={
+    open(){
+      document.getElementById('agrid-filters').innerHTML=FILTERS.map(f=>'<span class="'+(f[0]===filter?'on':'')+'" onclick="AGRID.filter(\''+f[0]+'\')">'+f[1]+'</span>').join('');
+      document.getElementById('agrid-grid').innerHTML=AGENTS.filter(a=>filter==='all'||a.kind===filter).map(card).join('');
+      document.getElementById('agrid-overlay').classList.add('on');
+    },
+    close(){ document.getElementById('agrid-overlay').classList.remove('on'); },
+    filter(f){ filter=f; AGRID.open(); },
+    toggle(el){ el.classList.toggle('open'); },
+    rate(id,n){ const r=ratings(); r[id]=(r[id]===n?0:n); localStorage.setItem('hk23-agent-ratings',JSON.stringify(r)); AGRID.open(); if(window.showCmdToast) showCmdToast('★ Nota guardada — '+(r[id]||'sin nota'), '#FFD200'); },
+    invoke(id){ AGRID.close(); if(window.STATION){ STATION.open(); STATION.pick(id); if(window.showCmdToast) showCmdToast('Agente listo — dale una misión', '#00F0FF'); } },
+  };
+  // eficiencia observada: sube con corridas reales registradas
+  try{
+    const runs=JSON.parse(localStorage.getItem('hk23-agent-runs')||'{}');
+    window.__effObs={}; AGENTS.forEach(a=>{ const r=runs[a.id]||0; if(r>0) window.__effObs[a.id]=Math.min(99, a.eff+Math.min(8,r)); });
+  }catch(_){}
+  document.addEventListener('keydown',e=>{ if(e.key==='Escape' && document.getElementById('agrid-overlay').classList.contains('on')) AGRID.close(); });
+  window.AGRID=AGRID;
+})();
+</script>
+
+<!-- ═══════════ WARP — viaje desde otra galaxia hasta el universo HK23 ═══════════ -->
+<style>
+  #warp-overlay{position:fixed;inset:0;z-index:9999;background:#000;overflow:hidden;display:none;}
+  #warp-overlay.on{display:block;}
+  #warp-canvas{position:absolute;inset:0;width:100%;height:100%;}
+  #warp-text{position:absolute;left:0;right:0;bottom:16%;text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(18px,4vw,34px);letter-spacing:3px;color:#F0EDE8;text-shadow:0 0 24px rgba(0,240,255,.5);opacity:0;transition:opacity .6s;padding:0 20px;}
+  #warp-sub{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:#00F0FF;opacity:0;transition:opacity .6s;}
+  #warp-skip{position:absolute;top:22px;right:24px;z-index:2;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#8a8a98;border:1px solid #24243a;border-radius:20px;padding:8px 15px;cursor:pointer;background:rgba(8,8,16,.6);}
+  #warp-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;}
+</style>
+<div id="warp-overlay">
+  <canvas id="warp-canvas"></canvas>
+  <div id="warp-text"></div>
+  <div id="warp-sub"></div>
+  <div id="warp-flash"></div>
+  <div id="warp-skip" onclick="WARP.skip()">SALTAR ✕</div>
+</div>
+<script>
+(function(){
+  const BEATS=[
+    { t:'SALIENDO DE TU GALAXIA', s:'motores de curvatura · encendidos' },
+    { t:'ATRAVESANDO EL MULTIVERSO', s:'esquivando universos vecinos' },
+    { t:'COORDENADAS · HK23', s:'bloqueo de destino · confirmado' },
+    { t:'BIENVENIDO AL UNIVERSO', s:'heyoka 23 — universe os' },
+  ];
+  let cvs,ctx,raf,startT,stars=[],speed,skipped,arrived;
+  const WARP={
+    _seen:false,
+    enter(){
+      // una vez por sesión; si ya lo vio, va directo al mapa
+      if(WARP._seen){ goTo('map'); return; }
+      WARP._seen=true; skipped=false; arrived=false;
+      const ov=document.getElementById('warp-overlay'); ov.classList.add('on');
+      cvs=document.getElementById('warp-canvas'); ctx=cvs.getContext('2d');
+      resize(); window.addEventListener('resize',resize);
+      // campo de estrellas 3D
+      stars=Array.from({length:520},()=>mkStar());
+      speed=0; startT=performance.now();
+      loop();
+    },
+    skip(){ if(skipped||arrived) return; skipped=true; finish(); },
+  };
+  function resize(){ if(!cvs) return; cvs.width=innerWidth; cvs.height=innerHeight; }
+  function mkStar(){ return { x:(Math.random()*2-1), y:(Math.random()*2-1), z:Math.random(), pz:0 }; }
+  function beat(i){
+    const tx=document.getElementById('warp-text'), sb=document.getElementById('warp-sub');
+    if(i<0||i>=BEATS.length){ tx.style.opacity=0; sb.style.opacity=0; return; }
+    tx.textContent=BEATS[i].t; sb.textContent=BEATS[i].s;
+    tx.style.opacity=1; sb.style.opacity=1;
+  }
+  let lastBeat=-1;
+  function loop(){
+    const now=performance.now(), el=(now-startT)/1000; // segundos
+    const W=cvs.width,H=cvs.height,cx=W/2,cy=H/2;
+    // curva de velocidad: acelera, crucero, y frena justo antes de llegar
+    if(el<1.2) speed=el/1.2*0.045; else if(el<4.6) speed=0.045; else speed=Math.max(0.006,0.045*(1-(el-4.6)/1.2));
+    // beats por tiempo
+    const bi = el<1.3?0 : el<2.8?1 : el<4.4?2 : el<5.6?3 : 4;
+    if(bi!==lastBeat){ lastBeat=bi; beat(bi>=BEATS.length?-1:bi); }
+    // fondo con leve estela
+    ctx.fillStyle='rgba(3,3,10,'+(speed>0.02?0.28:0.5)+')'; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.translate(cx,cy);
+    for(const st of stars){
+      st.pz=st.z; st.z-=speed;
+      if(st.z<=0.02){ st.x=Math.random()*2-1; st.y=Math.random()*2-1; st.z=1; st.pz=1; }
+      const k=180, sx=st.x/st.z*k*(W/900), sy=st.y/st.z*k*(H/900);
+      const px=st.x/st.pz*k*(W/900), py=st.y/st.pz*k*(H/900);
+      const r=Math.max(0.4,(1-st.z)*2.6);
+      const hue=200+st.x*30;
+      ctx.strokeStyle='hsla('+hue+',90%,'+(60+(1-st.z)*30)+'%,'+(0.25+(1-st.z)*0.75)+')';
+      ctx.lineWidth=r; ctx.beginPath(); ctx.moveTo(px,py); ctx.lineTo(sx,sy); ctx.stroke();
+    }
+    ctx.restore();
+    if(el>=6.4 && !arrived){ finish(); return; }
+    raf=requestAnimationFrame(loop);
+  }
+  function finish(){
+    arrived=true; if(raf) cancelAnimationFrame(raf);
+    const flash=document.getElementById('warp-flash');
+    flash.style.transition='opacity .18s'; flash.style.opacity='1';
+    beat(-1);
+    setTimeout(()=>{
+      goTo('map');
+      const ov=document.getElementById('warp-overlay');
+      flash.style.transition='opacity .7s'; flash.style.opacity='0';
+      setTimeout(()=>{ ov.classList.remove('on'); }, 720);
+    }, 200);
+  }
+  window.WARP=WARP;
+})();
+</script>
+<script>
+// ── ECOSYSTEM live stats: refleja el estado real del universo al abrir el núcleo ──
+window.refreshEcosystemStats = function(){
+  const box=document.getElementById('eco-stats'); if(!box) return;
+  const worlds=(typeof PROJECTS!=='undefined')?PROJECTS.length:0;
+  let gx=0; try{ gx=(JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){}
+  const coll=(typeof collectedSet!=='undefined')?collectedSet.size:0;
+  let tok=100; try{ tok=parseInt(localStorage.getItem('hk23-tokens')||'100',10); }catch(_){}
+  const tier=(window.HK23TIER?HK23TIER.info().name:'VISITANTE');
+  const cell=(v,l,c)=>'<div style="flex:1;min-width:96px;border:1px solid #1e1e2a;border-radius:12px;padding:12px 14px;background:rgba(12,12,20,.6)"><div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:22px;color:'+c+'">'+v+'</div><div style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin-top:2px">'+l+'</div></div>';
+  box.innerHTML=cell(worlds,'planetas','#F0EDE8')+cell('11','agentes','#00F0FF')+cell(gx,'galaxias tuyas','#B84DFF')+cell(coll,'coleccionables','#AAFF00')+cell(tok+' ⚡','tokens','#FFD200')+cell(tier,'tu tier','#FF6600');
+};
 </script>
 </body>
 </html>
