@@ -29,17 +29,6 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
-  /* Agent Lab CTA row (links to the AI agent designer + dashboard) */
-  .agent-lab-row{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0 4px}
-  .agent-lab-btn{font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
-    font-size:13px;text-decoration:none;padding:12px 20px;border-radius:12px;
-    color:var(--text);background:rgba(28,16,48,.62);border:1px solid var(--line);
-    transition:transform .16s,border-color .16s,box-shadow .16s;backdrop-filter:blur(6px)}
-  .agent-lab-btn:hover{transform:translateY(-2px);border-color:var(--cyan);box-shadow:0 10px 30px -10px rgba(46,230,255,.5)}
-  .agent-lab-btn.primary{color:#0a0612;border-color:transparent;
-    background:linear-gradient(120deg,var(--pink),var(--purple));
-    box-shadow:0 12px 34px -12px rgba(255,46,147,.6)}
-  .agent-lab-btn.primary:hover{filter:brightness(1.08);box-shadow:0 16px 40px -12px rgba(255,46,147,.7)}
   body{
     font-family:'Inter',system-ui,sans-serif;
     color:var(--text);
@@ -335,10 +324,6 @@
     <div class="logo"><span class="v">VICE</span><span class="dot">.</span><span class="h">HUB</span></div>
     <div class="tagline">GTA&nbsp;6 FAN HUB</div>
     <p class="hype">GTA 6 is about to make us all rich. Skip the YouTube rabbit holes — every <b>money method</b>, <b>crew</b>, <b>guide</b>, <b>easter egg</b> &amp; <b>vehicle</b>, searchable in one place.</p>
-    <div class="agent-lab-row">
-      <a class="agent-lab-btn primary" href="/agent-designer">⚡ Build your own AI agent</a>
-      <a class="agent-lab-btn" href="/agent-dashboard">📊 Agent dashboard</a>
-    </div>
 
     <div class="countdown" id="countdown">
       <div class="cd-cell"><div class="cd-num" id="cd-d">--</div><div class="cd-lbl">Days</div></div>
