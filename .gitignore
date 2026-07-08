@@ -1,8 +1,4 @@
-.claude/
-vice-os/
-
-# Etsy agent secrets — NEVER commit these
-etsy-agent/config.json
-etsy-agent/tokens.json
-etsy-agent/.published.json
+.DS_Store
+**/.DS_Store
+node_modules/
 .vercel
