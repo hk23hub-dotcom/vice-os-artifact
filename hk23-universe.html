@@ -1543,6 +1543,7 @@
       const u = userItems();
       if (u.some(x => x.id === id)) { saveUser(u.filter(x => x.id !== id)); }
       else { const o = ov(); o[id] = { ...(o[id] || {}), removed: true }; saveOv(o); } // hide a base piece
+      if (window.__nhCloud && window.__nhCloud.sbDelete) window.__nhCloud.sbDelete(id); // no dejar fila huérfana en la nube
       NFTVAULT.render();
     },
     mint(id) { mintingId = id; document.getElementById('nft-tx').value = ''; document.getElementById('nft-mint-modal').style.display = 'flex'; },
@@ -1551,6 +1552,8 @@
       const u = userItems(), it = u.find(x => x.id === mintingId);
       if (it) { it.status = 'minteado'; it.tx = tx; saveUser(u); }
       else { const o = ov(); o[mintingId] = { ...(o[mintingId] || {}), status: 'minteado', tx }; saveOv(o); }
+      // re-sync status to the cloud mirror (PATCH if already mirrored)
+      if (it && window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity(it.id, { name: it.title, slug: 'nft-' + it.id, level: 'node', kind: 'system', summary: it.coll, meta: { nh: '1', kind: 'nft', img: it.img, chain: it.chain, status: 'minteado', tx: tx } });
       document.getElementById('nft-mint-modal').style.display = 'none';
       if (window.showCmdToast) showCmdToast('⛓️ Marcado como minteado', '#B84DFF');
       NFTVAULT.render();
@@ -6911,6 +6914,10 @@ function closeAffirmation() {
 window.addEventListener('resize', () => {
   initBgCanvas();
   if (currentScreen === 'map') startMapCanvas();
+  // redimensionar los canvas de overlay abiertos (si no, se ven borrosos/estirados al cambiar el tamaño)
+  if (galaxyModeActive) { const gc = document.getElementById('galaxy-canvas-bg'); if (gc) { gc.width = innerWidth; gc.height = innerHeight; } drawGalaxyBg(); }
+  const fo = document.getElementById('fractal-overlay');
+  if (fo && fo.style.display !== 'none' && fo.style.opacity === '1') { const fc = document.getElementById('fractal-canvas'); if (fc) { fc.width = innerWidth; fc.height = innerHeight; } if (typeof startFractalAnimation === 'function') startFractalAnimation(); }
 });
 
 // ═══════════ KEYBOARD ═══════════
@@ -7813,7 +7820,7 @@ loadQuotesThen(handleDeepLink);
 (function(){
   const KEY='hk23nh-overrides';
   const load=()=>{try{return JSON.parse(localStorage.getItem(KEY)||'{}')}catch(e){return {}}};
-  const save=(o)=>localStorage.setItem(KEY,JSON.stringify(o));
+  const save=(o)=>{try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){ if(window.showCmdToast) showCmdToast('⚠️ Almacenamiento lleno — algunos cambios no se guardaron','#FF6600'); }};
   let ov=load();
   // ensure shape
   ov.galaxies=ov.galaxies||{}; ov.nodes=ov.nodes||{}; ov.newGalaxies=ov.newGalaxies||[]; ov.addConns=ov.addConns||[];
@@ -7847,7 +7854,14 @@ loadQuotesThen(handleDeepLink);
       if(!r.ok) return false; const j=await r.json(); if(j[0]&&j[0].id){ ov.sbRels[localKey]=j[0].id; save(ov); } return true;
     }catch(e){ return false; }
   }
-  window.__nhCloud={sbEntity,ensureGx,sbRel,SB};
+  // borrar la fila espejada y limpiar el mapeo local (evita filas huérfanas al eliminar)
+  async function sbDelete(localId){
+    try{ const id=ov.sbIds[localId]; if(!id) return true;
+      await fetch(SB.url+'/entities?id=eq.'+id,{method:'DELETE',headers:sbH(false)});
+      delete ov.sbIds[localId]; save(ov); return true;
+    }catch(e){ return false; }
+  }
+  window.__nhCloud={sbEntity,ensureGx,sbRel,sbDelete,SB};
 
   // ── apply persisted overrides to the LIVE data (canvas reads these every frame) ──
   function apply(){
@@ -8331,7 +8345,7 @@ loadQuotesThen(handleDeepLink);
 (function(){
   const KEY='hk23-upos';
   let UPOS={}; try{ UPOS=JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(e){ UPOS={}; }
-  const save=()=>localStorage.setItem(KEY,JSON.stringify(UPOS));
+  const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(UPOS));}catch(_){}};
   const ND=()=> (typeof NODES!=='undefined')?NODES:[];
   const PR=()=> (typeof PROJECTS!=='undefined')?PROJECTS:[];
   const OC=()=> (typeof ORBITAL_CONFIG!=='undefined')?ORBITAL_CONFIG:{};

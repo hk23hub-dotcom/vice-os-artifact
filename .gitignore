@@ -2,3 +2,6 @@
 **/.DS_Store
 node_modules/
 .vercel
+etsy-agent/tokens.json
+etsy-agent/config.json
+etsy-agent/*.local.json
