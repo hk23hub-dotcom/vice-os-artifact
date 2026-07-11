@@ -1832,9 +1832,8 @@
   <canvas id="galaxy-canvas-bg"></canvas>
   <button id="galaxy-create-btn" onclick="CREAR.open()" style="position:absolute;top:54px;left:50%;transform:translateX(-50%);z-index:6;background:linear-gradient(90deg,rgba(184,77,255,.25),rgba(0,240,255,.2));border:1px solid #B84DFF;color:#F0EDE8;border-radius:30px;padding:11px 22px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;pointer-events:auto;backdrop-filter:blur(6px);box-shadow:0 0 24px rgba(184,77,255,.3);">🌌 Crear un universo acá</button>
   <div id="galaxy-defense" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Space Mono',monospace;pointer-events:auto;">
-    <div id="galaxy-threat" style="font-size:10px;letter-spacing:2px;color:#ff5b6b;opacity:0;transition:opacity .3s;">☄️ AMENAZA ENTRANTE</div>
-    <button id="galaxy-shield-btn" onclick="if(window.galaxyToggleShield)galaxyToggleShield()" style="background:rgba(0,240,255,.12);border:1px solid #00F0FF;color:#00F0FF;border-radius:30px;padding:9px 18px;font-family:inherit;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">🛡 Desplegar defensa</button>
-    <div style="font-size:8px;letter-spacing:1px;color:#5a5a68;">agente de HK23 · pedir / comprar / regalar</div>
+    <button id="galaxy-shield-btn" onclick="if(window.PROTECT)PROTECT.open()" style="background:rgba(0,240,255,.12);border:1px solid #00F0FF;color:#00F0FF;border-radius:30px;padding:9px 18px;font-family:inherit;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">🛡 Protegé tu universo</button>
+    <div style="font-size:8px;letter-spacing:1px;color:#5a5a68;">controlá qué se ve y quién entra</div>
   </div>
 </div>
 <div id="galaxy-mode-label">MULTIVERSE VIEW — G TO EXIT</div>
@@ -10144,6 +10143,69 @@ window.refreshEcosystemStats = function(){
   };
   window.CREAR=CREAR;
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('crear-overlay').classList.contains('on')) CREAR.close(); });
+})();
+</script>
+
+<!-- ═══════════ PROTECT — el escudo real del universo: qué se ve + quién entra ═══════════ -->
+<style>
+  #prot-overlay{position:fixed;inset:0;z-index:9880;display:none;align-items:center;justify-content:center;background:rgba(4,6,10,.92);backdrop-filter:blur(11px);font-family:'Space Mono',monospace;padding:24px;}
+  #prot-overlay.on{display:flex;}
+  #prot-overlay .box{width:480px;max-width:94vw;max-height:90vh;overflow:auto;background:rgba(8,12,18,.98);border:1px solid #00F0FF;border-radius:18px;padding:26px;box-shadow:0 0 46px rgba(0,240,255,.2);}
+  .prot-row{display:flex;align-items:center;gap:13px;border:1px solid #1e2630;border-radius:13px;padding:15px;margin-top:11px;cursor:pointer;transition:border-color .15s}
+  .prot-row:hover{border-color:#00F0FF}
+  .prot-row .ic{font-size:22px;flex-shrink:0}
+  .prot-row .tx{flex:1}
+  .prot-row .tx b{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:13px;letter-spacing:.5px;display:block}
+  .prot-row .tx span{font-size:10px;color:#8a97a5;line-height:1.5}
+  .prot-row .ar{color:#00F0FF;font-size:16px}
+  .prot-badge{background:#FFD200;color:#06121a;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700}
+</style>
+<div id="prot-overlay"><div class="box">
+  <div style="text-align:center;font-size:26px;margin-bottom:2px">🛡</div>
+  <div style="text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:#00F0FF">PROTEGÉ TU UNIVERSO</div>
+  <div style="text-align:center;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin-top:4px">el escudo de verdad: qué se ve y quién entra</div>
+  <div id="prot-status" style="text-align:center;font-size:10px;color:#8a97a5;margin:12px 0 4px"></div>
+
+  <div class="prot-row" onclick="PROTECT.go('aduanero')">
+    <div class="ic">🛃</div><div class="tx"><b>EL ADUANERO</b><span>Decidí qué de cada proyecto es privado, showcase o template. Ante la duda, nada sale.</span></div><div class="ar">→</div>
+  </div>
+  <div class="prot-row" onclick="PROTECT.go('access')">
+    <div class="ic">🔑</div><div class="tx"><b>SOLICITUDES DE ACCESO <span id="prot-acc-badge"></span></b><span>Quién pidió entrar a tus galaxias. Aprobás o rechazás vos.</span></div><div class="ar">→</div>
+  </div>
+  <div class="prot-row" onclick="PROTECT.go('visibility')">
+    <div class="ic">👁</div><div class="tx"><b>VISIBILIDAD DE GALAXIAS</b><span>Tus galaxias son privadas por defecto. Hacé click en una en el multiverso para hacerla visitable.</span></div><div class="ar">→</div>
+  </div>
+
+  <div style="text-align:center;margin-top:16px;cursor:pointer;color:#888;font-size:11px" onclick="document.getElementById('prot-overlay').classList.remove('on')">cerrar ✕</div>
+</div></div>
+<script>
+(function(){
+  const PROTECT={
+    open(){
+      // estado: proyectos privados + solicitudes pendientes
+      let priv=0, total=0;
+      try{ total=(typeof PROJECTS!=='undefined')?PROJECTS.length:0; const rl=JSON.parse(localStorage.getItem('hk23-realms')||'{}');
+        priv=total - Object.values(rl).filter(function(v){return v!=='private';}).length; }catch(_){}
+      document.getElementById('prot-status').innerHTML='🔒 <b style="color:#cdd">'+priv+'/'+total+'</b> proyectos privados · tu universo protegido por defecto';
+      // badge de solicitudes pendientes
+      const b=document.getElementById('access-badge');
+      const pb=document.getElementById('prot-acc-badge');
+      if(pb){ const n=b?parseInt(b.textContent||'0',10):0; pb.className=n?'prot-badge':''; pb.textContent=n?n:''; }
+      document.getElementById('prot-overlay').classList.add('on');
+    },
+    close(){ document.getElementById('prot-overlay').classList.remove('on'); },
+    go(where){
+      PROTECT.close();
+      if(where==='aduanero' && window.ADUANERO) ADUANERO.open();
+      else if(where==='access' && window.ACCESS) ACCESS.open();
+      else if(where==='visibility'){
+        if(typeof deactivateGalaxyMode==='function' && typeof galaxyModeActive!=='undefined' && !galaxyModeActive && typeof activateGalaxyMode==='function') activateGalaxyMode();
+        if(window.showCmdToast) showCmdToast('👁 Tocá una galaxia tuya en el multiverso para hacerla visitable', '#00F0FF');
+      }
+    },
+  };
+  window.PROTECT=PROTECT;
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('prot-overlay').classList.contains('on')) PROTECT.close(); });
 })();
 </script>
 </body>
