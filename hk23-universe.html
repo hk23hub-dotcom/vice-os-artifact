@@ -1854,7 +1854,9 @@
     premium: { key: 'premium', name: 'PREMIUM', level: 1, color: '#00F0FF', price: '$4.99/mes · precio fundador',
       tag: 'Desbloqueá poder', perks: ['Todo lo de Visitante', 'Desbloqueás la Estación de Agentes', 'Sacás agentes a tu galaxia', 'Blueprint GUIADO para crear'] },
     full: { key: 'full', name: 'FULL · ARQUITECTO', level: 2, color: '#FFD200', price: '$14.99/mes · precio fundador',
-      tag: 'Todo, sin límite', perks: ['Todo lo de Premium', '🔑 ÚNICA llave al universo REAL de HK23', 'Acceso a planetas-bóveda (juntando llaves)', 'Creás agentes, plugins y mundos'] },
+      tag: 'Todo, sin límite', perks: ['Todo lo de Premium', 'Creás agentes, plugins y mundos', 'Acceso a planetas-bóveda (juntando llaves)', 'El OS completo para construir'] },
+    founder: { key: 'founder', name: 'FOUNDER', level: 3, color: '#FF3A1F', price: 'por invitación',
+      tag: 'El círculo real', perks: ['Todo lo de Full', '🔑 ÚNICA llave al universo REAL de HK23 (no el blueprint)', 'Acceso a los proyectos reales, no las ideas', 'Contacto directo · lo que viene primero'] },
   };
   const ORDER = ['visitante', 'premium', 'full'];
   // ── TEMPLATES — universos replicables al tiro (pago único, Gumroad) ──
@@ -1874,6 +1876,7 @@
     level() { return HK23TIER.info().level; },
     isPremium() { return HK23TIER.level() >= 1; },
     isFull() { return HK23TIER.level() >= 2; },
+    isFounder() { return HK23TIER.level() >= 3; }, // el único que entra al universo REAL (no el blueprint)
     set(k) { if (!TIERS[k]) return; localStorage.setItem('hk23-user-tier', k); HK23TIER.updateBadge(); },
     // Gate a feature: allowed by tier OR by an active 24h token rental; else upsell.
     require(minLevel, feature) {
@@ -2997,41 +3000,41 @@ const PROJECTS = [
     }
   },
   {
-    id: 'laiglesia', label: 'LA IGLESIA', sub: 'Gold · IV Region · 3,676ha',
-    x: 0.50, y: 0.62, color: '#FFD200', size: 19,
+    id: 'laiglesia', label: 'VENTURE DE RECURSOS', sub: 'Blueprint · levantamiento de capital',
+    x: 0.50, y: 0.62, color: '#FFD200', size: 19, blueprint: true,
     universe: {
-      title: 'LA IGLESIA', color: '#FFD200',
+      title: 'VENTURE DE RECURSOS · BLUEPRINT', color: '#FFD200',
       nodes: [
-        { label: 'CLAIM\n3,676 ha',    x: 0.50, y: 0.16, color: '#FFD200', size: 16,
-          detail: { title: 'MINING CLAIM', status: 'live', eyebrow: 'PROPERTY',
-            desc: '3,676 hectares in Chile\'s IV Region. Active mining claim with confirmed gold geochemical anomalies.',
-            stats: [{ l:'HECTARES', v:'3,676' },{ l:'REGION', v:'IV — CHILE' },{ l:'MINERAL', v:'GOLD' },{ l:'STATUS', v:'ACTIVE' }],
-            action: 'VIEW DATA →', actionColor: '#FFD200' }},
-        { label: 'DRILL\nPROGRAM',         x: 0.82, y: 0.38, color: '#FFD200', size: 13,
-          detail: { title: 'DRILL PROGRAM', status: 'build', eyebrow: 'EXPLORATION',
-            desc: 'Drilling program defining the mineralized bodies. Geochemical samples and lab data integrated.',
-            stats: [{ l:'DRILL HOLES', v:'12' },{ l:'METERS', v:'2,400m' },{ l:'SAMPLES', v:'840' },{ l:'Au GRADE', v:'2.1 g/t' }],
-            action: 'VIEW PROGRAM →', actionColor: '#FFD200' }},
-        { label: 'INVESTMENT\nDECK',        x: 0.82, y: 0.64, color: '#FF3A1F', size: 12,
-          detail: { title: 'INVESTMENT', status: 'live', eyebrow: 'CAPITAL RAISE',
-            desc: 'Investment deck to capitalize the advanced exploration phase. Targets, valuation, and work plan.',
-            stats: [{ l:'RAISING', v:'USD 2M' },{ l:'EQUITY', v:'25%' },{ l:'STAGE', v:'EXPLORATION' },{ l:'EST. ROI', v:'8–12×' }],
-            action: 'VIEW DECK →', actionColor: '#FF3A1F' }},
-        { label: 'DATA\nENGINEERING',      x: 0.50, y: 0.84, color: '#AAFF00', size: 11,
-          detail: { title: 'DATA ENGINEERING', status: 'live', eyebrow: 'DATA PIPELINE',
-            desc: 'Geological data pipeline: samples → lab → database → visualization. Full traceability.',
-            stats: [{ l:'RECORDS', v:'4,200' },{ l:'FORMATS', v:'CSV/GIS' },{ l:'DASHBOARDS', v:'3' },{ l:'UPDATE', v:'WEEKLY' }],
-            action: 'VIEW PIPELINE →', actionColor: '#AAFF00' }},
-        { label: 'GEOLOGY\nIV REGION',    x: 0.18, y: 0.64, color: '#00F0FF', size: 11,
-          detail: { title: 'GEOLOGICAL CONTEXT', status: 'live', eyebrow: 'REGIONAL CONTEXT',
-            desc: 'Gold metallogenic belt of the Coastal Range. Favorable geological context compared to neighboring deposits.',
-            stats: [{ l:'FORMATION', v:'PALEOZOIC' },{ l:'DEPOSIT TYPE', v:'OROGENIC GOLD' },{ l:'NEIGHBORS', v:'EL INDIO' },{ l:'POTENTIAL', v:'HIGH' }],
-            action: 'VIEW GEOLOGY →', actionColor: '#00F0FF' }},
-        { label: 'TEAM &\nTIMELINE',     x: 0.18, y: 0.38, color: '#B84DFF', size: 10,
-          detail: { title: 'TEAM & TIMELINE', status: 'live', eyebrow: 'EXECUTION',
-            desc: 'Certified geologist team and 2025–2026 exploration timeline. Next delivery: resource report.',
-            stats: [{ l:'GEOLOGISTS', v:'3' },{ l:'CURRENT PHASE', v:'2 OF 4' },{ l:'NEXT MILESTONE', v:'Q3 2026' },{ l:'REPORT', v:'IN PROGRESS' }],
-            action: 'VIEW TEAM →', actionColor: '#B84DFF' }},
+        { label: 'EL ACTIVO',    x: 0.50, y: 0.16, color: '#FFD200', size: 16,
+          detail: { title: 'DEFINIR EL ACTIVO', status: 'live', eyebrow: 'PASO 1 · FRAMEWORK',
+            desc: 'Todo venture de recursos empieza por el activo: qué controlás, por qué vale, y qué evidencia lo respalda. El blueprint enseña CÓMO se define y protege un activo — sin ningún dato real de proyecto alguno.',
+            stats: [{ l:'DEFINIR', v:'EL ACTIVO' },{ l:'PROBAR', v:'QUE ES REAL' },{ l:'PROTEGER', v:'LA VENTAJA' },{ l:'TIPO', v:'BLUEPRINT' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#FFD200' }},
+        { label: 'VALIDACIÓN',        x: 0.82, y: 0.38, color: '#FFD200', size: 13,
+          detail: { title: 'CÓMO SE VALIDA', status: 'live', eyebrow: 'PASO 2 · FRAMEWORK',
+            desc: 'Cómo pasás de "creo que hay algo" a "está probado": el sistema de recolección de datos, muestras y evidencia que convierte una corazonada en un caso invertible.',
+            stats: [{ l:'DATO', v:'CRUDO' },{ l:'MUESTRA', v:'→ LAB' },{ l:'EVIDENCIA', v:'→ TESIS' },{ l:'RIGOR', v:'ALTO' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#FFD200' }},
+        { label: 'TESIS DE\nCAPITAL',        x: 0.82, y: 0.64, color: '#FF3A1F', size: 12,
+          detail: { title: 'ESTRUCTURAR EL CAPITAL', status: 'live', eyebrow: 'PASO 3 · FRAMEWORK',
+            desc: 'Cómo estructurás un levantamiento: qué levantás, contra qué, por qué equity, qué retorno prometés y cómo lo justificás. El framework de la tesis de inversión — reutilizable en cualquier industria.',
+            stats: [{ l:'QUÉ', v:'LEVANTÁS' },{ l:'CONTRA', v:'QUÉ HITOS' },{ l:'RETORNO', v:'JUSTIFICADO' },{ l:'FORMA', v:'DECK' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#FF3A1F' }},
+        { label: 'PIPELINE\nDE DATOS',      x: 0.50, y: 0.84, color: '#AAFF00', size: 11,
+          detail: { title: 'DE DATO A DECISIÓN', status: 'live', eyebrow: 'PASO 4 · FRAMEWORK',
+            desc: 'La infraestructura que convierte datos crudos en decisiones: recolección → base → visualización → dashboard. Cómo montás trazabilidad total en un proyecto de datos.',
+            stats: [{ l:'FLUJO', v:'CRUDO→DASH' },{ l:'TRAZA', v:'TOTAL' },{ l:'FORMATO', v:'ESTÁNDAR' },{ l:'AI', v:'OPPORTUNITY' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#AAFF00' }},
+        { label: 'CONTEXTO',    x: 0.18, y: 0.64, color: '#00F0FF', size: 11,
+          detail: { title: 'EL CONTEXTO QUE CONVENCE', status: 'live', eyebrow: 'PASO 5 · FRAMEWORK',
+            desc: 'Cómo enmarcás la oportunidad dentro de un contexto más grande que la hace creíble: comparables, referencias y por qué "acá y ahora". El arte de posicionar sin exagerar.',
+            stats: [{ l:'COMPARABLE', v:'CREÍBLE' },{ l:'CONTEXTO', v:'FAVORABLE' },{ l:'POR QUÉ', v:'ACÁ' },{ l:'TONO', v:'HONESTO' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#00F0FF' }},
+        { label: 'EJECUCIÓN',     x: 0.18, y: 0.38, color: '#B84DFF', size: 10,
+          detail: { title: 'EQUIPO Y TIMELINE', status: 'live', eyebrow: 'PASO 6 · FRAMEWORK',
+            desc: 'Qué hace real a un plan: el equipo correcto, un timeline por fases y el próximo entregable claro. Cómo estructurás la ejecución para que un inversor confíe.',
+            stats: [{ l:'EQUIPO', v:'CERTIFICADO' },{ l:'PLAN', v:'POR FASES' },{ l:'PRÓXIMO', v:'ENTREGABLE' },{ l:'CONFIANZA', v:'ALTA' }],
+            action: 'ESTUDIAR FRAMEWORK →', actionColor: '#B84DFF' }},
       ],
       connections: [[0,1],[0,5],[1,2],[2,3],[3,4],[4,5],[0,3],[1,4]]
     }
@@ -9664,6 +9667,31 @@ loadQuotesThen(handleDeepLink);
     }, 200);
   }
   window.WARP=WARP;
+})();
+</script>
+<!-- ═══════════ GATEKEEPER — el público ve la capa BLUEPRINT; el real es solo Founder ═══════════ -->
+<div id="gk-badge" style="position:fixed;top:14px;right:110px;z-index:8999;display:none;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;color:#FFD200;background:rgba(10,10,6,.8);border:1px solid rgba(255,210,0,.35);border-radius:20px;padding:7px 13px;cursor:pointer;backdrop-filter:blur(6px);" onclick="GATEKEEPER.explain()">◈ CAPA BLUEPRINT · ideas</div>
+<script>
+(function(){
+  const GATEKEEPER={
+    isReal(){ return !!(window.HK23TIER && HK23TIER.isFounder && HK23TIER.isFounder()); },
+    refresh(){
+      const b=document.getElementById('gk-badge'); if(!b) return;
+      // el badge del blueprint se muestra a TODOS menos al Founder (que ve el universo real)
+      b.style.display = (typeof currentScreen!=='undefined' && currentScreen==='map' && !GATEKEEPER.isReal()) ? 'block' : 'none';
+    },
+    explain(){
+      if(window.showCmdToast){
+        showCmdToast('◈ Estás viendo la CAPA BLUEPRINT — ideas de lo que cada planeta podría ser, no proyectos reales.', '#FFD200');
+        setTimeout(function(){ showCmdToast('El universo REAL (proyectos reales) es solo para el tier FOUNDER.', '#FF3A1F'); }, 2800);
+      }
+    },
+  };
+  window.GATEKEEPER=GATEKEEPER;
+  // re-chequear al navegar + cada tanto
+  const _g=window.goTo; if(typeof _g==='function'){ window.goTo=function(id){ _g(id); setTimeout(GATEKEEPER.refresh,50); }; }
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(GATEKEEPER.refresh, 1500); });
+  setTimeout(GATEKEEPER.refresh, 2500);
 })();
 </script>
 <script>
