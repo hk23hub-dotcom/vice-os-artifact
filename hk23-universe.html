@@ -1830,6 +1830,7 @@
 <!-- ═══════════ GALAXY MODE ═══════════ -->
 <div id="galaxy-overlay">
   <canvas id="galaxy-canvas-bg"></canvas>
+  <button id="galaxy-create-btn" onclick="CREAR.open()" style="position:absolute;top:54px;left:50%;transform:translateX(-50%);z-index:6;background:linear-gradient(90deg,rgba(184,77,255,.25),rgba(0,240,255,.2));border:1px solid #B84DFF;color:#F0EDE8;border-radius:30px;padding:11px 22px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;pointer-events:auto;backdrop-filter:blur(6px);box-shadow:0 0 24px rgba(184,77,255,.3);">🌌 Crear un universo acá</button>
   <div id="galaxy-defense" style="position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:6px;font-family:'Space Mono',monospace;pointer-events:auto;">
     <div id="galaxy-threat" style="font-size:10px;letter-spacing:2px;color:#ff5b6b;opacity:0;transition:opacity .3s;">☄️ AMENAZA ENTRANTE</div>
     <button id="galaxy-shield-btn" onclick="if(window.galaxyToggleShield)galaxyToggleShield()" style="background:rgba(0,240,255,.12);border:1px solid #00F0FF;color:#00F0FF;border-radius:30px;padding:9px 18px;font-family:inherit;font-size:10px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;">🛡 Desplegar defensa</button>
@@ -10036,6 +10037,113 @@ window.refreshEcosystemStats = function(){
   };
   window.ADUANERO=ADUANERO;
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('adu-overlay').classList.contains('on')) document.getElementById('adu-overlay').classList.remove('on'); });
+})();
+</script>
+
+<!-- ═══════════ CREAR — launchpad de universos desde el multiverso (comprar / arrendar / desde cero) ═══════════ -->
+<style>
+  #crear-overlay{position:fixed;inset:0;z-index:9870;display:none;align-items:center;justify-content:center;background:rgba(4,4,10,.93);backdrop-filter:blur(12px);font-family:'Space Mono',monospace;padding:24px;}
+  #crear-overlay.on{display:flex;}
+  #crear-overlay .box{width:820px;max-width:96vw;max-height:90vh;overflow:auto;}
+  .cr-head{text-align:center;margin-bottom:20px;}
+  .cr-head h2{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:26px;letter-spacing:2px;color:#F0EDE8;}
+  .cr-head .s{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin-top:4px;}
+  .cr-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px;}
+  .cr-card{background:rgba(12,12,20,.96);border:1px solid #24243a;border-radius:16px;padding:20px;display:flex;flex-direction:column;}
+  .cr-card .ic{font-size:26px}
+  .cr-card h3{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:15px;letter-spacing:1px;margin:8px 0 4px}
+  .cr-card .d{font-size:11px;color:#9aa2ab;line-height:1.6;margin-bottom:14px;flex:1}
+  .cr-opt{display:flex;flex-direction:column;gap:7px}
+  .cr-opt button{width:100%;border-radius:9px;padding:9px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;border:1px solid}
+  .cr-idea{margin-top:16px;background:rgba(184,77,255,.06);border:1px solid rgba(184,77,255,.25);border-radius:14px;padding:16px}
+  .cr-idea .t{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:13px;color:#B84DFF;letter-spacing:1px;margin-bottom:8px}
+  .cr-idea .row{display:flex;gap:8px}
+  .cr-idea input{flex:1;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;padding:10px;border-radius:9px;outline:none}
+  .cr-idea button{background:#B84DFF;color:#0a0410;border:none;border-radius:9px;padding:0 16px;font-family:'Space Grotesk',sans-serif;font-weight:700;cursor:pointer}
+  .cr-out{margin-top:10px;font-size:11px;line-height:1.7;color:#c7c7d4;white-space:pre-wrap;display:none}
+  .cr-out.on{display:block}
+  .cr-x{text-align:center;margin-top:16px;color:#888;font-size:11px;cursor:pointer;letter-spacing:1px}
+</style>
+<div id="crear-overlay"><div class="box">
+  <div class="cr-head"><h2>🌌 CREÁ TU UNIVERSO</h2><div class="s">tres formas de empezar · tenés <span id="cr-tokens">0</span> ⚡ tokens</div></div>
+  <div class="cr-grid">
+    <div class="cr-card">
+      <div class="ic">🧬</div><h3>COMPRÁ UN TEMPLATE</h3>
+      <div class="d">Llevate una estructura lista y es tuya para siempre. Tu universo nace al instante en el multiverso.</div>
+      <div class="cr-opt">
+        <button onclick="CREAR.buy('template_hk23')" style="background:#FF3A1F;color:#fff;border-color:#FF3A1F">TEMPLATE HK23 · $29</button>
+        <button onclick="CREAR.buy('template_genesis')" style="background:transparent;color:#B84DFF;border-color:#B84DFF">GÉNESIS · $19</button>
+      </div>
+    </div>
+    <div class="cr-card">
+      <div class="ic">⚡</div><h3>ARRENDÁ Y PROBÁ</h3>
+      <div class="d">¿Querés probar antes de comprar? Arrendá un template 24h con tokens, armá tu universo y decidí después.</div>
+      <div class="cr-opt">
+        <button onclick="CREAR.rent('template_hk23')" style="background:rgba(255,210,0,.15);color:#FFD200;border-color:#FFD200">HK23 · 30 ⚡ · 24h</button>
+        <button onclick="CREAR.rent('template_genesis')" style="background:transparent;color:#FFD200;border-color:rgba(255,210,0,.4)">GÉNESIS · 20 ⚡ · 24h</button>
+      </div>
+    </div>
+    <div class="cr-card">
+      <div class="ic">✦</div><h3>DESDE CERO</h3>
+      <div class="d">Un lienzo en blanco con el blueprint de lo que podés crear: galaxias, nodos, puertas, agentes. Lo armás vos.</div>
+      <div class="cr-opt">
+        <button onclick="CREAR.scratch()" style="background:#00F0FF;color:#06121a;border-color:#00F0FF">EMPEZAR EN BLANCO →</button>
+        <button onclick="CREAR.blueprint()" style="background:transparent;color:#00F0FF;border-color:rgba(0,240,255,.4)">VER BLUEPRINT</button>
+      </div>
+    </div>
+  </div>
+  <div class="cr-idea">
+    <div class="t">🛰️ ¿No sabés qué crear? Preguntale al agente de ideas</div>
+    <div class="row"><input id="cr-idea-in" placeholder="Ej: un universo para mi marca de café de especialidad…"><button onclick="CREAR.idea()">Proponer</button></div>
+    <div class="cr-out" id="cr-idea-out"></div>
+  </div>
+  <div class="cr-x" onclick="document.getElementById('crear-overlay').classList.remove('on')">cerrar ✕</div>
+</div></div>
+<script>
+(function(){
+  const RENT={ template_hk23:30, template_genesis:20 };
+  const tokens=()=>{ try{ return parseInt(localStorage.getItem('hk23-tokens')||'100',10)||100; }catch(_){ return 100; } };
+  const setTokens=n=>{ try{ localStorage.setItem('hk23-tokens', String(n)); }catch(_){} };
+  const CREAR={
+    open(){
+      document.getElementById('cr-tokens').textContent=tokens();
+      document.getElementById('crear-overlay').classList.add('on');
+    },
+    close(){ document.getElementById('crear-overlay').classList.remove('on'); },
+    buy(k){ CREAR.close(); if(window.HK23TIER) HK23TIER.buyTemplate(k); },
+    rent(k){
+      const cost=RENT[k]||30, bal=tokens();
+      if(bal<cost){ if(window.showCmdToast) showCmdToast('⚡ Te faltan tokens — tenés '+bal+', cuesta '+cost, '#FF6600'); return; }
+      setTokens(bal-cost);
+      try{ localStorage.setItem('hk23-rent-tpl-'+k, String(Date.now()+24*3600*1000)); }catch(_){}
+      CREAR.close();
+      if(window.HK23TIER && HK23TIER._activateTemplate) HK23TIER._activateTemplate(k);
+      if(window.showCmdToast){ showCmdToast('⚡ Template arrendado 24h — armá tu universo', '#FFD200');
+        setTimeout(function(){ showCmdToast('Te gustó? Comprátelo para quedártelo para siempre', '#8a8a98'); }, 2800); }
+    },
+    scratch(){
+      CREAR.close();
+      if(typeof deactivateGalaxyMode==='function' && typeof galaxyModeActive!=='undefined' && galaxyModeActive) deactivateGalaxyMode();
+      if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); }
+      if(window.showCmdToast) showCmdToast('✦ Lienzo en blanco — nombrá tu primera galaxia', '#00F0FF');
+    },
+    blueprint(){
+      const out=document.getElementById('cr-idea-out'); out.classList.add('on');
+      out.textContent='📐 BLUEPRINT — lo que podés crear en tu universo:\n\n• GALAXIAS — cada una un proyecto, tema o emprendimiento tuyo\n• NODOS — dentro de cada galaxia: sub-proyectos, contenido, fichas\n• PUERTAS — links a apps reales, docs, o experiencias\n• AGENTES — IA que trabaja en tu universo (estrategia, análisis, ventas)\n• LLAVES + BÓVEDA — capa de acceso y exclusividad\n• MULTIVERSO — tu universo orbita junto al de otros viajeros\n\nEmpezá en blanco o con un template, y lo vas llenando con el NeuralHub.';
+    },
+    async idea(){
+      const q=(document.getElementById('cr-idea-in').value||'').trim(); if(!q) return;
+      const out=document.getElementById('cr-idea-out'); out.classList.add('on'); out.textContent='🛰️ El agente está diseñando tu universo…';
+      try{
+        const r=await fetch('/api/run',{ method:'POST', headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({ action:'agent', agent:'strategist', input:'Diseñá la estructura de un UNIVERSO HK23 (mapa de galaxias) para esta idea: "'+q+'". Devolvé 4-6 GALAXIAS (nombre corto + qué es en una línea) y 1 AGENTE de IA que le pondría. Formato lista, conciso, en español.' }) });
+        const j=await r.json();
+        out.textContent = j.ok ? j.text : (r.status===429?'⏳ Demasiadas consultas — esperá un minuto.':('⚠️ '+(j.error||'no pude proponer')));
+      }catch(_){ out.textContent='⚠️ Error de red — probá de nuevo.'; }
+    },
+  };
+  window.CREAR=CREAR;
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('crear-overlay').classList.contains('on')) CREAR.close(); });
 })();
 </script>
 </body>
