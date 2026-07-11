@@ -32,7 +32,8 @@
   .back:hover{border-color:var(--purple);color:var(--white)}
   /* ticker */
   .ticker{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-  .tk{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .tk{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;cursor:pointer;transition:border-color .15s}
+  .tk:hover{border-color:var(--electric)}
   .tk .sym{font-family:'Space Mono';font-size:10px;letter-spacing:2px;color:var(--muted)}
   .tk .px{font-family:'Space Grotesk';font-weight:900;font-size:20px;margin-top:3px}
   .tk .ch{font-family:'Space Mono';font-size:11px;margin-top:2px}
@@ -83,16 +84,16 @@
       <div class="tag">Futures Desk · CRYPTO VICE</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
-      <a class="back" href="https://rollbit.com/trade" target="_blank" rel="noopener" style="border-color:rgba(0,240,255,.4);color:var(--electric)">Operar en Rollbit ↗</a>
+      <a class="back" href="https://rollbit.com/trading/BTC?b=99fc43c8-9082-4694-963f-197eec8452a0" target="_blank" rel="noopener" style="border-color:rgba(0,240,255,.4);color:var(--electric)">Operar en Rollbit ↗</a>
       <a class="back" href="hk23-universe.html">← universo</a>
     </div>
   </header>
 
   <div class="ticker" id="ticker">
-    <div class="tk"><div class="sym">BTC</div><div class="px" data-px="bitcoin">—</div><div class="ch" data-ch="bitcoin"></div></div>
-    <div class="tk"><div class="sym">ETH</div><div class="px" data-px="ethereum">—</div><div class="ch" data-ch="ethereum"></div></div>
-    <div class="tk"><div class="sym">SOL</div><div class="px" data-px="solana">—</div><div class="ch" data-ch="solana"></div></div>
-    <div class="tk"><div class="sym">BNB</div><div class="px" data-px="binancecoin">—</div><div class="ch" data-ch="binancecoin"></div></div>
+    <div class="tk" onclick="rb('BTC')" title="Operar BTC en Rollbit"><div class="sym">BTC ↗</div><div class="px" data-px="bitcoin">—</div><div class="ch" data-ch="bitcoin"></div></div>
+    <div class="tk" onclick="rb('ETH')" title="Operar ETH en Rollbit"><div class="sym">ETH ↗</div><div class="px" data-px="ethereum">—</div><div class="ch" data-ch="ethereum"></div></div>
+    <div class="tk" onclick="rb('SOL')" title="Operar SOL en Rollbit"><div class="sym">SOL ↗</div><div class="px" data-px="solana">—</div><div class="ch" data-ch="solana"></div></div>
+    <div class="tk" onclick="rb('BNB')" title="Operar BNB en Rollbit"><div class="sym">BNB ↗</div><div class="px" data-px="binancecoin">—</div><div class="ch" data-ch="binancecoin"></div></div>
   </div>
 
   <div class="grid">
@@ -164,6 +165,8 @@
 
 <script>
   const TOKEN = 'hk23-run-9x';
+  const ROLLBIT_REF = '99fc43c8-9082-4694-963f-197eec8452a0';
+  function rb(sym){ window.open('https://rollbit.com/trading/' + encodeURIComponent(sym) + '?b=' + ROLLBIT_REF, '_blank', 'noopener'); }
   const fmt = n => (n>=1000? n.toLocaleString('en-US',{maximumFractionDigits:0}) : n.toLocaleString('en-US',{maximumFractionDigits:n>=1?2:6}));
 
   // ── live prices (CoinGecko) ──

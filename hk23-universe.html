@@ -9695,7 +9695,7 @@ window.refreshEcosystemStats = function(){
 </style>
 <canvas id="cc-canvas"></canvas>
 <div id="cc-hud"></div>
-<div id="cc-callout"><span class="x" onclick="document.getElementById('cc-callout').classList.remove('on')">✕</span><div class="ttl"></div><div class="sub"></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a href="vice-futures.html">⚡ Futures Desk →</a><a href="https://rollbit.com/trade" target="_blank" rel="noopener" style="background:transparent;border:1px solid #00F0FF;color:#00F0FF">Operar en Rollbit ↗</a></div></div>
+<div id="cc-callout"><span class="x" onclick="document.getElementById('cc-callout').classList.remove('on')">✕</span><div class="ttl"></div><div class="sub"></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><a href="vice-futures.html">⚡ Futures Desk →</a><a id="cc-rollbit" href="https://rollbit.com/trading/BTC?b=99fc43c8-9082-4694-963f-197eec8452a0" target="_blank" rel="noopener" style="background:transparent;border:1px solid #00F0FF;color:#00F0FF">Operar en Rollbit ↗</a></div></div>
 <script>
 (function(){
   // ── universo cripto de Rollbit (símbolo → id CoinGecko; los que no matchean quedan "—") ──
@@ -9762,6 +9762,7 @@ window.refreshEcosystemStats = function(){
     co.querySelector('.ttl').textContent='⚡ OPORTUNIDAD · '+c.s;
     co.querySelector('.sub').innerHTML=c.s+' '+(c.ch>=0?'▲ +':'▼ ')+c.ch.toFixed(1)+'% (24h) · '+dir+'<br><span style="color:#6a6a82">Movimiento notable en vivo — no es señal de compra. Decidí en el Desk.</span>';
     co.querySelector('a').href='vice-futures.html';
+    const rb=document.getElementById('cc-rollbit'); if(rb) rb.href='https://rollbit.com/trading/'+encodeURIComponent(c.s)+'?b=99fc43c8-9082-4694-963f-197eec8452a0'; // par exacto + tu referido
     co.classList.add('on');
     // chispa de gravedad: nace un enjambre curioso que cae hacia la señal
     for(let i=0;i<40;i++){ const a=Math.random()*6.28, d=120+Math.random()*260;
