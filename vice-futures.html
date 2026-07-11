@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>VICE FUTURES — Futures Desk · CRYPTO VICE</title>
+<meta name="description" content="Escritorio de trading de futuros de CRYPTO VICE: asistente de IA especializado en futuros + herramientas de riesgo (tamaño de posición, liquidación, R:R) y precios en vivo."/>
+<meta name="theme-color" content="#080808"/>
+<meta property="og:title" content="VICE FUTURES — Futures Desk"/>
+<meta property="og:description" content="Asistente de IA de futuros + calculadoras de riesgo + precios en vivo. Parte de CRYPTO VICE en el universo HK23."/>
+<meta property="og:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080808'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-weight='900' font-size='34' text-anchor='middle' fill='%23B84DFF'%3E%E2%82%BF%3C/text%3E%3C/svg%3E"/>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700;900&family=Space+Mono:wght@400;700&display=swap');
+  :root{
+    --black:#080808; --surface:#0f0f16; --card:#12121c; --border:#22222f;
+    --purple:#B84DFF; --electric:#00F0FF; --gold:#FFD200; --green:#AAFF00; --red:#FF3A1F; --pink:#FF2D78;
+    --white:#F0EDE8; --muted:#7a7a8a; --dim:#4a4a56;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--black);color:var(--white);font-family:'Space Grotesk',system-ui,sans-serif;min-height:100vh;
+    background-image:radial-gradient(120% 80% at 80% 0%, rgba(184,77,255,.10), transparent 60%),radial-gradient(100% 70% at 0% 100%, rgba(0,240,255,.06), transparent 55%);}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  /* header */
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{font-family:'Space Grotesk';font-weight:900;font-size:26px;letter-spacing:1px}
+  .brand .mark b{color:var(--purple)}
+  .brand .tag{font-family:'Space Mono';font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted)}
+  .back{font-family:'Space Mono';font-size:10px;letter-spacing:1px;color:var(--muted);border:1px solid var(--border);border-radius:20px;padding:8px 14px}
+  .back:hover{border-color:var(--purple);color:var(--white)}
+  /* ticker */
+  .ticker{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+  .tk{flex:1;min-width:130px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+  .tk .sym{font-family:'Space Mono';font-size:10px;letter-spacing:2px;color:var(--muted)}
+  .tk .px{font-family:'Space Grotesk';font-weight:900;font-size:20px;margin-top:3px}
+  .tk .ch{font-family:'Space Mono';font-size:11px;margin-top:2px}
+  .up{color:var(--green)} .down{color:var(--red)}
+  /* layout */
+  .grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px}
+  @media (max-width:820px){ .grid{grid-template-columns:1fr} }
+  .panel{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px}
+  .panel h2{font-family:'Space Grotesk';font-weight:900;font-size:15px;letter-spacing:1px;display:flex;align-items:center;gap:8px}
+  .panel h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--purple);box-shadow:0 0 10px var(--purple)}
+  .panel .sub{font-family:'Space Mono';font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin:3px 0 14px}
+  /* chat */
+  #chat{display:flex;flex-direction:column;min-height:440px}
+  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:4px;max-height:52vh}
+  .msg{font-size:13px;line-height:1.65;padding:11px 13px;border-radius:12px;white-space:pre-wrap;word-break:break-word}
+  .msg.me{align-self:flex-end;background:rgba(184,77,255,.14);border:1px solid rgba(184,77,255,.35);max-width:85%}
+  .msg.ai{align-self:flex-start;background:rgba(255,255,255,.03);border:1px solid var(--border);max-width:92%}
+  .msg.ai b{color:var(--purple)}
+  .msg .who{font-family:'Space Mono';font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:5px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+  .chip{font-family:'Space Mono';font-size:10px;color:var(--muted);border:1px solid var(--border);border-radius:16px;padding:6px 11px;cursor:pointer}
+  .chip:hover{border-color:var(--electric);color:var(--white)}
+  .composer{display:flex;gap:8px;margin-top:12px}
+  .composer textarea{flex:1;background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:inherit;font-size:13px;padding:11px;border-radius:10px;outline:none;resize:none;min-height:46px}
+  .composer textarea:focus{border-color:var(--purple)}
+  .composer button{background:var(--purple);color:#0a0410;border:none;border-radius:10px;padding:0 18px;font-family:'Space Grotesk';font-weight:700;letter-spacing:1px;cursor:pointer}
+  .composer button:disabled{opacity:.5;cursor:default}
+  /* tools */
+  .tool{border-top:1px solid var(--border);padding-top:14px;margin-top:14px}
+  .tool:first-of-type{border-top:none;padding-top:0;margin-top:0}
+  .tool .tt{font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:1px;margin-bottom:9px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .fld{flex:1;min-width:90px}
+  .fld label{font-family:'Space Mono';font-size:8px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:3px}
+  .fld input,.fld select{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--white);font-family:'Space Mono';font-size:12px;padding:8px;border-radius:8px;outline:none}
+  .fld input:focus,.fld select:focus{border-color:var(--electric)}
+  .out{font-family:'Space Mono';font-size:11px;line-height:1.7;color:#c7c7d4;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;min-height:20px}
+  .out b{color:var(--gold)}
+  .out .liq{color:var(--red)}
+  .disc{font-family:'Space Mono';font-size:9px;line-height:1.6;color:var(--dim);text-align:center;margin-top:22px;letter-spacing:.5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="mark"><b>VICE</b> FUTURES</div>
+      <div class="tag">Futures Desk · CRYPTO VICE</div>
+    </div>
+    <a class="back" href="hk23-universe.html">← universo</a>
+  </header>
+
+  <div class="ticker" id="ticker">
+    <div class="tk"><div class="sym">BTC</div><div class="px" data-px="bitcoin">—</div><div class="ch" data-ch="bitcoin"></div></div>
+    <div class="tk"><div class="sym">ETH</div><div class="px" data-px="ethereum">—</div><div class="ch" data-ch="ethereum"></div></div>
+    <div class="tk"><div class="sym">SOL</div><div class="px" data-px="solana">—</div><div class="ch" data-ch="solana"></div></div>
+    <div class="tk"><div class="sym">BNB</div><div class="px" data-px="binancecoin">—</div><div class="ch" data-ch="binancecoin"></div></div>
+  </div>
+
+  <div class="grid">
+    <!-- AGENT -->
+    <div class="panel" id="chat">
+      <h2><span class="dot"></span> VICE FUTURES · AGENTE</h2>
+      <div class="sub">especialista en futuros · riesgo primero</div>
+      <div id="log">
+        <div class="msg ai"><span class="who">VICE FUTURES</span>Soy tu asistente de <b>futuros</b>. Antes que nada: en futuros con apalancamiento podés ser liquidado — por eso siempre arrancamos por el riesgo. Contame tu idea (par, sesgo, entrada) o pedime un plan de trade, gestión de posición, funding, o qué observar hoy.</div>
+      </div>
+      <div class="chips" id="chips">
+        <span class="chip" onclick="ask(this.textContent)">Plan de trade para BTC long</span>
+        <span class="chip" onclick="ask(this.textContent)">¿Cómo dimensiono mi posición?</span>
+        <span class="chip" onclick="ask(this.textContent)">Explicame el funding rate</span>
+        <span class="chip" onclick="ask(this.textContent)">Errores típicos con apalancamiento</span>
+      </div>
+      <div class="composer">
+        <textarea id="input" placeholder="Preguntá algo sobre futuros… (Enter para enviar)"></textarea>
+        <button id="send" onclick="send()">⚡</button>
+      </div>
+    </div>
+
+    <!-- RISK TOOLS -->
+    <div class="panel">
+      <h2><span class="dot" style="background:var(--electric);box-shadow:0 0 10px var(--electric)"></span> HERRAMIENTAS DE RIESGO</h2>
+      <div class="sub">calculadoras del escritorio</div>
+
+      <div class="tool">
+        <div class="tt">📏 Tamaño de posición</div>
+        <div class="row">
+          <div class="fld"><label>Cuenta (USD)</label><input id="ps-acc" type="number" value="1000" oninput="calcPS()"></div>
+          <div class="fld"><label>Riesgo %</label><input id="ps-risk" type="number" value="1" oninput="calcPS()"></div>
+        </div>
+        <div class="row">
+          <div class="fld"><label>Entrada</label><input id="ps-entry" type="number" value="60000" oninput="calcPS()"></div>
+          <div class="fld"><label>Stop</label><input id="ps-stop" type="number" value="58800" oninput="calcPS()"></div>
+        </div>
+        <div class="out" id="ps-out"></div>
+      </div>
+
+      <div class="tool">
+        <div class="tt">💥 Precio de liquidación <span style="color:var(--dim);font-weight:400">(aprox · isolated)</span></div>
+        <div class="row">
+          <div class="fld"><label>Entrada</label><input id="lq-entry" type="number" value="60000" oninput="calcLQ()"></div>
+          <div class="fld"><label>Apalancamiento</label><input id="lq-lev" type="number" value="10" oninput="calcLQ()"></div>
+          <div class="fld"><label>Dirección</label><select id="lq-dir" onchange="calcLQ()"><option value="long">Long</option><option value="short">Short</option></select></div>
+        </div>
+        <div class="out" id="lq-out"></div>
+      </div>
+
+      <div class="tool">
+        <div class="tt">🎯 Riesgo / Beneficio (R:R)</div>
+        <div class="row">
+          <div class="fld"><label>Entrada</label><input id="rr-entry" type="number" value="60000" oninput="calcRR()"></div>
+          <div class="fld"><label>Stop</label><input id="rr-stop" type="number" value="58800" oninput="calcRR()"></div>
+          <div class="fld"><label>Objetivo</label><input id="rr-tgt" type="number" value="63600" oninput="calcRR()"></div>
+        </div>
+        <div class="out" id="rr-out"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="disc">
+    ⚠️ VICE FUTURES es una herramienta educativa, NO consejo financiero. El trading de futuros con apalancamiento
+    puede liquidar tu capital por completo. Operá solo con lo que puedas permitirte perder. Las respuestas de IA
+    pueden contener errores — verificá siempre.
+  </div>
+</div>
+
+<script>
+  const TOKEN = 'hk23-run-9x';
+  const fmt = n => (n>=1000? n.toLocaleString('en-US',{maximumFractionDigits:0}) : n.toLocaleString('en-US',{maximumFractionDigits:n>=1?2:6}));
+
+  // ── live prices (CoinGecko) ──
+  async function loadPrices(){
+    try{
+      const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana,binancecoin&vs_currencies=usd&include_24hr_change=true');
+      const j = await r.json();
+      document.querySelectorAll('[data-px]').forEach(el=>{
+        const id = el.getAttribute('data-px'); const d = j[id]; if(!d) return;
+        el.textContent = '$'+fmt(d.usd);
+        const ch = document.querySelector('[data-ch="'+id+'"]'); const c = d.usd_24h_change;
+        ch.textContent = (c>=0?'▲ +':'▼ ')+c.toFixed(2)+'%'; ch.className = 'ch '+(c>=0?'up':'down');
+      });
+    }catch(_){}
+  }
+  loadPrices(); setInterval(loadPrices, 60000);
+
+  // ── agent chat (routes through /api/run futures persona) ──
+  const log = document.getElementById('log'), input = document.getElementById('input'), sendBtn = document.getElementById('send');
+  function bubble(text, who){ const d=document.createElement('div'); d.className='msg '+(who==='me'?'me':'ai');
+    if(who!=='me'){ const w=document.createElement('span'); w.className='who'; w.textContent='VICE FUTURES'; d.appendChild(w); }
+    d.appendChild(document.createTextNode(text)); log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+  function ask(t){ input.value=t; send(); }
+  async function send(){
+    const q=(input.value||'').trim(); if(!q) return;
+    bubble(q,'me'); input.value=''; sendBtn.disabled=true;
+    const thinking=bubble('· · · analizando (riesgo primero)','ai');
+    try{
+      const r=await fetch('/api/run',{ method:'POST', headers:{'Content-Type':'application/json','x-run-token':TOKEN},
+        body:JSON.stringify({ action:'agent', agent:'futures', input:q }) });
+      const j=await r.json();
+      thinking.remove();
+      if(j.ok){ bubble(j.text,'ai'); }
+      else if(r.status===429){ bubble('⏳ Demasiadas consultas seguidas — esperá un minuto y volvé a intentar.','ai'); }
+      else{ bubble('⚠️ '+(j.error||'No pude responder ahora — probá de nuevo.'),'ai'); }
+    }catch(_){ thinking.remove(); bubble('⚠️ Error de red — revisá tu conexión.','ai'); }
+    sendBtn.disabled=false; input.focus();
+  }
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+
+  // ── risk calculators ──
+  const num = id => parseFloat(document.getElementById(id).value)||0;
+  function calcPS(){
+    const acc=num('ps-acc'), risk=num('ps-risk'), entry=num('ps-entry'), stop=num('ps-stop');
+    const out=document.getElementById('ps-out');
+    if(!acc||!entry||!stop||entry===stop){ out.innerHTML='Completá cuenta, entrada y stop (distintos).'; return; }
+    const riskUsd=acc*risk/100; const dist=Math.abs(entry-stop); const distPct=dist/entry*100;
+    const qty=riskUsd/dist; const notional=qty*entry;
+    out.innerHTML='Arriesgás <b>$'+fmt(riskUsd)+'</b> ('+risk+'% de la cuenta) · stop a <b>'+distPct.toFixed(2)+'%</b><br>'
+      +'Tamaño: <b>'+fmt(qty)+'</b> unidades · notional <b>$'+fmt(notional)+'</b><br>'
+      +'<span style="color:var(--muted)">Apalancamiento para ese notional: '+(notional/acc).toFixed(1)+'x sobre toda la cuenta.</span>';
+  }
+  function calcLQ(){
+    const entry=num('lq-entry'), lev=num('lq-lev'), dir=document.getElementById('lq-dir').value;
+    const out=document.getElementById('lq-out');
+    if(!entry||!lev){ out.innerHTML='Completá entrada y apalancamiento.'; return; }
+    const liq = dir==='long' ? entry*(1-1/lev) : entry*(1+1/lev);
+    const move = Math.abs(liq-entry)/entry*100;
+    out.innerHTML='Liquidación aprox: <span class="liq"><b>$'+fmt(liq)+'</b></span> ('+dir.toUpperCase()+' '+lev+'x)<br>'
+      +'Te liquida un movimiento de <b>'+move.toFixed(2)+'%</b> en contra.<br>'
+      +'<span style="color:var(--muted)">Aproximado, isolated, sin fees ni funding. El exchange liquida un poco antes.</span>';
+  }
+  function calcRR(){
+    const entry=num('rr-entry'), stop=num('rr-stop'), tgt=num('rr-tgt');
+    const out=document.getElementById('rr-out');
+    if(!entry||!stop||!tgt){ out.innerHTML='Completá entrada, stop y objetivo.'; return; }
+    const riskD=Math.abs(entry-stop), rewD=Math.abs(tgt-entry); const rr=rewD/riskD;
+    const good = rr>=2;
+    out.innerHTML='R:R = <b>1 : '+rr.toFixed(2)+'</b> '+(good?'✅':'⚠️')+'<br>'
+      +'Riesgo <b>'+(riskD/entry*100).toFixed(2)+'%</b> · beneficio <b>'+(rewD/entry*100).toFixed(2)+'%</b><br>'
+      +'<span style="color:var(--muted)">'+(good?'Ratio sólido (≥ 1:2).':'Por debajo de 1:2 — necesitás muy alta tasa de acierto para que rinda.')+'</span>';
+  }
+  calcPS(); calcLQ(); calcRR();
+</script>
+</body>
+</html>
