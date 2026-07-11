@@ -2044,6 +2044,8 @@
   window.HK23TIER = HK23TIER;
   document.addEventListener('DOMContentLoaded', HK23TIER.updateBadge);
   HK23TIER.updateBadge();
+  // deep-link desde la landing: ?chooser=1 abre el selector de planes al entrar
+  try { if (/[?&]chooser=1/.test(location.search)) setTimeout(function(){ HK23TIER.openChooser(); }, 1000); } catch (_) {}
 })();
 </script>
 
