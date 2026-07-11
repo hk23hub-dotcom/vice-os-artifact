@@ -9735,7 +9735,7 @@ window.refreshEcosystemStats = function(){
   function updateHud(){
     const hud=document.getElementById('cc-hud'); if(!hud) return;
     const live=coins.filter(c=>c.price!=null).length;
-    hud.innerHTML='◈ CRYPTO COSMOS · <b>'+live+'</b> monedas en vivo'+(fleetOn?' · 🛸 flota escaneando (A)':' · pulsá <b>A</b> para lanzar la flota');
+    hud.innerHTML='◈ CRYPTO COSMOS · <b>'+live+'</b> en vivo · tocá una moneda → Rollbit'+(fleetOn?' · 🛸 flota escaneando':' · <b>A</b> = flota');
   }
   function fmt(p){ if(p==null) return '—'; return p>=1000?('$'+p.toLocaleString('en-US',{maximumFractionDigits:0})):('$'+p.toLocaleString('en-US',{maximumFractionDigits:p>=1?2:5})); }
 
@@ -9863,6 +9863,18 @@ window.refreshEcosystemStats = function(){
     },
     launchFleet(){ if(on && !fleetOn) launchFleet(); else if(on && fleetOn){ if(window.showCmdToast) showCmdToast('🛸 La flota ya está escaneando', '#00F0FF'); } },
   };
+  // ── click en cualquier moneda del cosmos → su par en Rollbit con tu referido ──
+  const ROLLBIT_REF='99fc43c8-9082-4694-963f-197eec8452a0';
+  document.addEventListener('click', function(e){
+    if(!on) return;
+    if(e.target && e.target.closest && e.target.closest('#cc-callout,#cc-hud')) return; // dejar la UI
+    let hit=null, best=1e9;
+    for(const c of coins){ const d=Math.hypot(e.clientX-c.x, e.clientY-c.y); if(d < Math.max(22, c.r*1.9) && d<best){ best=d; hit=c; } }
+    if(hit){ e.stopPropagation(); e.preventDefault();
+      window.open('https://rollbit.com/trading/'+encodeURIComponent(hit.s)+'?b='+ROLLBIT_REF,'_blank','noopener');
+      if(window.showCmdToast) showCmdToast('↗ '+hit.s+' — abriendo en Rollbit', '#00F0FF');
+    }
+  }, true);
   window.CRYPTO_COSMOS=CRYPTO_COSMOS;
 })();
 </script>
