@@ -2110,6 +2110,7 @@
 
 <!-- ═══════════ HK23 AUTH (F0) — real Supabase sessions for every visitor ═══════════ -->
 <div id="auth-fab" onclick="HK23AUTH.open()" style="position:fixed;top:194px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">⏻ Cuenta</div>
+<div id="access-fab" onclick="ACCESS.open()" style="position:fixed;top:234px;left:24px;z-index:9000;display:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#FFD200;background:rgba(10,10,16,.85);border:1px solid rgba(255,210,0,.4);border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">🔑 Solicitudes <span id="access-badge" style="background:#FFD200;color:#06121a;border-radius:10px;padding:1px 6px;margin-left:4px;font-weight:700;">0</span></div>
 <div id="auth-overlay" style="position:fixed;inset:0;z-index:9800;display:none;background:rgba(4,4,8,.88);backdrop-filter:blur(9px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
   <div style="width:400px;max-width:94vw;max-height:92vh;overflow-y:auto;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -9861,6 +9862,84 @@ window.refreshEcosystemStats = function(){
     launchFleet(){ if(on && !fleetOn) launchFleet(); else if(on && fleetOn){ if(window.showCmdToast) showCmdToast('🛸 La flota ya está escaneando', '#00F0FF'); } },
   };
   window.CRYPTO_COSMOS=CRYPTO_COSMOS;
+})();
+</script>
+
+<!-- ═══════════ ACCESS — inbox de solicitudes de acceso a tus galaxias ═══════════ -->
+<style>
+  #access-overlay{position:fixed;inset:0;z-index:9760;display:none;align-items:center;justify-content:center;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);font-family:'Space Mono',monospace;padding:24px;}
+  #access-overlay.on{display:flex;}
+  #access-overlay .box{width:560px;max-width:95vw;max-height:88vh;overflow:auto;background:rgba(12,10,18,.98);border:1px solid #FFD200;border-radius:16px;padding:26px;box-shadow:0 0 44px rgba(255,210,0,.22);}
+  .areq{border:1px solid #24243a;border-radius:12px;padding:14px;margin-top:11px;}
+  .areq .g{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:13px;color:#FFD200;letter-spacing:.5px;}
+  .areq .e{font-size:11px;color:#cdd;margin-top:3px;word-break:break-all;}
+  .areq .w{font-size:10px;color:#9aa2ab;line-height:1.5;margin-top:6px;}
+  .areq .d{font-size:8px;color:#555;letter-spacing:1px;margin-top:6px;}
+  .areq .acts{display:flex;gap:8px;margin-top:10px;}
+  .areq .acts button{flex:1;border-radius:8px;padding:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer;border:none;}
+  .areq .st{font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:8px;display:inline-block;margin-top:9px;}
+</style>
+<div id="access-overlay"><div class="box">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:#FFD200;">🔑 SOLICITUDES DE ACCESO</span>
+    <span onclick="document.getElementById('access-overlay').classList.remove('on')" style="cursor:pointer;color:#888;font-size:12px;">✕ ESC</span>
+  </div>
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin:3px 0 6px;">quién quiere entrar a tus galaxias · vos decidís</div>
+  <div id="access-list"><div style="color:#6a6a82;font-size:11px;padding:16px 0;">cargando…</div></div>
+</div></div>
+<script>
+(function(){
+  const SB={ url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const H=(rep)=>{ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json','Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; };
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  let rows=[];
+  async function fetchReqs(){
+    try{ const r=await fetch(SB.url+'/entities?meta-%3E%3Erole=eq.access-request&order=created_at.desc&limit=80',{headers:H(false)});
+      rows = r.ok ? await r.json() : []; }catch(_){ rows=[]; }
+    return rows;
+  }
+  function pending(){ return rows.filter(x=>!(x.meta&&x.meta.status)); }
+  async function refreshBadge(){
+    await fetchReqs();
+    const n=pending().length, fab=document.getElementById('access-fab'), b=document.getElementById('access-badge');
+    if(!fab) return;
+    if(rows.length){ fab.style.display='block'; if(b) b.textContent=n; b.style.display=n?'inline-block':'none'; }
+    else fab.style.display='none';
+  }
+  const ACCESS={
+    async open(){
+      document.getElementById('access-overlay').classList.add('on');
+      const list=document.getElementById('access-list');
+      list.innerHTML='<div style="color:#6a6a82;font-size:11px;padding:16px 0;">cargando…</div>';
+      await fetchReqs();
+      if(!rows.length){ list.innerHTML='<div style="color:#6a6a82;font-size:11px;padding:20px 0;text-align:center;">Sin solicitudes por ahora. Cuando alguien pida acceso a tu galaxia desde el multiverso, aparece acá.</div>'; return; }
+      list.innerHTML=rows.map(function(x){
+        const m=x.meta||{}, st=m.status;
+        const acts = st
+          ? '<span class="st" style="color:'+(st==='approved'?'#2bd66a':'#ff5b6b')+';background:'+(st==='approved'?'rgba(43,214,106,.14)':'rgba(255,91,107,.14)')+'">'+(st==='approved'?'✓ APROBADO':'✕ RECHAZADO')+'</span>'
+          : '<div class="acts"><button onclick="ACCESS.decide(\''+x.id+'\',\'approved\')" style="background:#2bd66a;color:#06121a;">✓ Aprobar</button><button onclick="ACCESS.decide(\''+x.id+'\',\'rejected\')" style="background:transparent;border:1px solid #ff5b6b;color:#ff5b6b;">✕ Rechazar</button></div>';
+        return '<div class="areq" id="areq-'+x.id+'"><div class="g">'+esc(m.galaxy||'Galaxia')+'</div>'
+          +'<div class="e">✉ '+esc(m.email||'—')+'</div>'
+          +(m.who||x.summary?'<div class="w">'+esc(m.who?(m.who+' · '):'')+(x.summary||'')+'</div>':'')
+          +'<div class="d">'+String(x.created_at||'').slice(0,16).replace('T',' ')+'</div>'+acts+'</div>';
+      }).join('');
+    },
+    async decide(id, verdict){
+      const row=rows.find(x=>x.id===id); if(!row) return;
+      const el=document.getElementById('areq-'+id); if(el){ const a=el.querySelector('.acts'); if(a) a.innerHTML='<span style="color:#6a6a82;font-size:10px;">guardando…</span>'; }
+      let ok=false;
+      try{ const meta=Object.assign({},row.meta,{status:verdict,decided_at:new Date().toISOString()});
+        const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'PATCH',headers:H(false),body:JSON.stringify({meta:meta})});
+        ok=r.ok; if(ok) row.meta=meta; }catch(_){ ok=false; }
+      if(window.showCmdToast) showCmdToast(ok?(verdict==='approved'?'✓ Acceso aprobado':'✕ Solicitud rechazada'):'⚠️ No se pudo guardar — probá de nuevo', verdict==='approved'?'#2bd66a':'#ff5b6b');
+      ACCESS.open(); refreshBadge();
+    },
+    refreshBadge: refreshBadge,
+  };
+  window.ACCESS=ACCESS;
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('access-overlay').classList.contains('on')) document.getElementById('access-overlay').classList.remove('on'); });
+  // chequear solicitudes al entrar y cada 2 min
+  setTimeout(refreshBadge, 3500); setInterval(refreshBadge, 120000);
 })();
 </script>
 </body>
