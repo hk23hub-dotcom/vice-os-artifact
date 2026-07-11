@@ -7287,6 +7287,7 @@ document.addEventListener('keydown', e => {
 
   // ── A — Agents ──
   if (key === 'a' || key === 'A') {
+    if (window.CRYPTO_COSMOS && CRYPTO_COSMOS.on()) { CRYPTO_COSMOS.launchFleet(); return; } // cosmos activo → lanzar flota escaneadora
     executeCmdAction('agentbase');
     return;
   }
@@ -7348,7 +7349,8 @@ document.addEventListener('keydown', e => {
 
   // ── C — Crypto charts (minimal) ──
   if (key === 'c' || key === 'C') {
-    if (window.CRYPTO) CRYPTO.toggle();
+    if (window.CRYPTO_COSMOS) CRYPTO_COSMOS.toggle(); // fondo cripto vivo que cubre el universo
+    else if (window.CRYPTO) CRYPTO.toggle();
     return;
   }
 
@@ -9578,6 +9580,194 @@ window.refreshEcosystemStats = function(){
   const cell=(v,l,c)=>'<div style="flex:1;min-width:96px;border:1px solid #1e1e2a;border-radius:12px;padding:12px 14px;background:rgba(12,12,20,.6)"><div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:22px;color:'+c+'">'+v+'</div><div style="font-size:8px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin-top:2px">'+l+'</div></div>';
   box.innerHTML=cell(worlds,'planetas','#F0EDE8')+cell('11','agentes','#00F0FF')+cell(gx,'galaxias tuyas','#B84DFF')+cell(coll,'coleccionables','#AAFF00')+cell(tok+' ⚡','tokens','#FFD200')+cell(tier,'tu tier','#FF6600');
 };
+</script>
+
+<!-- ═══════════ CRYPTO COSMOS — fondo cripto vivo (C) + flota de OVNIs escaneadora (A) ═══════════ -->
+<style>
+  #cc-canvas{position:fixed;inset:0;z-index:40;pointer-events:none;display:none;}
+  #cc-canvas.on{display:block;}
+  #cc-hud{position:fixed;left:20px;bottom:20px;z-index:41;display:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#00F0FF;background:rgba(6,8,16,.72);border:1px solid rgba(0,240,255,.4);border-radius:20px;padding:8px 14px;backdrop-filter:blur(6px);max-width:80vw;}
+  #cc-hud.on{display:block;}
+  #cc-hud b{color:#F0EDE8}
+  #cc-callout{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:9300;display:none;font-family:'Space Mono',monospace;background:rgba(8,10,20,.94);border:1px solid #FFD200;border-radius:14px;padding:13px 18px;text-align:center;max-width:92vw;box-shadow:0 0 34px rgba(255,210,0,.28);}
+  #cc-callout.on{display:block;animation:ccpop .3s ease}
+  @keyframes ccpop{from{transform:translateX(-50%) scale(.9);opacity:0}to{transform:translateX(-50%) scale(1);opacity:1}}
+  #cc-callout .ttl{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:15px;letter-spacing:1px;color:#FFD200}
+  #cc-callout .sub{font-size:10px;color:#9aa2ab;margin:4px 0 9px;line-height:1.5}
+  #cc-callout a{display:inline-block;background:#B84DFF;color:#0a0410;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;border-radius:9px;padding:8px 14px;text-decoration:none}
+  #cc-callout .x{position:absolute;top:8px;right:12px;cursor:pointer;color:#666;font-size:12px}
+</style>
+<canvas id="cc-canvas"></canvas>
+<div id="cc-hud"></div>
+<div id="cc-callout"><span class="x" onclick="document.getElementById('cc-callout').classList.remove('on')">✕</span><div class="ttl"></div><div class="sub"></div><a href="vice-futures.html">⚡ Abrir Futures Desk →</a></div>
+<script>
+(function(){
+  // ── universo cripto de Rollbit (símbolo → id CoinGecko; los que no matchean quedan "—") ──
+  const LIST = [
+    ['BTC','bitcoin'],['ETH','ethereum'],['SOL','solana'],['XRP','ripple'],['DOGE','dogecoin'],['TRX','tron'],
+    ['ADA','cardano'],['DOT','polkadot'],['XLM','stellar'],['LTC','litecoin'],['BNB','binancecoin'],['LINK','chainlink'],
+    ['AAVE','aave'],['BCH','bitcoin-cash'],['HBAR','hedera-hashgraph'],['SUI','sui'],['TAO','bittensor'],['RENDER','render-token'],
+    ['XMR','monero'],['APE','apecoin'],['ENA','ethena'],['JUP','jupiter-exchange-solana'],['KAS','kaspa'],['WIF','dogwifcoin'],
+    ['TRUMP','official-trump'],['PENGU','pudgy-penguins'],['POPCAT','popcat'],['ONDO','ondo-finance'],['TIA','celestia'],['DASH','dash'],
+    ['INJ','injective-protocol'],['SPX','spx6900'],['VIRTUAL','virtual-protocol'],['HYPE','hyperliquid'],['ZEC','zcash'],['WLD','worldcoin-wld'],
+    ['1000PEPE','pepe'],['1000SHIB','shiba-inu'],['XAUT','tether-gold'],['FARTCOIN','fartcoin'],['MOODENG','moo-deng'],['BERA','berachain-bera'],
+  ];
+  let cv, ctx, raf=null, t=0, on=false, fleetOn=false;
+  let coins=[], ufos=[], sparks=[], mother=null, signal=null, lastScan=0, priceTimer=null;
+  const idOf={}; LIST.forEach(([s,id])=>idOf[id]=s);
+
+  function W(){ return cv.width; } function H(){ return cv.height; }
+  function resize(){ if(!cv) return; cv.width=innerWidth; cv.height=innerHeight; layout(); }
+  function layout(){
+    // grilla dispersa tipo constelación
+    const n=coins.length, cols=Math.ceil(Math.sqrt(n*innerWidth/innerHeight))||6;
+    coins.forEach((c,i)=>{ const col=i%cols, row=Math.floor(i/cols), rows=Math.ceil(n/cols);
+      c.bx=(col+.5)/cols*innerWidth; c.by=(row+.6)/(rows+ .3)*innerHeight;
+      c.x=c.x||c.bx; c.y=c.y||c.by; c.ph=Math.random()*6.28; });
+  }
+  function initCoins(){ coins=LIST.map(([s,id])=>({s,id,price:null,ch:0,x:0,y:0,bx:0,by:0,ph:Math.random()*6.28,r:16})); layout(); }
+
+  async function loadPrices(){
+    try{
+      const ids=LIST.map(x=>x[1]).join(',');
+      const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+ids+'&vs_currencies=usd&include_24hr_change=true');
+      const j=await r.json();
+      coins.forEach(c=>{ const d=j[c.id]; if(d){ c.price=d.usd; c.ch=d.usd_24h_change||0; } });
+      updateHud();
+    }catch(_){}
+  }
+  function updateHud(){
+    const hud=document.getElementById('cc-hud'); if(!hud) return;
+    const live=coins.filter(c=>c.price!=null).length;
+    hud.innerHTML='◈ CRYPTO COSMOS · <b>'+live+'</b> monedas en vivo'+(fleetOn?' · 🛸 flota escaneando (A)':' · pulsá <b>A</b> para lanzar la flota');
+  }
+  function fmt(p){ if(p==null) return '—'; return p>=1000?('$'+p.toLocaleString('en-US',{maximumFractionDigits:0})):('$'+p.toLocaleString('en-US',{maximumFractionDigits:p>=1?2:5})); }
+
+  // ── flota de OVNIs ──
+  function launchFleet(){
+    if(!on) return;
+    fleetOn=true;
+    mother={ x:innerWidth*.5, y:innerHeight*.35, tx:innerWidth*.5, ty:innerHeight*.35, ph:0 };
+    ufos=Array.from({length:6},(_,i)=>({ x:mother.x, y:mother.y, tgt:null, ph:i*1.1, scan:0, col:['#00F0FF','#B84DFF','#AAFF00','#FFD200','#FF2D78','#FF6600'][i%6] }));
+    updateHud();
+    if(window.showCmdToast) showCmdToast('🛸 FLOTA DESPLEGADA — escaneando el cosmos cripto', '#00F0FF');
+  }
+  function scoreCoins(){ // "oportunidad" honesta: momentum por cambio 24h en vivo
+    const live=coins.filter(c=>c.price!=null);
+    live.forEach(c=>{ c.score=Math.abs(c.ch); });
+    return live.sort((a,b)=>b.score-a.score);
+  }
+  function lockSignal(){
+    const ranked=scoreCoins(); if(!ranked.length) return;
+    const c=ranked[Math.floor(Math.random()*Math.min(3,ranked.length))]; // top-3 movers
+    signal={ coin:c, born:t };
+    const dir=c.ch>=0?'momentum ALCISTA':'momentum BAJISTA';
+    const co=document.getElementById('cc-callout');
+    co.querySelector('.ttl').textContent='⚡ OPORTUNIDAD · '+c.s;
+    co.querySelector('.sub').innerHTML=c.s+' '+(c.ch>=0?'▲ +':'▼ ')+c.ch.toFixed(1)+'% (24h) · '+dir+'<br><span style="color:#6a6a82">Movimiento notable en vivo — no es señal de compra. Decidí en el Desk.</span>';
+    co.querySelector('a').href='vice-futures.html';
+    co.classList.add('on');
+    // chispa de gravedad: nace un enjambre curioso que cae hacia la señal
+    for(let i=0;i<40;i++){ const a=Math.random()*6.28, d=120+Math.random()*260;
+      sparks.push({ x:c.x+Math.cos(a)*d, y:c.y+Math.sin(a)*d, vx:0, vy:0, col:c.ch>=0?'#AAFF00':'#FF3A1F', l:1 }); }
+    if(window.showCmdToast) showCmdToast('🛸 SEÑAL: '+c.s+' '+(c.ch>=0?'+':'')+c.ch.toFixed(1)+'% — todo gravita hacia ahí', c.ch>=0?'#AAFF00':'#FF3A1F');
+  }
+
+  function frame(){
+    if(!on){ raf=null; return; }
+    if(typeof currentScreen!=='undefined' && currentScreen!=='map'){ raf=requestAnimationFrame(frame); return; } // pausa fuera del mapa
+    t+=0.016;
+    ctx.clearRect(0,0,W(),H());
+    // conexiones tenues entre monedas cercanas (la "grilla" viva)
+    ctx.lineWidth=0.4;
+    for(let i=0;i<coins.length;i++){ for(let j=i+1;j<coins.length;j++){ const a=coins[i],b=coins[j];
+      const dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy); if(d<150){ ctx.strokeStyle='rgba(120,120,180,'+(0.05*(1-d/150))+')'; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } } }
+    // monedas
+    coins.forEach(c=>{
+      // flotan alrededor de su base; si hay señal, la señal misma late más fuerte
+      c.x += (c.bx-c.x)*0.02 + Math.sin(t*0.7+c.ph)*0.3;
+      c.y += (c.by-c.y)*0.02 + Math.cos(t*0.6+c.ph)*0.3;
+      const isSig = signal && signal.coin===c;
+      const up=c.ch>=0, col= c.price==null?'#3a3a4a':(up?'#2bd66a':'#ff5b6b');
+      const pulse=isSig? (1+0.4*Math.sin(t*6)) : 1;
+      const r=c.r*pulse*(isSig?1.4:1);
+      const g=ctx.createRadialGradient(c.x,c.y,0,c.x,c.y,r*2.6);
+      g.addColorStop(0,col+ (isSig?'55':'22')); g.addColorStop(1,'transparent');
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(c.x,c.y,r*2.6,0,6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(c.x,c.y,r*0.5,0,6.28); ctx.fillStyle=col+ (c.price==null?'40':'CC'); ctx.fill();
+      ctx.textAlign='center'; ctx.font='700 9px "Space Mono",monospace'; ctx.fillStyle=isSig?'#FFD200':'rgba(240,237,232,.82)';
+      ctx.fillText(c.s, c.x, c.y-r-4);
+      ctx.font='400 8px "Space Mono",monospace'; ctx.fillStyle=col;
+      ctx.fillText(fmt(c.price)+(c.price!=null?('  '+(up?'+':'')+c.ch.toFixed(1)+'%'):''), c.x, c.y+r+10);
+    });
+    // enjambre de gravedad hacia la señal
+    if(signal){ const s=signal.coin;
+      sparks.forEach(sp=>{ const dx=s.x-sp.x,dy=s.y-sp.y,d=Math.hypot(dx,dy)||1;
+        sp.vx+=dx/d*0.6; sp.vy+=dy/d*0.6; sp.vx*=0.92; sp.vy*=0.92; sp.x+=sp.vx; sp.y+=sp.vy; sp.l-=0.004;
+        ctx.globalAlpha=Math.max(0,sp.l); ctx.fillStyle=sp.col; ctx.fillRect(sp.x,sp.y,2,2); ctx.globalAlpha=1; });
+      sparks=sparks.filter(sp=>sp.l>0);
+      if(t-signal.born>7){ signal=null; sparks=[]; } // la señal vive ~7s
+    }
+    // flota
+    if(fleetOn){
+      // nave nodriza deambula
+      if(Math.hypot(mother.tx-mother.x,mother.ty-mother.y)<40){ mother.tx=innerWidth*(0.2+Math.random()*0.6); mother.ty=innerHeight*(0.2+Math.random()*0.5); }
+      mother.x+=(mother.tx-mother.x)*0.01; mother.y+=(mother.ty-mother.y)*0.01; mother.ph+=0.05;
+      drawUfo(mother.x, mother.y, 20, '#00F0FF', mother.ph, true);
+      // buscar señal cada ~13s
+      if(t-lastScan>13){ lastScan=t; lockSignal(); }
+      ufos.forEach(u=>{
+        // si hay señal, todos gravitan hacia ella (curiosos); si no, escanean monedas al azar
+        let tx,ty;
+        if(signal){ tx=signal.coin.x+Math.cos(t*2+u.ph)*46; ty=signal.coin.y+Math.sin(t*2+u.ph)*46; }
+        else { if(!u.tgt || Math.hypot(u.tgt.x-u.x,u.tgt.y-u.y)<30){ const c=coins[Math.floor(Math.random()*coins.length)]; u.tgt=c; u.scan=1; }
+          tx=u.tgt.x; ty=u.tgt.y; }
+        u.x+=(tx-u.x)*(signal?0.06:0.03); u.y+=(ty-u.y)*(signal?0.06:0.03); u.ph+=0.1;
+        // haz de escaneo
+        if(!signal && u.tgt && Math.hypot(u.tgt.x-u.x,u.tgt.y-u.y)<40){ ctx.strokeStyle=u.col+'55'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(u.x,u.y); ctx.lineTo(u.tgt.x,u.tgt.y); ctx.stroke(); }
+        drawUfo(u.x, u.y, 9, u.col, u.ph, false);
+      });
+    }
+    raf=requestAnimationFrame(frame);
+  }
+  function drawUfo(x,y,s,col,ph,mom){
+    ctx.save(); ctx.translate(x,y);
+    // domo
+    const g=ctx.createRadialGradient(0,-s*0.2,0,0,0,s*1.4); g.addColorStop(0,col+'88'); g.addColorStop(1,'transparent');
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,s*1.4,0,6.28); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(0,0,s,s*0.42,0,0,6.28); ctx.fillStyle='#0c0c16'; ctx.fill(); ctx.strokeStyle=col; ctx.lineWidth=1.2; ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,-s*0.28,s*0.5,Math.PI,0); ctx.fillStyle=col+'cc'; ctx.fill();
+    // luces
+    for(let i=0;i<5;i++){ const a=ph+i*1.256; ctx.beginPath(); ctx.arc(Math.cos(a)*s*0.8, s*0.1, 1.4, 0, 6.28); ctx.fillStyle=i%2?'#fff':col; ctx.fill(); }
+    ctx.restore();
+  }
+
+  const CRYPTO_COSMOS={
+    on(){ return on; },
+    toggle(){ on ? CRYPTO_COSMOS.close() : CRYPTO_COSMOS.open(); },
+    open(){
+      on=true; cv=document.getElementById('cc-canvas'); ctx=cv.getContext('2d');
+      cv.classList.add('on'); document.getElementById('cc-hud').classList.add('on');
+      if(!coins.length) initCoins(); resize();
+      window.addEventListener('resize',resize);
+      loadPrices(); if(!priceTimer) priceTimer=setInterval(loadPrices, 45000);
+      updateHud();
+      if(!raf) frame();
+      if(window.showCmdToast) showCmdToast('◈ CRYPTO COSMOS — fondo cripto en vivo · pulsá A para la flota 🛸', '#00F0FF');
+    },
+    close(){
+      on=false; fleetOn=false; signal=null; sparks=[];
+      const cvv=document.getElementById('cc-canvas'); if(cvv) cvv.classList.remove('on');
+      document.getElementById('cc-hud').classList.remove('on');
+      document.getElementById('cc-callout').classList.remove('on');
+      window.removeEventListener('resize',resize);
+      if(priceTimer){ clearInterval(priceTimer); priceTimer=null; }
+      if(raf){ cancelAnimationFrame(raf); raf=null; }
+    },
+    launchFleet(){ if(on && !fleetOn) launchFleet(); else if(on && fleetOn){ if(window.showCmdToast) showCmdToast('🛸 La flota ya está escaneando', '#00F0FF'); } },
+  };
+  window.CRYPTO_COSMOS=CRYPTO_COSMOS;
+})();
 </script>
 </body>
 </html>
