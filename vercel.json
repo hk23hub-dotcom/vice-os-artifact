@@ -3,5 +3,10 @@
   "trailingSlash": false,
   "crons": [
     { "path": "/api/gta6-research", "schedule": "0 13 * * *" }
+  ],
+  "redirects": [
+    { "source": "/agent-os", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
+    { "source": "/agentos", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
+    { "source": "/agent", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false }
   ]
 }
