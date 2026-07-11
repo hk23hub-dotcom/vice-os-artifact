@@ -3501,7 +3501,7 @@ const INLINE_QUOTE_DEFAULTS = [
   { id: 'q02', text: 'Perfection lives in the putting.', target: 'vicegolfer', color: '#AAFF00', rarity: 'common' },
   { id: 'q03', text: 'Own the kick zone.', target: 'rugbyvice', color: '#00F0FF', rarity: 'common' },
   { id: 'q04', text: 'A vice is not a hobby.', target: 'lore', color: '#FFD200', rarity: 'rare' },
-  { id: 'q05', text: 'The mine never lies.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
+  { id: 'q05', text: 'The data never lies.', target: 'laiglesia', color: '#FFD200', rarity: 'rare' },
   { id: 'q06', text: 'Ideas born like stars.', target: 'ecosystem', color: '#F0EDE8', rarity: 'legendary' },
   { id: 'q07', text: 'Be impeccable with your words.', target: 'lore', color: '#FFD200', rarity: 'common' },
   { id: 'q08', text: 'Everything has a price.', target: 'flow', color: '#FF6600', rarity: 'common' },
@@ -3602,9 +3602,9 @@ const ORBITAL_MOONS = {
     { label: 'COMMUNITY',      mr: 68, ma: 0.20, ms: 0.0010, sz: 4, col: '#FFD200',                     px:0, py:0 },
   ],
   laiglesia: [
-    { label: 'CLAIM',          mr: 46, ma: 0.50, ms: 0.0024, sz: 5, col: '#FFD200', px:0, py:0 },
-    { label: 'DRILL',          mr: 56, ma: 2.80, ms: 0.0017, sz: 5, col: '#FFD200', px:0, py:0 },
-    { label: 'INVESTMENT',     mr: 40, ma: 4.80, ms: 0.0026, sz: 4, col: '#FF3A1F', px:0, py:0 },
+    { label: 'ACTIVO',         mr: 46, ma: 0.50, ms: 0.0024, sz: 5, col: '#FFD200', px:0, py:0 },
+    { label: 'VALIDACIÓN',     mr: 56, ma: 2.80, ms: 0.0017, sz: 5, col: '#FFD200', px:0, py:0 },
+    { label: 'CAPITAL',        mr: 40, ma: 4.80, ms: 0.0026, sz: 4, col: '#FF3A1F', px:0, py:0 },
   ],
   arteworld: [
     { label: 'JC ART',         mr: 48, ma: 1.20, ms: 0.0020, sz: 6, col: '#FF3A1F', px:0, py:0 },
@@ -5806,7 +5806,7 @@ function tryCatchKey(clientX, clientY) {
     if (Math.sqrt(dx * dx + dy * dy) < k.size + 28) {
       k.collected = true; k.hovered = false; hoveredKey = null;
       addCollectible(k.id, 'rare');
-      // las llaves HACEN cosas: +10 ⚡, abren la bóveda de La Iglesia (3) y el CÓDICE
+      // las llaves HACEN cosas: +10 ⚡, abren LA BÓVEDA (3) y el CÓDICE
       try {
         const bal = parseInt(localStorage.getItem('hk23-tokens') || '100', 10) || 100;
         localStorage.setItem('hk23-tokens', String(bal + 10));
@@ -8306,8 +8306,8 @@ loadQuotesThen(handleDeepLink);
         +'<div style="text-align:center;color:#6a6a82;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin:3px 0 20px;">todo lo que vive en el universo · lo abriste coleccionando 🏆</div>'
         +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:0 24px;">'
         +sec('🪐 CUERPOS',[
-          '<b style="color:#cdd">'+((typeof PROJECTS!=='undefined')?PROJECTS.length:0)+' planetas</b> — cada uno abre su universo real',
-          '⛳ VICEGOLFER es una pelota de golf · 🪙 CRYPTO una moneda · 🏉 RUGBY una pelota · ⛏️ LA IGLESIA una montaña de oro · 🎨 ARTE una paleta',
+          '<b style="color:#cdd">'+((typeof PROJECTS!=='undefined')?PROJECTS.length:0)+' planetas</b> — cada uno abre su blueprint navegable',
+          '⛳ VICEGOLFER es una pelota de golf · 🪙 CRYPTO una moneda · 🏉 RUGBY una pelota · ⛏️ RECURSOS una montaña de oro · 🎨 ARTE una paleta',
           '<b style="color:#cdd">'+nGx+' galaxias creadas</b> por viajeros (NeuralHub / templates)',
           'Zonas: LORE · ARTE · VICE OS · SYSTEMS · AGENTS · $ FLOW'])
         +sec('🔑 LLAVES ('+st.keys+'/5)',[
