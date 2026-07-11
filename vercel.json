@@ -7,6 +7,8 @@
   "redirects": [
     { "source": "/agent-os", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
     { "source": "/agentos", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
-    { "source": "/agent", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false }
+    { "source": "/agent", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
+    { "source": "/designer", "destination": "/agent-designer", "permanent": false },
+    { "source": "/try", "destination": "/agent-designer", "permanent": false }
   ]
 }
