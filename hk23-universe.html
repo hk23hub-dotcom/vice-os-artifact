@@ -6972,27 +6972,121 @@ function deactivateGalaxyMode() {
 }
 
 // ── Visit a neighbor universe (click a galaxy in multiverse view) ──
+window.__gxSel = null; // galaxia seleccionada en la ficha (para las acciones)
+function gxVisitable(g){ if (g.mine) return true; const m = (g.real && g.real.meta) || {}; return m.public === 'true' || m.visitable === 'true'; }
 function showNeighborCard(g) {
+  window.__gxSel = g;
   let el = document.getElementById('nb-card');
   if (!el) { el = document.createElement('div'); el.id = 'nb-card'; document.body.appendChild(el); }
   const u = g.real, m = (u && u.meta) || {};
   el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9860;background:rgba(8,8,14,.97);border:1px solid ' + g.col + ';border-radius:16px;padding:24px 28px;font-family:\'Space Mono\',monospace;color:#e6e6ee;max-width:360px;text-align:center;box-shadow:0 0 40px ' + g.col + '44;';
+  const btn = (label, bg, fg, call) => '<button onclick="' + call + '" style="width:100%;margin-top:12px;background:' + bg + ';color:' + fg + ';border:1px solid ' + g.col + ';border-radius:10px;padding:11px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">' + label + '</button>';
+  const close = '<div onclick="document.getElementById(\'nb-card\').remove()" style="margin-top:12px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
   if (g.mine) {
+    const pub = gxIsPublic(g.id);
     el.innerHTML = '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
       + '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">★ GALAXIA VECINA · CREADA POR VOS</div>'
       + '<div style="font-size:11px;line-height:1.7;color:#aab">' + String(g.sub || 'Una galaxia tuya, vecina de HK23 en el multiverso.').replace(/</g, '&lt;') + '</div>'
-      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
+      + btn('🚀 VISITAR MI GALAXIA', g.col, '#06121a', 'visitGalaxy()')
+      + btn(pub ? '🔓 Visible para otros · quitar' : '🔒 Solo yo · hacer visitable', 'transparent', g.col, 'toggleGxPublic()')
+      + close;
     return;
   }
-  el.innerHTML = u
-    ? '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
+  if (u) {
+    const canVisit = gxVisitable(g);
+    el.innerHTML = '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:' + g.col + '">' + g.label + '</div>'
       + '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">UNIVERSO REAL · TIER ' + String(m.tier || 'visitante').toUpperCase() + (m.anon ? ' · VIAJERO ANÓNIMO' : '') + '</div>'
       + '<div style="font-size:11px;line-height:1.7;color:#aab">' + String(u.summary || 'Un universo vecino del multiverso HK23.').replace(/</g, '&lt;') + '</div>'
       + '<div style="font-size:9px;color:#555;margin-top:10px">registrado ' + String(u.created_at || '').slice(0, 10) + '</div>'
-      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>'
-    : '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:' + g.col + '">SIN EXPLORAR</div>'
-      + '<div style="font-size:11px;line-height:1.7;color:#aab;margin-top:8px">Este rincón del multiverso todavía no tiene dueño. Cuando un nuevo viajero cree su galaxia, aparecerá aquí.</div>'
-      + '<div onclick="this.parentNode.remove()" style="margin-top:14px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
+      + (canVisit
+          ? btn('🚀 VISITAR ESTA GALAXIA', g.col, '#06121a', 'visitGalaxy()')
+          : '<div style="font-size:10px;color:#FFD200;margin-top:12px">🔒 Galaxia privada — necesitás acceso</div>' + btn('🔑 PEDIR ACCESO', 'transparent', g.col, 'requestGalaxyAccess()'))
+      + close;
+    return;
+  }
+  el.innerHTML = '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:' + g.col + '">SIN EXPLORAR</div>'
+    + '<div style="font-size:11px;line-height:1.7;color:#aab;margin-top:8px">Este rincón del multiverso todavía no tiene dueño. Cuando un nuevo viajero cree su galaxia, aparecerá aquí.</div>'
+    + close;
+}
+
+// ── visibilidad de MIS galaxias (para que otros puedan visitarlas) ──
+function gxIsPublic(id){ try { return (JSON.parse(localStorage.getItem('hk23-gx-public') || '[]')).indexOf(id) >= 0; } catch (_) { return false; } }
+function toggleGxPublic(){
+  const g = window.__gxSel; if (!g || !g.mine) return;
+  let arr = []; try { arr = JSON.parse(localStorage.getItem('hk23-gx-public') || '[]'); } catch (_) {}
+  const on = arr.indexOf(g.id) >= 0;
+  if (on) arr = arr.filter(x => x !== g.id); else arr.push(g.id);
+  localStorage.setItem('hk23-gx-public', JSON.stringify(arr));
+  // reflejar en la fila de Supabase para que otros la puedan visitar
+  if (window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity('gx:' + g.id, { name: g.label, slug: 'nh-gx-' + g.id, level: 'node', kind: 'system', color: g.col, summary: g.sub, meta: { nh: '1', role: 'galaxy', public: on ? 'false' : 'true', visitable: on ? 'false' : 'true' } });
+  if (window.showCmdToast) showCmdToast(on ? '🔒 Galaxia privada de nuevo' : '🔓 Ahora otros pueden visitarla', g.col);
+  showNeighborCard(g); // refrescar la ficha
+}
+
+// ── VISITAR una galaxia: entrás a ella (overlay temático con warp-in) ──
+function visitGalaxy(){
+  const g = window.__gxSel; if (!g) return;
+  const card = document.getElementById('nb-card'); if (card) card.remove();
+  const u = g.real, m = (u && u.meta) || {};
+  let el = document.getElementById('gx-visit');
+  if (!el) { el = document.createElement('div'); el.id = 'gx-visit'; document.body.appendChild(el); }
+  el.style.cssText = 'position:fixed;inset:0;z-index:9880;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;font-family:\'Space Mono\',monospace;'
+    + 'background:radial-gradient(120% 90% at 50% 42%, ' + g.col + '22, #04040a 62%);animation:gxwarp .5s ease;';
+  if (!document.getElementById('gx-visit-style')) { const s = document.createElement('style'); s.id = 'gx-visit-style';
+    s.textContent = '@keyframes gxwarp{from{transform:scale(1.25);opacity:0}to{transform:scale(1);opacity:1}}#gx-visit .gv-star{position:absolute;border-radius:50%;background:#fff;opacity:.5}'; document.head.appendChild(s); }
+  // estrellas en el color de la galaxia
+  let stars = ''; for (let i = 0; i < 60; i++){ const sz = (Math.random()*2+0.5).toFixed(1); stars += '<div class="gv-star" style="left:' + (Math.random()*100).toFixed(1) + '%;top:' + (Math.random()*100).toFixed(1) + '%;width:' + sz + 'px;height:' + sz + 'px;background:' + (Math.random()<.4?g.col:'#fff') + '"></div>'; }
+  const mine = g.mine;
+  const inside = mine
+    ? '<div style="font-size:11px;color:#aab;line-height:1.8;max-width:440px">Estás dentro de tu galaxia. Editála, sumale nodos y contenido, o hacela visible para que otros viajeros la visiten desde el multiverso.</div>'
+      + '<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:22px">'
+      + '<button onclick="closeVisit();if(window.NH){NH.toggle();NH.tab(\'edit\')}" style="background:' + g.col + ';color:#06121a;border:none;border-radius:10px;padding:11px 18px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">✎ Editar en NeuralHub</button>'
+      + '<button onclick="closeVisit()" style="background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px 18px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">← Volver al multiverso</button></div>'
+    : '<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin-bottom:8px">UNIVERSO DE OTRO VIAJERO · TIER ' + String(m.tier || 'visitante').toUpperCase() + '</div>'
+      + '<div style="font-size:12px;color:#aab;line-height:1.8;max-width:460px">' + String((u && u.summary) || 'Un universo vecino del multiverso HK23.').replace(/</g,'&lt;') + '</div>'
+      + '<div style="font-size:9px;color:#555;margin-top:10px">registrado ' + String((u && u.created_at) || '').slice(0,10) + '</div>'
+      + '<div style="margin-top:22px"><button onclick="closeVisit()" style="background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px 20px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">← Volver al multiverso</button></div>';
+  el.innerHTML = stars
+    + '<div style="position:relative;z-index:2">'
+    + '<div style="font-size:9px;letter-spacing:4px;color:' + g.col + ';margin-bottom:10px">◈ VISITANDO</div>'
+    + '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:clamp(28px,6vw,52px);letter-spacing:1px;color:#F0EDE8;text-shadow:0 0 30px ' + g.col + '88">' + g.label + '</div>'
+    + '<div style="font-size:11px;color:' + g.col + ';margin:6px 0 22px">' + String(g.sub || (mine?'tu galaxia':'galaxia vecina')).replace(/</g,'&lt;') + '</div>'
+    + inside + '</div>';
+  if (window.showCmdToast) showCmdToast('🌌 Entraste a ' + g.label, g.col);
+}
+function closeVisit(){ const el = document.getElementById('gx-visit'); if (el) el.remove(); }
+
+// ── PEDIR ACCESO a una galaxia privada de otro viajero ──
+function requestGalaxyAccess(){
+  const g = window.__gxSel; if (!g || !g.real) return;
+  const card = document.getElementById('nb-card'); if (card) card.remove();
+  let el = document.getElementById('gx-req'); if (!el) { el = document.createElement('div'); el.id = 'gx-req'; document.body.appendChild(el); }
+  el.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9880;width:380px;max-width:92vw;background:rgba(8,8,14,.98);border:1px solid ' + g.col + ';border-radius:16px;padding:24px;font-family:\'Space Mono\',monospace;text-align:center;box-shadow:0 0 40px ' + g.col + '44;';
+  el.innerHTML = '<div style="font-size:22px;margin-bottom:4px">🔑</div>'
+    + '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:' + g.col + '">PEDIR ACCESO</div>'
+    + '<div style="font-size:10px;color:#6a6a82;letter-spacing:2px;text-transform:uppercase;margin:3px 0 14px">' + g.label + '</div>'
+    + '<div style="font-size:11px;color:#9aa2ab;line-height:1.6;margin-bottom:14px">Esta galaxia es privada. Dejá tu email y el dueño decide si te deja entrar.</div>'
+    + '<input id="gx-req-email" type="email" placeholder="tu@email.com" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;padding:11px;border-radius:10px;outline:none;margin-bottom:10px">'
+    + '<button id="gx-req-send" style="width:100%;background:' + g.col + ';color:#06121a;border:none;border-radius:10px;padding:12px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">ENVIAR SOLICITUD →</button>'
+    + '<div id="gx-req-msg" style="min-height:14px;font-size:10px;color:#8a8a98;margin-top:9px"></div>'
+    + '<div onclick="document.getElementById(\'gx-req\').remove()" style="margin-top:6px;cursor:pointer;color:#666;font-size:11px">cerrar ✕</div>';
+  document.getElementById('gx-req-send').onclick = async () => {
+    const email = (document.getElementById('gx-req-email').value || '').trim();
+    const msg = document.getElementById('gx-req-msg');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { msg.textContent = 'Poné un email real.'; return; }
+    msg.textContent = 'enviando…';
+    let ok = false;
+    try {
+      const SB = { url: 'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key: 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+      const r = await fetch(SB.url + '/entities', { method: 'POST', headers: { apikey: SB.key, Authorization: 'Bearer ' + SB.key, 'Content-Type': 'application/json', 'Content-Profile': 'hk23' },
+        body: JSON.stringify({ name: 'ACCESO · ' + g.label + ' · ' + email, slug: 'access-' + Date.now(), level: 'node', kind: 'node', summary: 'Pedido de acceso a ' + g.label,
+          meta: { nh: '1', role: 'access-request', galaxy: g.label, target: (g.real && g.real.slug) || null, email: email, ts: new Date().toISOString() } }) });
+      ok = r.ok;
+    } catch (_) {}
+    document.getElementById('gx-req').remove();
+    if (window.showCmdToast) showCmdToast(ok ? '🔑 Solicitud enviada al dueño de ' + g.label : '🔑 Solicitud registrada (sin conexión)', g.col);
+  };
+  setTimeout(() => { const i = document.getElementById('gx-req-email'); if (i) i.focus(); }, 60);
 }
 (function wireNeighborClicks() {
   const ov = document.getElementById('galaxy-overlay');
@@ -7054,7 +7148,7 @@ function drawGalaxyBg() {
     return {
       x: Math.min(W - 70, Math.max(70, home.x + Math.cos(ang) * dist)),
       y: Math.min(H - 80, Math.max(70, home.y + Math.sin(ang) * dist * 0.8)),
-      r: 16, col: g.color || '#FFD200', label: String(g.label || '???').toUpperCase().slice(0, 16),
+      id: g.id, r: 16, col: g.color || '#FFD200', label: String(g.label || '???').toUpperCase().slice(0, 16),
       angle: ((h % 100) / 50 - 1), mine: true, sub: g.sub || '',
     };
   });
