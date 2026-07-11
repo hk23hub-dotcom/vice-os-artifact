@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>HK23 Universe — mirá cómo construyo, llevate el plano</title>
-<meta name="description" content="Un universo vivo donde tus proyectos son galaxias. Explorá gratis, mirá cómo se construye en vivo y llevate el template para armar el tuyo, con agentes de IA reales."/>
+<title>HK23 OS — la máquina que construye empresas</title>
+<meta name="description" content="HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf, un desk de trading autónomo y un hub de medios que se actualiza solo. No comprás los proyectos — te llevás el motor: frameworks, blueprints y agentes de IA."/>
 <link rel="canonical" href="https://hk23universe.vercel.app/landing"/>
 <meta name="theme-color" content="#080808"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="HK23 Universe — mirá cómo construyo, llevate el plano"/>
-<meta property="og:description" content="Tus proyectos como galaxias. Explorá gratis, mirá el build en vivo y llevate el template para armar el tuyo."/>
+<meta property="og:title" content="HK23 OS — no querés mis empresas, querés la máquina que las construye"/>
+<meta property="og:description" content="El motor de venture-building detrás de una mina de oro, un SaaS, un desk de trading y un hub de medios. Llevate el motor, apuntalo a tu idea."/>
 <meta property="og:url" content="https://hk23universe.vercel.app/landing"/>
 <meta property="og:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
 <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
@@ -23,182 +23,231 @@
   *{margin:0;padding:0;box-sizing:border-box}
   html{scroll-behavior:smooth}
   body{background:var(--black);color:var(--white);font-family:'Space Grotesk',system-ui,sans-serif;overflow-x:hidden;
-    background-image:radial-gradient(120% 70% at 80% -10%, rgba(184,77,255,.10), transparent 55%), radial-gradient(100% 60% at 0% 110%, rgba(0,240,255,.06), transparent 50%);}
+    background-image:radial-gradient(120% 70% at 80% -10%, rgba(255,58,31,.10), transparent 55%), radial-gradient(100% 60% at 0% 110%, rgba(0,240,255,.06), transparent 50%);}
   a{color:inherit;text-decoration:none}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 22px}
   .eye{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
   .btn{display:inline-flex;align-items:center;gap:8px;font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;border-radius:11px;padding:13px 22px;cursor:pointer;border:1px solid var(--border);transition:transform .15s,border-color .15s}
   .btn:hover{transform:translateY(-2px)}
   .btn.primary{background:var(--red);color:#fff;border-color:var(--red)}
   .btn.ghost{background:transparent;color:var(--white)}
-  .btn.cyan{background:var(--electric);color:#06121a;border-color:var(--electric)}
   /* nav */
-  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(8,8,8,.7);border-bottom:1px solid var(--border)}
-  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
-  nav .logo{font-family:'Space Grotesk';font-weight:900;font-size:22px;letter-spacing:1px}
+  nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(8,8,8,.72);border-bottom:1px solid var(--border)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  nav .logo{font-family:'Space Grotesk';font-weight:900;font-size:21px;letter-spacing:1px}
   nav .logo b{color:var(--red)}
-  nav .links{display:flex;gap:22px;align-items:center}
+  nav .links{display:flex;gap:20px;align-items:center}
   nav .links a{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted)}
   nav .links a:hover{color:var(--white)}
-  @media(max-width:640px){ nav .links a.hide{display:none} }
+  @media(max-width:680px){ nav .links a.hide{display:none} }
   /* hero */
-  .hero{text-align:center;padding:72px 0 40px}
-  .hero h1{font-weight:900;font-size:clamp(34px,7vw,68px);line-height:1.05;letter-spacing:1px;margin:16px 0}
+  .hero{text-align:center;padding:76px 0 30px}
+  .hero .tag{display:inline-block;border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:22px}
+  .hero h1{font-weight:900;font-size:clamp(32px,6.5vw,62px);line-height:1.04;letter-spacing:.5px;margin-bottom:20px}
   .hero h1 .g{background:linear-gradient(90deg,var(--red),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .hero p{max-width:620px;margin:0 auto 26px;font-size:clamp(14px,2.4vw,17px);line-height:1.7;color:#b8b8c6}
+  .hero p{max-width:660px;margin:0 auto 26px;font-size:clamp(14px,2.3vw,17px);line-height:1.7;color:#c1c1cd}
   .hero .cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-  .cover{max-width:920px;margin:44px auto 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 30px 90px rgba(0,0,0,.6)}
+  .cover{max-width:900px;margin:40px auto 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 30px 90px rgba(0,0,0,.6);position:relative}
   .cover img{width:100%;display:block}
+  .cover .badge{position:absolute;top:14px;left:14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--green);background:rgba(6,10,6,.75);border:1px solid rgba(170,255,0,.4);border-radius:20px;padding:5px 11px}
+  /* truth strip */
+  .truth{background:var(--red);color:#fff;text-align:center;padding:18px 22px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(13px,2.2vw,17px);letter-spacing:.5px;line-height:1.5}
+  .truth b{color:#0a0a0a}
   /* sections */
-  section{padding:56px 0}
-  .stitle{text-align:center;font-weight:900;font-size:clamp(24px,4.5vw,36px);letter-spacing:1px;margin:6px 0 8px}
-  .ssub{text-align:center;color:var(--muted);font-size:13px;max-width:560px;margin:0 auto 34px;line-height:1.6}
-  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-  .feat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
-  .feat .ic{font-size:26px}
-  .feat h3{font-size:16px;font-weight:900;margin:12px 0 7px;letter-spacing:.5px}
-  .feat p{font-size:12.5px;color:#a6a6b4;line-height:1.65}
-  /* how it works */
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;counter-reset:s}
-  .step{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 18px}
-  .step::before{counter-increment:s;content:counter(s);font-family:'Space Grotesk';font-weight:900;font-size:34px;color:var(--purple);opacity:.5}
-  .step h3{font-size:14px;font-weight:900;margin:6px 0 6px}
-  .step p{font-size:12px;color:#a6a6b4;line-height:1.6}
-  /* tiers */
-  .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;align-items:stretch}
-  .tier{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:24px;display:flex;flex-direction:column}
-  .tier.feature{border-color:var(--electric);box-shadow:0 0 30px rgba(0,240,255,.15)}
-  .tier .name{font-weight:900;font-size:18px;letter-spacing:1px}
-  .tier .price{font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);margin:4px 0 16px}
-  .tier ul{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:20px;flex:1}
-  .tier li{font-size:12.5px;color:#cdd6de;line-height:1.4;padding-left:18px;position:relative}
-  .tier li::before{content:'✦';position:absolute;left:0;color:inherit;opacity:.7}
-  .tier .go{width:100%;text-align:center;border-radius:10px;padding:11px;font-family:'Space Grotesk';font-weight:700;letter-spacing:1px;cursor:pointer;font-size:13px}
-  .templates{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:16px}
-  .tpl{background:linear-gradient(180deg,rgba(255,58,31,.06),transparent);border:1px solid var(--border);border-radius:16px;padding:20px}
-  .tpl .n{font-weight:900;font-size:15px;letter-spacing:.5px}
-  .tpl .d{font-size:11px;color:var(--muted);margin:3px 0 12px}
-  .tpl .p{font-family:'Space Mono';font-size:12px;color:var(--gold);font-weight:700}
-  /* build in public */
-  .bip{background:linear-gradient(135deg,rgba(184,77,255,.08),rgba(0,240,255,.05));border:1px solid var(--border);border-radius:20px;padding:34px;text-align:center}
-  .bip h2{font-weight:900;font-size:clamp(22px,4vw,32px);letter-spacing:1px;margin-bottom:12px}
-  .bip p{max-width:600px;margin:0 auto;color:#b8b8c6;font-size:14px;line-height:1.7}
-  /* faq */
-  .faq{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-  details{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:15px 18px}
-  details summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none;display:flex;justify-content:space-between;align-items:center}
-  details summary::after{content:'+';color:var(--muted);font-size:18px}
-  details[open] summary::after{content:'−'}
-  details p{margin-top:10px;font-size:12.5px;color:#a6a6b4;line-height:1.65}
-  /* footer */
-  footer{border-top:1px solid var(--border);padding:34px 0;text-align:center}
-  footer .q{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#33333f}
+  section{padding:52px 0}
+  .stitle{text-align:center;font-weight:900;font-size:clamp(23px,4.2vw,34px);letter-spacing:.5px;margin:6px 0 8px}
+  .ssub{text-align:center;color:var(--muted);font-size:13px;max-width:600px;margin:0 auto 32px;line-height:1.6}
+  /* receipts */
+  .receipts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+  .rc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;transition:border-color .15s}
+  .rc:hover{border-color:var(--green)}
+  .rc .lbl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--green)}
+  .rc h3{font-size:18px;font-weight:900;margin:8px 0 6px}
+  .rc p{font-size:12.5px;color:#a6a6b4;line-height:1.6;margin-bottom:14px}
+  .rc .go{font-family:'Space Mono',monospace;font-size:12px;color:var(--electric)}
+  /* cars vs engine */
+  .cve{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media(max-width:640px){ .cve{grid-template-columns:1fr} }
+  .cve .side{border:1px solid var(--border);border-radius:16px;padding:24px}
+  .cve .no{background:rgba(255,91,107,.05)}
+  .cve .yes{background:rgba(170,255,0,.05);border-color:rgba(170,255,0,.3)}
+  .cve .k{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase}
+  .cve .no .k{color:#ff5b6b} .cve .yes .k{color:var(--green)}
+  .cve h3{font-size:17px;font-weight:900;margin:8px 0 8px}
+  .cve p{font-size:13px;color:#b8b8c6;line-height:1.65}
+  /* pillars */
+  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+  .pl{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
+  .pl .n{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted)}
+  .pl h3{font-size:16px;font-weight:900;margin:6px 0 8px;letter-spacing:.5px}
+  .pl p{font-size:12.5px;color:#a6a6b4;line-height:1.65}
+  .pl b{color:var(--white)}
+  /* telemetry */
+  .telem{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+  .cyl{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px}
+  .cyl .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .cyl .cap{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#cdd6de}
+  .cyl .fire{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--green);border:1px solid rgba(170,255,0,.4);border-radius:10px;padding:2px 7px}
+  .cyl .fire.sealed{color:var(--gold);border-color:rgba(255,210,0,.4)}
+  .cyl h4{font-size:14px;font-weight:900;margin:9px 0 5px}
+  .cyl p{font-size:11px;color:#9a9aa8;line-height:1.55}
+  .diverse{text-align:center;font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);margin-top:22px;line-height:1.7}
+  .diverse b{color:var(--white)}
+  /* aduanero spotlight */
+  .adu{background:linear-gradient(135deg,rgba(170,255,0,.07),rgba(0,240,255,.04));border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center}
+  .adu .ic{font-size:30px}
+  .adu h2{font-weight:900;font-size:clamp(20px,3.6vw,28px);letter-spacing:.5px;margin:10px 0}
+  .adu p{max-width:620px;margin:0 auto;color:#b8b8c6;font-size:14px;line-height:1.7}
+  /* questions nav */
+  .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .q{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .15s}
+  .q:hover{border-color:var(--electric)}
+  .q .qq{font-size:14px;font-weight:900}
+  .q .qa{font-size:11px;color:var(--muted);margin-top:4px}
+  .q .qsoon{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#55555f}
+  /* pricing */
+  .lad{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+  .lv{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column}
+  .lv.feat{border-color:var(--electric)}
+  .lv .verb{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+  .lv .nm{font-size:15px;font-weight:900;margin:4px 0}
+  .lv .pr{font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);margin-bottom:12px}
+  .lv .go{margin-top:auto;text-align:center;border-radius:9px;padding:9px;font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:.5px;cursor:pointer}
+  /* final */
+  .final{text-align:center;padding:56px 0 20px}
+  .final h2{font-weight:900;font-size:clamp(26px,5vw,44px);letter-spacing:.5px;margin-bottom:18px}
+  footer{border-top:1px solid var(--border);padding:32px 0;text-align:center}
+  footer .q2{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#33333f}
   footer .lk{margin-top:12px;font-family:'Space Mono',monospace;font-size:11px}
   footer .lk a{color:var(--muted)} footer .lk a:hover{color:var(--white)}
-  .finalcta{text-align:center;padding:44px 0 8px}
 </style>
 </head>
 <body>
 <nav><div class="wrap">
-  <div class="logo">HK<b>23</b></div>
+  <div class="logo">HK<b>23</b> <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted)">OS</span></div>
   <div class="links">
-    <a href="#que-es" class="hide">Qué es</a>
-    <a href="#planes">Planes</a>
-    <a href="#faq" class="hide">FAQ</a>
-    <a href="hk23-universe" class="btn cyan" style="padding:9px 15px;font-size:12px">Entrar ↗</a>
+    <a href="#motor" class="hide">El motor</a>
+    <a href="#pruebas" class="hide">Pruebas</a>
+    <a href="#acceso">Acceso</a>
+    <a href="hk23-universe" class="btn ghost" style="padding:9px 15px;font-size:12px">Explorar ↗</a>
   </div>
 </div></nav>
 
+<!-- 1. HERO -->
 <header class="hero"><div class="wrap">
-  <div class="eye">Heyoka 23 · Universe OS</div>
-  <h1>Tus proyectos son <span class="g">galaxias.</span><br>Mirá cómo las construyo.</h1>
-  <p>Un universo vivo e interactivo donde cada proyecto es un planeta navegable. Explorá gratis, mirá cómo se construye en vivo, y llevate el <b style="color:var(--white)">template</b> para armar el tuyo — con agentes de IA reales trabajando 24/7.</p>
+  <div class="tag">◈ HK23 OS · el motor de venture-building</div>
+  <h1>No querés mis empresas.<br>Querés <span class="g">la máquina</span> que las construye.</h1>
+  <p>HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf en vivo, un desk de trading autónomo y un hub de medios que se actualiza solo — los frameworks, blueprints y agentes de IA que construyeron todo eso. <b style="color:var(--white)">Llevate el motor. Apuntalo a tu propia idea.</b></p>
   <div class="cta">
-    <a href="hk23-universe" class="btn primary">🌌 Explorá gratis</a>
-    <a href="#planes" class="btn ghost">Ver planes ↓</a>
+    <a href="#acceso" class="btn primary">⚙ Llevate el motor</a>
+    <a href="hk23-universe" class="btn ghost">Escuchalo en ralentí — explorá gratis</a>
   </div>
-  <div class="cover"><img src="assets/brand/og-cover.png" alt="HK23 Universe" loading="lazy"/></div>
+  <div class="cover"><span class="badge">● MOTOR EN MARCHA</span><img src="assets/brand/og-cover.png" alt="HK23 OS" loading="lazy"/></div>
 </div></header>
 
-<section id="que-es"><div class="wrap">
-  <div class="eye" style="text-align:center">Qué es</div>
-  <div class="stitle">No es una web. Es un universo que se explora.</div>
-  <div class="ssub">Entrás a un mapa estelar donde cada proyecto vive como un planeta con su propio contenido, sus agentes y su historia.</div>
-  <div class="grid3">
-    <div class="feat"><div class="ic">🪐</div><h3>Proyectos = planetas</h3><p>Cada proyecto es un planeta icónico (una pelota de golf, una moneda, una montaña de oro) con su universo adentro. Navegás, no scrolleás.</p></div>
-    <div class="feat"><div class="ic">⚡</div><h3>Agentes de IA reales</h3><p>Un escuadrón de agentes trabaja 24/7: estrategia, análisis, research diario, trading de futuros, ventas. Los usás y ves cómo los armé.</p></div>
-    <div class="feat"><div class="ic">🧬</div><h3>Llevate el template</h3><p>No solo mirás: te llevás la estructura completa y armás tu propio universo, que se replica al instante en tu mapa.</p></div>
-    <div class="feat"><div class="ic">🔑</div><h3>Un juego de acceso</h3><p>Llaves que orbitan, una bóveda que se gana (no se compra), galaxias visitables por invitación. La exclusividad es parte del sistema.</p></div>
-    <div class="feat"><div class="ic">🛸</div><h3>Cripto en vivo</h3><p>El universo se cubre de un radar cripto vivo y una flota que escanea oportunidades reales por momentum. Espectáculo y señal.</p></div>
-    <div class="feat"><div class="ic">🌌</div><h3>Un multiverso</h3><p>Tu galaxia orbita junto a las de otros viajeros. Se ve desde lejos, se visita, se conecta. Vos no estás solo acá.</p></div>
+<!-- 2. 5-SECOND TRUTH -->
+<div class="truth">Esto no es un portfolio. Es la máquina. Los proyectos de abajo son <b>solo la prueba de que funciona</b>. Comprás el sistema — no los proyectos.</div>
+
+<!-- 3. RECEIPTS -->
+<section id="pruebas"><div class="wrap">
+  <div class="eye" style="text-align:center">No me creas</div>
+  <div class="stitle">Abrí las pruebas ahora mismo</div>
+  <div class="ssub">Dos ventures 100% vivos, testeables en este segundo. El mismo motor construyó los dos.</div>
+  <div class="receipts">
+    <a class="rc" href="https://albatros.vercel.app" target="_blank" rel="noopener">
+      <div class="lbl">RECIBO 01 · SAAS EN VIVO</div><h3>🏆 Albatros</h3>
+      <p>Un SaaS real de torneos de golf para clubes, con leaderboards en vivo. No una captura — entrá y usalo.</p>
+      <div class="go">albatros.vercel.app ↗</div>
+    </a>
+    <a class="rc" href="vice-gta6" target="_blank" rel="noopener">
+      <div class="lbl">RECIBO 02 · MEDIOS AUTÓNOMOS</div><h3>🎮 VICE.HUB GTA6</h3>
+      <p>Un hub de medios monetizado cuyo agente de research lo actualiza <b>solo, todos los días</b> (cron real). La autonomía, en vivo.</p>
+      <div class="go">/vice-gta6 ↗</div>
+    </a>
   </div>
 </div></section>
 
+<!-- 4. CARS VS ENGINE -->
 <section><div class="wrap">
-  <div class="eye" style="text-align:center">Cómo funciona</div>
-  <div class="stitle">Mirá → aprendé → armá el tuyo</div>
-  <div class="ssub">El valor no es solo el resultado: es ver <b>cómo</b> se construye, en vivo.</div>
-  <div class="steps">
-    <div class="step"><h3>Explorá gratis</h3><p>Entrás sin cuenta y recorrés el universo entero. Ves qué es posible.</p></div>
-    <div class="step"><h3>Entrá al estudio</h3><p>Con un plan desbloqueás cómo funciona por dentro + el template para usarlo tal cual.</p></div>
-    <div class="step"><h3>Armá el tuyo</h3><p>Creás tu galaxia, la editás, le ponés tus agentes. Es tuya y persiste.</p></div>
-    <div class="step"><h3>Ganate la llave</h3><p>Los que llegan más lejos entran al círculo real: acceso directo y lo que viene.</p></div>
+  <div class="eye" style="text-align:center">La mentira que venden casi todos</div>
+  <div class="stitle" style="margin-bottom:26px">Autos vs. Motor</div>
+  <div class="cve">
+    <div class="side no"><div class="k">Lo que venden todos</div><h3>🚗 Autos</h3><p>Proyectos terminados que admirás pero no podés manejar. Te mostrás el resultado y te quedás afuera. Comprás la foto de lo que otro construyó.</p></div>
+    <div class="side yes"><div class="k">Lo que te doy yo</div><h3>⚙ El motor + la tripulación</h3><p>La máquina que ensambla los autos: frameworks, blueprints y el escuadrón de agentes. Lo apuntás a tu idea y produce lo tuyo. Comprás lo que construye, no lo construido.</p></div>
   </div>
 </div></section>
 
-<section id="planes"><div class="wrap">
-  <div class="eye" style="text-align:center">Planes</div>
-  <div class="stitle">Elegí tu galaxia</div>
-  <div class="ssub">Cada plan es una forma de entrar al universo HK23. Empezá gratis, subí cuando quieras. Precio fundador por tiempo limitado.</div>
-  <div class="tiers">
-    <div class="tier">
-      <div class="name" style="color:var(--muted)">VISITANTE</div><div class="price">Gratis</div>
-      <ul><li>Explorá todo el universo</li><li>Usá una galaxia ya lista</li><li>Arrendá agentes con tokens</li><li>Sin crear nada — rápido</li></ul>
-      <a href="hk23-universe" class="go" style="background:transparent;border:1px solid var(--muted);color:var(--muted)">ENTRAR GRATIS</a>
-    </div>
-    <div class="tier feature">
-      <div class="name" style="color:var(--electric)">PREMIUM</div><div class="price">$4.99/mes · fundador</div>
-      <ul><li>Todo lo de Visitante</li><li>Estación de Agentes IA</li><li>Sacás agentes a tu galaxia</li><li>Blueprint guiado para crear</li></ul>
-      <a href="hk23-universe?chooser=1" class="go" style="background:var(--electric);color:#06121a">ELEGIR PREMIUM</a>
-    </div>
-    <div class="tier">
-      <div class="name" style="color:var(--gold)">FULL · ARQUITECTO</div><div class="price">$14.99/mes · fundador</div>
-      <ul><li>Todo lo de Premium</li><li>🔑 Única llave al universo REAL</li><li>Acceso a la bóveda (con llaves)</li><li>Creás agentes, plugins y mundos</li></ul>
-      <a href="hk23-universe?chooser=1" class="go" style="background:var(--gold);color:#06121a">ELEGIR FULL</a>
-    </div>
-  </div>
-  <div class="templates">
-    <div class="tpl"><div class="n" style="color:var(--red)">TEMPLATE HK23</div><div class="d">La estructura completa · 6 galaxias · replicable al tiro</div><div class="p">$29 · pago único</div><a href="hk23-universe?chooser=1" class="btn ghost" style="margin-top:12px;font-size:12px;padding:9px 14px">Llevátelo →</a></div>
-    <div class="tpl"><div class="n" style="color:var(--purple)">TEMPLATE GÉNESIS</div><div class="d">Un universo en blanco para armar el tuyo desde cero</div><div class="p">$19 · pago único</div><a href="hk23-universe?chooser=1" class="btn ghost" style="margin-top:12px;font-size:12px;padding:9px 14px">Empezar →</a></div>
+<!-- 5. WHAT THE ENGINE IS MADE OF -->
+<section id="motor"><div class="wrap">
+  <div class="eye" style="text-align:center">De qué está hecho el motor</div>
+  <div class="stitle">El valor no son los proyectos. Es esto.</div>
+  <div class="ssub">Cuatro piezas concretas — no abstracciones. Cada una es algo que se usa.</div>
+  <div class="pillars">
+    <div class="pl"><div class="n">PIEZA 01</div><h3>⚙ FRAMEWORKS</h3><p>El ciclo repetible sobre el que está construido el universo: <b>IDEAS → CREACIÓN → PRODUCTOS → COMUNIDAD → REVENUE → RECURSOS</b>. La forma de pensar que lleva cualquier idea al mercado.</p></div>
+    <div class="pl"><div class="n">PIEZA 02</div><h3>📐 BLUEPRINTS</h3><p>Flujos de creación que <b>estampan un venture entero de un click</b>. Concretos: Template HK23 (estructura de 6 galaxias) y Génesis (bloque en blanco). No un PDF — un clon vivo en tu mapa.</p></div>
+    <div class="pl"><div class="n">PIEZA 03</div><h3>🤖 EL ESCUADRÓN DE AGENTES</h3><p>IA que ejecuta de verdad: Estratega, Analista, Copywriter, VICE FUTURES (desk de riesgo), research diario y EL ADUANERO. Más un <b>Creador de Agentes</b> para forjar el tuyo. Los corrés en TU venture.</p></div>
+    <div class="pl"><div class="n">PIEZA 04</div><h3>🔑 EL SISTEMA DE PENSAMIENTO</h3><p>La capa de acceso y ritmo: Llaves + Bóveda, el "mirá cómo lo corro en vivo", y el multiverso donde orbitan universos de otros. Convierte el OS de herramienta en <b>operación viva</b>.</p></div>
   </div>
 </div></section>
 
-<section><div class="wrap"><div class="bip">
-  <div class="eye">Build in public</div>
-  <h2>Mirá cómo lo construyo.<br>Llevate el plano.</h2>
-  <p>HK23 se construye a la vista. Pagás por ver el proceso real —las decisiones, los agentes, el sistema— y te llevás la estructura para armar el tuyo. No te vendo humo ni "ganancias garantizadas": te vendo el <b style="color:var(--white)">cómo</b>, honesto y en vivo. Sumate temprano y crecé con el universo.</p>
+<!-- 6. TELEMETRY -->
+<section><div class="wrap">
+  <div class="eye" style="text-align:center">El motor, funcionando</div>
+  <div class="stitle">Cada proyecto es un cilindro que enciende</div>
+  <div class="ssub">Telemetría, no galería. Cada venture prueba que una capacidad del motor es real.</div>
+  <div class="telem">
+    <div class="cyl"><div class="top"><span class="cap">CAPITAL-RAISE</span><span class="fire sealed">🔒 SELLADO</span></div><h4>Mina de oro</h4><p>Un raise minero real, estructurado por el OS, sellado por EL ADUANERO. Prueba que el motor maneja capital — los detalles quedan privados por diseño.</p></div>
+    <div class="cyl"><div class="top"><span class="cap">PRODUCTO + SAAS</span><span class="fire">● ENCENDIDO</span></div><h4>VICEGOLFER · Albatros</h4><p>Un producto de performance + un SaaS B2B en vivo. El cilindro de "construir producto" funcionando.</p></div>
+    <div class="cyl"><div class="top"><span class="cap">TRADING · AGENTES</span><span class="fire">● ENCENDIDO</span></div><h4>Crypto Vice · VICE FUTURES</h4><p>Un desk de análisis y riesgo movido por agentes. El cilindro de "análisis autónomo".</p></div>
+    <div class="cyl"><div class="top"><span class="cap">CREATIVO</span><span class="fire">● ENCENDIDO</span></div><h4>Arte</h4><p>Una galería y colección viva. El cilindro de "negocio creativo".</p></div>
+    <div class="cyl"><div class="top"><span class="cap">MEDIOS AUTÓNOMOS</span><span class="fire">● ENCENDIDO</span></div><h4>VICE.HUB GTA6</h4><p>Un hub que se actualiza solo con un agente diario. El cilindro de "medios que corren sin vos".</p></div>
+  </div>
+  <div class="diverse">De una <b>mina de oro</b> a una <b>app de golf</b> a un <b>desk de trading</b> — un solo motor.<br>Nadie manda todo esto de casualidad. Solo una máquina lo abarca.</div>
+</div></section>
+
+<!-- 7. ADUANERO -->
+<section><div class="wrap"><div class="adu">
+  <div class="ic">🛃</div>
+  <h2>El motor que fabrica más motores</h2>
+  <p><b style="color:var(--white)">EL ADUANERO</b> es la parte del motor que convierte tu output privado en un template vendible. Por eso la mina de arriba es una <b style="color:var(--white)">caja negra sellada</b> — no es una debilidad, es una capacidad funcionando en vivo: la máquina productiza su propio resultado.</p>
 </div></div></section>
 
-<section id="faq"><div class="wrap">
-  <div class="eye" style="text-align:center">Preguntas</div>
-  <div class="stitle" style="margin-bottom:26px">FAQ</div>
-  <div class="faq">
-    <details><summary>¿Tengo que pagar para entrar?</summary><p>No. Explorás todo el universo gratis como Visitante, sin cuenta. Los planes desbloquean crear tu propia galaxia, la Estación de Agentes y el acceso al universo real.</p></details>
-    <details><summary>¿Qué es exactamente el "template"?</summary><p>La estructura completa de un universo (6 galaxias, el sistema de agentes, la lógica) que se replica al instante en tu propio mapa cuando la activás. Armás el tuyo sin empezar de cero.</p></details>
-    <details><summary>¿Cómo pago y cómo activo mi plan?</summary><p>El pago va por Gumroad. Al comprar recibís una license key: la pegás en el universo y tu plan se activa al instante. Verificado, seguro, sin trucos.</p></details>
-    <details><summary>¿Puedo cancelar?</summary><p>Sí, las suscripciones se cancelan cuando quieras desde tu cuenta de Gumroad. Los templates son pago único, tuyos para siempre.</p></details>
-    <details><summary>¿Esto es una app de trading?</summary><p>No. Hay un desk de futuros con un agente que ayuda con gestión de riesgo (honesto, no promete ganancias), pero HK23 es un universo creativo: tus proyectos, tus agentes, tu sistema.</p></details>
+<!-- 8. QUESTIONS NAV (one page per question — coming) -->
+<section><div class="wrap">
+  <div class="eye" style="text-align:center">Profundizá</div>
+  <div class="stitle" style="margin-bottom:26px">Una página, una pregunta</div>
+  <div class="qgrid">
+    <a class="q" href="hk23-universe"><div class="qq">¿Cómo funciona? →</div><div class="qa">Explorá el motor corriendo (la demo viva)</div></a>
+    <a class="q" href="#acceso"><div class="qq">¿Qué puedo comprar? →</div><div class="qa">Los niveles de acceso al motor</div></a>
+    <a class="q" href="hk23-universe?chooser=1"><div class="qq">¿Cómo empiezo? →</div><div class="qa">Elegí tu nivel y arrancá</div></a>
+    <div class="q"><div class="qq" style="color:var(--muted)">¿Por qué existe?</div><div class="qsoon">página propia · pronto</div></div>
+    <div class="q"><div class="qq" style="color:var(--muted)">¿Qué puedo construir?</div><div class="qsoon">página propia · pronto</div></div>
+    <div class="q"><div class="qq" style="color:var(--muted)">¿Qué puedo aprender?</div><div class="qsoon">página propia · pronto</div></div>
   </div>
 </div></section>
 
-<section class="finalcta"><div class="wrap">
-  <div class="stitle">Entrá al universo.</div>
-  <div class="ssub">Gratis, sin cuenta, en 3 segundos.</div>
-  <div style="text-align:center"><a href="hk23-universe" class="btn primary" style="font-size:15px;padding:15px 30px">🌌 ENTER THE UNIVERSE</a></div>
+<!-- 10. PRICING -->
+<section id="acceso"><div class="wrap">
+  <div class="eye" style="text-align:center">¿Qué puedo comprar?</div>
+  <div class="stitle">Niveles de acceso al motor</div>
+  <div class="ssub">No es una suscripción a mis proyectos. Es cuánto del motor te dejan correr.</div>
+  <div class="lad">
+    <div class="lv"><div class="verb">Ralentí</div><div class="nm" style="color:var(--muted)">VISITANTE</div><div class="pr" style="color:var(--muted)">Gratis</div><a href="hk23-universe" class="go" style="background:transparent;border:1px solid var(--muted);color:var(--muted)">Escuchalo en ralentí</a></div>
+    <div class="lv feat"><div class="verb">Manos en los controles</div><div class="nm" style="color:var(--electric)">PREMIUM</div><div class="pr">$4.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--electric);color:#06121a">Tomá los controles</a></div>
+    <div class="lv"><div class="verb">Dueño del motor</div><div class="nm" style="color:var(--gold)">FULL · ARQUITECTO</div><div class="pr">$14.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--gold);color:#06121a">Adueñate del motor</a></div>
+    <div class="lv"><div class="verb">Pre-ensamblado</div><div class="nm" style="color:var(--red)">TEMPLATE HK23</div><div class="pr">$29 único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--red);color:var(--red)">La máquina lista</a></div>
+    <div class="lv"><div class="verb">Bloque desnudo</div><div class="nm" style="color:var(--purple)">GÉNESIS</div><div class="pr">$19 único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--purple);color:var(--purple)">Desde el bloque</a></div>
+  </div>
+</div></section>
+
+<!-- 11. FINAL -->
+<section class="final"><div class="wrap">
+  <h2>Dejá de admirar los autos.<br><span style="color:var(--red)">Llevate el motor.</span></h2>
+  <a href="#acceso" class="btn primary" style="font-size:15px;padding:15px 30px">⚙ ELEGÍ TU NIVEL DE ACCESO</a>
 </div></section>
 
 <footer><div class="wrap">
-  <div class="q">EVERYTHING IS MONETIZABLE · EVERYTHING IS DOCUMENTED · EVERYTHING IS RAW</div>
+  <div class="q2">HK23 OS · EL MOTOR · TODO ES REPLICABLE · TODO ES DOCUMENTADO</div>
   <div class="lk"><a href="privacy.html">privacidad</a> · <a href="terms.html">términos</a> · <a href="mailto:hk23hub@gmail.com">contacto</a></div>
 </div></footer>
 </body>
