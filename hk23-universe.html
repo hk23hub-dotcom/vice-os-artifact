@@ -2111,6 +2111,7 @@
 <!-- ═══════════ HK23 AUTH (F0) — real Supabase sessions for every visitor ═══════════ -->
 <div id="auth-fab" onclick="HK23AUTH.open()" style="position:fixed;top:194px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">⏻ Cuenta</div>
 <div id="access-fab" onclick="ACCESS.open()" style="position:fixed;top:234px;left:24px;z-index:9000;display:none;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#FFD200;background:rgba(10,10,16,.85);border:1px solid rgba(255,210,0,.4);border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">🔑 Solicitudes <span id="access-badge" style="background:#FFD200;color:#06121a;border-radius:10px;padding:1px 6px;margin-left:4px;font-weight:700;">0</span></div>
+<div id="aduanero-fab" onclick="ADUANERO.open()" style="position:fixed;top:274px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#AAFF00;background:rgba(10,10,16,.85);border:1px solid rgba(170,255,0,.4);border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);">🛃 Aduanero</div>
 <div id="auth-overlay" style="position:fixed;inset:0;z-index:9800;display:none;background:rgba(4,4,8,.88);backdrop-filter:blur(9px);align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;">
   <div style="width:400px;max-width:94vw;max-height:92vh;overflow-y:auto;background:rgba(10,10,16,.98);border:1px solid #2a2a3a;border-radius:16px;padding:26px;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -9940,6 +9941,86 @@ window.refreshEcosystemStats = function(){
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('access-overlay').classList.contains('on')) document.getElementById('access-overlay').classList.remove('on'); });
   // chequear solicitudes al entrar y cada 2 min
   setTimeout(refreshBadge, 3500); setInterval(refreshBadge, 120000);
+})();
+</script>
+
+<!-- ═══════════ EL ADUANERO — gobierna qué entra y qué sale: realm por proyecto (default PRIVADO) ═══════════ -->
+<style>
+  #adu-overlay{position:fixed;inset:0;z-index:9760;display:none;align-items:center;justify-content:center;background:rgba(4,4,8,.9);backdrop-filter:blur(10px);font-family:'Space Mono',monospace;padding:24px;}
+  #adu-overlay.on{display:flex;}
+  #adu-overlay .box{width:640px;max-width:95vw;max-height:88vh;overflow:auto;background:rgba(10,14,10,.98);border:1px solid #AAFF00;border-radius:16px;padding:26px;box-shadow:0 0 44px rgba(170,255,0,.18);}
+  .adu-row{border:1px solid #24243a;border-radius:12px;padding:14px;margin-top:11px;}
+  .adu-row .h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;}
+  .adu-row .nm{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:14px;}
+  .adu-realm{font-size:8px;letter-spacing:1px;text-transform:uppercase;padding:3px 9px;border-radius:10px;}
+  .adu-seg{display:flex;gap:5px;margin-top:10px;flex-wrap:wrap;}
+  .adu-seg button{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;border-radius:8px;padding:6px 10px;cursor:pointer;background:transparent;border:1px solid #2a2a36;color:#8a8a98;}
+  .adu-seg button.on{color:#06121a;font-weight:700;}
+  .adu-ask{margin-top:9px;background:transparent;border:1px solid #AAFF00;color:#AAFF00;border-radius:8px;padding:7px 12px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;cursor:pointer;}
+  .adu-prop{margin-top:10px;font-size:11px;line-height:1.7;color:#c7d4bf;background:rgba(170,255,0,.05);border:1px solid rgba(170,255,0,.2);border-radius:9px;padding:11px 13px;white-space:pre-wrap;display:none;}
+  .adu-prop.on{display:block;}
+</style>
+<div id="adu-overlay"><div class="box">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;color:#AAFF00;">🛃 EL ADUANERO</span>
+    <span onclick="document.getElementById('adu-overlay').classList.remove('on')" style="cursor:pointer;color:#888;font-size:12px;">✕ ESC</span>
+  </div>
+  <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#6a6a82;margin:3px 0 4px;">controla qué entra y qué sale · default PRIVADO · vos decidís</div>
+  <div style="font-size:10px;color:#8a8a98;line-height:1.6;margin-bottom:6px;">Cada proyecto arranca <b style="color:#cdd">PRIVADO</b>. El Aduanero te propone cómo mostrarlo sin filtrar lo confidencial. Nada se hace público hasta que vos lo aprobás.</div>
+  <div id="adu-list"></div>
+</div></div>
+<script>
+(function(){
+  const REALMS={ private:{label:'🔒 PRIVADO',c:'#ff5b6b',bg:'rgba(255,91,107,.14)'}, showcase:{label:'📣 SHOWCASE',c:'#00F0FF',bg:'rgba(0,240,255,.14)'}, template:{label:'🧬 TEMPLATE',c:'#B84DFF',bg:'rgba(184,77,255,.14)'} };
+  const KEY='hk23-realms';
+  const load=()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'{}'); }catch(_){ return {}; } };
+  const save=(o)=>{ try{ localStorage.setItem(KEY,JSON.stringify(o)); }catch(_){} };
+  const realmOf=(id)=> load()[id] || 'private';
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  function projList(){ return (typeof PROJECTS!=='undefined')?PROJECTS:[]; }
+  function projText(p){
+    let t=(p.label||'')+' — '+(p.sub||'')+'\n';
+    (p.universe&&p.universe.nodes||[]).forEach(n=>{ const d=n.detail||{}; t+='• '+((d.title||n.label||'').replace(/\n/g,' '))+': '+(d.desc||'');
+      if(d.stats) t+=' ['+d.stats.map(s=>s.l+' '+s.v).join(', ')+']'; t+='\n'; });
+    return t.slice(0,2200);
+  }
+  const ADUANERO={
+    open(){
+      document.getElementById('adu-overlay').classList.add('on');
+      const list=document.getElementById('adu-list');
+      const ps=projList();
+      list.innerHTML = ps.length ? ps.map(function(p){
+        const rl=realmOf(p.id), R=REALMS[rl]||REALMS.private;
+        const seg=Object.keys(REALMS).map(function(k){ const on=k===rl; return '<button class="'+(on?'on':'')+'" style="'+(on?'background:'+REALMS[k].c+';border-color:'+REALMS[k].c:'')+'" onclick="ADUANERO.setRealm(\''+p.id+'\',\''+k+'\')">'+REALMS[k].label+'</button>'; }).join('');
+        return '<div class="adu-row" id="adu-'+p.id+'"><div class="h"><span class="nm" style="color:'+(p.color||'#cdd')+'">'+esc(p.label)+'</span>'
+          +'<span class="adu-realm" id="adu-badge-'+p.id+'" style="color:'+R.c+';background:'+R.bg+'">'+R.label+'</span></div>'
+          +'<div style="font-size:10px;color:#8a8a98;margin-top:3px">'+esc(p.sub||'')+'</div>'
+          +'<div class="adu-seg">'+seg+'</div>'
+          +'<button class="adu-ask" onclick="ADUANERO.ask(\''+p.id+'\')">🛃 Consultar al Aduanero</button>'
+          +'<div class="adu-prop" id="adu-prop-'+p.id+'"></div></div>';
+      }).join('') : '<div style="color:#6a6a82;font-size:11px;padding:16px 0">No hay proyectos para clasificar.</div>';
+    },
+    setRealm(pid, realm){
+      const o=load(); o[pid]=realm; save(o);
+      const R=REALMS[realm]||REALMS.private, b=document.getElementById('adu-badge-'+pid);
+      if(b){ b.textContent=R.label; b.style.color=R.c; b.style.background=R.bg; }
+      // refrescar segmentos
+      const row=document.getElementById('adu-'+pid); if(row){ row.querySelectorAll('.adu-seg button').forEach(function(btn){ const k=Object.keys(REALMS).find(kk=>REALMS[kk].label===btn.textContent); const on=k===realm; btn.className=on?'on':''; btn.style.background=on?REALMS[k].c:'transparent'; btn.style.borderColor=on?REALMS[k].c:'#2a2a36'; btn.style.color=on?'#06121a':'#8a8a98'; }); }
+      if(window.showCmdToast) showCmdToast('🛃 '+((projList().find(p=>p.id===pid)||{}).label||'')+' → '+R.label, R.c);
+    },
+    async ask(pid){
+      const p=projList().find(x=>x.id===pid); if(!p) return;
+      const box=document.getElementById('adu-prop-'+pid); box.classList.add('on'); box.textContent='🛃 El Aduanero está revisando qué puede salir y qué no…';
+      try{
+        const r=await fetch('/api/run',{ method:'POST', headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({ action:'agent', agent:'aduanero', input:projText(p) }) });
+        const j=await r.json();
+        box.textContent = j.ok ? j.text : (r.status===429?'⏳ Demasiadas consultas — esperá un minuto.':('⚠️ '+(j.error||'no pude analizar')));
+      }catch(_){ box.textContent='⚠️ Error de red — probá de nuevo.'; }
+    },
+  };
+  window.ADUANERO=ADUANERO;
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('adu-overlay').classList.contains('on')) document.getElementById('adu-overlay').classList.remove('on'); });
 })();
 </script>
 </body>
