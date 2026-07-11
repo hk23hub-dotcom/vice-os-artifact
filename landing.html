@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>HK23 OS — la máquina que construye empresas</title>
-<meta name="description" content="HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf, un desk de trading autónomo y un hub de medios que se actualiza solo. No comprás los proyectos — te llevás el motor: frameworks, blueprints y agentes de IA."/>
+<title>HK23 OS — the machine that builds companies</title>
+<meta name="description" content="HK23 OS is the engine behind a mining capital raise, a live golf SaaS, an autonomous trading desk, and a self-running media hub. You don't buy the projects — you take the machine: frameworks, blueprints, and AI agents."/>
 <link rel="canonical" href="https://hk23universe.vercel.app/landing"/>
 <meta name="theme-color" content="#080808"/>
 <meta property="og:type" content="website"/>
-<meta property="og:title" content="HK23 OS — no querés mis empresas, querés la máquina que las construye"/>
-<meta property="og:description" content="El motor de venture-building detrás de una mina de oro, un SaaS, un desk de trading y un hub de medios. Llevate el motor, apuntalo a tu idea."/>
+<meta property="og:title" content="HK23 OS — you don't want my companies, you want the machine that builds them"/>
+<meta property="og:description" content="The venture-building engine behind a gold mine, a SaaS, a trading desk, and a media hub. Take the engine, point it at your idea."/>
 <meta property="og:url" content="https://hk23universe.vercel.app/landing"/>
 <meta property="og:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
 <meta property="og:image:width" content="1200"/><meta property="og:image:height" content="630"/>
@@ -31,16 +31,17 @@
   .btn:hover{transform:translateY(-2px)}
   .btn.primary{background:var(--red);color:#fff;border-color:var(--red)}
   .btn.ghost{background:transparent;color:var(--white)}
-  /* nav */
   nav{position:sticky;top:0;z-index:50;backdrop-filter:blur(10px);background:rgba(8,8,8,.72);border-bottom:1px solid var(--border)}
   nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
   nav .logo{font-family:'Space Grotesk';font-weight:900;font-size:21px;letter-spacing:1px}
   nav .logo b{color:var(--red)}
-  nav .links{display:flex;gap:20px;align-items:center}
+  nav .links{display:flex;gap:18px;align-items:center}
   nav .links a{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:1px;color:var(--muted)}
   nav .links a:hover{color:var(--white)}
+  .lang{display:inline-flex;border:1px solid var(--border);border-radius:20px;overflow:hidden;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px}
+  .lang button{background:transparent;border:none;color:var(--muted);padding:6px 11px;cursor:pointer}
+  .lang button.on{background:var(--white);color:#06121a;font-weight:700}
   @media(max-width:680px){ nav .links a.hide{display:none} }
-  /* hero */
   .hero{text-align:center;padding:76px 0 30px}
   .hero .tag{display:inline-block;border:1px solid var(--border);border-radius:30px;padding:6px 14px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:22px}
   .hero h1{font-weight:900;font-size:clamp(32px,6.5vw,62px);line-height:1.04;letter-spacing:.5px;margin-bottom:20px}
@@ -50,14 +51,11 @@
   .cover{max-width:900px;margin:40px auto 0;border-radius:16px;overflow:hidden;border:1px solid var(--border);box-shadow:0 30px 90px rgba(0,0,0,.6);position:relative}
   .cover img{width:100%;display:block}
   .cover .badge{position:absolute;top:14px;left:14px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--green);background:rgba(6,10,6,.75);border:1px solid rgba(170,255,0,.4);border-radius:20px;padding:5px 11px}
-  /* truth strip */
   .truth{background:var(--red);color:#fff;text-align:center;padding:18px 22px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(13px,2.2vw,17px);letter-spacing:.5px;line-height:1.5}
   .truth b{color:#0a0a0a}
-  /* sections */
   section{padding:52px 0}
   .stitle{text-align:center;font-weight:900;font-size:clamp(23px,4.2vw,34px);letter-spacing:.5px;margin:6px 0 8px}
   .ssub{text-align:center;color:var(--muted);font-size:13px;max-width:600px;margin:0 auto 32px;line-height:1.6}
-  /* receipts */
   .receipts{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
   .rc{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;transition:border-color .15s}
   .rc:hover{border-color:var(--green)}
@@ -65,7 +63,6 @@
   .rc h3{font-size:18px;font-weight:900;margin:8px 0 6px}
   .rc p{font-size:12.5px;color:#a6a6b4;line-height:1.6;margin-bottom:14px}
   .rc .go{font-family:'Space Mono',monospace;font-size:12px;color:var(--electric)}
-  /* cars vs engine */
   .cve{display:grid;grid-template-columns:1fr 1fr;gap:16px}
   @media(max-width:640px){ .cve{grid-template-columns:1fr} }
   .cve .side{border:1px solid var(--border);border-radius:16px;padding:24px}
@@ -75,37 +72,32 @@
   .cve .no .k{color:#ff5b6b} .cve .yes .k{color:var(--green)}
   .cve h3{font-size:17px;font-weight:900;margin:8px 0 8px}
   .cve p{font-size:13px;color:#b8b8c6;line-height:1.65}
-  /* pillars */
   .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
   .pl{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px}
   .pl .n{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted)}
   .pl h3{font-size:16px;font-weight:900;margin:6px 0 8px;letter-spacing:.5px}
   .pl p{font-size:12.5px;color:#a6a6b4;line-height:1.65}
   .pl b{color:var(--white)}
-  /* telemetry */
   .telem{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
   .cyl{background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:16px}
   .cyl .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
   .cyl .cap{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:1px;color:#cdd6de}
-  .cyl .fire{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--green);border:1px solid rgba(170,255,0,.4);border-radius:10px;padding:2px 7px}
+  .cyl .fire{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:var(--green);border:1px solid rgba(170,255,0,.4);border-radius:10px;padding:2px 7px;white-space:nowrap}
   .cyl .fire.sealed{color:var(--gold);border-color:rgba(255,210,0,.4)}
   .cyl h4{font-size:14px;font-weight:900;margin:9px 0 5px}
   .cyl p{font-size:11px;color:#9a9aa8;line-height:1.55}
   .diverse{text-align:center;font-family:'Space Mono',monospace;font-size:12px;color:var(--muted);margin-top:22px;line-height:1.7}
   .diverse b{color:var(--white)}
-  /* aduanero spotlight */
   .adu{background:linear-gradient(135deg,rgba(170,255,0,.07),rgba(0,240,255,.04));border:1px solid var(--border);border-radius:20px;padding:32px;text-align:center}
   .adu .ic{font-size:30px}
   .adu h2{font-weight:900;font-size:clamp(20px,3.6vw,28px);letter-spacing:.5px;margin:10px 0}
   .adu p{max-width:620px;margin:0 auto;color:#b8b8c6;font-size:14px;line-height:1.7}
-  /* questions nav */
   .qgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
   .q{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;transition:border-color .15s}
   .q:hover{border-color:var(--electric)}
   .q .qq{font-size:14px;font-weight:900}
   .q .qa{font-size:11px;color:var(--muted);margin-top:4px}
   .q .qsoon{font-family:'Space Mono',monospace;font-size:8px;letter-spacing:1px;color:#55555f}
-  /* pricing */
   .lad{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
   .lv{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;display:flex;flex-direction:column}
   .lv.feat{border-color:var(--electric)}
@@ -113,7 +105,6 @@
   .lv .nm{font-size:15px;font-weight:900;margin:4px 0}
   .lv .pr{font-family:'Space Mono',monospace;font-size:12px;color:var(--gold);margin-bottom:12px}
   .lv .go{margin-top:auto;text-align:center;border-radius:9px;padding:9px;font-family:'Space Grotesk';font-weight:700;font-size:12px;letter-spacing:.5px;cursor:pointer}
-  /* final */
   .final{text-align:center;padding:56px 0 20px}
   .final h2{font-weight:900;font-size:clamp(26px,5vw,44px);letter-spacing:.5px;margin-bottom:18px}
   footer{border-top:1px solid var(--border);padding:32px 0;text-align:center}
@@ -126,129 +117,176 @@
 <nav><div class="wrap">
   <div class="logo">HK<b>23</b> <span style="font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--muted)">OS</span></div>
   <div class="links">
-    <a href="#motor" class="hide">El motor</a>
-    <a href="#pruebas" class="hide">Pruebas</a>
-    <a href="#acceso">Acceso</a>
-    <a href="hk23-universe" class="btn ghost" style="padding:9px 15px;font-size:12px">Explorar ↗</a>
+    <a href="#motor" class="hide" data-i18n="nav1">El motor</a>
+    <a href="#pruebas" class="hide" data-i18n="nav2">Pruebas</a>
+    <a href="#acceso" data-i18n="nav3">Acceso</a>
+    <div class="lang"><button id="lang-es" onclick="setLang('es')">ES</button><button id="lang-en" onclick="setLang('en')">EN</button></div>
+    <a href="hk23-universe" class="btn ghost" style="padding:9px 15px;font-size:12px" data-i18n="nav4">Explorar ↗</a>
   </div>
 </div></nav>
 
-<!-- 1. HERO -->
 <header class="hero"><div class="wrap">
-  <div class="tag">◈ HK23 OS · el motor de venture-building</div>
-  <h1>No querés mis empresas.<br>Querés <span class="g">la máquina</span> que las construye.</h1>
-  <p>HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf en vivo, un desk de trading autónomo y un hub de medios que se actualiza solo — los frameworks, blueprints y agentes de IA que construyeron todo eso. <b style="color:var(--white)">Llevate el motor. Apuntalo a tu propia idea.</b></p>
+  <div class="tag" data-i18n="tag">◈ HK23 OS · el motor de venture-building</div>
+  <h1 data-i18n="h1">No quieres mis empresas.<br>Quieres <span class="g">la máquina</span> que las construye.</h1>
+  <p data-i18n="sub">HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf en vivo, un desk de trading autónomo y un hub de medios que se actualiza solo — los frameworks, blueprints y agentes de IA que construyeron todo eso. <b style="color:var(--white)">Toma el motor. Apúntalo a tu propia idea.</b></p>
   <div class="cta">
-    <a href="#acceso" class="btn primary">⚙ Llevate el motor</a>
-    <a href="hk23-universe" class="btn ghost">Escuchalo en ralentí — explorá gratis</a>
+    <a href="#acceso" class="btn primary" data-i18n="cta1">⚙ Toma el motor</a>
+    <a href="hk23-universe" class="btn ghost" data-i18n="cta2">Escúchalo en ralentí — explora gratis</a>
   </div>
-  <div class="cover"><span class="badge">● MOTOR EN MARCHA</span><img src="assets/brand/og-cover.png" alt="HK23 OS" loading="lazy"/></div>
+  <div class="cover"><span class="badge" data-i18n="badge">● MOTOR EN MARCHA</span><img src="assets/brand/og-cover.png" alt="HK23 OS" loading="lazy"/></div>
 </div></header>
 
-<!-- 2. 5-SECOND TRUTH -->
-<div class="truth">Esto no es un portfolio. Es la máquina. Los proyectos de abajo son <b>solo la prueba de que funciona</b>. Comprás el sistema — no los proyectos.</div>
+<div class="truth" data-i18n="truth">Esto no es un portafolio. Es la máquina. Los proyectos de abajo son <b>solo la prueba de que funciona</b>. Compras el sistema — no los proyectos.</div>
 
-<!-- 3. RECEIPTS -->
 <section id="pruebas"><div class="wrap">
-  <div class="eye" style="text-align:center">No me creas</div>
-  <div class="stitle">Abrí las pruebas ahora mismo</div>
-  <div class="ssub">Dos ventures 100% vivos, testeables en este segundo. El mismo motor construyó los dos.</div>
+  <div class="eye" style="text-align:center" data-i18n="r_eye">No me creas</div>
+  <div class="stitle" data-i18n="r_title">Abre las pruebas ahora mismo</div>
+  <div class="ssub" data-i18n="r_sub">Dos ventures 100% vivos, comprobables en este segundo. El mismo motor construyó los dos.</div>
   <div class="receipts">
     <a class="rc" href="https://albatros.vercel.app" target="_blank" rel="noopener">
-      <div class="lbl">RECIBO 01 · SAAS EN VIVO</div><h3>🏆 Albatros</h3>
-      <p>Un SaaS real de torneos de golf para clubes, con leaderboards en vivo. No una captura — entrá y usalo.</p>
+      <div class="lbl" data-i18n="r1_lbl">RECIBO 01 · SAAS EN VIVO</div><h3>🏆 Albatros</h3>
+      <p data-i18n="r1_p">Un SaaS real de torneos de golf para clubes, con tableros en vivo. No es una captura — entra y úsalo.</p>
       <div class="go">albatros.vercel.app ↗</div>
     </a>
     <a class="rc" href="vice-gta6" target="_blank" rel="noopener">
-      <div class="lbl">RECIBO 02 · MEDIOS AUTÓNOMOS</div><h3>🎮 VICE.HUB GTA6</h3>
-      <p>Un hub de medios monetizado cuyo agente de research lo actualiza <b>solo, todos los días</b> (cron real). La autonomía, en vivo.</p>
+      <div class="lbl" data-i18n="r2_lbl">RECIBO 02 · MEDIOS AUTÓNOMOS</div><h3>🎮 VICE.HUB GTA6</h3>
+      <p data-i18n="r2_p">Un hub de medios monetizado cuyo agente de investigación lo actualiza <b>solo, todos los días</b> (cron real). La autonomía, en vivo.</p>
       <div class="go">/vice-gta6 ↗</div>
     </a>
   </div>
 </div></section>
 
-<!-- 4. CARS VS ENGINE -->
 <section><div class="wrap">
-  <div class="eye" style="text-align:center">La mentira que venden casi todos</div>
-  <div class="stitle" style="margin-bottom:26px">Autos vs. Motor</div>
+  <div class="eye" style="text-align:center" data-i18n="c_eye">La mentira que venden casi todos</div>
+  <div class="stitle" style="margin-bottom:26px" data-i18n="c_title">Autos vs. Motor</div>
   <div class="cve">
-    <div class="side no"><div class="k">Lo que venden todos</div><h3>🚗 Autos</h3><p>Proyectos terminados que admirás pero no podés manejar. Te mostrás el resultado y te quedás afuera. Comprás la foto de lo que otro construyó.</p></div>
-    <div class="side yes"><div class="k">Lo que te doy yo</div><h3>⚙ El motor + la tripulación</h3><p>La máquina que ensambla los autos: frameworks, blueprints y el escuadrón de agentes. Lo apuntás a tu idea y produce lo tuyo. Comprás lo que construye, no lo construido.</p></div>
+    <div class="side no"><div class="k" data-i18n="c_no_k">Lo que venden todos</div><h3 data-i18n="c_no_h">🚗 Autos</h3><p data-i18n="c_no_p">Proyectos terminados que admiras pero no puedes manejar. Te muestran el resultado y te quedas afuera. Compras la foto de lo que otro construyó.</p></div>
+    <div class="side yes"><div class="k" data-i18n="c_yes_k">Lo que te doy yo</div><h3 data-i18n="c_yes_h">⚙ El motor + la tripulación</h3><p data-i18n="c_yes_p">La máquina que ensambla los autos: frameworks, blueprints y el escuadrón de agentes. La apuntas a tu idea y produce lo tuyo. Compras lo que construye, no lo construido.</p></div>
   </div>
 </div></section>
 
-<!-- 5. WHAT THE ENGINE IS MADE OF -->
 <section id="motor"><div class="wrap">
-  <div class="eye" style="text-align:center">De qué está hecho el motor</div>
-  <div class="stitle">El valor no son los proyectos. Es esto.</div>
-  <div class="ssub">Cuatro piezas concretas — no abstracciones. Cada una es algo que se usa.</div>
+  <div class="eye" style="text-align:center" data-i18n="p_eye">De qué está hecho el motor</div>
+  <div class="stitle" data-i18n="p_title">El valor no son los proyectos. Es esto.</div>
+  <div class="ssub" data-i18n="p_sub">Cuatro piezas concretas — no abstracciones. Cada una es algo que se usa.</div>
   <div class="pillars">
-    <div class="pl"><div class="n">PIEZA 01</div><h3>⚙ FRAMEWORKS</h3><p>El ciclo repetible sobre el que está construido el universo: <b>IDEAS → CREACIÓN → PRODUCTOS → COMUNIDAD → REVENUE → RECURSOS</b>. La forma de pensar que lleva cualquier idea al mercado.</p></div>
-    <div class="pl"><div class="n">PIEZA 02</div><h3>📐 BLUEPRINTS</h3><p>Flujos de creación que <b>estampan un venture entero de un click</b>. Concretos: Template HK23 (estructura de 6 galaxias) y Génesis (bloque en blanco). No un PDF — un clon vivo en tu mapa.</p></div>
-    <div class="pl"><div class="n">PIEZA 03</div><h3>🤖 EL ESCUADRÓN DE AGENTES</h3><p>IA que ejecuta de verdad: Estratega, Analista, Copywriter, VICE FUTURES (desk de riesgo), research diario y EL ADUANERO. Más un <b>Creador de Agentes</b> para forjar el tuyo. Los corrés en TU venture.</p></div>
-    <div class="pl"><div class="n">PIEZA 04</div><h3>🔑 EL SISTEMA DE PENSAMIENTO</h3><p>La capa de acceso y ritmo: Llaves + Bóveda, el "mirá cómo lo corro en vivo", y el multiverso donde orbitan universos de otros. Convierte el OS de herramienta en <b>operación viva</b>.</p></div>
+    <div class="pl"><div class="n">01</div><h3 data-i18n="p1_h">⚙ FRAMEWORKS</h3><p data-i18n="p1_p">El ciclo repetible sobre el que está construido el universo: <b>IDEAS → CREACIÓN → PRODUCTOS → COMUNIDAD → INGRESOS → RECURSOS</b>. La forma de pensar que lleva cualquier idea al mercado.</p></div>
+    <div class="pl"><div class="n">02</div><h3 data-i18n="p2_h">📐 BLUEPRINTS</h3><p data-i18n="p2_p">Flujos de creación que <b>estampan un venture entero en un clic</b>. Concretos: Template HK23 (estructura de 6 galaxias) y Génesis (bloque en blanco). No es un PDF — es un clon vivo en tu mapa.</p></div>
+    <div class="pl"><div class="n">03</div><h3 data-i18n="p3_h">🤖 EL ESCUADRÓN DE AGENTES</h3><p data-i18n="p3_p">IA que ejecuta de verdad: Estratega, Analista, Copywriter, VICE FUTURES (desk de riesgo), investigación diaria y EL ADUANERO. Más un <b>Creador de Agentes</b> para forjar el tuyo. Los corres en TU venture.</p></div>
+    <div class="pl"><div class="n">04</div><h3 data-i18n="p4_h">🔑 EL SISTEMA DE PENSAMIENTO</h3><p data-i18n="p4_p">La capa de acceso y ritmo: Llaves + Bóveda, el "mira cómo lo corro en vivo", y el multiverso donde orbitan universos de otros. Convierte el OS de herramienta en <b>operación viva</b>.</p></div>
   </div>
 </div></section>
 
-<!-- 6. TELEMETRY -->
 <section><div class="wrap">
-  <div class="eye" style="text-align:center">El motor, funcionando</div>
-  <div class="stitle">Cada proyecto es un cilindro que enciende</div>
-  <div class="ssub">Telemetría, no galería. Cada venture prueba que una capacidad del motor es real.</div>
+  <div class="eye" style="text-align:center" data-i18n="t_eye">El motor, funcionando</div>
+  <div class="stitle" data-i18n="t_title">Cada proyecto es un cilindro que enciende</div>
+  <div class="ssub" data-i18n="t_sub">Telemetría, no galería. Cada venture prueba que una capacidad del motor es real.</div>
   <div class="telem">
-    <div class="cyl"><div class="top"><span class="cap">CAPITAL-RAISE</span><span class="fire sealed">🔒 SELLADO</span></div><h4>Mina de oro</h4><p>Un raise minero real, estructurado por el OS, sellado por EL ADUANERO. Prueba que el motor maneja capital — los detalles quedan privados por diseño.</p></div>
-    <div class="cyl"><div class="top"><span class="cap">PRODUCTO + SAAS</span><span class="fire">● ENCENDIDO</span></div><h4>VICEGOLFER · Albatros</h4><p>Un producto de performance + un SaaS B2B en vivo. El cilindro de "construir producto" funcionando.</p></div>
-    <div class="cyl"><div class="top"><span class="cap">TRADING · AGENTES</span><span class="fire">● ENCENDIDO</span></div><h4>Crypto Vice · VICE FUTURES</h4><p>Un desk de análisis y riesgo movido por agentes. El cilindro de "análisis autónomo".</p></div>
-    <div class="cyl"><div class="top"><span class="cap">CREATIVO</span><span class="fire">● ENCENDIDO</span></div><h4>Arte</h4><p>Una galería y colección viva. El cilindro de "negocio creativo".</p></div>
-    <div class="cyl"><div class="top"><span class="cap">MEDIOS AUTÓNOMOS</span><span class="fire">● ENCENDIDO</span></div><h4>VICE.HUB GTA6</h4><p>Un hub que se actualiza solo con un agente diario. El cilindro de "medios que corren sin vos".</p></div>
+    <div class="cyl"><div class="top"><span class="cap" data-i18n="t1_cap">CAPITAL</span><span class="fire sealed" data-i18n="t_sealed">🔒 SELLADO</span></div><h4 data-i18n="t1_h">Mina de oro</h4><p data-i18n="t1_p">Un levantamiento de capital minero real, estructurado por el OS, sellado por EL ADUANERO. Prueba que el motor maneja capital — los detalles quedan privados por diseño.</p></div>
+    <div class="cyl"><div class="top"><span class="cap" data-i18n="t2_cap">PRODUCTO + SAAS</span><span class="fire" data-i18n="t_on">● ENCENDIDO</span></div><h4>VICEGOLFER · Albatros</h4><p data-i18n="t2_p">Un producto de rendimiento + un SaaS B2B en vivo. El cilindro de "construir producto" funcionando.</p></div>
+    <div class="cyl"><div class="top"><span class="cap" data-i18n="t3_cap">TRADING · AGENTES</span><span class="fire" data-i18n="t_on2">● ENCENDIDO</span></div><h4>Crypto Vice · VICE FUTURES</h4><p data-i18n="t3_p">Un desk de análisis y riesgo movido por agentes. El cilindro de "análisis autónomo".</p></div>
+    <div class="cyl"><div class="top"><span class="cap" data-i18n="t4_cap">CREATIVO</span><span class="fire" data-i18n="t_on3">● ENCENDIDO</span></div><h4>Arte</h4><p data-i18n="t4_p">Una galería y colección viva. El cilindro de "negocio creativo".</p></div>
+    <div class="cyl"><div class="top"><span class="cap" data-i18n="t5_cap">MEDIOS AUTÓNOMOS</span><span class="fire" data-i18n="t_on4">● ENCENDIDO</span></div><h4>VICE.HUB GTA6</h4><p data-i18n="t5_p">Un hub que se actualiza solo con un agente diario. El cilindro de "medios que corren sin ti".</p></div>
   </div>
-  <div class="diverse">De una <b>mina de oro</b> a una <b>app de golf</b> a un <b>desk de trading</b> — un solo motor.<br>Nadie manda todo esto de casualidad. Solo una máquina lo abarca.</div>
+  <div class="diverse" data-i18n="t_div">De una <b>mina de oro</b> a una <b>app de golf</b> a un <b>desk de trading</b> — un solo motor.<br>Nadie hace todo esto de casualidad. Solo una máquina lo abarca.</div>
 </div></section>
 
-<!-- 7. ADUANERO -->
 <section><div class="wrap"><div class="adu">
   <div class="ic">🛃</div>
-  <h2>El motor que fabrica más motores</h2>
-  <p><b style="color:var(--white)">EL ADUANERO</b> es la parte del motor que convierte tu output privado en un template vendible. Por eso la mina de arriba es una <b style="color:var(--white)">caja negra sellada</b> — no es una debilidad, es una capacidad funcionando en vivo: la máquina productiza su propio resultado.</p>
+  <h2 data-i18n="a_h">El motor que fabrica más motores</h2>
+  <p data-i18n="a_p"><b style="color:var(--white)">EL ADUANERO</b> es la parte del motor que convierte tu resultado privado en un template vendible. Por eso la mina de arriba es una <b style="color:var(--white)">caja negra sellada</b> — no es una debilidad, es una capacidad funcionando en vivo: la máquina productiza su propio resultado.</p>
 </div></div></section>
 
-<!-- 8. QUESTIONS NAV (one page per question — coming) -->
 <section><div class="wrap">
-  <div class="eye" style="text-align:center">Profundizá</div>
-  <div class="stitle" style="margin-bottom:26px">Una página, una pregunta</div>
+  <div class="eye" style="text-align:center" data-i18n="q_eye">Profundiza</div>
+  <div class="stitle" style="margin-bottom:26px" data-i18n="q_title">Una página, una pregunta</div>
   <div class="qgrid">
-    <a class="q" href="hk23-universe"><div class="qq">¿Cómo funciona? →</div><div class="qa">Explorá el motor corriendo (la demo viva)</div></a>
-    <a class="q" href="#acceso"><div class="qq">¿Qué puedo comprar? →</div><div class="qa">Los niveles de acceso al motor</div></a>
-    <a class="q" href="hk23-universe?chooser=1"><div class="qq">¿Cómo empiezo? →</div><div class="qa">Elegí tu nivel y arrancá</div></a>
-    <div class="q"><div class="qq" style="color:var(--muted)">¿Por qué existe?</div><div class="qsoon">página propia · pronto</div></div>
-    <div class="q"><div class="qq" style="color:var(--muted)">¿Qué puedo construir?</div><div class="qsoon">página propia · pronto</div></div>
-    <div class="q"><div class="qq" style="color:var(--muted)">¿Qué puedo aprender?</div><div class="qsoon">página propia · pronto</div></div>
+    <a class="q" href="hk23-universe"><div class="qq" data-i18n="q1_q">¿Cómo funciona? →</div><div class="qa" data-i18n="q1_a">Explora el motor corriendo (la demo viva)</div></a>
+    <a class="q" href="#acceso"><div class="qq" data-i18n="q2_q">¿Qué puedo comprar? →</div><div class="qa" data-i18n="q2_a">Los niveles de acceso al motor</div></a>
+    <a class="q" href="hk23-universe?chooser=1"><div class="qq" data-i18n="q3_q">¿Cómo empiezo? →</div><div class="qa" data-i18n="q3_a">Elige tu nivel y arranca</div></a>
+    <div class="q"><div class="qq" style="color:var(--muted)" data-i18n="q4_q">¿Por qué existe?</div><div class="qsoon" data-i18n="q_soon">página propia · pronto</div></div>
+    <div class="q"><div class="qq" style="color:var(--muted)" data-i18n="q5_q">¿Qué puedo construir?</div><div class="qsoon" data-i18n="q_soon2">página propia · pronto</div></div>
+    <div class="q"><div class="qq" style="color:var(--muted)" data-i18n="q6_q">¿Qué puedo aprender?</div><div class="qsoon" data-i18n="q_soon3">página propia · pronto</div></div>
   </div>
 </div></section>
 
-<!-- 10. PRICING -->
 <section id="acceso"><div class="wrap">
-  <div class="eye" style="text-align:center">¿Qué puedo comprar?</div>
-  <div class="stitle">Niveles de acceso al motor</div>
-  <div class="ssub">No es una suscripción a mis proyectos. Es cuánto del motor te dejan correr.</div>
+  <div class="eye" style="text-align:center" data-i18n="pr_eye">¿Qué puedo comprar?</div>
+  <div class="stitle" data-i18n="pr_title">Niveles de acceso al motor</div>
+  <div class="ssub" data-i18n="pr_sub">No es una suscripción a mis proyectos. Es cuánto del motor te dejan correr.</div>
   <div class="lad">
-    <div class="lv"><div class="verb">Ralentí</div><div class="nm" style="color:var(--muted)">VISITANTE</div><div class="pr" style="color:var(--muted)">Gratis</div><a href="hk23-universe" class="go" style="background:transparent;border:1px solid var(--muted);color:var(--muted)">Escuchalo en ralentí</a></div>
-    <div class="lv feat"><div class="verb">Manos en los controles</div><div class="nm" style="color:var(--electric)">PREMIUM</div><div class="pr">$4.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--electric);color:#06121a">Tomá los controles</a></div>
-    <div class="lv"><div class="verb">Dueño del motor</div><div class="nm" style="color:var(--gold)">FULL · ARQUITECTO</div><div class="pr">$14.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--gold);color:#06121a">Adueñate del motor</a></div>
-    <div class="lv"><div class="verb">Pre-ensamblado</div><div class="nm" style="color:var(--red)">TEMPLATE HK23</div><div class="pr">$29 único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--red);color:var(--red)">La máquina lista</a></div>
-    <div class="lv"><div class="verb">Bloque desnudo</div><div class="nm" style="color:var(--purple)">GÉNESIS</div><div class="pr">$19 único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--purple);color:var(--purple)">Desde el bloque</a></div>
+    <div class="lv"><div class="verb" data-i18n="lv1_v">Ralentí</div><div class="nm" style="color:var(--muted)">VISITANTE</div><div class="pr" style="color:var(--muted)" data-i18n="lv1_pr">Gratis</div><a href="hk23-universe" class="go" style="background:transparent;border:1px solid var(--muted);color:var(--muted)" data-i18n="lv1_c">Escúchalo en ralentí</a></div>
+    <div class="lv feat"><div class="verb" data-i18n="lv2_v">Manos en los controles</div><div class="nm" style="color:var(--electric)">PREMIUM</div><div class="pr">$4.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--electric);color:#06121a" data-i18n="lv2_c">Toma los controles</a></div>
+    <div class="lv"><div class="verb" data-i18n="lv3_v">Dueño del motor</div><div class="nm" style="color:var(--gold)">FULL · ARQUITECTO</div><div class="pr">$14.99/mes</div><a href="hk23-universe?chooser=1" class="go" style="background:var(--gold);color:#06121a" data-i18n="lv3_c">Hazte dueño del motor</a></div>
+    <div class="lv"><div class="verb" data-i18n="lv4_v">Pre-ensamblado</div><div class="nm" style="color:var(--red)">TEMPLATE HK23</div><div class="pr" data-i18n="lv4_pr">$29 pago único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--red);color:var(--red)" data-i18n="lv4_c">La máquina lista</a></div>
+    <div class="lv"><div class="verb" data-i18n="lv5_v">Bloque desnudo</div><div class="nm" style="color:var(--purple)">GÉNESIS</div><div class="pr" data-i18n="lv5_pr">$19 pago único</div><a href="hk23-universe?chooser=1" class="go" style="background:transparent;border:1px solid var(--purple);color:var(--purple)" data-i18n="lv5_c">Desde el bloque</a></div>
   </div>
 </div></section>
 
-<!-- 11. FINAL -->
 <section class="final"><div class="wrap">
-  <h2>Dejá de admirar los autos.<br><span style="color:var(--red)">Llevate el motor.</span></h2>
-  <a href="#acceso" class="btn primary" style="font-size:15px;padding:15px 30px">⚙ ELEGÍ TU NIVEL DE ACCESO</a>
+  <h2 data-i18n="f_h">Deja de admirar los autos.<br><span style="color:var(--red)">Toma el motor.</span></h2>
+  <a href="#acceso" class="btn primary" style="font-size:15px;padding:15px 30px" data-i18n="f_c">⚙ ELIGE TU NIVEL DE ACCESO</a>
 </div></section>
 
 <footer><div class="wrap">
-  <div class="q2">HK23 OS · EL MOTOR · TODO ES REPLICABLE · TODO ES DOCUMENTADO</div>
-  <div class="lk"><a href="privacy.html">privacidad</a> · <a href="terms.html">términos</a> · <a href="mailto:hk23hub@gmail.com">contacto</a></div>
+  <div class="q2" data-i18n="foot">HK23 OS · EL MOTOR · TODO ES REPLICABLE · TODO ESTÁ DOCUMENTADO</div>
+  <div class="lk"><a href="privacy.html" data-i18n="foot_p">privacidad</a> · <a href="terms.html" data-i18n="foot_t">términos</a> · <a href="mailto:hk23hub@gmail.com" data-i18n="foot_c">contacto</a></div>
 </div></footer>
+
+<script>
+  const I18N = {
+    nav1:{es:'El motor',en:'The engine'}, nav2:{es:'Pruebas',en:'Proof'}, nav3:{es:'Acceso',en:'Access'}, nav4:{es:'Explorar ↗',en:'Explore ↗'},
+    tag:{es:'◈ HK23 OS · el motor de venture-building',en:'◈ HK23 OS · the venture-building engine'},
+    h1:{es:'No quieres mis empresas.<br>Quieres <span class="g">la máquina</span> que las construye.',en:'You don\'t want my companies.<br>You want <span class="g">the machine</span> that builds them.'},
+    sub:{es:'HK23 OS es el motor detrás de un levantamiento de capital minero, un SaaS de golf en vivo, un desk de trading autónomo y un hub de medios que se actualiza solo — los frameworks, blueprints y agentes de IA que construyeron todo eso. <b style="color:var(--white)">Toma el motor. Apúntalo a tu propia idea.</b>',en:'HK23 OS is the engine behind a mining capital raise, a live golf SaaS, an autonomous trading desk, and a self-running media hub — the frameworks, blueprints, and AI agents that built all of them. <b style="color:var(--white)">Take the engine. Point it at your own idea.</b>'},
+    cta1:{es:'⚙ Toma el motor',en:'⚙ Take the engine'}, cta2:{es:'Escúchalo en ralentí — explora gratis',en:'Hear it idle — explore free'},
+    badge:{es:'● MOTOR EN MARCHA',en:'● ENGINE RUNNING'},
+    truth:{es:'Esto no es un portafolio. Es la máquina. Los proyectos de abajo son <b>solo la prueba de que funciona</b>. Compras el sistema — no los proyectos.',en:'This is not a portfolio. It\'s the machine. The ventures below are <b>only proof that it runs</b>. You buy the system — not the ventures.'},
+    r_eye:{es:'No me creas',en:'Don\'t take my word for it'}, r_title:{es:'Abre las pruebas ahora mismo',en:'Open the proof right now'},
+    r_sub:{es:'Dos ventures 100% vivos, comprobables en este segundo. El mismo motor construyó los dos.',en:'Two ventures, 100% live, testable this second. The same engine built both.'},
+    r1_lbl:{es:'RECIBO 01 · SAAS EN VIVO',en:'RECEIPT 01 · LIVE SAAS'}, r1_p:{es:'Un SaaS real de torneos de golf para clubes, con tableros en vivo. No es una captura — entra y úsalo.',en:'A real golf-tournament SaaS for clubs, with live leaderboards. Not a screenshot — go in and use it.'},
+    r2_lbl:{es:'RECIBO 02 · MEDIOS AUTÓNOMOS',en:'RECEIPT 02 · AUTONOMOUS MEDIA'}, r2_p:{es:'Un hub de medios monetizado cuyo agente de investigación lo actualiza <b>solo, todos los días</b> (cron real). La autonomía, en vivo.',en:'A monetized media hub whose research agent updates it <b>on its own, every day</b> (real cron). Autonomy, live.'},
+    c_eye:{es:'La mentira que venden casi todos',en:'The lie almost everyone sells'}, c_title:{es:'Autos vs. Motor',en:'Cars vs. Engine'},
+    c_no_k:{es:'Lo que venden todos',en:'What everyone sells'}, c_no_h:{es:'🚗 Autos',en:'🚗 Cars'}, c_no_p:{es:'Proyectos terminados que admiras pero no puedes manejar. Te muestran el resultado y te quedas afuera. Compras la foto de lo que otro construyó.',en:'Finished projects you can admire but never drive. You see the result and stay locked out. You buy a photo of what someone else built.'},
+    c_yes_k:{es:'Lo que te doy yo',en:'What I hand you'}, c_yes_h:{es:'⚙ El motor + la tripulación',en:'⚙ The engine + the crew'}, c_yes_p:{es:'La máquina que ensambla los autos: frameworks, blueprints y el escuadrón de agentes. La apuntas a tu idea y produce lo tuyo. Compras lo que construye, no lo construido.',en:'The machine that assembles the cars: frameworks, blueprints, and the agent squad. Point it at your idea and it produces yours. You buy what builds, not what was built.'},
+    p_eye:{es:'De qué está hecho el motor',en:'What the engine is made of'}, p_title:{es:'El valor no son los proyectos. Es esto.',en:'The value isn\'t the projects. It\'s this.'}, p_sub:{es:'Cuatro piezas concretas — no abstracciones. Cada una es algo que se usa.',en:'Four concrete parts — not abstractions. Each one is something you use.'},
+    p1_h:{es:'⚙ FRAMEWORKS',en:'⚙ FRAMEWORKS'}, p1_p:{es:'El ciclo repetible sobre el que está construido el universo: <b>IDEAS → CREACIÓN → PRODUCTOS → COMUNIDAD → INGRESOS → RECURSOS</b>. La forma de pensar que lleva cualquier idea al mercado.',en:'The repeatable cycle the whole universe is built on: <b>IDEAS → CREATION → PRODUCTS → COMMUNITY → REVENUE → RESOURCES</b>. The way of thinking that takes any idea to market.'},
+    p2_h:{es:'📐 BLUEPRINTS',en:'📐 BLUEPRINTS'}, p2_p:{es:'Flujos de creación que <b>estampan un venture entero en un clic</b>. Concretos: Template HK23 (estructura de 6 galaxias) y Génesis (bloque en blanco). No es un PDF — es un clon vivo en tu mapa.',en:'Creation flows that <b>stamp a whole venture into existence in one click</b>. Concrete: Template HK23 (a 6-galaxy structure) and Génesis (a blank block). Not a PDF — a live clone on your map.'},
+    p3_h:{es:'🤖 EL ESCUADRÓN DE AGENTES',en:'🤖 THE AGENT SQUAD'}, p3_p:{es:'IA que ejecuta de verdad: Estratega, Analista, Copywriter, VICE FUTURES (desk de riesgo), investigación diaria y EL ADUANERO. Más un <b>Creador de Agentes</b> para forjar el tuyo. Los corres en TU venture.',en:'AI that actually executes: Strategist, Analyst, Copywriter, VICE FUTURES (risk desk), a daily research agent, and EL ADUANERO. Plus an <b>Agent Designer</b> to forge your own. You run them on YOUR venture.'},
+    p4_h:{es:'🔑 EL SISTEMA DE PENSAMIENTO',en:'🔑 THE THINKING SYSTEM'}, p4_p:{es:'La capa de acceso y ritmo: Llaves + Bóveda, el "mira cómo lo corro en vivo", y el multiverso donde orbitan universos de otros. Convierte el OS de herramienta en <b>operación viva</b>.',en:'The access and cadence layer: Keys + Vault, the "watch me run it live" rhythm, and the multiverse where other people\'s universes orbit. Turns the OS from a tool into a <b>live operation</b>.'},
+    t_eye:{es:'El motor, funcionando',en:'The engine, running'}, t_title:{es:'Cada proyecto es un cilindro que enciende',en:'Every project is a cylinder firing'}, t_sub:{es:'Telemetría, no galería. Cada venture prueba que una capacidad del motor es real.',en:'Telemetry, not a gallery. Each venture proves one capability of the engine is real.'},
+    t_sealed:{es:'🔒 SELLADO',en:'🔒 SEALED'}, t_on:{es:'● ENCENDIDO',en:'● FIRING'}, t_on2:{es:'● ENCENDIDO',en:'● FIRING'}, t_on3:{es:'● ENCENDIDO',en:'● FIRING'}, t_on4:{es:'● ENCENDIDO',en:'● FIRING'},
+    t1_cap:{es:'CAPITAL',en:'CAPITAL'}, t1_h:{es:'Mina de oro',en:'Gold mine'}, t1_p:{es:'Un levantamiento de capital minero real, estructurado por el OS, sellado por EL ADUANERO. Prueba que el motor maneja capital — los detalles quedan privados por diseño.',en:'A real mining capital raise, structured by the OS, sealed by EL ADUANERO. Proof the engine handles capital — details stay private by design.'},
+    t2_cap:{es:'PRODUCTO + SAAS',en:'PRODUCT + SAAS'}, t2_p:{es:'Un producto de rendimiento + un SaaS B2B en vivo. El cilindro de "construir producto" funcionando.',en:'A performance product + a live B2B SaaS. The "build a product" cylinder, firing.'},
+    t3_cap:{es:'TRADING · AGENTES',en:'TRADING · AGENTS'}, t3_p:{es:'Un desk de análisis y riesgo movido por agentes. El cilindro de "análisis autónomo".',en:'An agent-driven analysis and risk desk. The "autonomous analysis" cylinder.'},
+    t4_cap:{es:'CREATIVO',en:'CREATIVE'}, t4_p:{es:'Una galería y colección viva. El cilindro de "negocio creativo".',en:'A living gallery and collection. The "creative business" cylinder.'},
+    t5_cap:{es:'MEDIOS AUTÓNOMOS',en:'AUTONOMOUS MEDIA'}, t5_p:{es:'Un hub que se actualiza solo con un agente diario. El cilindro de "medios que corren sin ti".',en:'A hub that updates itself with a daily agent. The "media that runs without you" cylinder.'},
+    t_div:{es:'De una <b>mina de oro</b> a una <b>app de golf</b> a un <b>desk de trading</b> — un solo motor.<br>Nadie hace todo esto de casualidad. Solo una máquina lo abarca.',en:'From a <b>gold mine</b> to a <b>golf app</b> to a <b>trading desk</b> — one engine.<br>No one ships all of this by accident. Only a machine spans them.'},
+    a_h:{es:'El motor que fabrica más motores',en:'The engine that builds more engines'}, a_p:{es:'<b style="color:var(--white)">EL ADUANERO</b> es la parte del motor que convierte tu resultado privado en un template vendible. Por eso la mina de arriba es una <b style="color:var(--white)">caja negra sellada</b> — no es una debilidad, es una capacidad funcionando en vivo: la máquina productiza su propio resultado.',en:'<b style="color:var(--white)">EL ADUANERO</b> is the part of the engine that turns your private output into a sellable template. That\'s why the mine above is a <b style="color:var(--white)">sealed black box</b> — not a weakness, a capability firing live: the machine productizes its own output.'},
+    q_eye:{es:'Profundiza',en:'Go deeper'}, q_title:{es:'Una página, una pregunta',en:'One page, one question'},
+    q1_q:{es:'¿Cómo funciona? →',en:'How does it work? →'}, q1_a:{es:'Explora el motor corriendo (la demo viva)',en:'Explore the engine running (the live demo)'},
+    q2_q:{es:'¿Qué puedo comprar? →',en:'What can I buy? →'}, q2_a:{es:'Los niveles de acceso al motor',en:'The levels of access to the engine'},
+    q3_q:{es:'¿Cómo empiezo? →',en:'How do I start? →'}, q3_a:{es:'Elige tu nivel y arranca',en:'Pick your level and go'},
+    q4_q:{es:'¿Por qué existe?',en:'Why does it exist?'}, q5_q:{es:'¿Qué puedo construir?',en:'What can I build?'}, q6_q:{es:'¿Qué puedo aprender?',en:'What can I learn?'},
+    q_soon:{es:'página propia · pronto',en:'own page · soon'}, q_soon2:{es:'página propia · pronto',en:'own page · soon'}, q_soon3:{es:'página propia · pronto',en:'own page · soon'},
+    pr_eye:{es:'¿Qué puedo comprar?',en:'What can I buy?'}, pr_title:{es:'Niveles de acceso al motor',en:'Levels of access to the engine'}, pr_sub:{es:'No es una suscripción a mis proyectos. Es cuánto del motor te dejan correr.',en:'It\'s not a subscription to my projects. It\'s how much of the engine you get to run.'},
+    lv1_v:{es:'Ralentí',en:'Idle'}, lv1_pr:{es:'Gratis',en:'Free'}, lv1_c:{es:'Escúchalo en ralentí',en:'Hear it idle'},
+    lv2_v:{es:'Manos en los controles',en:'Hands on the controls'}, lv2_c:{es:'Toma los controles',en:'Take the controls'},
+    lv3_v:{es:'Dueño del motor',en:'Own the engine'}, lv3_c:{es:'Hazte dueño del motor',en:'Own the whole engine'},
+    lv4_v:{es:'Pre-ensamblado',en:'Pre-assembled'}, lv4_pr:{es:'$29 pago único',en:'$29 one-time'}, lv4_c:{es:'La máquina lista',en:'The machine, ready'},
+    lv5_v:{es:'Bloque desnudo',en:'Bare block'}, lv5_pr:{es:'$19 pago único',en:'$19 one-time'}, lv5_c:{es:'Desde el bloque',en:'From the bare block'},
+    f_h:{es:'Deja de admirar los autos.<br><span style="color:var(--red)">Toma el motor.</span>',en:'Stop admiring the cars.<br><span style="color:var(--red)">Take the engine.</span>'}, f_c:{es:'⚙ ELIGE TU NIVEL DE ACCESO',en:'⚙ PICK YOUR ACCESS LEVEL'},
+    foot:{es:'HK23 OS · EL MOTOR · TODO ES REPLICABLE · TODO ESTÁ DOCUMENTADO',en:'HK23 OS · THE ENGINE · EVERYTHING REPLICABLE · EVERYTHING DOCUMENTED'},
+    foot_p:{es:'privacidad',en:'privacy'}, foot_t:{es:'términos',en:'terms'}, foot_c:{es:'contacto',en:'contact'},
+  };
+  function setLang(l){
+    document.querySelectorAll('[data-i18n]').forEach(function(el){ var d=I18N[el.getAttribute('data-i18n')]; if(d&&d[l]!=null) el.innerHTML=d[l]; });
+    document.documentElement.lang=l;
+    document.getElementById('lang-es').classList.toggle('on', l==='es');
+    document.getElementById('lang-en').classList.toggle('on', l==='en');
+    try{ localStorage.setItem('hk23-lang', l); }catch(_){}
+  }
+  (function(){ var l='es'; try{ l=localStorage.getItem('hk23-lang') || ((navigator.language||'es').toLowerCase().indexOf('es')===0?'es':'en'); }catch(_){} setLang(l); })();
+</script>
 </body>
 </html>
