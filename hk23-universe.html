@@ -2707,7 +2707,7 @@
         <div style="position:absolute;top:-10px;left:16px;background:#080808;padding:0 8px;font-family:'Space Mono',monospace;font-size:8px;letter-spacing:4px;color:#555">MUNDOS · GALAXIAS</div>
         <div style="display:flex;flex-direction:column;gap:11px;margin-top:8px">
           <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#AAFF00">⛳ VICEGOLFER</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Golf performance OS</div></div><span class="tag live">LIVE</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FFD200">⛏ LA IGLESIA</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Mina de oro · IV Región · 3.676 ha</div></div><span class="tag gold">ACTIVO</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FFD200">⛏ VENTURE DE RECURSOS</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Blueprint · levantamiento de capital</div></div><span class="tag gold">ACTIVO</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#ff2e93">🎮 VICE.HUB GTA6</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Fan hub · intel diario · PRO</div></div><span class="tag live">LIVE</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#AAFF00">🏆 ALBATROS</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Torneos de golf · SaaS clubes</div></div><span class="tag live">LIVE</span></div>
           <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1A1A1A;padding-bottom:9px"><div><div style="font-size:13px;font-weight:700;color:#FF3A1F">🎨 ARTE</div><div style="font-size:10px;color:#555;font-family:'Space Mono',monospace">Galería + colección + market</div></div><span class="tag live">LIVE</span></div>
@@ -3055,11 +3055,11 @@ const PROJECTS = [
             desc: 'Línea directa con HK23: acceso anticipado a todo lo que se construye y voz en lo que viene. Tu email ya está en la lista.',
             stats: [{ l:'CANAL', v:'EMAIL' },{ l:'PRIORIDAD', v:'MÁXIMA' },{ l:'MIEMBROS', v:'POCOS' },{ l:'COSTO', v:'LLAVES' }],
             action: 'YA ADENTRO →', actionColor: '#FF3A1F' }},
-        { label: 'LA MINA\nDE ORO', x: 0.50, y: 0.80, color: '#FFD200', size: 13,
-          detail: { title: 'LA MINA — PROYECTO LA IGLESIA', status: 'live', eyebrow: 'OPORTUNIDAD REAL',
-            desc: 'El tesoro más grande de la bóveda: acceso a LA IGLESIA, proyecto real de exploración de oro (IV Región, 3.676 ha). El planeta dorado con la montaña.',
-            stats: [{ l:'MINERAL', v:'GOLD' },{ l:'HECTÁREAS', v:'3,676' },{ l:'RAISING', v:'USD 2M' },{ l:'ETAPA', v:'EXPLORACIÓN' }],
-            action: 'IR A LA IGLESIA →', actionColor: '#FFD200' }},
+        { label: 'EL VENTURE\nREAL', x: 0.50, y: 0.80, color: '#FFD200', size: 13,
+          detail: { title: 'EL PROYECTO REAL DETRÁS DEL BLUEPRINT', status: 'live', eyebrow: 'SOLO FOUNDER',
+            desc: 'El tesoro más grande de la bóveda: acceso al venture REAL que hay detrás del blueprint público — con sus datos reales, no la versión de ideas. Reservado al círculo Founder.',
+            stats: [{ l:'ACCESO', v:'FOUNDER' },{ l:'CAPA', v:'REAL' },{ l:'DATOS', v:'PRIVADOS' },{ l:'GATEKEEPER', v:'ON' }],
+            action: 'SOLO FOUNDER →', actionColor: '#FFD200' }},
         { label: 'BLUEPRINTS\nSECRETOS', x: 0.18, y: 0.45, color: '#B84DFF', size: 12,
           detail: { title: 'BLUEPRINTS SECRETOS', status: 'build', eyebrow: 'CONOCIMIENTO',
             desc: 'Los planos de cómo se construye un universo: arquitectura, agentes, monetización. Se van revelando a los del Inner Circle.',
@@ -3135,11 +3135,11 @@ const PROJECTS = [
             desc:'Modular operating system for performance, identity, memory, and community. 4 verticals: Golf, Rugby, Crypto, and HK23.',
             stats:[{l:'SPRINT',v:'1 OF 6'},{l:'VERTICALS',v:'4'},{l:'STACK',v:'NEXT 15'},{l:'DB',v:'SUPABASE'}],
             action:'ENTER THE OS →', actionColor:'#AAFF00' }},
-        { label: 'LA IGLESIA',       x:0.18, y:0.64, color:'#FFD200', size:13,
-          detail:{ title:'LA IGLESIA — MINE', status:'live', eyebrow:'MINING · GOLD · IV REGION',
-            desc:'3,676 hectares in Chile\'s IV Region. Active mining claim with confirmed gold geochemical anomalies.',
-            stats:[{l:'HECTARES',v:'3,676'},{l:'AU GRADE',v:'2.1 g/t'},{l:'CAPITAL',v:'USD 2M'},{l:'ROI',v:'8–12×'}],
-            action:'VIEW DECK →', actionColor:'#FFD200' }},
+        { label: 'VENTURE DE\nRECURSOS',       x:0.18, y:0.64, color:'#FFD200', size:13,
+          detail:{ title:'VENTURE DE RECURSOS · BLUEPRINT', status:'live', eyebrow:'FRAMEWORK · CAPITAL',
+            desc:'El blueprint de cómo se estructura y levanta capital para un venture de recursos: activo → validación → tesis → ejecución. La arquitectura reutilizable, sin datos reales. El proyecto real es solo Founder.',
+            stats:[{l:'FRAMEWORK',v:'CAPITAL'},{l:'DATOS',v:'BLUEPRINT'},{l:'REUTILIZABLE',v:'SÍ'},{l:'REAL',v:'FOUNDER'}],
+            action:'ESTUDIAR FRAMEWORK →', actionColor:'#FFD200' }},
         { label: 'HK23\nPLATFORM',  x:0.18, y:0.38, color:'#F0EDE8', size:11,
           detail:{ title:'HK23 PLATFORM', status:'build', eyebrow:'DIGITAL ECOSYSTEM',
             desc:'The complete digital platform of the HK23 universe. Content hub, books, guides, and digital products.',
