@@ -8084,7 +8084,7 @@ loadQuotesThen(handleDeepLink);
       return { label, sub:v('n-sub'), color:v('n-color')||'#FFD200' }; },
     // ── free placement: click anywhere on the map, galaxy is born THERE ──
     startPlacing(){
-      if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; // blueprint = Premium+
+      { let _n=0; try{ _n=(JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){} if(_n>=1 && window.HK23TIER && !HK23TIER.require(1,'Crear más galaxias')) return; } // 1ª galaxia GRATIS, de ahí Premium
       const f=NH._readForm(); if(!f) return;
       NH._placing=f; NH.close();
       if(typeof mapCanvas!=='undefined') mapCanvas.style.cursor='crosshair';
@@ -8098,7 +8098,7 @@ loadQuotesThen(handleDeepLink);
       return true;
     },
     createGalaxy(){
-      if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; // blueprint = Premium+
+      { let _n=0; try{ _n=(JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){} if(_n>=1 && window.HK23TIER && !HK23TIER.require(1,'Crear más galaxias')) return; } // 1ª galaxia GRATIS, de ahí Premium
       const f=NH._readForm(); if(!f) return;
       // place as a NEIGHBOR of an existing galaxy + connect to it
       const base=(NODES&&NODES.length)?NODES[Math.floor(Math.random()*NODES.length)]:{x:0.5,y:0.5};
@@ -8973,7 +8973,7 @@ loadQuotesThen(handleDeepLink);
     closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
     setDest(id){ const ts=document.getElementById('ad-t-'+id), vs=document.getElementById('ad-v-'+id); if(!ts) return;
       UDEST[id]={type:ts.value, value:(vs.value||'').trim()}; saveDest(); toast('Destino asignado ✓'); DASH.render(); },
-    newGalaxy(){ if(window.HK23TIER && !HK23TIER.require(1,'Crear galaxias')) return; if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
+    newGalaxy(){ let _n=0; try{ _n=(JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){} if(_n>=1 && window.HK23TIER && !HK23TIER.require(1,'Crear más galaxias')) return; if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
     showDoor(id, obj){ obj=obj||(DASH._doorObj&&DASH._doorObj[id]); DASH._doorObj=DASH._doorObj||{}; if(obj) DASH._doorObj[id]=obj;
       const label=(obj&&obj.label)||id; const uni=obj&&obj.universe; const nodes=(uni&&uni.nodes)||[];
       const st=document.getElementById('wv-status'); st.textContent=id.indexOf('proj:')===0?'PLANETA':id.indexOf('gal:')===0?'GALAXIA':id.indexOf('nexus:')===0?'ORBITADOR':'NODO';
