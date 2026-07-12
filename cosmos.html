@@ -354,7 +354,8 @@ async function load(){ try{
   let si=0, ni=0;
   planets=visit.map(e=>{
     const isSys=e.level==='system';
-    const L=listings[e.id];
+    // listings row wins; meta.price is the fallback (anon-seeded books can't write hk23.listings)
+    const L=listings[e.id]||((e.meta&&e.meta.price)?{price:e.meta.price,currency:e.meta.currency||'USD',status:'active',source:e.meta.source||'gumroad',external_url:e.link}:null);
     const ring = isSys ? (si++%2) : (2+ni++%2);
     const idx = isSys? si : ni;
     const m=e.metrics||{}; const gx=galaxyOf(e);
