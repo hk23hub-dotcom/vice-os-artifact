@@ -6967,6 +6967,7 @@ function deactivateGalaxyMode() {
   label.classList.remove('show');
   hint.classList.remove('show');
 
+  if (window.MULTIU) MULTIU.exitCleanup(); // volver a home + cerrar modales/colocación del multiverso
   if (galaxyAnimId) { cancelAnimationFrame(galaxyAnimId); galaxyAnimId = null; }
 
   // Restore map chrome
@@ -7012,7 +7013,8 @@ function showNeighborCard(g) {
     return;
   }
   el.innerHTML = '<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:' + g.col + '">SIN EXPLORAR</div>'
-    + '<div style="font-size:11px;line-height:1.7;color:#aab;margin-top:8px">Este rincón del multiverso todavía no tiene dueño. Cuando un nuevo viajero cree su galaxia, aparecerá aquí.</div>'
+    + '<div style="font-size:11px;line-height:1.7;color:#aab;margin-top:8px">Este rincón del multiverso todavía no tiene dueño. Puede ser tuyo: funda un universo aquí mismo.</div>'
+    + btn('🌌 FUNDAR UN UNIVERSO ACÁ', g.col, '#06121a', 'document.getElementById(\'nb-card\').remove();MULTIU.quickFound(' + Math.round(g.x) + ',' + Math.round(g.y) + ')')
     + close;
 }
 
@@ -7100,8 +7102,14 @@ function requestGalaxyAccess(){
   if (!ov) return;
   ov.addEventListener('click', e => {
     if (!galaxyModeActive || !window.__galaxySlots) return;
+    if (e.target && e.target.tagName === 'BUTTON') return; // los botones del overlay manejan lo suyo
+    if (window.MULTIU && MULTIU.isPlacing()) { MULTIU.dropAt(e.clientX, e.clientY); return; } // fundando: este click elige el lugar
     const hit = window.__galaxySlots.find(g => Math.hypot(e.clientX - g.x, e.clientY - g.y) < Math.max(44, g.r * 2.2));
-    if (hit) showNeighborCard(hit);
+    if (hit && hit.portal) { if (window.MULTIU) MULTIU.travel(hit.portal); return; }
+    if (hit && hit.universe) { if (window.MULTIU) MULTIU.card(hit.uref); return; }
+    if (hit) { showNeighborCard(hit); return; }
+    // click en el vacío → ofrecer fundar un universo justo ahí
+    if (window.MULTIU) MULTIU.quickFound(e.clientX, e.clientY);
   });
 })();
 
@@ -7124,15 +7132,20 @@ function drawGalaxyBg() {
     ts: (Math.random() * 0.3 + 0.1) * 0.001,
   }));
 
+  // Región actual del multiverso (home = tu cúmulo; las demás son galaxias vecinas)
+  const REG = (window.MULTIU && MULTIU.region()) || 'home';
+  const isHome = REG === 'home';
+  const REGINFO = (!isHome && window.MULTIU) ? (MULTIU.regions()[REG] || null) : null;
+
   // Distant galaxies — REAL neighbor universes (other users' rows) take these slots;
   // any slot without a real universe stays as an unexplored '???'.
-  const distantGalaxies = [
+  const distantGalaxies = isHome ? [
     { x: cx * 0.18, y: cy * 0.42, r: 28, col: '#FFD200', label: 'UNKNOWN', angle: 0.3 },
     { x: cx * 1.82, y: cy * 0.55, r: 22, col: '#00F0FF', label: '???', angle: -0.8 },
     { x: cx * 0.28, y: cy * 1.55, r: 18, col: '#AAFF00', label: '???', angle: 1.1 },
     { x: cx * 1.75, y: cy * 1.48, r: 20, col: '#FF6600', label: '???', angle: 0.6 },
     { x: cx * 1.0,  y: cy * 0.14, r: 14, col: '#B84DFF', label: '???', angle: -0.4 },
-  ];
+  ] : [];
   const meU = window.HK23AUTH && HK23AUTH.user();
   const realNb = (window.__nbUniverses || []).filter(u => !meU || ((u.meta || {}).owner !== meU.id));
   distantGalaxies.forEach((g, i) => {
@@ -7148,7 +7161,7 @@ function drawGalaxyBg() {
   // ── YOUR created galaxies (NeuralHub) join the multiverse as NEIGHBORS of HK23 ──
   let myGxRaw = [];
   try { myGxRaw = (JSON.parse(localStorage.getItem('hk23nh-overrides') || '{}').newGalaxies) || []; } catch (_) {}
-  const myNeighbors = myGxRaw.map((g, i) => {
+  const myNeighbors = (isHome ? myGxRaw : []).map((g, i) => {
     let h = 0; for (let k = 0; k < g.id.length; k++) h = (h * 31 + g.id.charCodeAt(k)) >>> 0; // stable spot per id
     const ang = (h % 628) / 100 + i * 2.1;
     const dist = Math.min(cx, cy) * (0.55 + ((h >> 4) % 30) / 100);
@@ -7159,7 +7172,17 @@ function drawGalaxyBg() {
       angle: ((h % 100) / 50 - 1), mine: true, sub: g.sub || '',
     };
   });
-  const allGalaxies = distantGalaxies.concat(myNeighbors);
+  // ── TUS UNIVERSOS FUNDADOS (multiverso real) — los de esta región ──
+  const myUniverses = (window.MULTIU ? MULTIU.forRegion(REG) : []).map(u => ({
+    x: Math.min(W - 70, Math.max(70, (u.nx || 0.5) * W)),
+    y: Math.min(H - 80, Math.max(70, (u.ny || 0.5) * H)),
+    id: u.id, r: 20, col: u.color || '#00F0FF',
+    label: String(u.label || '???').toUpperCase().slice(0, 16),
+    angle: 0.4, mine: true, universe: true, uref: u, sub: u.sub || '',
+  }));
+  // ── PORTALES a las galaxias vecinas (viajar de región en región) ──
+  const portals = window.MULTIU ? MULTIU.portalSlots(W, H, REG) : [];
+  const allGalaxies = distantGalaxies.concat(myNeighbors, myUniverses, portals);
   window.__galaxySlots = allGalaxies;
 
   // ── NEBULAS — soft drifting colour clouds (life) ──
@@ -7218,20 +7241,40 @@ function drawGalaxyBg() {
       ctx.fill();
     });
 
-    // HK23 galaxy glow halo (soft glow around shrunken canvas position)
-    ctx.save();
-    ctx.translate(cx, cy * 0.76);
-    const haloGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 90);
-    haloGrad.addColorStop(0, `rgba(184,77,255,${0.06 + 0.03 * Math.sin(t * 0.7)})`);
-    haloGrad.addColorStop(1, 'rgba(184,77,255,0)');
-    ctx.fillStyle = haloGrad;
-    ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI * 2); ctx.fill();
-    // HK23 label below the shrunken canvas
-    ctx.font = '700 7px Space Mono, monospace';
-    ctx.fillStyle = `rgba(184,77,255,${0.35 + 0.1 * Math.sin(t * 0.5)})`;
-    ctx.textAlign = 'center';
-    ctx.fillText('HK23', 0, 82);
-    ctx.restore();
+    if (isHome) {
+      // HK23 galaxy glow halo (soft glow around shrunken canvas position)
+      ctx.save();
+      ctx.translate(cx, cy * 0.76);
+      const haloGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 90);
+      haloGrad.addColorStop(0, `rgba(184,77,255,${0.06 + 0.03 * Math.sin(t * 0.7)})`);
+      haloGrad.addColorStop(1, 'rgba(184,77,255,0)');
+      ctx.fillStyle = haloGrad;
+      ctx.beginPath(); ctx.arc(0, 0, 90, 0, Math.PI * 2); ctx.fill();
+      // HK23 label below the shrunken canvas
+      ctx.font = '700 7px Space Mono, monospace';
+      ctx.fillStyle = `rgba(184,77,255,${0.35 + 0.1 * Math.sin(t * 0.5)})`;
+      ctx.textAlign = 'center';
+      ctx.fillText('HK23', 0, 82);
+      ctx.restore();
+    } else {
+      // núcleo de la galaxia vecina — territorio nuevo para fundar
+      ctx.save();
+      ctx.translate(cx, cy * 0.76);
+      const rc = (REGINFO && REGINFO.col) || '#B84DFF';
+      const rGrad = ctx.createRadialGradient(0, 0, 0, 0, 0, 130);
+      rGrad.addColorStop(0, rc + '22');
+      rGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = rGrad;
+      ctx.beginPath(); ctx.arc(0, 0, 130, 0, Math.PI * 2); ctx.fill();
+      ctx.font = '900 22px Space Grotesk, sans-serif';
+      ctx.fillStyle = rc + 'CC';
+      ctx.textAlign = 'center';
+      ctx.fillText((REGINFO && REGINFO.label) || 'GALAXIA VECINA', 0, -6);
+      ctx.font = '400 9px Space Mono, monospace';
+      ctx.fillStyle = 'rgba(200,200,215,.55)';
+      ctx.fillText('galaxia vecina — haz click en el vacío para fundar un universo aquí', 0, 16);
+      ctx.restore();
+    }
 
     // Distant galaxies + YOUR created neighbors
     allGalaxies.forEach(g => {
@@ -7270,7 +7313,15 @@ function drawGalaxyBg() {
       ctx.fillStyle = g.col + '55';
       ctx.textAlign = 'center';
       ctx.fillText(g.label, 0, g.r * 1.6);
-      if (g.mine) { // yours wear the mark
+      if (g.portal) {
+        ctx.font = '400 5px Space Mono, monospace';
+        ctx.fillStyle = g.col + '99';
+        ctx.fillText(g.portal === 'home' ? '← VOLVER A HK23' : '→ GALAXIA VECINA · VIAJAR', 0, g.r * 1.6 + 9);
+      } else if (g.universe) {
+        ctx.font = '400 5px Space Mono, monospace';
+        ctx.fillStyle = g.col + '88';
+        ctx.fillText('★ UNIVERSO TUYO · ENTRAR', 0, g.r * 1.6 + 9);
+      } else if (g.mine) { // yours wear the mark
         ctx.font = '400 5px Space Mono, monospace';
         ctx.fillStyle = g.col + '88';
         ctx.fillText('★ TUYA · VECINA', 0, g.r * 1.6 + 9);
@@ -7279,10 +7330,10 @@ function drawGalaxyBg() {
     });
 
     // Subtle connecting filaments between galaxies (your created neighbors link to home)
-    const fil = [
+    const fil = (isHome ? [
       [{ x: cx * 0.18, y: cy * 0.42 }, { x: cx, y: cy * 0.78 }],
       [{ x: cx * 1.82, y: cy * 0.55 }, { x: cx, y: cy * 0.78 }],
-    ].concat(myNeighbors.map(g => [{ x: g.x, y: g.y }, home]));
+    ] : []).concat(myNeighbors.map(g => [{ x: g.x, y: g.y }, home]), myUniverses.map(g => [{ x: g.x, y: g.y }, home]));
     fil.forEach(([a, b]) => {
       ctx.beginPath();
       ctx.moveTo(a.x, a.y);
@@ -7326,7 +7377,17 @@ document.addEventListener('keydown', e => {
       const el = document.getElementById(modalIds[mi]);
       if (el && el.style.display && el.style.display !== 'none') { el.style.display = 'none'; if (el.id === 'pay-overlay' || el.id === 'vault-overlay' || el.id === 'codex-overlay') el.remove(); return; }
     }
-    if (galaxyModeActive) { deactivateGalaxyMode(); return; }
+    if (galaxyModeActive) {
+      const _muF = document.getElementById('mu-found');
+      if (_muF) { _muF.remove(); return; }
+      const _muE = document.getElementById('mu-enter');
+      if (_muE) { if (window.MULTIU) MULTIU.exitEnter(); else _muE.remove(); return; }
+      const _nbC = document.getElementById('nb-card');
+      if (_nbC) { _nbC.remove(); return; }
+      if (window.MULTIU && MULTIU.isPlacing()) { MULTIU.cancelPlacing(); if (window.showCmdToast) showCmdToast('Fundación cancelada', '#8a8a98'); return; }
+      if (window.MULTIU && MULTIU.region() !== 'home') { MULTIU.travel('home'); return; }
+      deactivateGalaxyMode(); return;
+    }
     const fractal = document.getElementById('fractal-overlay');
     const affirmation = document.getElementById('affirmation-overlay');
     if (fractal && fractal.style.opacity === '1') { closeFractalUniverse(); return; }
@@ -10093,6 +10154,14 @@ window.refreshEcosystemStats = function(){
 </style>
 <div id="crear-overlay"><div class="box">
   <div class="cr-head"><h2>🌌 CREÁ TU UNIVERSO</h2><div class="s">tres formas de empezar · tenés <span id="cr-tokens">0</span> ⚡ tokens</div></div>
+  <div style="background:linear-gradient(90deg,rgba(0,240,255,.08),rgba(184,77,255,.08));border:1px solid #00F0FF;border-radius:16px;padding:18px 20px;margin-bottom:14px;">
+    <div style="font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:15px;letter-spacing:1px;color:#00F0FF">🌌 FUNDA UNO AQUÍ MISMO — GRATIS</div>
+    <div style="font-size:11px;color:#9aa2ab;line-height:1.6;margin:6px 0 12px">Elige cómo nace y después haz click en el punto exacto del multiverso donde lo quieres. El primero es gratis; también puedes fundar en las galaxias vecinas.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="CREAR.close();MULTIU.startFound('clon')" style="flex:1;min-width:180px;background:#00F0FF;color:#06121a;border:1px solid #00F0FF;border-radius:9px;padding:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer">🧬 RÉPLICA DE MI UNIVERSO</button>
+      <button onclick="CREAR.close();MULTIU.startFound('blank')" style="flex:1;min-width:140px;background:transparent;color:#00F0FF;border:1px solid rgba(0,240,255,.4);border-radius:9px;padding:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;cursor:pointer">✦ EN BLANCO</button>
+    </div>
+  </div>
   <div class="cr-grid">
     <div class="cr-card">
       <div class="ic">🧬</div><h3>COMPRÁ UN TEMPLATE</h3>
@@ -10171,6 +10240,195 @@ window.refreshEcosystemStats = function(){
   };
   window.CREAR=CREAR;
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('crear-overlay').classList.contains('on')) CREAR.close(); });
+})();
+</script>
+
+<!-- ═══════════ MULTIU — universos fundados: crear donde quieras, replicar el tuyo, entrar de verdad y viajar a galaxias vecinas ═══════════ -->
+<script>
+(function(){
+  const KEY='hk23-universes';
+  const REGIONS={
+    andromeda:  { label:'ANDRÓMEDA',  col:'#B84DFF', pos:[0.07,0.16] },
+    perseo:     { label:'PERSEO',     col:'#00F0FF', pos:[0.93,0.20] },
+    magallanes: { label:'MAGALLANES', col:'#AAFF00', pos:[0.08,0.82] },
+    sombrero:   { label:'SOMBRERO',   col:'#FFD200', pos:[0.92,0.80] },
+  };
+  const COLORS=['#00F0FF','#FFD200','#FF3A1F','#B84DFF','#AAFF00','#FF2D78','#FF6600'];
+  // el ciclo canónico de HK23 OS — la estructura que se replica
+  const CYCLE=[['IDEAS','donde nace todo','#FFD200'],['CREACIÓN','de idea a estructura','#FF3A1F'],['PRODUCTOS','lo que lanzas al mundo','#00F0FF'],['COMUNIDAD','la gente que lo sostiene','#B84DFF'],['INGRESOS','cómo se vuelve dinero','#AAFF00'],['RECURSOS','capital, herramientas, conocimiento','#FF6600']];
+  let region='home', placing=null, sel=null;
+
+  const load=()=>{ try{ return JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(_){ return []; } };
+  const save=a=>{ try{ localStorage.setItem(KEY, JSON.stringify(a)); }catch(_){} };
+  const toast=(m,c)=>{ if(window.showCmdToast) showCmdToast(m,c||'#00F0FF'); };
+  const esc=s=>String(s==null?'':s).replace(/</g,'&lt;');
+  const ensureWarpStyle=()=>{ if(!document.getElementById('gx-visit-style')){ const s=document.createElement('style'); s.id='gx-visit-style'; s.textContent='@keyframes gxwarp{from{transform:scale(1.25);opacity:0}to{transform:scale(1);opacity:1}}#gx-visit .gv-star{position:absolute;border-radius:50%;background:#fff;opacity:.5}'; document.head.appendChild(s); } };
+
+  function cloneMine(){
+    const gal=CYCLE.map(g=>({ label:g[0], sub:g[1], color:g[2] }));
+    try{ (JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).forEach(g=>gal.push({ label:g.label||'GALAXIA', sub:g.sub||'', color:g.color||'#FFD200' })); }catch(_){}
+    return gal;
+  }
+  const FREE_UNIVERSES=3; // los primeros son gratis; después Premium
+  function gate(){
+    const n=load().filter(u=>!u.archived).length;
+    if(n>=FREE_UNIVERSES && window.HK23TIER && !HK23TIER.require(1,'Fundar más universos')) return false;
+    return true;
+  }
+  function redraw(){ if(typeof drawGalaxyBg==='function' && typeof galaxyModeActive!=='undefined' && galaxyModeActive) drawGalaxyBg(); }
+
+  const MULTIU={
+    region(){ return region; },
+    regions(){ return REGIONS; },
+    list:load,
+    forRegion(r){ return load().filter(u=>!u.archived && (u.region||'home')===r); },
+    isPlacing(){ return !!placing; },
+    portalSlots(W,H,reg){
+      if(reg==='home') return Object.keys(REGIONS).map(k=>{ const R=REGIONS[k]; return { x:Math.min(W-60,Math.max(60,R.pos[0]*W)), y:Math.min(H-70,Math.max(60,R.pos[1]*H)), r:26, col:R.col, label:R.label, angle:0.5, portal:k }; });
+      return [{ x:74, y:Math.max(74,H*0.15), r:24, col:'#B84DFF', label:'HK23', angle:0.3, portal:'home' }];
+    },
+    // ── FUNDAR ──
+    startFound(tpl){
+      if(!gate()) return;
+      if(typeof galaxyModeActive!=='undefined' && !galaxyModeActive && typeof activateGalaxyMode==='function') activateGalaxyMode();
+      placing={ tpl:tpl==='blank'?'blank':'clon' };
+      const ov=document.getElementById('galaxy-overlay'); if(ov) ov.style.cursor='crosshair';
+      toast('🎯 Haz click en el punto del multiverso donde quieres fundarlo','#00F0FF');
+    },
+    dropAt(x,y){ const tpl=(placing&&placing.tpl)||'clon'; MULTIU.cancelPlacing(); MULTIU._foundModal(x,y,tpl); },
+    quickFound(x,y){ if(!gate()) return; MULTIU._foundModal(x,y,null); },
+    cancelPlacing(){ placing=null; const ov=document.getElementById('galaxy-overlay'); if(ov) ov.style.cursor=''; },
+    _foundModal(x,y,tpl){
+      MULTIU._fx=x; MULTIU._fy=y; MULTIU._col=COLORS[0]; MULTIU._tpl=tpl==='blank'?'blank':'clon';
+      let el=document.getElementById('mu-found'); if(!el){ el=document.createElement('div'); el.id='mu-found'; document.body.appendChild(el); }
+      el.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9885;width:400px;max-width:94vw;background:rgba(8,8,14,.98);border:1px solid #00F0FF;border-radius:16px;padding:22px 24px;font-family:\'Space Mono\',monospace;color:#e6e6ee;box-shadow:0 0 40px rgba(0,240,255,.25);';
+      const rl=region==='home'?'JUNTO A HK23':('EN '+(REGIONS[region]?REGIONS[region].label:String(region).toUpperCase()));
+      el.innerHTML='<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:18px;color:#00F0FF;text-align:center">🌌 FUNDAR UNIVERSO</div>'
+        +'<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;text-align:center;margin:4px 0 14px">'+rl+' · EN ESTE PUNTO EXACTO</div>'
+        +'<input id="mu-name" placeholder="Nombre del universo…" maxlength="24" style="width:100%;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:13px;padding:11px;border-radius:10px;outline:none;margin-bottom:10px">'
+        +'<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin-bottom:6px">COLOR</div>'
+        +'<div id="mu-cols" style="display:flex;gap:8px;margin-bottom:12px">'+COLORS.map((c,i)=>'<div data-c="'+c+'" onclick="MULTIU._pickCol(this)" style="width:26px;height:26px;border-radius:50%;background:'+c+';cursor:pointer;border:2px solid '+(i===0?'#fff':'transparent')+'"></div>').join('')+'</div>'
+        +'<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin-bottom:6px">NACE COMO</div>'
+        +'<div style="display:flex;gap:8px;margin-bottom:14px">'
+        +'<button id="mu-tpl-clon" onclick="MULTIU._pickTpl(\'clon\')" style="flex:1;border:1px solid #00F0FF;border-radius:9px;padding:9px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;cursor:pointer">🧬 RÉPLICA DEL MÍO</button>'
+        +'<button id="mu-tpl-blank" onclick="MULTIU._pickTpl(\'blank\')" style="flex:1;border:1px solid rgba(0,240,255,.4);border-radius:9px;padding:9px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:10px;letter-spacing:1px;cursor:pointer">✦ EN BLANCO</button></div>'
+        +'<button onclick="MULTIU._create()" style="width:100%;background:#00F0FF;color:#06121a;border:none;border-radius:10px;padding:12px;font-family:\'Space Grotesk\',sans-serif;font-weight:900;letter-spacing:2px;cursor:pointer">FUNDAR →</button>'
+        +'<div onclick="document.getElementById(\'mu-found\').remove()" style="margin-top:10px;cursor:pointer;color:#888;font-size:11px;text-align:center;letter-spacing:1px">cerrar ✕</div>';
+      MULTIU._pickTpl(MULTIU._tpl);
+      setTimeout(()=>{ const i=document.getElementById('mu-name'); if(i){ i.focus(); i.onkeydown=e=>{ if(e.key==='Enter') MULTIU._create(); }; } },60);
+    },
+    _pickCol(el){ MULTIU._col=el.dataset.c; document.querySelectorAll('#mu-cols div').forEach(d=>d.style.borderColor= d===el?'#fff':'transparent'); },
+    _pickTpl(t){ MULTIU._tpl=t==='blank'?'blank':'clon';
+      const c=document.getElementById('mu-tpl-clon'), b=document.getElementById('mu-tpl-blank');
+      if(c){ c.style.background=MULTIU._tpl==='clon'?'#00F0FF':'transparent'; c.style.color=MULTIU._tpl==='clon'?'#06121a':'#00F0FF'; }
+      if(b){ b.style.background=MULTIU._tpl==='blank'?'#00F0FF':'transparent'; b.style.color=MULTIU._tpl==='blank'?'#06121a':'#00F0FF'; } },
+    _create(){
+      const name=((document.getElementById('mu-name')||{}).value||'').trim();
+      if(!name){ toast('Ponle un nombre a tu universo','#FF6600'); return; }
+      const found=document.getElementById('mu-found');
+      if(!gate()){ if(found) found.remove(); return; }
+      const a=load();
+      const u={ id:'u'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), label:name.slice(0,24),
+        sub:MULTIU._tpl==='clon'?'réplica de tu universo':'universo en blanco', color:MULTIU._col||'#00F0FF',
+        region:region, nx:Math.min(0.94,Math.max(0.06,(MULTIU._fx||innerWidth/2)/Math.max(1,innerWidth))), ny:Math.min(0.9,Math.max(0.08,(MULTIU._fy||innerHeight/2)/Math.max(1,innerHeight))),
+        tpl:MULTIU._tpl, public:false, galaxies:MULTIU._tpl==='clon'?cloneMine():[], createdAt:Date.now() };
+      a.push(u); save(a);
+      if(found) found.remove();
+      redraw();
+      toast('🌌 '+u.label.toUpperCase()+' FUNDADO — '+(u.galaxies.length?u.galaxies.length+' galaxias replicadas':'lienzo en blanco'), u.color);
+      if(u.galaxies.length) setTimeout(()=>toast('Haz click en tu universo para ENTRAR','#8a8a98'),2600);
+    },
+    // ── FICHA de un universo tuyo ──
+    card(u){
+      sel=u;
+      let el=document.getElementById('nb-card'); if(!el){ el=document.createElement('div'); el.id='nb-card'; document.body.appendChild(el); }
+      el.style.cssText='position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9860;background:rgba(8,8,14,.97);border:1px solid '+u.color+';border-radius:16px;padding:24px 28px;font-family:\'Space Mono\',monospace;color:#e6e6ee;max-width:380px;text-align:center;box-shadow:0 0 40px '+u.color+'44;';
+      const btn=(label,bg,fg,call)=>'<button onclick="'+call+'" style="width:100%;margin-top:11px;background:'+bg+';color:'+fg+';border:1px solid '+u.color+';border-radius:10px;padding:11px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer;">'+label+'</button>';
+      el.innerHTML='<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:20px;color:'+u.color+'">'+esc(u.label)+'</div>'
+        +'<div style="font-size:9px;letter-spacing:2px;color:#6a6a82;margin:4px 0 10px">★ UNIVERSO TUYO · '+(u.region==='home'?'VECINO DE HK23':('REGIÓN '+(REGIONS[u.region]?REGIONS[u.region].label:String(u.region).toUpperCase())))+'</div>'
+        +'<div style="font-size:11px;line-height:1.7;color:#aab">'+esc(u.sub)+' · '+((u.galaxies||[]).length)+' galaxias</div>'
+        +btn('🚀 ENTRAR', u.color, '#06121a', 'MULTIU.enter()')
+        +btn(u.public?'🔓 Visible para otros · quitar':'🔒 Solo yo · hacer visitable','transparent',u.color,'MULTIU.togglePublic()')
+        +btn('✏️ Renombrar','transparent',u.color,'MULTIU.rename()')
+        +btn('🗄 Archivar (nada se borra)','transparent','#8a8a98','MULTIU.archive()')
+        +'<div onclick="document.getElementById(\'nb-card\').remove()" style="margin-top:12px;cursor:pointer;color:#888;font-size:11px;letter-spacing:1px">cerrar ✕</div>';
+    },
+    togglePublic(){ if(!sel) return; const a=load(); const u=a.find(x=>x.id===sel.id); if(!u) return; u.public=!u.public; save(a); sel=u;
+      if(window.__nhCloud && __nhCloud.sbEntity) __nhCloud.sbEntity('u2:'+u.id,{ name:u.label, slug:'nh-u2-'+u.id, level:'node', kind:'system', color:u.color, summary:u.sub, meta:{ nh:'1', role:'universe', public:u.public?'true':'false', visitable:u.public?'true':'false' } });
+      toast(u.public?'🔓 Ahora otros pueden visitarlo':'🔒 Universo privado de nuevo',u.color); MULTIU.card(u); },
+    rename(){ if(!sel) return; const n=prompt('Nuevo nombre del universo:', sel.label); if(!n||!n.trim()) return; const a=load(); const u=a.find(x=>x.id===sel.id); if(!u) return; u.label=n.trim().slice(0,24); save(a); sel=u; redraw(); MULTIU.card(u); },
+    archive(){ if(!sel) return; const a=load(); const u=a.find(x=>x.id===sel.id); if(!u) return; u.archived=true; save(a); const el=document.getElementById('nb-card'); if(el) el.remove(); redraw(); toast('🗄 '+u.label+' archivado — nada se borra en HK23','#8a8a98'); },
+    // ── ENTRAR: tu universo por dentro (real y editable) ──
+    enter(){
+      const u=sel; if(!u) return; const card=document.getElementById('nb-card'); if(card) card.remove();
+      ensureWarpStyle();
+      let el=document.getElementById('mu-enter'); if(!el){ el=document.createElement('div'); el.id='mu-enter'; document.body.appendChild(el); }
+      el.style.cssText='position:fixed;inset:0;z-index:9880;font-family:\'Space Mono\',monospace;background:radial-gradient(120% 90% at 50% 42%, '+u.color+'1e, #04040a 62%);animation:gxwarp .5s ease;overflow:hidden;';
+      MULTIU._renderInside(u);
+      toast('🌌 Entraste a '+u.label, u.color);
+    },
+    _renderInside(u){
+      const el=document.getElementById('mu-enter'); if(!el) return;
+      const gal=u.galaxies||[];
+      let stars=''; for(let i=0;i<70;i++){ const sz=(Math.random()*2+0.5).toFixed(1); stars+='<div style="position:absolute;border-radius:50%;left:'+(Math.random()*100).toFixed(1)+'%;top:'+(Math.random()*100).toFixed(1)+'%;width:'+sz+'px;height:'+sz+'px;background:'+(Math.random()<.35?u.color:'#fff')+';opacity:.5"></div>'; }
+      const cxp=50, cyp=44;
+      const nodes=gal.map((g,i)=>{
+        const ang=(i/Math.max(1,gal.length))*Math.PI*2-Math.PI/2, rx=31, ry=25;
+        const x=cxp+Math.cos(ang)*rx, y=cyp+Math.sin(ang)*ry;
+        return '<div onclick="MULTIU.editGalaxy('+i+')" style="position:absolute;left:'+x.toFixed(1)+'%;top:'+y.toFixed(1)+'%;transform:translate(-50%,-50%);text-align:center;cursor:pointer;z-index:3">'
+          +'<div style="width:34px;height:34px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 35% 35%, '+g.color+'EE, '+g.color+'33);box-shadow:0 0 22px '+g.color+'66"></div>'
+          +'<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;color:'+g.color+';margin-top:6px">'+esc(g.label)+'</div>'
+          +'<div style="font-size:8px;color:#8a8a98;max-width:130px;margin:0 auto">'+esc(g.sub)+'</div></div>';
+      }).join('');
+      el.innerHTML=stars
+        +'<div style="position:absolute;left:50%;top:'+cyp+'%;transform:translate(-50%,-50%);text-align:center;z-index:2">'
+        +'<div style="width:74px;height:74px;border-radius:50%;margin:0 auto;background:radial-gradient(circle at 35% 35%, #fff, '+u.color+' 55%, transparent 78%);box-shadow:0 0 60px '+u.color+'AA"></div></div>'
+        +'<div style="position:absolute;top:26px;left:0;right:0;text-align:center;z-index:4">'
+        +'<div style="font-size:9px;letter-spacing:4px;color:'+u.color+'">◈ ADENTRO DE TU UNIVERSO</div>'
+        +'<div style="font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:clamp(24px,5vw,44px);color:#F0EDE8;text-shadow:0 0 30px '+u.color+'88">'+esc(u.label)+'</div>'
+        +'<div style="font-size:10px;color:'+u.color+'">'+gal.length+' galaxias · '+esc(u.sub)+' · toca una galaxia para editarla</div></div>'
+        +nodes
+        +(gal.length?'':'<div style="position:absolute;left:50%;top:62%;transform:translateX(-50%);font-size:11px;color:#8a8a98;z-index:3">universo en blanco — suma tu primera galaxia ↓</div>')
+        +'<div style="position:absolute;bottom:30px;left:0;right:0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;z-index:4">'
+        +'<button onclick="MULTIU.addGalaxy()" style="background:'+u.color+';color:#06121a;border:none;border-radius:10px;padding:11px 18px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">＋ GALAXIA</button>'
+        +'<button onclick="MULTIU.exitEnter()" style="background:transparent;border:1px solid #2a2a3a;color:#aab;border-radius:10px;padding:11px 18px;font-family:\'Space Grotesk\',sans-serif;font-weight:700;letter-spacing:1px;cursor:pointer">← VOLVER AL MULTIVERSO</button></div>';
+    },
+    editGalaxy(i){ const u=sel; if(!u) return; const a=load(); const x=a.find(z=>z.id===u.id); if(!x||!x.galaxies||!x.galaxies[i]) return;
+      const n=prompt('Nombre de la galaxia:', x.galaxies[i].label); if(n===null) return;
+      if(n.trim()) x.galaxies[i].label=n.trim().slice(0,20);
+      const s=prompt('¿Qué es? (una línea):', x.galaxies[i].sub||''); if(s!==null) x.galaxies[i].sub=s.trim().slice(0,60);
+      save(a); sel=a.find(z=>z.id===u.id); MULTIU._renderInside(sel); },
+    addGalaxy(){ const u=sel; if(!u) return; const n=prompt('Nombre de la nueva galaxia:'); if(!n||!n.trim()) return;
+      const a=load(); const x=a.find(z=>z.id===u.id); if(!x) return; x.galaxies=x.galaxies||[];
+      x.galaxies.push({ label:n.trim().slice(0,20), sub:'', color:COLORS[x.galaxies.length%COLORS.length] });
+      save(a); sel=x; MULTIU._renderInside(x); toast('＋ galaxia sumada a '+x.label, x.color||'#00F0FF'); },
+    exitEnter(){ const el=document.getElementById('mu-enter'); if(el) el.remove(); redraw(); },
+    // ── VIAJAR entre regiones del multiverso ──
+    travel(k){
+      if(k!=='home' && !REGIONS[k]) return;
+      ensureWarpStyle();
+      const R=k==='home'?{label:'HK23',col:'#B84DFF'}:REGIONS[k];
+      let w=document.getElementById('mu-warp'); if(!w){ w=document.createElement('div'); w.id='mu-warp'; document.body.appendChild(w); }
+      w.style.cssText='position:fixed;inset:0;z-index:9895;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%, '+R.col+'26, #020208 70%);font-family:\'Space Grotesk\',sans-serif;font-weight:900;font-size:clamp(20px,4vw,34px);letter-spacing:3px;color:'+R.col+';animation:gxwarp .45s ease;';
+      w.textContent='→ '+R.label;
+      setTimeout(()=>{ region=k; MULTIU._breadcrumb(); redraw(); const ww=document.getElementById('mu-warp'); if(ww) ww.remove();
+        const ms=document.getElementById('screen-map'); if(ms) ms.style.opacity = (k==='home'?'':'0'); // tu mapa solo se ve en tu cúmulo
+        toast(k==='home'?'🏠 De vuelta en tu cúmulo':'🌌 Llegaste a '+R.label+' — haz click en el vacío para fundar aquí', R.col); },650);
+    },
+    _breadcrumb(){
+      let b=document.getElementById('mu-crumb');
+      if(region==='home'){ if(b) b.remove(); return; }
+      if(!b){ b=document.createElement('button'); b.id='mu-crumb'; b.onclick=function(){ MULTIU.travel('home'); };
+        const ov=document.getElementById('galaxy-overlay'); (ov||document.body).appendChild(b); }
+      const R=REGIONS[region];
+      b.style.cssText='position:absolute;top:10px;left:18px;z-index:8;background:rgba(8,8,14,.9);border:1px solid '+R.col+';color:'+R.col+';border-radius:24px;padding:8px 15px;font-family:\'Space Mono\',monospace;font-size:10px;letter-spacing:2px;cursor:pointer;pointer-events:auto;';
+      b.textContent='← HK23 · estás en '+R.label;
+    },
+    exitCleanup(){ region='home'; MULTIU.cancelPlacing(); sel=null;
+      const ms=document.getElementById('screen-map'); if(ms) ms.style.opacity='';
+      ['mu-crumb','mu-found','mu-enter','mu-warp'].forEach(id=>{ const e=document.getElementById(id); if(e) e.remove(); }); },
+  };
+  window.MULTIU=MULTIU;
 })();
 </script>
 
