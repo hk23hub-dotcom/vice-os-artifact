@@ -10494,5 +10494,84 @@ window.refreshEcosystemStats = function(){
   document.addEventListener('keydown',function(e){ if(e.key==='Escape' && document.getElementById('prot-overlay').classList.contains('on')) PROTECT.close(); });
 })();
 </script>
+
+<!-- ══════════ LIVING LIBRARY · books & chapters from Supabase (additive module) ══════════ -->
+<style>
+  #lib-fab{position:fixed;top:192px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:2px;color:#8a8a98;background:rgba(8,8,16,.85);border:1px solid rgba(255,255,255,.14);
+    border-radius:30px;padding:8px 14px;cursor:pointer;user-select:none;backdrop-filter:blur(6px);}
+  #lib-fab:hover{border-color:#4EA8FF;color:#fff;}
+  #lib-overlay{position:fixed;inset:0;z-index:9600;display:none;align-items:center;justify-content:center;
+    background:rgba(2,2,7,.65);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);}
+  #lib-overlay.on{display:flex;}
+  #lib-box{width:min(540px,94vw);max-height:84vh;overflow:auto;background:rgba(8,8,16,.98);
+    border:1px solid rgba(78,168,255,.25);border-radius:16px;padding:22px;}
+  #lib-box h3{font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:4px;color:#4EA8FF;text-transform:uppercase;margin:16px 0 8px;}
+  #lib-box h3:first-child{margin-top:0;}
+  .lib-row{display:flex;align-items:center;gap:13px;padding:11px 13px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:.15s;}
+  .lib-row:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);}
+  .lib-cov{width:40px;height:40px;border-radius:8px;flex-shrink:0;background:center/cover no-repeat;border:1px solid rgba(255,255,255,.12);}
+  .lib-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:#4EA8FF;box-shadow:0 0 8px #4EA8FF;margin:0 15px;}
+  .lib-nm{font-family:'Space Mono',monospace;font-size:12px;color:#e8e8ee;letter-spacing:1px;text-transform:uppercase;}
+  .lib-nm small{display:block;color:#778;font-size:9px;letter-spacing:.5px;margin-top:2px;text-transform:none;}
+  .lib-price{margin-left:auto;font-family:'Space Mono',monospace;font-size:11px;color:#AAFF00;font-weight:700;flex-shrink:0;}
+  .lib-state{margin-left:auto;font-family:'Space Mono',monospace;font-size:9px;color:#667;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
+  .lib-buy{display:block;margin:6px 13px 12px;text-align:center;text-decoration:none;background:#4EA8FF;color:#06121a;
+    font-family:'Space Grotesk',sans-serif;font-weight:700;letter-spacing:1px;border-radius:10px;padding:10px;}
+</style>
+<div id="lib-fab">📚 Biblioteca</div>
+<div id="lib-overlay"><div id="lib-box"></div></div>
+<script>
+(function(){
+  const SB={ url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const H={apikey:SB.key,Authorization:'Bearer '+SB.key,'Accept-Profile':'hk23'};
+  let openId=null;
+  function esc(s){ return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function row(e){
+    const m=e.meta||{}; const price=m.price?('$'+(+m.price).toFixed(2)+' '+(m.currency||'USD')):null;
+    const cov=m.image?'<span class="lib-cov" style="background-image:url(\''+esc(m.image)+'\')"></span>':'<span class="lib-dot"></span>';
+    const tail=price?'<span class="lib-price">'+price+'</span>':'<span class="lib-state">'+esc(e.state||'')+'</span>';
+    const det=(openId===e.id&&e.link)?'<a class="lib-buy" href="'+esc(e.link)+'" target="_blank" rel="noopener">'+(price?'COMPRAR EN GUMROAD →':'ABRIR →')+'</a>':'';
+    return '<div class="lib-row" onclick="LIB.pick(\''+e.id+'\')">'+cov+'<span class="lib-nm">'+esc(e.name)+
+           '<small>'+esc((e.summary||'').slice(0,100))+'</small></span>'+tail+'</div>'+det;
+  }
+  const LIB={
+    _cache:null,
+    async load(){
+      const r=await fetch(SB.url+"/entities?kind=eq.book&select=id,slug,name,state,link,summary,meta&order=slug",{headers:H});
+      LIB._cache=r.ok?await r.json():[];
+      return LIB._cache;
+    },
+    async open(){
+      document.getElementById('lib-overlay').classList.add('on');
+      const box=document.getElementById('lib-box');
+      box.innerHTML='<h3>Living Library</h3><div class="lib-row"><span class="lib-nm">Cargando…</span></div>';
+      const items=await LIB.load();
+      LIB.render(items);
+    },
+    render(items){
+      const box=document.getElementById('lib-box');
+      if(!items.length){ box.innerHTML='<h3>Living Library</h3><div class="lib-row"><span class="lib-nm">Vacía — aún no hay libros en el universo</span></div>'; return; }
+      const heads=items.filter(e=>!(e.meta&&e.meta.episode));
+      let h='';
+      heads.forEach(bk=>{ const s=(bk.meta&&bk.meta.series)||null;
+        h+='<h3>'+esc(bk.name)+' — el libro</h3>'+row(bk);
+        items.filter(e=>e.meta&&e.meta.episode&&e.meta.series===s&&e.id!==bk.id)
+             .sort((a,b)=>a.meta.episode-b.meta.episode).forEach(ch=>h+=row(ch)); });
+      const orphans=items.filter(e=>e.meta&&e.meta.episode&&!heads.some(bk=>(bk.meta&&bk.meta.series)===e.meta.series));
+      if(orphans.length){ h+='<h3>Capítulos</h3>'; orphans.forEach(ch=>h+=row(ch)); }
+      box.innerHTML=h;
+    },
+    pick(id){ openId=(openId===id)?null:id; LIB.render(LIB._cache||[]); },
+    close(){ document.getElementById('lib-overlay').classList.remove('on'); openId=null; },
+  };
+  window.LIB=LIB;
+  document.getElementById('lib-fab').addEventListener('click',LIB.open);
+  document.getElementById('lib-overlay').addEventListener('click',e=>{ if(e.target.id==='lib-overlay') LIB.close(); });
+  window.addEventListener('keydown',e=>{ const tn=(e.target&&e.target.tagName||'').toLowerCase();
+    if((e.key==='l'||e.key==='L')&&tn!=='input'&&tn!=='textarea'&&tn!=='select'){ e.preventDefault(); LIB.open(); }
+    if(e.key==='Escape') LIB.close(); });
+})();
+</script>
 </body>
 </html>
