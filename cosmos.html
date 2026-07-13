@@ -100,6 +100,15 @@
   .cmd .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor;}
   .cmd .nm{font-family:'Space Mono',monospace;font-size:12px;color:#e8e8ee;letter-spacing:1px;text-transform:uppercase;}
   .cmd .nm small{display:block;color:#778;font-size:9px;letter-spacing:.5px;margin-top:2px;text-transform:none;}
+  /* ---------- LIVING LIBRARY ---------- */
+  #library{position:fixed;inset:0;z-index:70;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;background:rgba(2,2,7,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+  #library.open{opacity:1;pointer-events:auto;}
+  #library-box{width:min(520px,94vw);background:rgba(8,8,16,.98);border:1px solid rgba(78,168,255,.25);border-radius:16px;padding:22px;max-height:84vh;overflow:auto;}
+  #library-box h3{font-family:'Space Grotesk',sans-serif;font-size:10px;letter-spacing:4px;color:#4EA8FF;text-transform:uppercase;margin:16px 0 8px;}
+  #library-box h3:first-child{margin-top:0;}
+  .lib-cover{width:38px;height:38px;border-radius:8px;flex-shrink:0;background:center/cover no-repeat;border:1px solid rgba(255,255,255,.12);}
+  .lib-price{margin-left:auto;font-family:'Space Mono',monospace;font-size:11px;color:#AAFF00;font-weight:700;flex-shrink:0;}
+  .lib-state{margin-left:auto;font-family:'Space Mono',monospace;font-size:9px;color:#667;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;}
   #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(10px);z-index:80;
     font-family:'Space Mono',monospace;font-size:11px;letter-spacing:2px;color:#fff;background:rgba(20,18,30,.95);
     border:1px solid rgba(184,77,255,.4);border-radius:30px;padding:11px 22px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;}
@@ -178,6 +187,7 @@
   onmouseover="this.style.transform='translateX(-50%) translateY(-2px)';this.style.boxShadow='0 0 40px 0 #AAFF00cc'"
   onmouseout="this.style.transform='translateX(-50%)';this.style.boxShadow='0 0 30px -6px #AAFF0099'">▦ THE GRID</a>
 <div id="cmds"><div id="cmds-box"></div></div>
+<div id="library"><div id="library-box"></div></div>
 <div id="toast"></div>
 
 <canvas id="brain-canvas"></canvas>
@@ -365,6 +375,7 @@ async function load(){ try{
       summary:e.summary||'',link:(L&&L.external_url)||e.link||null,
       image:(e.meta&&e.meta.image)||e.icon||(/^mj-\d+$/.test(e.slug||'')?('assets/midjourney/'+e.slug+'.webp'):null),
       importance:(m.importance||m.activity||m.revenue||1),
+      series:(e.meta&&e.meta.series)||null, episode:(e.meta&&e.meta.episode)||0,
       listing:L||null, buyable: e.kind==='product' || !!L,
       priceLabel: L? ('$'+(+L.price).toFixed(0)+' '+(L.currency||'')) : null,
       a:(idx*2.39),                                   // golden-angle spread, no clustering
@@ -475,6 +486,7 @@ function buildCmds(){ const box=document.getElementById('cmds-box');
   let h='<h3>Views</h3>';
   h+=cmdRow('#6ea8ff','◈ Neural Brain','your work as a living brain','openBrain()');
   h+=cmdRow('#FF3A1F','✦ Cosmos / Orbit','the orbital marketplace view','closeBrain()');
+  h+=cmdRow('#4EA8FF','📚 Living Library','your books & chapters — read, sell, evolve','openLibrary()');
   h+='<h3>Galaxies</h3>';
   h+=cmdRow('#fff','All Systems','show everything','setGalaxy(null)');
   GALAXIES.forEach(g=>{ h+=cmdRow(g.color,g.name,'isolate this galaxy',"setGalaxy('"+g.slug+"')"); });
@@ -486,6 +498,32 @@ function buildCmds(){ const box=document.getElementById('cmds-box');
   box.innerHTML=h; }
 function openCmds(){ buildCmds(); document.getElementById('cmds').classList.add('open'); }
 function closeCmds(){ document.getElementById('cmds').classList.remove('open'); }
+// ---------- LIVING LIBRARY (books & chapters as a shelf) ----------
+function libRow(p){
+  const cover=p.image?'<span class="lib-cover" style="background-image:url(\''+p.image+'\')"></span>'
+                     :'<span class="dot" style="color:'+p.color+';background:'+p.color+'"></span>';
+  const tail=p.priceLabel?'<span class="lib-price">'+p.priceLabel+'</span>':'<span class="lib-state">'+(p.state||'')+'</span>';
+  return '<div class="cmd" onclick="closeLibrary();openPanel(planets.find(x=>x.slug===\''+p.slug+'\'))">'+cover+
+         '<span class="nm">'+p.name+'<small>'+(p.summary||'').slice(0,90)+'</small></span>'+tail+'</div>';
+}
+function openLibrary(){ closeCmds();
+  const box=document.getElementById('library-box');
+  const items=planets.filter(p=>p.kind==='book'||p.series);
+  if(!items.length){ box.innerHTML='<h3>Living Library</h3><div class="cmd soon"><span class="nm">Empty — no books in the universe yet</span></div>'; }
+  else{
+    const heads=items.filter(p=>!p.episode).sort((a,b)=>a.name<b.name?-1:1);
+    let h='';
+    heads.forEach(bk=>{ h+='<h3>'+bk.name+' — the book</h3>'+libRow(bk);
+      items.filter(p=>p.episode&&p.series===bk.series&&p.slug!==bk.slug)
+           .sort((a,b)=>a.episode-b.episode).forEach(ch=>h+=libRow(ch)); });
+    const orphans=items.filter(p=>p.episode&&!heads.some(bk=>bk.series===p.series));
+    if(orphans.length){ h+='<h3>Chapters</h3>'; orphans.sort((a,b)=>a.episode-b.episode).forEach(ch=>h+=libRow(ch)); }
+    box.innerHTML=h;
+  }
+  document.getElementById('library').classList.add('open');
+}
+function closeLibrary(){ document.getElementById('library').classList.remove('open'); }
+document.getElementById('library').addEventListener('click',e=>{ if(e.target.id==='library')closeLibrary(); });
 function setGalaxy(slug){ activeGalaxy=slug; const g=GALAXIES.find(x=>x.slug===slug);
   document.getElementById('m-tl').textContent = slug ? ('GALAXY · '+(g?g.name:slug).toUpperCase()) : 'COSMOS · LIVE MAP';
   toast(slug ? ('Galaxy: '+(g?g.name:slug)) : 'All systems'); }
@@ -673,7 +711,7 @@ function closeBrain(){ brainActive=false; if(brainAnimId){cancelAnimationFrame(b
   addEventListener('resize',()=>{ if(brainActive){ brainResize(); buildBrain(); } }); })();
 document.getElementById('cmdsbtn').addEventListener('click',e=>{e.stopPropagation();openCmds();});
 document.getElementById('cmds').addEventListener('click',e=>{ if(e.target.id==='cmds')closeCmds(); });
-addEventListener('keydown',e=>{ if((e.key==='k'||e.key==='K')&&!/input|textarea/i.test(e.target.tagName)){e.preventDefault();openCmds();} if(e.key==='Escape')closeCmds(); });
+addEventListener('keydown',e=>{ if((e.key==='k'||e.key==='K')&&!/input|textarea/i.test(e.target.tagName)){e.preventDefault();openCmds();} if((e.key==='l'||e.key==='L')&&!/input|textarea/i.test(e.target.tagName)){e.preventDefault();openLibrary();} if(e.key==='Escape'){closeCmds();closeLibrary();} });
 </script>
 </body>
 </html>
