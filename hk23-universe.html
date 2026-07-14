@@ -1053,7 +1053,7 @@
     height: 100%;
   }
   /* In galaxy mode, the map screen goes transparent so galaxy canvas shows through */
-  #screen-map.galaxy-mode { background: transparent !important; }
+  #screen-map.galaxy-mode { background: transparent !important; pointer-events: none; } /* en multiverso los clicks son del overlay — el mapa achicado es solo visual */
   /* Shrink the map canvas into a tiny galaxy node */
   #screen-map.galaxy-mode #map-canvas {
     transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 1.2s ease, opacity 1.2s ease;
@@ -1108,10 +1108,11 @@
     flex-direction: column;
     align-items: center;
     gap: 6px;
-    pointer-events: all;
+    pointer-events: none; /* invisible ⇒ tampoco clickeable (tapaba el multiverso) */
     opacity: 0;
     transition: opacity 0.6s ease;
   }
+  #galaxy-cta.visible { pointer-events: all; }
   #galaxy-cta.visible { opacity: 1; }
   #galaxy-cta-btn {
     background: none;
@@ -4630,99 +4631,13 @@ function spawnGiant() {
   if (window.showCmdToast) showCmdToast('◎ UNA ENTIDAD GIGANTE APARECE', '#B84DFF');
 }
 
-// ─── EL GATSBY — legendary art-deco car touring every galaxy; nearly impossible to catch ───
-const GATSBY = { x: 0.08, y: 0.12, vx: 0.001, vy: 0.0004, ang: 0, tgt: -1, wheel: 0, boost: 0, sparks: [], riding: false,
-  mode: 'tour', modeT: 0, wx: 0.5, wy: 0.5, away: 0 }; // free will: tour | wander | exit (leaves the map when HE wants)
-function gatsbyPickTarget() {
-  if (typeof NODES === 'undefined' || !NODES.length) return;
-  let i; do { i = Math.floor(Math.random() * NODES.length); } while (i === GATSBY.tgt && NODES.length > 1);
-  GATSBY.tgt = i;
-}
-function updateGatsby(W, H) {
+// ─── EL GATSBY — ya no vive en el mapa local: NAVEGA EL MULTIVERSO. Solo se lo
+// ve en modo galaxia (G), viajando de galaxia en galaxia a conquistar o abrir
+// nuevas. Su hogar: GATSBY MANOR (la mansión-galaxia con la luz verde).
+const GATSBY = { gx: -1, gy: -1, vx: 1, vy: 0.3, ang: 0, tgt: 0, wheel: 0, boost: 0, sparks: [], riding: false, pause: 0 };
+
+function drawGatsbyCar(c, px, py, tamed, mx, my) {
   const g = GATSBY;
-  const tamed = collectedSet.has('gatsby_car');
-  // OFF-MAP — he left because he wanted to; comes back when HE decides
-  if (g.away > 0) {
-    g.away--;
-    if (g.away === 0) {
-      const side = Math.floor(Math.random() * 4);
-      if (side === 0) { g.x = -0.04; g.y = Math.random(); g.vx = 0.003; g.vy = 0; }
-      else if (side === 1) { g.x = 1.04; g.y = Math.random(); g.vx = -0.003; g.vy = 0; }
-      else if (side === 2) { g.x = Math.random(); g.y = -0.04; g.vx = 0; g.vy = 0.003; }
-      else { g.x = Math.random(); g.y = 1.04; g.vx = 0; g.vy = -0.003; }
-      g.mode = 'tour'; g.modeT = 400 + Math.random() * 600; g.tgt = -1;
-      if (window.showCmdToast) showCmdToast('🚗 EL GATSBY VOLVIÓ — porque quiso', '#FFD700');
-    }
-    return; // invisible while away
-  }
-  if (g.tgt < 0) gatsbyPickTarget();
-  const tn = (typeof NODES !== 'undefined') ? NODES[g.tgt] : null;
-  const cd = (mapMouseX > 0) ? Math.hypot(mapMouseX - g.x, mapMouseY - g.y) : 9;
-  let maxSp = 0.0035;
-  if (tamed && g.riding && mapMouseX > 0) {
-    // AL VOLANTE — your car chases the cursor across the galaxies
-    maxSp = 0.009; g.boost = 0.6;
-    const rd = Math.hypot(mapMouseX - g.x, mapMouseY - g.y);
-    if (rd > 0.02) {
-      const ra = Math.atan2(mapMouseY - g.y, mapMouseX - g.x);
-      g.vx += Math.cos(ra) * 0.003; g.vy += Math.sin(ra) * 0.003;
-    } else { g.vx *= 0.88; g.vy *= 0.88; }
-  } else if (!tamed && cd < 0.14) {
-    // FLEE — the party never lets you in
-    g.boost = 1; maxSp = 0.011;
-    const fa = Math.atan2(g.y - mapMouseY, g.x - mapMouseX);
-    g.vx += Math.cos(fa) * 0.004; g.vy += Math.sin(fa) * 0.004;
-    if (cd < 0.05 && Math.random() < 0.06) { // charleston hyper-dash: vanishes in gold dust
-      for (let s = 0; s < 12; s++) g.sparks.push({ x: g.x * W, y: g.y * H, vx: (Math.random() - .5) * 3.5, vy: (Math.random() - .5) * 3.5, l: 22 });
-      g.x += Math.cos(fa) * 0.30; g.y += Math.sin(fa) * 0.22;
-      if (window.showCmdToast && Math.random() < 0.35) showCmdToast('🚗💨 EL GATSBY SE ESFUMÓ', '#FFD700');
-    }
-  } else {
-    // FREE WILL — tours galaxies, wanders empty space, or leaves the map entirely. Nobody tells him where to go.
-    g.boost = Math.max(0, g.boost - 0.03);
-    g.modeT = (g.modeT || 0) - 1;
-    if (g.modeT <= 0) {
-      const r = Math.random();
-      g.mode = r < 0.55 ? 'tour' : (r < 0.85 ? 'wander' : 'exit');
-      g.modeT = 500 + Math.random() * 900;
-      if (g.mode === 'wander') { g.wx = Math.random(); g.wy = Math.random(); }
-      if (g.mode === 'exit') { // picks an edge and drives straight out
-        const s = Math.floor(Math.random() * 4);
-        if (s === 0) { g.wx = -0.2; g.wy = Math.random(); }
-        else if (s === 1) { g.wx = 1.2; g.wy = Math.random(); }
-        else if (s === 2) { g.wx = Math.random(); g.wy = -0.2; }
-        else { g.wx = Math.random(); g.wy = 1.2; }
-      }
-    }
-    if (g.mode === 'tour' && tn) {
-      const ta = Math.atan2(tn.y - g.y, tn.x - g.x);
-      g.vx += Math.cos(ta) * 0.0009; g.vy += Math.sin(ta) * 0.0009;
-      if (Math.hypot(tn.x - g.x, tn.y - g.y) < 0.05) gatsbyPickTarget(); // next galaxy on the tour
-    } else {
-      const wa = Math.atan2(g.wy - g.y, g.wx - g.x);
-      g.vx += Math.cos(wa) * 0.0009; g.vy += Math.sin(wa) * 0.0009;
-      if (g.mode === 'wander' && Math.hypot(g.wx - g.x, g.wy - g.y) < 0.05) { g.wx = Math.random(); g.wy = Math.random(); }
-    }
-  }
-  const v = Math.hypot(g.vx, g.vy) || 1e-6;
-  if (v > maxSp) { g.vx = g.vx / v * maxSp; g.vy = g.vy / v * maxSp; }
-  g.x += g.vx; g.y += g.vy;
-  if (g.x < -0.06 || g.x > 1.06 || g.y < -0.06 || g.y > 1.06) {
-    if (g.mode === 'exit' && !(tamed && g.riding)) {
-      g.away = 360 + Math.floor(Math.random() * 780); // 6–19s off-map, HIS call
-      if (window.showCmdToast) showCmdToast('🚗💨 EL GATSBY SE FUE DEL MAPA — vuelve cuando él quiera', '#FFD700');
-      return;
-    }
-    if (g.x < -0.06) g.x = 1.05; if (g.x > 1.06) g.x = -0.05;
-    if (g.y < -0.06) g.y = 1.05; if (g.y > 1.06) g.y = -0.05;
-  }
-  g.ang = Math.atan2(g.vy, g.vx);
-  g.wheel += v * 900;
-  drawGatsby(W, H, tamed);
-}
-function drawGatsby(W, H, tamed) {
-  const g = GATSBY, px = g.x * W, py = g.y * H, c = mapCtx;
-  // gold dust trail
   g.sparks = g.sparks.filter(s => (s.l -= 1) > 0);
   g.sparks.forEach(s => { s.x += s.vx; s.y += s.vy; c.globalAlpha = s.l / 22; c.fillStyle = '#FFD700'; c.fillRect(s.x, s.y, 2, 2); c.globalAlpha = 1; });
   if (Math.random() < (0.25 + g.boost * 0.6)) g.sparks.push({ x: px - Math.cos(g.ang) * 15, y: py - Math.sin(g.ang) * 15, vx: -Math.cos(g.ang) * 1.1 + (Math.random() - .5), vy: -Math.sin(g.ang) * 1.1 + (Math.random() - .5), l: 15 });
@@ -4731,17 +4646,14 @@ function drawGatsby(W, H, tamed) {
   const gl = c.createRadialGradient(0, 0, 0, 0, 0, 26);
   gl.addColorStop(0, 'rgba(255,215,0,' + (0.18 + g.boost * 0.22) + ')'); gl.addColorStop(1, 'rgba(255,215,0,0)');
   c.fillStyle = gl; c.beginPath(); c.arc(0, 0, 26, 0, 6.283); c.fill();
-  // headlight beam
   c.beginPath(); c.moveTo(12, -1); c.lineTo(30, -6); c.lineTo(30, 4); c.closePath();
   c.fillStyle = 'rgba(255,245,200,.13)'; c.fill();
-  // long deco body
   c.beginPath();
   c.moveTo(-13, 0); c.lineTo(-12, -3.5); c.lineTo(-4, -3.5); c.lineTo(-2, -6.5); c.lineTo(4, -6.5); c.lineTo(6, -3.5); c.lineTo(12, -3); c.lineTo(13, 0);
   c.closePath();
   c.fillStyle = gold; c.fill();
   c.strokeStyle = 'rgba(60,40,10,.85)'; c.lineWidth = 0.8; c.stroke();
   c.beginPath(); c.moveTo(4, -6); c.lineTo(6, -3.5); c.strokeStyle = 'rgba(20,20,30,.9)'; c.lineWidth = 1.2; c.stroke();
-  // wheels with spinning spokes
   [-7.5, 8].forEach(wx => {
     c.beginPath(); c.arc(wx, 1.5, 3.4, 0, 6.283); c.fillStyle = '#141018'; c.fill();
     c.strokeStyle = gold; c.lineWidth = 0.7; c.stroke();
@@ -4751,43 +4663,91 @@ function drawGatsby(W, H, tamed) {
   });
   c.beginPath(); c.arc(12.5, -1.5, 1.2, 0, 6.283); c.fillStyle = '#FFF7D6'; c.fill();
   c.restore();
-  const cdp = Math.hypot(mapMouseX * W - px, mapMouseY * H - py);
   c.textAlign = 'center';
-  if (tamed) { c.font = '400 9px "Space Mono",monospace'; c.fillStyle = '#FFD700'; c.fillText('👑', px, py - 13); }
-  if (cdp < 95) {
+  if (tamed) { c.font = '400 9px "Space Mono",monospace'; c.fillStyle = '#FFD700'; c.fillText('\u{1F451}', px, py - 13); }
+  const cdp = (mx != null) ? Math.hypot(mx - px, my - py) : 1e9;
+  if (cdp < 110) {
     c.font = '400 6px "Space Mono",monospace';
     c.fillStyle = 'rgba(255,215,0,.78)';
-    c.fillText(tamed ? (GATSBY.riding ? '🚗 AL VOLANTE — click para estacionar' : 'EL GATSBY — TUYO · click para manejar') : '🏁 EL GATSBY — atrapalo si podés', px, py + 16);
+    c.fillText(tamed ? (g.riding ? '\u{1F697} AL VOLANTE — click para estacionar' : 'EL GATSBY — TUYO · click para manejar') : '\u{1F3C1} EL GATSBY — atrapalo si podés', px, py + 16);
   }
   c.textAlign = 'left';
 }
-function tryCatchGatsby(clientX, clientY) {
-  const W = mapCanvas.width, H = mapCanvas.height, g = GATSBY;
-  const near = Math.hypot(clientX - g.x * W, clientY - g.y * H);
+
+function updateGatsbyGalaxy(c, W, H, slots, mx, my) {
+  const g = GATSBY, tamed = collectedSet.has('gatsby_car');
+  if (!slots || !slots.length) return;
+  if (g.gx < 0) { const h = slots[slots.length - 1]; g.gx = h.x + 40; g.gy = h.y - 10; g.tgt = Math.floor(Math.random() * slots.length); }
+  const cd = (mx != null) ? Math.hypot(mx - g.gx, my - g.gy) : 1e9;
+  let maxSp = 1.5;
+  if (tamed && g.riding && mx != null) {
+    maxSp = 4.2; g.boost = 0.6;
+    if (cd > 14) { const ra = Math.atan2(my - g.gy, mx - g.gx); g.vx += Math.cos(ra) * 0.9; g.vy += Math.sin(ra) * 0.9; }
+    else { g.vx *= 0.85; g.vy *= 0.85; }
+  } else if (!tamed && cd < 110) {
+    g.boost = 1; maxSp = 5.2;
+    const fa = Math.atan2(g.gy - my, g.gx - mx);
+    g.vx += Math.cos(fa) * 1.2; g.vy += Math.sin(fa) * 1.2;
+    if (cd < 40 && Math.random() < 0.07) {
+      for (let s = 0; s < 12; s++) g.sparks.push({ x: g.gx, y: g.gy, vx: (Math.random() - .5) * 3.5, vy: (Math.random() - .5) * 3.5, l: 22 });
+      g.gx += Math.cos(fa) * 260; g.gy += Math.sin(fa) * 180;
+      if (window.showCmdToast && Math.random() < 0.35) showCmdToast('\u{1F697}\u{1F4A8} EL GATSBY SE ESFUMÓ', '#FFD700');
+    }
+  } else {
+    g.boost = Math.max(0, g.boost - 0.03);
+    const tn = slots[g.tgt] || slots[0];
+    if (g.pause > 0) { g.pause--; g.vx *= 0.9; g.vy *= 0.9; }
+    else {
+      const ta = Math.atan2(tn.y - g.gy, tn.x - g.gx);
+      g.vx += Math.cos(ta) * 0.28; g.vy += Math.sin(ta) * 0.28;
+      if (Math.hypot(tn.x - g.gx, tn.y - g.gy) < (tn.r || 20) + 26) {
+        g.pause = 150;
+        if (!tn.real && window.showCmdToast && Math.random() < 0.5) showCmdToast('\u{1F942} EL GATSBY ESTÁ ABRIENDO UNA GALAXIA NUEVA…', '#FFD700');
+        let n; do { n = Math.floor(Math.random() * slots.length); } while (n === g.tgt && slots.length > 1);
+        g.tgt = n;
+      }
+    }
+  }
+  const v = Math.hypot(g.vx, g.vy) || 1e-6;
+  if (v > maxSp) { g.vx = g.vx / v * maxSp; g.vy = g.vy / v * maxSp; }
+  g.gx += g.vx; g.gy += g.vy;
+  if (g.gx < -60) g.gx = W + 50; if (g.gx > W + 60) g.gx = -50;
+  if (g.gy < -60) g.gy = H + 50; if (g.gy > H + 60) g.gy = -50;
+  g.ang = Math.atan2(g.vy, g.vx); g.wheel += v * 0.4;
+  const tn2 = slots[g.tgt];
+  if (tn2 && !g.riding) {
+    c.save(); c.setLineDash([3, 9]); c.strokeStyle = 'rgba(232,200,120,.22)'; c.lineWidth = 1;
+    c.beginPath(); c.moveTo(g.gx, g.gy); c.lineTo(tn2.x, tn2.y); c.stroke(); c.restore(); c.setLineDash([]);
+  }
+  drawGatsbyCar(c, g.gx, g.gy, tamed, mx, my);
+}
+
+// atrapar / manejar — desde el click del modo galaxia
+window.__gatsbyCatch = function (cxp, cyp) {
+  const g = GATSBY, near = Math.hypot(cxp - g.gx, cyp - g.gy);
   if (collectedSet.has('gatsby_car')) {
-    if (near < 18) { // it's YOUR car now — hop in / park it
+    if (near < 22) {
       g.riding = !g.riding;
-      if (window.showCmdToast) showCmdToast(g.riding ? '🚗 AL VOLANTE — el Gatsby sigue tu cursor' : '🅿️ Gatsby en tour automático', '#FFD700');
+      if (window.showCmdToast) showCmdToast(g.riding ? '\u{1F697} AL VOLANTE — recorré el multiverso' : '\u{1F17F}️ El Gatsby vuelve a explorar solo', '#FFD700');
       return true;
     }
     return false;
   }
-  if (near < 13) {
+  if (near < 15) {
     addCollectible('gatsby_car', 'legendary');
-    // catching it = grabbing an ENORMOUS blueprint → +100 ⚡ tokens
     try {
       const bal = window.HK23TIER ? HK23TIER.tokens() : (parseInt(localStorage.getItem('hk23-tokens') || '100', 10) || 100);
       localStorage.setItem('hk23-tokens', String(bal + 100));
     } catch (_) {}
-    for (let s = 0; s < 26; s++) g.sparks.push({ x: g.x * W, y: g.y * H, vx: (Math.random() - .5) * 4, vy: (Math.random() - .5) * 4, l: 24 });
+    for (let s = 0; s < 26; s++) g.sparks.push({ x: g.gx, y: g.gy, vx: (Math.random() - .5) * 4, vy: (Math.random() - .5) * 4, l: 24 });
     if (window.showCmdToast) {
-      showCmdToast('🏆 ATRAPASTE EL GATSBY — LEYENDA VIVA', '#FFD700');
-      setTimeout(() => showCmdToast('📜 BLUEPRINT ENORME DESBLOQUEADO · +100 ⚡', '#FFD700'), 2600);
+      showCmdToast('\u{1F3C6} ATRAPASTE EL GATSBY — LEYENDA VIVA', '#FFD700');
+      setTimeout(() => showCmdToast('\u{1F4DC} BLUEPRINT ENORME DESBLOQUEADO · +100 ⚡', '#FFD700'), 2600);
     }
     return true;
   }
   return false;
-}
+};
 
 // ─── COLLECTIBLES TRACKING ───
 const collectedSet = new Set();
@@ -5388,8 +5348,6 @@ function animateMap() {
     drawMalignant(m, W, H);
   });
 
-  updateGatsby(W, H);
-
   mapAnimId = requestAnimationFrame(animateMap);
 }
 
@@ -5828,7 +5786,6 @@ mapCanvas.addEventListener('mousedown', e => {
   const nx = e.clientX / W, ny = e.clientY / H;
   if (window.NH && NH._placing) return; // placing a galaxy — let the click handler take it
   if (tryCatchKey(e.clientX, e.clientY)) { e.stopPropagation(); return; } // keys are grabbable
-  if (tryCatchGatsby(e.clientX, e.clientY)) { e.stopPropagation(); return; } // good luck with this one
   let closest = null, closestD = Infinity;
   malignants.forEach(m => {
     if (m.state === 'locked') return; // permanent — only the 'D' shortcut releases these
@@ -7100,10 +7057,12 @@ function requestGalaxyAccess(){
 (function wireNeighborClicks() {
   const ov = document.getElementById('galaxy-overlay');
   if (!ov) return;
+  ov.addEventListener('mousemove', e => { window.__gmx = e.clientX; window.__gmy = e.clientY; });
   ov.addEventListener('click', e => {
     if (!galaxyModeActive || !window.__galaxySlots) return;
     if (e.target && e.target.tagName === 'BUTTON') return; // los botones del overlay manejan lo suyo
     if (window.MULTIU && MULTIU.isPlacing()) { MULTIU.dropAt(e.clientX, e.clientY); return; } // fundando: este click elige el lugar
+    if (window.__gatsbyCatch && window.__gatsbyCatch(e.clientX, e.clientY)) return; // el auto primero — atraparlo o manejarlo
     const hit = window.__galaxySlots.find(g => Math.hypot(e.clientX - g.x, e.clientY - g.y) < Math.max(44, g.r * 2.2));
     if (hit && hit.portal) { if (window.MULTIU) MULTIU.travel(hit.portal); return; }
     if (hit && hit.universe) { if (window.MULTIU) MULTIU.card(hit.uref); return; }
@@ -7152,6 +7111,11 @@ function drawGalaxyBg() {
     const u = realNb[i];
     if (u) { g.label = String(u.name || '???').toUpperCase().slice(0, 16); g.col = u.color || g.col; g.real = u; }
   });
+  if (isHome) {
+    // GATSBY MANOR — su galaxia mansión (fija, ningún vecino la pisa)
+    distantGalaxies.push({ x: cx * 1.52, y: cy * 1.72, r: 24, col: '#E8C878', angle: 0.25, mansion: true, label: 'GATSBY MANOR',
+      real: { name: 'GATSBY MANOR', color: '#E8C878', summary: 'La mansión del Gatsby: la fiesta nunca termina y la luz verde del muelle nunca se apaga. Desde aquí sale a conquistar y abrir galaxias nuevas.', meta: { tier: 'leyenda' }, created_at: '1925-04-10T00:00:00' } });
+  }
   window.__galaxySlots = distantGalaxies;
 
   let t = 0;
@@ -7183,7 +7147,8 @@ function drawGalaxyBg() {
   // ── PORTALES a las galaxias vecinas (viajar de región en región) ──
   const portals = window.MULTIU ? MULTIU.portalSlots(W, H, REG) : [];
   const allGalaxies = distantGalaxies.concat(myNeighbors, myUniverses, portals);
-  window.__galaxySlots = allGalaxies;
+  // hit-testing: portales y universos tuyos tienen prioridad sobre los slots lejanos
+  window.__galaxySlots = portals.concat(myUniverses, myNeighbors, distantGalaxies);
 
   // ── NEBULAS — soft drifting colour clouds (life) ──
   const NEB_COLS = ['184,77,255', '0,240,255', '255,58,31', '255,210,0', '120,220,120'];
@@ -7313,6 +7278,11 @@ function drawGalaxyBg() {
       ctx.fillStyle = g.col + '55';
       ctx.textAlign = 'center';
       ctx.fillText(g.label, 0, g.r * 1.6);
+      if (g.mansion) { // la luz verde del muelle
+        const bp = 0.5 + 0.5 * Math.sin(t * 0.06);
+        ctx.beginPath(); ctx.arc(g.r * 1.2, -g.r * 0.55, 2.4 + bp * 1.6, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(60,255,140,' + (0.45 + bp * 0.55) + ')'; ctx.fill();
+      }
       if (g.portal) {
         ctx.font = '400 5px Space Mono, monospace';
         ctx.fillStyle = g.col + '99';
@@ -7342,6 +7312,9 @@ function drawGalaxyBg() {
       ctx.lineWidth = 0.5;
       ctx.stroke();
     });
+
+    // EL GATSBY explora el multiverso — la única manera de verlo ahora
+    if (window.__galaxySlots && window.__galaxySlots.length) updateGatsbyGalaxy(ctx, canvas.width, canvas.height, window.__galaxySlots, window.__gmx, window.__gmy);
 
     t++;
     galaxyAnimId = requestAnimationFrame(frame);
@@ -10248,10 +10221,10 @@ window.refreshEcosystemStats = function(){
 (function(){
   const KEY='hk23-universes';
   const REGIONS={
-    andromeda:  { label:'ANDRÓMEDA',  col:'#B84DFF', pos:[0.07,0.16] },
-    perseo:     { label:'PERSEO',     col:'#00F0FF', pos:[0.93,0.20] },
-    magallanes: { label:'MAGALLANES', col:'#AAFF00', pos:[0.08,0.82] },
-    sombrero:   { label:'SOMBRERO',   col:'#FFD200', pos:[0.92,0.80] },
+    andromeda:  { label:'ANDRÓMEDA',  col:'#B84DFF', pos:[0.05,0.09] },
+    perseo:     { label:'PERSEO',     col:'#00F0FF', pos:[0.95,0.10] },
+    magallanes: { label:'MAGALLANES', col:'#AAFF00', pos:[0.05,0.88] },
+    sombrero:   { label:'SOMBRERO',   col:'#FFD200', pos:[0.95,0.88] },
   };
   const COLORS=['#00F0FF','#FFD200','#FF3A1F','#B84DFF','#AAFF00','#FF2D78','#FF6600'];
   // el ciclo canónico de HK23 OS — la estructura que se replica
