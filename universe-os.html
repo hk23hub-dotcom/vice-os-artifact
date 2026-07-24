@@ -7062,9 +7062,42 @@ var qrcode = function() {
         '## La filosofía',
         'NOT GIVEN. TAKEN. El universo no se pide — se construye y se toma. Este template es la puerta: lo que hagas adentro es tuyo.' ].join('\n\n') }
   ];
+  // ═══ COLECCIÓN HARD TRUTHS — el proyecto de la serie de libros, fusionado como colección propia ═══
+  // Los estantes están vivos; cada tomo espera su manuscrito original. Regla de la colección:
+  // los hechos separados de las interpretaciones, y nunca se asume mala intención de nadie.
+  const HT_WAIT=(vol)=>[ '# HARD TRUTHS — '+vol,
+    '## Estante vivo',
+    'Este tomo es parte de la **COLECCIÓN HARD TRUTHS** fusionada al universo. El estante está reservado y encendido — el manuscrito original vive fuera de este repo.',
+    '## Cómo se publica',
+    'Pegale el texto original a tu agente (o dejalo en el repo como `docs/hard-truths/'+vol.toLowerCase()+'.md`) y queda legible acá mismo, página por página, con tu voz intacta — sin resumir, sin reescribir.',
+    '## La regla de la colección',
+    '- Los **hechos** van separados de las **interpretaciones**.',
+    '- Nunca se asume que alguien actuó con mala intención.',
+    '- La voz es la del autor. El universo solo le da estantería.' ].join('\n\n');
+  const HARD_TRUTHS=[
+    { id:'ht-reflection-01', title:'REFLECTION 01 — VULNERABILITY & AUTONOMY', tier:'socio', collection:'HARD TRUTHS',
+      desc:'La primera reflexión de la colección: vulnerabilidad y autonomía. El documento más personal del estante.',
+      md:HT_WAIT('Reflection 01 — Vulnerability & Autonomy') },
+    ...[ ['Family','El primer espejo: lo que se hereda, lo que se repite y lo que se elige romper.'],
+         ['Trust','Qué se le entrega a quién, y qué pasa cuando el peso no se reparte parejo.'],
+         ['Identity','Quién sos cuando nadie mira — y quién queda cuando se caen los roles.'],
+         ['Success','Lo que cuesta de verdad, lo que no se ve en la foto, y a quién le sirve tu versión del éxito.'],
+         ['Silence','Lo que no se dice: el precio de callar y el precio de hablar.'],
+         ['Freedom','Los barrotes que uno mismo pinta — y la puerta que siempre estuvo sin llave.'],
+         ['Leadership','Cargar el peso sin trasladar el costo: liderar sin coerción.'],
+         ['Love','El amor como acto y no como discurso; lo que sostiene y lo que asfixia.'],
+         ['Purpose','La pregunta L0 del universo aplicada a una vida: ¿para qué existís?'] ]
+      .map(([vol,desc])=>({ id:'ht-'+vol.toLowerCase(), title:'HARD TRUTHS · '+vol.toUpperCase(), tier:'referido',
+        collection:'HARD TRUTHS', desc, md:HT_WAIT(vol) }))
+  ];
+  BIB_FALLBACK.push(...HARD_TRUTHS);
   let BIB=BIB_FALLBACK;
   fetch('./biblioteca.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
-    if(j&&j.books&&j.books.length){ BIB=[...BIB_FALLBACK, ...j.books.map(b=>({...b, md:b.md||''}))]; renderBib(); }
+    if(j&&j.books&&j.books.length){
+      const byId=new Map(BIB_FALLBACK.map(b=>[b.id,b]));
+      j.books.forEach(b=>byId.set(b.id, {...(byId.get(b.id)||{}), ...b, md:b.md||(byId.get(b.id)||{}).md||''}));
+      BIB=[...byId.values()]; renderBib();
+    }
   }).catch(()=>{});
   const TIER_RANK={visita:0, referido:1, obsesionado:2, socio:3};
   function canRead(book){ return TIER_RANK[GATE.tier]>=TIER_RANK[book.tier||'referido']; }
@@ -7105,8 +7138,16 @@ var qrcode = function() {
         '<div class="bd">'+d+'</div><div class="bl">'+cta+'</div>';
       el.onclick=fn; list.appendChild(el); };
     if(bibSection==='libros'){
-      BIB.forEach(book=>card(book.title, book.desc, (book.tier||'referido').toUpperCase(), '#FFD200',
-        ()=>openBook(book), canRead(book)?'◈ LEER AQUÍ MISMO →':'🔒 TEASER — ENTRÁ CON CÓDIGO'));
+      const divider=(t,col)=>{ const d=document.createElement('div');
+        d.style.cssText='font-family:"Space Mono",monospace;font-size:8px;letter-spacing:4px;color:'+col+';margin:16px 0 10px;border-bottom:1px solid '+col+'33;padding-bottom:6px';
+        d.textContent=t; list.appendChild(d); };
+      const bookCard=book=>card(book.title, book.desc, (book.tier||'referido').toUpperCase(), '#FFD200',
+        ()=>openBook(book), canRead(book)?'◈ LEER AQUÍ MISMO →':'🔒 TEASER — ENTRÁ CON CÓDIGO');
+      divider('▸ CANON HK23','#00F0FF');
+      BIB.filter(b=>!b.collection).forEach(bookCard);
+      divider('▸ COLECCIÓN HARD TRUTHS — 9 VOLÚMENES + REFLEXIONES','#B84DFF');
+      BIB.filter(b=>b.collection==='HARD TRUTHS').forEach(bookCard);
+      divider('▸ COLECCIÓN REWIRED','#FF3A1F');
       card('COLECCIÓN REWIRED', 'El estante está reservado y encendido. Los tomos REWIRED viven fuera de este repo — pasame los textos (o los títulos y dónde están) y los publico acá, legibles página por página.', 'ESTANTE VIVO', '#FF3A1F',
         ()=>window.open('https://hk23hub.gumroad.com','_blank'), '⚡ MIENTRAS TANTO: VER EN GUMROAD →');
     } else if(bibSection==='plugins'){
