@@ -10731,11 +10731,1103 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+<!-- ═══════════ INQUILINOS — galaxias de usuarios dentro de la tuya (galaxia + landing + productos) ═══════════ -->
+<style id="inq-style">
+  /* ── galaxia del inquilino ── */
+  #inq{ position:fixed; inset:0; z-index:775; display:none; flex-direction:column; overflow:hidden;
+    background:#04050A; font-family:'Space Mono',monospace; }
+  #inq.open{ display:flex; }
+  #inq-head{ flex:none; display:flex; align-items:center; gap:10px; padding:14px 18px; flex-wrap:wrap;
+    border-bottom:1px solid var(--iq-line,#1A1A2A); background:rgba(4,5,10,.94); }
+  #inq-name{ font-size:12px; letter-spacing:4px; color:var(--iq,#B84DFF); }
+  #inq-name small{ display:block; font-size:7px; letter-spacing:3px; color:#3A3A5A; margin-top:3px; }
+  #inq-x{ margin-left:auto; font-size:9px; letter-spacing:3px; color:#000; background:var(--iq,#B84DFF);
+    border:none; border-radius:2px; padding:8px 14px; cursor:pointer; }
+  #inq-body{ flex:1; min-height:0; display:flex; }
+  #inq-canvaswrap{ flex:1.2; position:relative; min-width:0; border-right:1px solid var(--iq-line,#1A1A2A); }
+  #inq-cv{ position:absolute; inset:0; width:100%; height:100%; }
+  #inq-side{ flex:1; max-width:420px; overflow-y:auto; padding:18px; scrollbar-width:thin; }
+  .iq-h{ font-size:8px; letter-spacing:4px; color:#3A3A5A; margin:16px 0 10px; }
+  .iq-h:first-child{ margin-top:0; }
+  .iq-bio{ font-size:11px; line-height:1.8; color:#B8C0D8; margin-bottom:14px; white-space:pre-wrap; }
+  .iq-ag{ display:flex; align-items:center; gap:9px; padding:9px 11px; border:1px solid var(--iq-line,#1A1A2A);
+    border-radius:2px; margin-bottom:6px; background:#080910; cursor:pointer; }
+  .iq-ag:hover{ border-color:var(--iq,#B84DFF); }
+  .iq-ag .d{ width:6px; height:6px; border-radius:50%; background:var(--iq,#B84DFF); animation:pulse 2s infinite; flex-shrink:0; }
+  .iq-ag b{ font-size:10px; color:#E8ECF8; flex:1; }
+  .iq-ag i{ font-size:7px; letter-spacing:2px; color:#4A5470; font-style:normal; }
+  .iq-prod{ border:1px solid var(--iq-line,#1A1A2A); border-left:3px solid var(--iq,#B84DFF); border-radius:2px;
+    background:#080910; padding:12px 14px; margin-bottom:8px; }
+  .iq-prod .pt{ font-size:11px; font-weight:700; color:#E8ECF8; margin-bottom:3px; }
+  .iq-prod .pk{ font-size:7px; letter-spacing:2px; color:var(--iq,#B84DFF); margin-bottom:5px; }
+  .iq-prod .pd{ font-size:9.5px; line-height:1.7; color:#7A86A8; margin-bottom:8px; }
+  .iq-prod a{ font-size:8px; letter-spacing:2px; color:#000; background:var(--iq,#B84DFF); padding:6px 10px;
+    border-radius:2px; text-decoration:none; display:inline-block; }
+  .iq-empty{ font-size:9px; color:#3A3A5A; line-height:1.8; }
+  /* ── landing pública ── */
+  #inq-land{ position:fixed; inset:0; z-index:960; display:none; overflow-y:auto; background:#050508;
+    font-family:'Space Mono',monospace; }
+  #inq-land.open{ display:block; }
+  .il-wrap{ max-width:920px; margin:0 auto; padding:70px 24px 90px; }
+  .il-eyebrow{ font-size:8px; letter-spacing:6px; color:var(--iq,#B84DFF); margin-bottom:14px; }
+  .il-title{ font-family:'Anton',Impact,sans-serif; font-size:clamp(40px,9vw,86px); line-height:.95;
+    letter-spacing:-1px; color:#F2F4FA; margin-bottom:8px; }
+  .il-sub{ font-size:11px; letter-spacing:3px; color:#5A6480; margin-bottom:26px; }
+  .il-bio{ font-size:13px; line-height:1.9; color:#C4CCE0; max-width:640px; margin-bottom:34px; white-space:pre-wrap; }
+  .il-sec{ font-size:8px; letter-spacing:5px; color:#3A4460; border-bottom:1px solid #14141F;
+    padding-bottom:8px; margin:44px 0 18px; }
+  .il-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+  .il-card{ border:1px solid #14141F; border-radius:3px; background:#08080D; padding:18px; }
+  .il-card .k{ font-size:7px; letter-spacing:2px; color:var(--iq,#B84DFF); margin-bottom:6px; }
+  .il-card .t{ font-size:14px; font-weight:700; color:#F2F4FA; margin-bottom:6px; }
+  .il-card .d{ font-size:10px; line-height:1.75; color:#7A86A8; margin-bottom:12px; }
+  .il-card a{ font-size:8px; letter-spacing:2px; color:#000; background:var(--iq,#B84DFF); padding:7px 11px;
+    border-radius:2px; text-decoration:none; display:inline-block; }
+  .il-links{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .il-links a{ font-size:9px; letter-spacing:2px; color:#9AA6C8; border:1px solid #1A1A28; padding:8px 13px;
+    border-radius:2px; text-decoration:none; }
+  .il-links a:hover{ border-color:var(--iq,#B84DFF); color:var(--iq,#B84DFF); }
+  .il-cta{ margin-top:44px; border-top:1px solid #14141F; padding-top:26px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+  .il-cta button{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; padding:12px 20px;
+    border-radius:2px; cursor:pointer; border:none; background:var(--iq,#B84DFF); color:#000; font-weight:700; }
+  .il-cta .ghost{ background:transparent; border:1px solid #22222E; color:#7A86A8; }
+  .il-foot{ margin-top:40px; font-size:8px; letter-spacing:2px; color:#2A2A38; line-height:2; }
+  .il-foot a{ color:#4A5470; }
+  /* landing en clave ESPECTRO */
+  #il-specwrap,#il-chanwrap{ display:none; }
+  #inq-land.espectro #il-specwrap,#inq-land.espectro #il-chanwrap{ display:block; }
+  #il-specwrap{ margin:30px 0 6px; border-top:1px solid #14202A; border-bottom:1px solid #14202A; }
+  #il-spec{ width:100%; height:132px; display:block; }
+  #inq-land.espectro{ background:#05070A; }
+  #inq-land.espectro .il-title{ text-shadow:0 0 40px #4FFFA844; }
+  #inq-land.espectro .il-eyebrow{ color:#FFAA2B; }
+  #inq-land.espectro .il-sec{ color:#2E4A40; border-color:#14202A; }
+  #inq-land.espectro .il-card{ background:#080C10; border-color:#14202A; }
+  .il-chan{ display:flex; align-items:baseline; gap:14px; padding:11px 2px; border-bottom:1px solid #101820; }
+  .il-chan .hz{ font-size:11px; color:var(--cc,#4FFFA8); min-width:74px; font-variant-numeric:tabular-nums;
+    letter-spacing:1px; }
+  .il-chan .nm{ font-size:13px; font-weight:700; color:#EAF6F0; }
+  .il-chan .sb{ font-size:10px; color:#3A5A50; margin-left:auto; text-align:right; }
+  /* ── panel del dueño ── */
+  #inq-admin{ position:fixed; inset:0; z-index:965; display:none; overflow-y:auto; background:rgba(3,3,6,.97);
+    font-family:'Space Mono',monospace; }
+  #inq-admin.open{ display:block; }
+  .ia-wrap{ max-width:760px; margin:0 auto; padding:40px 22px 80px; }
+  .ia-t{ font-size:11px; letter-spacing:4px; color:#FFD200; margin-bottom:6px; }
+  .ia-s{ font-size:9px; color:#4A5470; line-height:1.8; margin-bottom:22px; }
+  .ia-card{ border:1px solid #1A1A28; border-radius:2px; background:#08080D; padding:16px; margin-bottom:10px; }
+  .ia-card .n{ font-size:12px; font-weight:700; color:#F2F4FA; margin-bottom:4px; }
+  .ia-card .m{ font-size:8px; letter-spacing:1px; color:#4A5470; line-height:1.8; margin-bottom:10px; }
+  #inq-admin input, #inq-admin textarea, #inq-admin select{ width:100%; background:#0A0A12; border:1px solid #1E1E2C;
+    border-radius:2px; color:#EAF0FF; font-family:'Space Mono',monospace; font-size:10px; padding:8px 10px;
+    margin-bottom:6px; letter-spacing:1px; }
+  .ia-btn{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; padding:7px 11px; border-radius:2px;
+    cursor:pointer; border:1px solid #22222E; background:transparent; color:#9AA6C8; margin-right:5px; }
+  .ia-btn.go{ background:#FFD200; border-color:#FFD200; color:#000; font-weight:700; }
+  .ia-btn.off{ border-color:#FF3A1F55; color:#FF3A1F; }
+  .ia-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-bottom:8px; }
+  .ia-chip{ font-size:7px; letter-spacing:2px; padding:5px 9px; border-radius:2px; cursor:pointer;
+    border:1px solid #22222E; background:transparent; color:#7A86A8; }
+  .ia-chip.on{ background:#FFD200; border-color:#FFD200; color:#000; font-weight:700; }
+  .ia-msg{ font-size:9px; line-height:1.8; margin-top:8px; }
+  @media(max-width:860px){
+    #inq-body{ flex-direction:column; }
+    #inq-canvaswrap{ flex:none; height:32vh; border-right:none; border-bottom:1px solid var(--iq-line,#1A1A2A); }
+    #inq-side{ max-width:none; }
+  }
+</style>
+
+<div id="inq">
+  <div id="inq-head">
+    <div id="inq-name">GALAXIA<small>INQUILINO</small></div>
+    <button class="mvb-btn" id="inq-land-btn" style="border-color:#22222E">🌐 SU LANDING</button>
+    <button id="inq-x">✕ VOLVER (X)</button>
+  </div>
+  <div id="inq-body">
+    <div id="inq-canvaswrap"><canvas id="inq-cv"></canvas></div>
+    <div id="inq-side">
+      <div class="iq-h">◈ QUIÉN ES</div>
+      <div class="iq-bio" id="inq-bio"></div>
+      <div class="iq-h">◈ AGENTES PRESTADOS — CORREN EN EL UNIVERSO MADRE</div>
+      <div id="inq-agents"></div>
+      <div class="iq-h">◈ SUS PRODUCTOS</div>
+      <div id="inq-prods"></div>
+    </div>
+  </div>
+</div>
+
+<div id="inq-land"><div class="il-wrap">
+  <div class="il-eyebrow" id="il-eyebrow">GALAXIA INQUILINA · HK23 UNIVERSE</div>
+  <h1 class="il-title" id="il-title">—</h1>
+  <div class="il-sub" id="il-sub"></div>
+  <div class="il-bio" id="il-bio"></div>
+  <div class="il-links" id="il-links"></div>
+  <div id="il-specwrap"><canvas id="il-spec"></canvas></div>
+  <div id="il-chanwrap"><div class="il-sec">◈ SUS CANALES</div><div id="il-chans"></div></div>
+  <div class="il-sec">◈ PRODUCTOS Y PLUGINS</div>
+  <div class="il-grid" id="il-prods"></div>
+  <div class="il-cta">
+    <button id="il-enter">◈ ENTRAR A LA GALAXIA →</button>
+    <button class="ghost" id="il-back">← VOLVER AL UNIVERSO</button>
+  </div>
+  <div class="il-foot" id="il-foot"></div>
+</div></div>
+
+<div id="inq-admin"><div class="ia-wrap">
+  <div class="ia-t">◈ INQUILINOS — GALAXIAS DENTRO DE LA TUYA</div>
+  <div class="ia-s">Cada inquilino entra por TU puerta con su código, vive en su propia galaxia y usa TUS agentes — nunca una copia. Podés prestarle agentes, apagarle el acceso o borrarlo cuando quieras.</div>
+  <div id="ia-list"></div>
+  <div class="ia-card">
+    <div class="n">＋ NUEVO INQUILINO</div>
+    <input id="ia-name" placeholder="nombre del universo · ej. FREQUENCY UNIVERSE" autocomplete="off">
+    <input id="ia-slug" placeholder="slug para su link · ej. frequency" autocomplete="off">
+    <input id="ia-code" placeholder="su código de entrada · ej. MVB-JC" autocomplete="off">
+    <input id="ia-sub" placeholder="de quién es · ej. jean christophe · plugins y noche" autocomplete="off">
+    <textarea id="ia-bio" rows="3" placeholder="quién es (lo escribís vos o él después)"></textarea>
+    <input id="ia-links" placeholder="links · ej. instagram=https://... , tienda=https://..." autocomplete="off">
+    <input id="ia-bg" placeholder="fondo de su galaxia · pegá un link (opcional)" autocomplete="off">
+    <div class="ia-row" id="ia-colors"></div>
+    <div class="ia-row" id="ia-forms"></div>
+    <div class="ia-row" id="ia-agents"></div>
+    <button class="ia-btn go" id="ia-create">CREAR SU GALAXIA →</button>
+    <div class="ia-msg" id="ia-msg"></div>
+  </div>
+  <div class="ia-card">
+    <div class="n">＋ PRODUCTO / PLUGIN DE UN INQUILINO</div>
+    <select id="ip-owner"></select>
+    <input id="ip-name" placeholder="nombre del producto" autocomplete="off">
+    <input id="ip-kind" placeholder="tipo · ej. PLUGIN / AGENTE / PRESET / SERVICIO" autocomplete="off">
+    <input id="ip-desc" placeholder="qué hace, en una línea" autocomplete="off">
+    <input id="ip-url" placeholder="link de compra o de descarga" autocomplete="off">
+    <button class="ia-btn go" id="ip-create">PUBLICAR PRODUCTO →</button>
+    <div class="ia-msg" id="ip-msg"></div>
+  </div>
+  <button class="ia-btn" id="ia-close">✕ CERRAR</button>
+</div></div>
+
 <script>
-// portal de vuelta al UNIVERSO MADRE (solo tiene sentido en hk23universe.vercel.app)
+// ═══ INQUILINOS — galaxias de usuarios que viven DENTRO del universo madre ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const log=(k,d)=>{ (window.hkLog||function(){})(k,d); };
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const tier=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_tier'))||'visita'; }catch(e){ return 'visita'; } };
+  const SUPA={ url:'https://qhklngvzdmwsbopbkiff.supabase.co',
+    key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoa2xuZ3Z6ZG13c2JvcGJraWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTEwOTYsImV4cCI6MjA5NzM2NzA5Nn0.ttdBrxCF6Wl6I8yKOICfTq7WyPylMmSmdKGUb176BCs' };
+  const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+
+  // agentes que el dueño puede prestar — corren en ESTA página, no se copian
+  const AGENTS={
+    atlas:    { n:'ATLAS',    d:'control: QR, ideas, fondos, comandos', fn:()=>{ const p=$('ag-panel'); if(p) p.classList.add('open'); } },
+    oracle:   { n:'ORACLE',   d:'reporte de estado y acciones',        fn:()=>{ if(window.hkOracle) window.hkOracle(); } },
+    curator:  { n:'CURATOR',  d:'nada existe sin misión',              fn:()=>{ const p=$('ag-panel'); if(p) p.classList.add('open');
+                                                                          const t=document.querySelector('.ag-tab[data-pane="curator"]'); if(t) t.click(); } },
+    conector: { n:'CONECTOR', d:'la noche: eventos y vendedores',      fn:()=>{ if(window.MVB) window.MVB.open(); } },
+    media:    { n:'MEDIA ENGINE', d:'fondos vivos desde cualquier link', fn:()=>{ const p=$('me-panel'); if(p) p.classList.add('open'); } },
+    biblio:   { n:'BIBLIOTECA', d:'libros, guías y productos',         fn:()=>{ if(window.hkBiblioteca) window.hkBiblioteca(); } }
+  };
+  window.__INQ_AGENTS=AGENTS;   // el universo del inquilino usa el mismo catálogo
+  const COLORS=['#B84DFF','#00F0FF','#FF3AC8','#AAFF00','#FFD200','#FF3A1F'];
+  const FORMS=['espiral','nebulosa','asteroides','cometa','estacion'];
+  const FORM_ICO={espiral:'✧',nebulosa:'☁',asteroides:'☄',cometa:'💫',estacion:'🛰'};
+
+  // ── datos: Supabase manda, el dispositivo respalda ──
+  const localTen=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_inquilinos'))||[]; }catch(e){ return []; } };
+  const localProd=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_inq_productos'))||[]; }catch(e){ return []; } };
+  const norm=t=>({ ...t,
+    agents: Array.isArray(t.agents)?t.agents:(()=>{ try{ return JSON.parse(t.agents)||[]; }catch(e){ return []; } })(),
+    links:  Array.isArray(t.links) ?t.links :(()=>{ try{ return JSON.parse(t.links)||[];  }catch(e){ return []; } })() });
+  // semilla: el primer inquilino, listo para que lo completes desde el panel
+  const SEED=[{ slug:'frequency', name:'FREQUENCY UNIVERSE', code:'MVB-JC',
+    sub:'jean christophe · plugins, sets y noche', bio:'', color:'#4FFFA8', form:'nebulosa', skin:'espectro',
+    bg:'', agents:['atlas','oracle','conector','media'], tier:'referido', active:true, seed:true }];
+  let TEN=[], PROD=[];
+  async function load(){
+    let rt=[], rp=[];
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_galaxies?select=*&order=created_at.desc&limit=60',{headers:HEAD});
+      if(r.ok) rt=await r.json(); }catch(e){}
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_products?select=*&order=created_at.desc&limit=200',{headers:HEAD});
+      if(r.ok) rp=await r.json(); }catch(e){}
+    const m=new Map(SEED.map(t=>[t.slug,t]));
+    [...localTen().map(t=>({...t,local:true})), ...rt].forEach(t=>{ if(t&&t.slug) m.set(t.slug, norm({...(m.get(t.slug)||{}), ...t})); });
+    TEN=[...m.values()];
+    const pm=new Map();
+    [...localProd().map(p=>({...p,local:true})), ...rp].forEach(p=>{ if(p&&p.id) pm.set(p.id,p); });
+    PROD=[...pm.values()];
+  }
+  const prodsOf=slug=>PROD.filter(p=>p.owner===slug);
+  const bySlug=s=>TEN.find(t=>t.slug===s);
+  const byCode=c=>TEN.find(t=>(t.code||'').toUpperCase()===String(c||'').toUpperCase()&&t.active!==false);
+
+  // ── la galaxia del inquilino ──
+  let cur=null, raf=null;
+  const cv=$('inq-cv'), ctx=cv.getContext('2d');
+  function draw(t){
+    if(!cur) return;
+    const w=cv.clientWidth, h=cv.clientHeight; if(!w||!h) return;
+    if(cv.width!==w*2||cv.height!==h*2){ cv.width=w*2; cv.height=h*2; }
+    const W=w*2, H=h*2, col=cur.color||'#B84DFF';
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    const cx=W/2, cy=H/2, rot=t/9000;
+    if(cur.form==='asteroides'){
+      for(let i=0;i<130;i++){ const a=i*2.399+rot*2, r=(0.1+((i*37)%100)/100*0.36)*Math.min(W,H);
+        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.82, 1+((i*13)%5)/2, 0, 7);
+        ctx.fillStyle=col+'99'; ctx.fill(); }
+    } else if(cur.form==='nebulosa'){
+      for(let i=0;i<44;i++){ const a=i*0.71+rot, r=(0.06+i/44*0.34)*Math.min(W,H);
+        const g=ctx.createRadialGradient(cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.8, 0, cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.8, 60+i);
+        g.addColorStop(0,col+'44'); g.addColorStop(1,'transparent');
+        ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
+    } else if(cur.form==='estacion'){
+      ctx.strokeStyle=col+'88'; ctx.lineWidth=3;
+      for(let k=1;k<=3;k++){ ctx.beginPath(); ctx.ellipse(cx,cy,Math.min(W,H)*0.1*k,Math.min(W,H)*0.035*k,rot*k,0,7); ctx.stroke(); }
+      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,16,0,7); ctx.fill();
+    } else { // espiral / cometa
+      const arms=cur.form==='cometa'?1:3;
+      for(let a=0;a<arms;a++) for(let i=0;i<200;i++){
+        const th=i/200*5.6+a*(6.28/arms)+rot, r=Math.pow(i/200,0.72)*Math.min(W,H)*0.42;
+        ctx.beginPath(); ctx.arc(cx+Math.cos(th)*r, cy+Math.sin(th)*r*0.72, 1.6-i/200, 0, 7);
+        ctx.fillStyle=col+'AA'; ctx.fill(); }
+    }
+    ctx.globalCompositeOperation='source-over';
+    ctx.font='700 15px "Space Mono",monospace'; ctx.fillStyle=col+'66'; ctx.textAlign='center';
+    ctx.fillText((FORM_ICO[cur.form]||'✧')+' '+String(cur.form||'').toUpperCase(), cx, H-26);
+  }
+  function loop(t){ if(!$('inq').classList.contains('open')){ raf=null; return; } draw(t||0); raf=requestAnimationFrame(loop); }
+
+  function paintGal(){
+    if(!cur) return;
+    document.documentElement.style.setProperty('--iq',cur.color||'#B84DFF');
+    $('inq').style.setProperty('--iq',cur.color||'#B84DFF');
+    $('inq').style.setProperty('--iq-line',(cur.color||'#B84DFF')+'28');
+    $('inq-name').innerHTML=esc(cur.name)+'<small>'+esc(cur.sub||'GALAXIA INQUILINA')+'</small>';
+    $('inq-bio').textContent=cur.bio||'Su historia todavía no está escrita. Escribila vos desde ◈ INQUILINOS, o pedísela a él.';
+    const ab=$('inq-agents');
+    ab.innerHTML=(cur.agents||[]).filter(k=>AGENTS[k]).map(k=>
+      '<div class="iq-ag" data-ag="'+esc(k)+'"><span class="d"></span><b>'+esc(AGENTS[k].n)+'</b><i>'+esc(AGENTS[k].d)+'</i></div>').join('')
+      ||'<div class="iq-empty">Todavía no le prestaste ningún agente.</div>';
+    ab.querySelectorAll('[data-ag]').forEach(el=>el.onclick=()=>{
+      const a=AGENTS[el.dataset.ag]; if(!a) return;
+      log('inquilino', cur.slug+' usó '+a.n); $('inq').classList.remove('open'); a.fn(); });
+    const pb=$('inq-prods'); const ps=prodsOf(cur.slug);
+    pb.innerHTML=ps.map(p=>'<div class="iq-prod"><div class="pk">'+esc((p.kind||'PRODUCTO').toUpperCase())+'</div>'+
+      '<div class="pt">'+esc(p.name)+'</div><div class="pd">'+esc(p.desc||'')+'</div>'+
+      (safeUrl(p.url)?'<a href="'+esc(safeUrl(p.url))+'" target="_blank" rel="noopener noreferrer">VER →</a>':'')+'</div>').join('')
+      ||'<div class="iq-empty">Sus productos van acá. Cargalos desde ◈ INQUILINOS.</div>';
+    if(cur.bg&&window.MediaEngine&&window.MediaEngine.add){ try{ window.MediaEngine.add(cur.bg); }catch(e){} }
+  }
+  function openGal(slug){
+    const t=bySlug(slug); if(!t) return false;
+    if(t.active===false){ (window.hkLog||function(){})('inquilino','acceso cerrado: '+slug); return false; }
+    // si está cargado el universo completo del inquilino, ese manda (portal + mapa propio + edición)
+    if(window.InqUniverse&&window.InqUniverse.open){ cur=t; $('inq-land').classList.remove('open');
+      $('inq').classList.remove('open'); return window.InqUniverse.open(t); }
+    cur=t; $('inq-land').classList.remove('open'); $('inq').classList.add('open');
+    paintGal(); if(!raf) raf=requestAnimationFrame(loop);
+    log('inquilino','entró a la galaxia de '+t.name); return true;
+  }
+  $('inq-x').onclick=()=>$('inq').classList.remove('open');
+  $('inq-land-btn').onclick=()=>{ if(cur) openLand(cur.slug); };
+
+  // ── su landing pública: la misma data, cara de página propia ──
+  function openLand(slug){
+    const t=bySlug(slug); if(!t) return false;
+    cur=t;
+    const L=$('inq-land');
+    L.style.setProperty('--iq',t.color||'#B84DFF');
+    $('il-eyebrow').textContent='GALAXIA INQUILINA · HK23 UNIVERSE';
+    $('il-title').textContent=t.name;
+    $('il-sub').textContent=t.sub||'';
+    $('il-bio').textContent=t.bio||'';
+    $('il-links').innerHTML=(t.links||[]).map(l=>{ const u=safeUrl(l.url); return u?
+      '<a href="'+esc(u)+'" target="_blank" rel="noopener noreferrer">'+esc((l.label||'LINK').toUpperCase())+' →</a>':''; }).join('');
+    const ps=prodsOf(slug);
+    $('il-prods').innerHTML=ps.map(p=>'<div class="il-card"><div class="k">'+esc((p.kind||'PRODUCTO').toUpperCase())+'</div>'+
+      '<div class="t">'+esc(p.name)+'</div><div class="d">'+esc(p.desc||'')+'</div>'+
+      (safeUrl(p.url)?'<a href="'+esc(safeUrl(p.url))+'" target="_blank" rel="noopener noreferrer">VER →</a>':'')+'</div>').join('')
+      ||'<div class="iq-empty">Sus productos se publican desde el universo madre.</div>';
+    $('il-foot').innerHTML='Esta galaxia vive dentro de <b>HK23 UNIVERSE</b> — sus agentes corren en el universo madre.<br>Su link: <a href="?g='+esc(slug)+'">?g='+esc(slug)+'</a>';
+    // en clave ESPECTRO: sus nodos se listan como canales, con su frecuencia
+    const esp=(t.skin||'')==='espectro';
+    L.classList.toggle('espectro',esp);
+    if(esp&&window.InqUniverse&&window.InqUniverse.strip){
+      const ns=window.InqUniverse.strip($('il-spec'), t);
+      $('il-chans').innerHTML=(ns||[]).map(n=>
+        '<div class="il-chan" style="--cc:'+esc(n.col)+'"><span class="hz">'+esc(n.hz)+'</span>'+
+        '<span class="nm">'+esc(n.label)+'</span><span class="sb">'+esc(n.sub||'')+'</span></div>').join('')
+        ||'<div class="iu-empty" style="font-size:10px;color:#2E4A40">Su espectro todavía está en silencio.</div>';
+    }
+    L.classList.add('open');
+    log('inquilino','landing de '+t.name); return true;
+  }
+  $('il-enter').onclick=()=>{ if(!cur) return;
+    if(tier()==='visita'){ $('inq-land').classList.remove('open');
+      const g=$('ov-gate'); if(g) g.classList.add('open'); return; }
+    openGal(cur.slug); };
+  $('il-back').onclick=()=>$('inq-land').classList.remove('open');
+
+  // ── panel del dueño ──
+  let newColor=COLORS[0], newForm='nebulosa', newAgents=new Set(['atlas','oracle']);
+  function chips(box, items, isOn, onPick, label){
+    box.innerHTML='';
+    items.forEach(v=>{ const b=document.createElement('button'); b.className='ia-chip'+(isOn(v)?' on':'');
+      b.textContent=label(v); b.onclick=()=>{ onPick(v); }; box.appendChild(b); });
+  }
+  function paintNew(){
+    chips($('ia-colors'),COLORS,v=>v===newColor,v=>{ newColor=v; paintNew(); },v=>'●');
+    [...$('ia-colors').children].forEach((b,i)=>{ b.style.color=COLORS[i]; b.style.fontSize='13px'; });
+    chips($('ia-forms'),FORMS,v=>v===newForm,v=>{ newForm=v; paintNew(); },v=>FORM_ICO[v]+' '+v.toUpperCase());
+    chips($('ia-agents'),Object.keys(AGENTS),v=>newAgents.has(v),
+      v=>{ newAgents.has(v)?newAgents.delete(v):newAgents.add(v); paintNew(); }, v=>AGENTS[v].n);
+  }
+  function paintAdmin(){
+    const list=$('ia-list');
+    list.innerHTML=TEN.map(t=>{
+      const ps=prodsOf(t.slug).length;
+      return '<div class="ia-card"><div class="n" style="color:'+esc(t.color||'#fff')+'">'+esc(t.name)+
+        (t.local?' <span class="mvb-demo" style="background:#00F0FF">LOCAL</span>':'')+
+        (t.seed?' <span class="mvb-demo">SEMILLA</span>':'')+'</div>'+
+        '<div class="m">código <b>'+esc(t.code||'—')+'</b> · link <b>?g='+esc(t.slug)+'</b> · '+
+        (t.agents||[]).length+' agentes · '+ps+' productos · '+(t.active===false?'CERRADO':'ABIERTO')+'</div>'+
+        '<button class="ia-btn" data-open="'+esc(t.slug)+'">◈ SU GALAXIA</button>'+
+        '<button class="ia-btn" data-land="'+esc(t.slug)+'">🌐 SU LANDING</button>'+
+        '<button class="ia-btn" data-copy="'+esc(t.slug)+'">⧉ COPIAR SU LINK</button>'+
+        (t.seed?'':'<button class="ia-btn '+(t.active===false?'go':'off')+'" data-toggle="'+esc(t.slug)+'">'+
+          (t.active===false?'REABRIR':'CERRAR ACCESO')+'</button>')+'</div>';
+    }).join('');
+    list.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ $('inq-admin').classList.remove('open'); openGal(b.dataset.open); });
+    list.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>{ $('inq-admin').classList.remove('open'); openLand(b.dataset.land); });
+    list.querySelectorAll('[data-copy]').forEach(b=>b.onclick=()=>{
+      const url=location.origin+location.pathname+'?g='+b.dataset.copy;
+      try{ navigator.clipboard.writeText(url); }catch(e){}
+      b.textContent='✓ COPIADO'; setTimeout(()=>b.textContent='⧉ COPIAR SU LINK',1400); });
+    list.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=async()=>{
+      const t=bySlug(b.dataset.toggle); if(!t) return;
+      t.active=t.active===false; await save(t); paintAdmin();
+      log('inquilino',(t.active?'reabrió':'cerró')+' el acceso de '+t.name); });
+    const sel=$('ip-owner');
+    sel.innerHTML=TEN.map(t=>'<option value="'+esc(t.slug)+'">'+esc(t.name)+'</option>').join('');
+  }
+  async function save(t){
+    const row={ slug:t.slug, name:t.name, code:t.code, sub:t.sub||'', bio:t.bio||'', color:t.color, form:t.form,
+      bg:t.bg||'', tier:t.tier||'referido', active:t.active!==false,
+      agents:JSON.stringify(t.agents||[]), links:JSON.stringify(t.links||[]), created_at:t.created_at||new Date().toISOString() };
+    let ok=false;
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_galaxies',{method:'POST',
+      headers:{...HEAD, Prefer:'resolution=merge-duplicates'}, body:JSON.stringify(row)}); ok=r.ok; }catch(e){}
+    try{ const loc=localTen().filter(x=>x.slug!==t.slug); loc.push(t); localStorage.setItem('hk23_inquilinos',JSON.stringify(loc)); }catch(e){}
+    return ok;
+  }
+  $('ia-create').onclick=async()=>{
+    const v=id=>($(id).value||'').trim();
+    const msg=$('ia-msg');
+    const name=v('ia-name'), slug=v('ia-slug').toLowerCase().replace(/[^a-z0-9-]+/g,'-').replace(/^-|-$/g,''), code=v('ia-code').toUpperCase();
+    if(!name||!slug||!code){ msg.style.color='#FF3A1F'; msg.textContent='Necesito al menos nombre, slug y código de entrada.'; return; }
+    if(bySlug(slug)&&!bySlug(slug).seed){ msg.style.color='#FF3A1F'; msg.textContent='Ya existe un inquilino con ese slug.'; return; }
+    const links=v('ia-links').split(',').map(s=>s.trim()).filter(Boolean).map(pair=>{
+      const i=pair.indexOf('='); return i<0?null:{ label:pair.slice(0,i).trim(), url:pair.slice(i+1).trim() }; }).filter(Boolean);
+    const t={ slug, name:name.toUpperCase(), code, sub:v('ia-sub'), bio:v('ia-bio'), color:newColor, form:newForm,
+      bg:v('ia-bg'), agents:[...newAgents], links, tier:'referido', active:true, created_at:new Date().toISOString() };
+    const ok=await save(t);
+    TEN=[t, ...TEN.filter(x=>x.slug!==slug)];
+    ['name','slug','code','sub','bio','links','bg'].forEach(k=>{ const el=$('ia-'+k); if(el) el.value=''; });
+    msg.style.color='#AAFF00';
+    msg.textContent='✓ '+t.name+' creado '+(ok?'en el universo — su link ya funciona para todos.':'en este dispositivo. Corré el SQL de universe_galaxies para que lo vean todos.');
+    paintAdmin();
+    log('inquilino','creado: '+t.name+' ('+slug+')');
+  };
+  $('ip-create').onclick=async()=>{
+    const v=id=>($(id).value||'').trim(); const msg=$('ip-msg');
+    const owner=$('ip-owner').value, name=v('ip-name');
+    if(!owner||!name){ msg.style.color='#FF3A1F'; msg.textContent='Elegí el inquilino y poné al menos el nombre del producto.'; return; }
+    const p={ id:'p'+Math.random().toString(36).slice(2,10), owner, name:name.toUpperCase(),
+      kind:v('ip-kind')||'PRODUCTO', desc:v('ip-desc'), url:v('ip-url'), created_at:new Date().toISOString() };
+    let ok=false;
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_products',{method:'POST',headers:HEAD,body:JSON.stringify(p)}); ok=r.ok; }catch(e){}
+    try{ const loc=localProd(); loc.push(p); localStorage.setItem('hk23_inq_productos',JSON.stringify(loc)); }catch(e){}
+    PROD=[p,...PROD];
+    ['name','kind','desc','url'].forEach(k=>{ const el=$('ip-'+k); if(el) el.value=''; });
+    msg.style.color='#AAFF00';
+    msg.textContent='✓ '+p.name+' publicado '+(ok?'— visible en su galaxia, su landing y tu Biblioteca.':'en este dispositivo. Corré el SQL de universe_products para publicarlo a todos.');
+    paintAdmin();
+    log('inquilino','producto de '+owner+': '+p.name);
+  };
+  $('ia-close').onclick=()=>$('inq-admin').classList.remove('open');
+
+  async function openAdmin(){
+    if(tier()!=='socio'){ (window.hkLog||function(){})('inquilino','panel pedido sin ser dueño');
+      const g=$('ov-gate'); if(g) g.classList.add('open'); return; }
+    await load(); paintNew(); paintAdmin(); $('inq-admin').classList.add('open');
+  }
+  window.Inquilinos={ open:openAdmin, galaxy:openGal, landing:openLand, list:()=>TEN, products:()=>PROD };
+
+  // ── el código del inquilino abre SU galaxia, por tu puerta ──
+  const ge=$('gate-enter');
+  if(ge){ const prev=ge.onclick;
+    ge.onclick=async(e)=>{
+      const c=($('gate-code').value||'').trim().toUpperCase();
+      if(!TEN.length) await load();
+      const t=byCode(c);
+      if(t){
+        try{ localStorage.setItem('hk23_tier',JSON.stringify(t.tier||'referido'));
+             localStorage.setItem('hk23_inq_me', t.slug); }catch(e2){}  // entró con SU código: puede editar lo suyo
+        const g=$('ov-gate'); if(g) g.classList.remove('open');
+        $('gate-code').value='';
+        const b=$('gate-badge'); if(b) b.textContent='◈ '+t.name;
+        log('inquilino','entró con su código: '+t.name);
+        openGal(t.slug); return;
+      }
+      if(prev) prev.call(ge,e);
+    };
+  }
+
+  // ── dock, hotkey y comandos ──
+  const dock=$('hk-dock');
+  if(dock){ const b=document.createElement('button'); b.className='dk'; b.textContent='◈ INQUILINOS';
+    b.style.setProperty('--dc','#B84DFF'); b.style.color='#B84DFFCC';
+    b.onclick=()=>openAdmin(); dock.insertBefore(b, dock.children[3]||null); }
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if((e.key==='u'||e.key==='U')) openAdmin();
+    if((e.key==='x'||e.key==='X'||e.key==='Escape')){
+      ['inq','inq-land','inq-admin'].forEach(id=>{ const el=$(id); if(el) el.classList.remove('open'); });
+    }
+  });
+  const cmd=$('ag-cmd');
+  if(cmd) cmd.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return; const s=(cmd.value||'').trim().toLowerCase();
+    if(/^(inquilinos?|usuarios?|galaxias? de)$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault(); cmd.value=''; openAdmin(); }
+    else if(/^(landing|inquilino) /.test(s)){ const slug=s.split(/\s+/).slice(1).join('-');
+      e.stopImmediatePropagation(); e.preventDefault(); cmd.value='';
+      load().then(()=>{ if(!openLand(slug)) (window.hkLog||function(){})('inquilino','no existe: '+slug); }); }
+  }, true);
+
+  // ── ?g=slug abre su landing directo (el link que le pasás) ──
+  load().then(()=>{
+    const g=new URLSearchParams(location.search).get('g');
+    if(g){ setTimeout(()=>{
+      const p=document.getElementById('portal-screen'); if(p) p.style.display='none';
+      openLand(g.toLowerCase()); }, 700); }
+  });
+})();
+</script>
+
+<!-- ═══════════ FABLE FX — entrada pixelada + fondo de entidades-fachada ═══════════ -->
+<style id="fable-style">
+  #fable-bg{ position:fixed; inset:0; z-index:6; pointer-events:none; display:none;
+    mix-blend-mode:screen; opacity:.55; }
+  #fable-bg.on{ display:block; }
+  #fable-intro{ position:fixed; inset:0; z-index:99998; pointer-events:none; display:none; }
+  #fable-intro.on{ display:block; }
+</style>
+<canvas id="fable-bg"></canvas>
+<canvas id="fable-intro"></canvas>
+
+<script>
+// ═══ FABLE FX — recrea la fachada de entidades + el barrido pixelado a velocidad Fable ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const log=(k,d)=>{ (window.hkLog||function(){})(k,d); };
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  // violeta → cian → blanco, la barra del slider Ultracode
+  function col(v){ v=v<0?0:v>1?1:v; let r,g,b;
+    if(v<0.5){ const t=v/0.5; r=184+(59-184)*t; g=77+(224-77)*t; b=255; }
+    else { const t=(v-0.5)/0.5; r=59+(255-59)*t; g=224+(255-224)*t; b=255; }
+    return 'rgb('+(r|0)+','+(g|0)+','+(b|0)+')'; }
+  const hash=(x,y,z)=>{ const h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453; return h-Math.floor(h); };
+  const now=()=>{ try{ return performance.now(); }catch(e){ return 0; } };
+
+  // ── FONDO: entidades-pixel formando la fachada teselada con shimmer diagonal ──
+  const bg=$('fable-bg'), bx=bg.getContext('2d');
+  let bgOn=false, bgRaf=null, bgT0=0, W=0, H=0;
+  const CELL=15, GAP=2, SPEED=1.2, BAND=170, DIAG=0.62;
+  function fitBg(){ W=bg.width=Math.ceil(innerWidth); H=bg.height=Math.ceil(innerHeight); }
+  function bgFrame(){
+    const el=now()-bgT0;
+    bx.clearRect(0,0,W,H);                                        // transparente: el universo queda NEGRO
+    bx.globalCompositeOperation='lighter';
+    const step=CELL, cols=Math.ceil(W/step), rows=Math.ceil(H/step);
+    const sweep=((el*SPEED)%(W+H*DIAG+BAND)), flick=Math.floor(el*0.05);
+    for(let gy=0; gy<rows; gy++) for(let gx=0; gx<cols; gx++){
+      const cx=gx*step, cy=gy*step, dd=sweep-(cx+cy*DIAG);
+      let b=0; if(dd>0&&dd<BAND) b=1-dd/BAND;
+      // ventanas teal de la fachada: sólo unas pocas celdas, respirando
+      if(hash(gx,gy,7)>0.955){ bx.globalAlpha=0.12+0.10*Math.sin(el*0.002+gx*0.5+gy*0.3);
+        bx.fillStyle='#12E4C6'; bx.fillRect(cx,cy,step-GAP,step-GAP); }
+      // brillos ambiente: puntitos dispersos, no todo el campo (si no, lava a gris)
+      let amb=0; if(hash(gx,gy,2)>0.986) amb=0.18+0.12*Math.sin(el*0.003+gx+gy);
+      const rnd=hash(gx,gy,flick);
+      const v=b>0?b*(rnd<0.82?1:0.25):0, tot=Math.max(v,amb);
+      if(tot<0.04) continue;
+      bx.globalAlpha=Math.min(0.95,tot);
+      bx.fillStyle=(b>0)?col(0.35+0.65*b):'#B84DFF';
+      bx.fillRect(cx,cy,step-GAP,step-GAP);
+    }
+    bx.globalAlpha=1; bx.globalCompositeOperation='source-over';
+    bgRaf=requestAnimationFrame(bgFrame);
+  }
+  function setBg(on){
+    bgOn=on; bg.classList.toggle('on',on);
+    try{ localStorage.setItem('hk23_fablefx', on?'1':'0'); }catch(e){}
+    if(on){ fitBg(); bgT0=now(); if(reduce){ bgFrame(); cancelAnimationFrame(bgRaf); }
+      else if(!bgRaf) bgRaf=requestAnimationFrame(bgFrame);
+      log('fable','fondo de entidades ON'); }
+    else { if(bgRaf){ cancelAnimationFrame(bgRaf); bgRaf=null; } bx.clearRect(0,0,W,H); log('fable','fondo OFF'); }
+  }
+  addEventListener('resize',()=>{ if(bgOn) fitBg(); });
+
+  // ── INTRO: barrido pixelado desde negro que revela el universo (velocidad Fable) ──
+  const iv=$('fable-intro'), ix=iv.getContext('2d');
+  let introBusy=false;
+  function playIntro(done){
+    if(introBusy){ done&&done(); return; }
+    if(reduce){ done&&done(); return; }
+    introBusy=true;
+    const IW=iv.width=Math.ceil(innerWidth), IH=iv.height=Math.ceil(innerHeight);
+    iv.classList.add('on');
+    const step=18, cols=Math.ceil(IW/step), rows=Math.ceil(IH/step);
+    const DUR=1050, span=IW+IH*DIAG, t0=now(); let revealed=false;
+    function fr(){
+      const el=now()-t0, front=(el/DUR)*(span+BAND), flick=Math.floor(el*0.08);
+      ix.clearRect(0,0,IW,IH);
+      for(let gy=0; gy<rows; gy++) for(let gx=0; gx<cols; gx++){
+        const cx=gx*step, cy=gy*step, dd=front-(cx+cy*DIAG);
+        if(dd>BAND) continue;                                   // ya revelado → transparente
+        if(dd<=0){ ix.fillStyle='#050608'; ix.fillRect(cx,cy,step,step); continue; } // todavía tapado
+        const grain=hash(gx,gy,7), spark=hash(gx,gy,flick);     // banda: disuelve con grano
+        if(grain<dd/BAND){ if(spark<0.5){ ix.fillStyle=col(0.5+0.5*(1-dd/BAND));
+          ix.fillRect(cx,cy,step-2,step-2); } }
+        else { ix.fillStyle='#050608'; ix.fillRect(cx,cy,step,step); }
+      }
+      if(!revealed && front>span*0.42){ revealed=true; done&&done(); } // revelo el mapa a mitad del barrido
+      if(front<span+BAND){ requestAnimationFrame(fr); }
+      else { iv.classList.remove('on'); ix.clearRect(0,0,IW,IH); introBusy=false; }
+    }
+    requestAnimationFrame(fr);
+  }
+
+  window.FableFX={ bg:setBg, toggle:()=>setBg(!bgOn), intro:playIntro, isOn:()=>bgOn };
+
+  // ── ENTRADA: la tecla ENTER del portal dispara el barrido antes del mapa ──
+  function introEnabled(){ try{ return localStorage.getItem('hk23_intro')!=='0'; }catch(e){ return true; } }
+  const eb=document.querySelector('.enter-btn');
+  if(eb) eb.addEventListener('click',e=>{
+    if(!introEnabled()||reduce) return;                         // sin intro → flujo normal
+    e.stopPropagation(); e.preventDefault();
+    playIntro(()=>{ if(typeof goTo==='function') goTo('map'); });
+  }, true);
+
+  // ── dock, comandos y hotkey ──
+  const dock=$('hk-dock');
+  if(dock){ const b=document.createElement('button'); b.className='dk'; b.textContent='▚ FABLE';
+    b.style.setProperty('--dc','#B84DFF'); b.style.color='#B84DFFCC';
+    b.onclick=()=>setBg(!bgOn); dock.insertBefore(b, dock.children[4]||null); }
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(e.key==='h'||e.key==='H') setBg(!bgOn);
+  });
+  const cmd=$('ag-cmd');
+  if(cmd) cmd.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return; const s=(cmd.value||'').trim().toLowerCase();
+    if(/^(fable|fachada|fondo)( on| off)?$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault();
+      cmd.value=''; setBg(/off$/.test(s)?false:/on$/.test(s)?true:!bgOn); }
+    else if(/^(intro|entrada)$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault(); cmd.value=''; playIntro(); }
+  }, true);
+
+  // restaurar preferencia del fondo
+  try{ if(localStorage.getItem('hk23_fablefx')==='1') setBg(true); }catch(e){}
+})();
+</script>
+
+<!-- ═══════════ UNIVERSO DEL INQUILINO — portal propio, mapa propio, editable por él ═══════════ -->
+<style id="iu-style">
+  #iu{ position:fixed; inset:0; z-index:776; display:none; background:#04050A;
+    font-family:'Space Mono',monospace; overflow:hidden; }
+  #iu.open{ display:block; }
+  /* su portal */
+  #iu-portal{ position:absolute; inset:0; z-index:3; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px; text-align:center; padding:24px;
+    background:radial-gradient(900px 600px at 50% 45%, var(--iuc,#B84DFF)14, transparent 70%), #04050A; }
+  #iu-portal.gone{ display:none; }
+  #iu-pcv{ position:absolute; inset:0; width:100%; height:100%; z-index:-1; display:none; }
+  /* ── SKIN ESPECTRO — el color codifica la frecuencia, no decora ── */
+  #iu.espectro{ background:#05070A; }
+  #iu.espectro #iu-portal{ background:
+      radial-gradient(1100px 620px at 50% 62%, #4FFFA81a, transparent 72%),
+      linear-gradient(180deg,#05070A,#070B10 60%,#05070A); }
+  #iu.espectro #iu-pcv{ display:block; }
+  #iu.espectro #iu-pname{ letter-spacing:-2px; text-shadow:0 0 42px #4FFFA855; }
+  #iu.espectro #iu-psub{ color:#FFAA2B; }
+  #iu.espectro #iu-enter{ border-color:#4FFFA8; color:#4FFFA8; border-radius:2px;
+    display:inline-flex; align-items:center; gap:9px; }
+  #iu.espectro #iu-enter:hover{ background:#4FFFA8; color:#04120C; }
+  #iu.espectro #iu-enter::before{ content:'◉'; font-size:11px; }
+  #iu.espectro #iu-top{ background:linear-gradient(180deg,rgba(5,7,10,.96),transparent);
+    border-bottom:1px solid #12FFA10F; }
+  #iu.espectro #iu-title{ color:#4FFFA8; }
+  #iu.espectro .iu-b:hover{ border-color:#4FFFA8; color:#4FFFA8; }
+  #iu.espectro #iu-panel{ background:rgba(5,7,10,.97); border-left:1px solid #14202A; }
+  #iu.espectro .iu-ag:hover{ border-color:#4FFFA8; }
+  #iu.espectro .iu-ag .d{ background:#4FFFA8; }
+  #iu.espectro .iu-pr .k, #iu.espectro .iu-ag i{ color:#FFAA2B; }
+  #iu.espectro .iu-pr a{ background:#4FFFA8; color:#04120C; }
+  #iu-readout{ position:absolute; left:16px; bottom:14px; z-index:4; display:none;
+    font-size:9px; letter-spacing:2px; color:#2E4A40; line-height:1.9; }
+  #iu.espectro #iu-readout{ display:block; }
+  #iu-readout b{ color:#4FFFA8; font-weight:400; font-variant-numeric:tabular-nums; }
+  #iu-readout i{ color:#FFAA2B; font-style:normal; }
+  #iu-pname{ font-family:'Anton',Impact,sans-serif; font-size:clamp(38px,9vw,92px); line-height:.92;
+    letter-spacing:-1px; color:#F2F4FA; text-wrap:balance; max-width:14ch; }
+  #iu-psub{ font-size:10px; letter-spacing:5px; color:var(--iuc,#B84DFF); }
+  #iu-pquote{ font-size:9px; letter-spacing:2px; color:#3A3A5A; max-width:46ch; line-height:2; margin-top:6px; }
+  #iu-enter{ margin-top:14px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:4px;
+    padding:14px 26px; border-radius:2px; cursor:pointer; border:1px solid var(--iuc,#B84DFF);
+    background:transparent; color:var(--iuc,#B84DFF); transition:.18s; }
+  #iu-enter:hover{ background:var(--iuc,#B84DFF); color:#000; }
+  /* su mapa */
+  #iu-world{ position:absolute; inset:0; z-index:2; display:none; }
+  #iu-world.on{ display:block; }
+  #iu-cv{ position:absolute; inset:0; width:100%; height:100%; }
+  #iu-top{ position:absolute; top:0; left:0; right:0; z-index:4; display:flex; align-items:center; gap:8px;
+    padding:13px 16px; flex-wrap:wrap; background:linear-gradient(180deg,rgba(4,5,10,.92),transparent); }
+  #iu-title{ font-size:11px; letter-spacing:4px; color:var(--iuc,#B84DFF); }
+  #iu-title small{ display:block; font-size:7px; letter-spacing:3px; color:#3A3A5A; margin-top:3px; }
+  .iu-b{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; padding:7px 11px; border-radius:2px;
+    cursor:pointer; border:1px solid #22222E; background:rgba(8,9,16,.8); color:#9AA6C8; }
+  .iu-b:hover{ border-color:var(--iuc,#B84DFF); color:var(--iuc,#B84DFF); }
+  .iu-b.on{ background:var(--iuc,#B84DFF); border-color:var(--iuc,#B84DFF); color:#000; font-weight:700; }
+  .iu-b.x{ margin-left:auto; background:var(--iuc,#B84DFF); border-color:var(--iuc,#B84DFF); color:#000; font-weight:700; }
+  /* su panel lateral */
+  #iu-panel{ position:absolute; top:0; right:0; bottom:0; width:min(360px,86vw); z-index:5; overflow-y:auto;
+    background:rgba(6,7,13,.96); border-left:1px solid #1A1A2A; padding:56px 18px 24px;
+    transform:translateX(100%); transition:transform .25s ease; }
+  #iu-panel.on{ transform:translateX(0); }
+  .iu-h{ font-size:8px; letter-spacing:4px; color:#3A3A5A; margin:16px 0 9px; }
+  .iu-h:first-child{ margin-top:0; }
+  .iu-bio{ font-size:11px; line-height:1.8; color:#B8C0D8; white-space:pre-wrap; }
+  .iu-ag,.iu-pr{ border:1px solid #1A1A2A; border-radius:2px; background:#080910; padding:10px 12px; margin-bottom:6px; }
+  .iu-ag{ display:flex; align-items:center; gap:8px; cursor:pointer; }
+  .iu-ag:hover{ border-color:var(--iuc,#B84DFF); }
+  .iu-ag .d{ width:6px; height:6px; border-radius:50%; background:var(--iuc,#B84DFF); animation:pulse 2s infinite; }
+  .iu-ag b{ font-size:10px; color:#E8ECF8; flex:1; }
+  .iu-ag i{ font-size:7px; letter-spacing:1px; color:#4A5470; font-style:normal; }
+  .iu-pr .t{ font-size:11px; font-weight:700; color:#E8ECF8; }
+  .iu-pr .k{ font-size:7px; letter-spacing:2px; color:var(--iuc,#B84DFF); margin-bottom:3px; }
+  .iu-pr .d{ font-size:9.5px; color:#7A86A8; line-height:1.6; margin:4px 0 7px; }
+  .iu-pr a{ font-size:8px; letter-spacing:2px; color:#000; background:var(--iuc,#B84DFF); padding:5px 9px;
+    border-radius:2px; text-decoration:none; }
+  .iu-empty{ font-size:9px; color:#3A3A5A; line-height:1.8; }
+  /* editor */
+  #iu-edit{ position:absolute; left:0; bottom:0; right:0; z-index:6; display:none;
+    background:rgba(6,7,13,.97); border-top:1px solid var(--iuc,#B84DFF); padding:14px 16px 16px; }
+  #iu-edit.on{ display:block; }
+  #iu-edit .hint{ font-size:9px; letter-spacing:1px; color:var(--iuc,#B84DFF); margin-bottom:10px; line-height:1.7; }
+  #iu-edit input,#iu-edit textarea{ width:100%; background:#0A0A12; border:1px solid #1E1E2C; border-radius:2px;
+    color:#EAF0FF; font-family:'Space Mono',monospace; font-size:10px; padding:8px 10px; margin-bottom:6px; letter-spacing:1px; }
+  .iu-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+  .iu-cols{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+  .iu-col{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+  .iu-col.on{ border-color:#fff; }
+  #iu-msg{ font-size:9px; line-height:1.7; margin-top:7px; }
+  @media(max-width:640px){ #iu-panel{ width:100%; } }
+</style>
+
+<div id="iu">
+  <div id="iu-portal">
+    <canvas id="iu-pcv"></canvas>
+    <div id="iu-psub">GALAXIA INQUILINA · HK23 UNIVERSE</div>
+    <div id="iu-pname">—</div>
+    <div id="iu-pquote"></div>
+    <button id="iu-enter">ENTRAR A SU UNIVERSO</button>
+  </div>
+  <div id="iu-world">
+    <canvas id="iu-cv"></canvas>
+    <div id="iu-readout">ANALIZADOR · 20 Hz – 20 kHz<br><b id="iu-ro-n">0</b> CANALES · <i id="iu-ro-sel">—</i></div>
+    <div id="iu-top">
+      <div id="iu-title">—<small>SU UNIVERSO</small></div>
+      <button class="iu-b" id="iu-info">◈ SU FICHA</button>
+      <button class="iu-b" id="iu-editbtn">✎ EDITAR</button>
+      <button class="iu-b x" id="iu-x">✕ SALIR (X)</button>
+    </div>
+    <div id="iu-panel">
+      <div class="iu-h">◈ QUIÉN ES</div>
+      <div class="iu-bio" id="iu-bio"></div>
+      <div class="iu-h">◈ AGENTES PRESTADOS — CORREN EN EL UNIVERSO MADRE</div>
+      <div id="iu-agents"></div>
+      <div class="iu-h">◈ SUS PRODUCTOS</div>
+      <div id="iu-prods"></div>
+    </div>
+    <div id="iu-edit">
+      <div class="hint" id="iu-hint">MODO EDICIÓN — tocá el vacío para crear un nodo · tocá un nodo para editarlo · arrastralo para moverlo</div>
+      <input id="iu-nlabel" placeholder="nombre del nodo · ej. MIS SETS" autocomplete="off">
+      <input id="iu-nsub" placeholder="bajada · ej. mixes y grabaciones" autocomplete="off">
+      <input id="iu-nlink" placeholder="link (opcional) · https://…" autocomplete="off">
+      <div class="iu-cols" id="iu-ncols"></div>
+      <div class="iu-row">
+        <button class="iu-b on" id="iu-nsave">GUARDAR NODO</button>
+        <button class="iu-b" id="iu-ndel">BORRAR</button>
+        <button class="iu-b" id="iu-bio-edit">✎ SU BIO</button>
+        <button class="iu-b" id="iu-done">LISTO</button>
+      </div>
+      <div id="iu-msg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ UNIVERSO DEL INQUILINO — su portal, su mapa, editable por él mismo ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const log=(k,d)=>{ (window.hkLog||function(){})(k,d); };
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const tier=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_tier'))||'visita'; }catch(e){ return 'visita'; } };
+  const SUPA={ url:'https://qhklngvzdmwsbopbkiff.supabase.co',
+    key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoa2xuZ3Z6ZG13c2JvcGJraWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTEwOTYsImV4cCI6MjA5NzM2NzA5Nn0.ttdBrxCF6Wl6I8yKOICfTq7WyPylMmSmdKGUb176BCs' };
+  const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+  const COLORS=['#B84DFF','#00F0FF','#FF3AC8','#AAFF00','#FFD200','#FF3A1F','#12E4C6'];
+
+  let T=null, nodes=[], editing=false, sel=null, drag=null, raf=null, newColor=COLORS[0];
+  const isOwner=()=>tier()==='socio';
+  const isHim=()=>{ try{ return localStorage.getItem('hk23_inq_me')===(T&&T.slug); }catch(e){ return false; } };
+  const canEdit=()=>!!T&&(isOwner()||isHim());
+
+  const AG=()=>{ try{ return window.__INQ_AGENTS||{}; }catch(e){ return {}; } };
+  const localTen=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_inquilinos'))||[]; }catch(e){ return []; } };
+  const parseNodes=v=>{ if(Array.isArray(v)) return v; try{ const p=JSON.parse(v); return Array.isArray(p)?p:[]; }catch(e){ return []; } };
+
+  // ═══ SKIN ESPECTRO — la posición del nodo ES su frecuencia; el color la codifica ═══
+  const skin=()=>((T&&T.skin)||'')==='espectro';
+  const freqOf=x=>20*Math.pow(1000, Math.max(0,Math.min(1,x)));          // 20 Hz → 20 kHz, log
+  const fmtHz=f=>f>=1000?(f/1000).toFixed(f>=10000?0:1)+' kHz':Math.round(f)+' Hz';
+  const RAMP=[[0,[255,94,43]],[0.28,[255,170,43]],[0.58,[79,255,168]],[1,[59,224,255]]];
+  function freqCol(x,a){                                                  // sub → graves → medios → agudos
+    x=Math.max(0,Math.min(1,x)); let i=0; while(i<RAMP.length-2&&x>RAMP[i+1][0]) i++;
+    const [p0,c0]=RAMP[i], [p1,c1]=RAMP[i+1], t=(x-p0)/((p1-p0)||1);
+    const c=[0,1,2].map(k=>Math.round(c0[k]+(c1[k]-c0[k])*t));
+    return 'rgba('+c[0]+','+c[1]+','+c[2]+','+(a==null?1:a)+')';
+  }
+  const BARS=104; let peaks=new Array(BARS).fill(0);
+  function spectrum(t){                                                   // sus nodos generan el espectro
+    const out=new Array(BARS);
+    for(let i=0;i<BARS;i++){
+      const fx=i/(BARS-1);
+      let v=0.05+0.05*Math.abs(Math.sin(fx*7+t/900))*(1-fx*0.6);          // piso de ruido, más grave que agudo
+      nodes.forEach((n,k)=>{
+        const d=fx-(n.x||0.5), amp=1-(n.y||0.5)*0.55;                     // más arriba = más fuerte
+        v+=amp*0.9*Math.exp(-(d*d)/0.0016)*(0.72+0.28*Math.sin(t/(260+k*70)+k));
+      });
+      out[i]=Math.min(1,v);
+      peaks[i]=Math.max(out[i], peaks[i]-0.0055);                          // peak-hold que cae
+    }
+    return out;
+  }
+  function drawEspectro(t){
+    const ccx=W/2, base=H*0.80;                                           // la regla de frecuencia vive acá
+    // rejilla de rack
+    cx2.strokeStyle='#0E1620'; cx2.lineWidth=1;
+    for(let i=1;i<8;i++){ const y=base-(base*0.86)*(i/8);
+      cx2.beginPath(); cx2.moveTo(W*0.04,y); cx2.lineTo(W*0.96,y); cx2.stroke(); }
+    // analizador: las barras que hacen sus nodos
+    const sp=spectrum(t), bw=(W*0.92)/BARS;
+    for(let i=0;i<BARS;i++){
+      const x=W*0.04+i*bw, fx=i/(BARS-1), h=sp[i]*(base*0.74);
+      const g=cx2.createLinearGradient(0,base,0,base-h);
+      g.addColorStop(0,freqCol(fx,0.10)); g.addColorStop(1,freqCol(fx,0.92));
+      cx2.fillStyle=g; cx2.fillRect(x,base-h,bw-2,h);
+      const ph=peaks[i]*(base*0.74);                                       // marca de pico
+      cx2.fillStyle=freqCol(fx,0.85); cx2.fillRect(x,base-ph-3,bw-2,2);
+    }
+    // regla de frecuencia
+    cx2.strokeStyle='#1A2A34'; cx2.lineWidth=2;
+    cx2.beginPath(); cx2.moveTo(W*0.04,base+1); cx2.lineTo(W*0.96,base+1); cx2.stroke();
+    cx2.font='500 13px "Space Mono",monospace'; cx2.textAlign='center';
+    [20,60,250,1000,4000,12000,20000].forEach(f=>{
+      const x=W*0.04+(Math.log(f/20)/Math.log(1000))*(W*0.92);
+      cx2.strokeStyle='#22323C'; cx2.beginPath(); cx2.moveTo(x,base+1); cx2.lineTo(x,base+10); cx2.stroke();
+      cx2.fillStyle='#3A5A50'; cx2.fillText(fmtHz(f), x, base+30);
+    });
+    // el núcleo: sección master a la izquierda
+    cx2.font='700 13px "Space Mono",monospace'; cx2.textAlign='left';
+    cx2.fillStyle='#4FFFA8'; cx2.fillText('◉ '+String((T&&T.name)||'').slice(0,26), W*0.04, H*0.10);
+    cx2.font='500 12px "Space Mono",monospace'; cx2.fillStyle='#2E4A40';
+    cx2.fillText('MASTER · '+nodes.length+' CANALES ACTIVOS', W*0.04, H*0.10+22);
+    // los nodos: canales con su vástago cayendo a la regla y su lectura en Hz
+    nodes.forEach((n,i)=>{
+      const x=(n.x||0.5)*W, y=(n.y||0.5)*H*0.66+H*0.10, f=freqOf(n.x||0.5);
+      const c=freqCol(n.x||0.5), r=(n.r||24)*1.7*(1+Math.sin(t/620+i)*0.04);
+      cx2.strokeStyle=freqCol(n.x||0.5,0.28); cx2.lineWidth=2;            // vástago al eje
+      cx2.beginPath(); cx2.moveTo(x,y); cx2.lineTo(x,base); cx2.stroke();
+      cx2.beginPath(); cx2.arc(x,y,r*1.9,0,7); cx2.fillStyle=freqCol(n.x||0.5,0.10); cx2.fill();
+      cx2.beginPath(); cx2.arc(x,y,r,0,7); cx2.fillStyle=c;
+      cx2.shadowColor=c; cx2.shadowBlur=(sel===n?40:20); cx2.fill(); cx2.shadowBlur=0;
+      if(sel===n){ cx2.beginPath(); cx2.arc(x,y,r*1.42,0,7); cx2.strokeStyle='#fff'; cx2.lineWidth=2; cx2.stroke(); }
+      cx2.textAlign='center';
+      cx2.font='700 18px "Space Mono",monospace'; cx2.fillStyle='#EAF6F0';
+      cx2.fillText(String(n.label||'').slice(0,22), x, y+r+27);
+      cx2.font='500 13px "Space Mono",monospace'; cx2.fillStyle=c;
+      cx2.fillText(fmtHz(f), x, y+r+46);                                   // su frecuencia, no un adorno
+      if(n.sub){ cx2.font='500 12px "Space Mono",monospace'; cx2.fillStyle='#3A5A50';
+        cx2.fillText(String(n.sub).slice(0,30), x, y+r+64); }
+    });
+    if(!nodes.length){
+      cx2.font='500 13px "Space Mono",monospace'; cx2.fillStyle='#2E4A40'; cx2.textAlign='center';
+      cx2.fillText(canEdit()?'ESPECTRO VACÍO — TOCÁ ✎ EDITAR: DONDE TOQUES DEFINE LA FRECUENCIA DEL NODO'
+                           :'ESPECTRO EN SILENCIO — TODAVÍA NO HAY CANALES', ccx, H*0.42);
+    }
+    const ro=$('iu-ro-n'), rs=$('iu-ro-sel');
+    if(ro) ro.textContent=nodes.length;
+    if(rs) rs.textContent=sel?(sel.label+' · '+fmtHz(freqOf(sel.x||0.5))):'—';
+  }
+
+  // ── su mapa: nodos propios orbitando su centro ──
+  const cv=$('iu-cv'), cx2=cv.getContext('2d');
+  let W=0,H=0;
+  function fit(){ const w=cv.clientWidth,h=cv.clientHeight; if(!w||!h) return false;
+    if(cv.width!==w*2||cv.height!==h*2){ cv.width=w*2; cv.height=h*2; } W=w*2; H=h*2; return true; }
+  function nodeAt(mx,my){                       // mx,my en px CSS
+    for(let i=nodes.length-1;i>=0;i--){ const n=nodes[i];
+      const dx=n.x*(W/2)-mx, dy=n.y*(H/2)-my, r=(n.r||26);
+      if(dx*dx+dy*dy < r*r) return n; }
+    return null; }
+  function draw(t){
+    if(!fit()){ raf=requestAnimationFrame(draw); return; }
+    const col=(T&&T.color)||'#B84DFF';
+    cx2.clearRect(0,0,W,H);
+    if(skin()){ drawEspectro(t); raf=requestAnimationFrame(draw); return; }
+    const ccx=W/2, ccy=H/2;
+    // halo del centro
+    const g=cx2.createRadialGradient(ccx,ccy,0,ccx,ccy,Math.min(W,H)*0.42);
+    g.addColorStop(0,col+'18'); g.addColorStop(1,'transparent');
+    cx2.fillStyle=g; cx2.fillRect(0,0,W,H);
+    // conexiones al centro
+    cx2.strokeStyle=col+'22'; cx2.lineWidth=1.5;
+    nodes.forEach(n=>{ cx2.beginPath(); cx2.moveTo(ccx,ccy); cx2.lineTo(n.x*W,n.y*H); cx2.stroke(); });
+    // núcleo
+    cx2.beginPath(); cx2.arc(ccx,ccy,30,0,7); cx2.fillStyle='#0A0B12'; cx2.fill();
+    cx2.strokeStyle=col; cx2.lineWidth=2; cx2.stroke();
+    cx2.font='700 15px "Space Mono",monospace'; cx2.fillStyle=col; cx2.textAlign='center';
+    cx2.fillText((T&&T.name||'').split(/[ ·]/)[0].slice(0,6), ccx, ccy+5);
+    // nodos
+    nodes.forEach((n,i)=>{
+      const x=n.x*W, y=n.y*H, r=(n.r||26)*2, pulse=1+Math.sin(t/700+i)*0.05;
+      const nc=n.color||col;
+      cx2.beginPath(); cx2.arc(x,y,r*1.7*pulse,0,7); cx2.fillStyle=nc+'12'; cx2.fill();
+      cx2.beginPath(); cx2.arc(x,y,r*pulse,0,7); cx2.fillStyle=nc; cx2.shadowColor=nc;
+      cx2.shadowBlur=(sel===n?34:16); cx2.fill(); cx2.shadowBlur=0;
+      if(sel===n){ cx2.beginPath(); cx2.arc(x,y,r*1.35,0,7); cx2.strokeStyle='#fff'; cx2.lineWidth=2; cx2.stroke(); }
+      cx2.font='700 17px "Space Mono",monospace'; cx2.fillStyle='#F0F3FA'; cx2.textAlign='center';
+      cx2.fillText(String(n.label||'').slice(0,22), x, y+r+26);
+      if(n.sub){ cx2.font='12px "Space Mono",monospace'; cx2.fillStyle=nc+'AA';
+        cx2.fillText(String(n.sub).slice(0,28), x, y+r+44); }
+    });
+    if(!nodes.length){
+      cx2.font='12px "Space Mono",monospace'; cx2.fillStyle='#3A3A5A'; cx2.textAlign='center';
+      cx2.fillText(canEdit()?'SU UNIVERSO ESTÁ VACÍO — TOCÁ ✎ EDITAR Y CREÁ EL PRIMER NODO'
+                           :'SU UNIVERSO TODAVÍA ESTÁ EN CONSTRUCCIÓN', ccx, ccy+Math.min(W,H)*0.3);
+    }
+    raf=requestAnimationFrame(draw);
+  }
+
+  // ── interacción: crear / seleccionar / arrastrar ──
+  function pos(e){ const r=cv.getBoundingClientRect();
+    const p=e.touches&&e.touches[0]?e.touches[0]:e;
+    return { x:p.clientX-r.left, y:p.clientY-r.top, rw:r.width, rh:r.height }; }
+  function down(e){
+    const p=pos(e), n=nodeAt(p.x,p.y);
+    if(n){ sel=n; fillForm(n); if(editing) drag={n, ox:p.x-n.x*p.rw, oy:p.y-n.y*p.rh};
+      else if(safeUrl(n.link)) window.open(safeUrl(n.link),'_blank','noopener'); return; }
+    if(editing && canEdit()){                       // vacío → nodo nuevo acá
+      const n2={ id:'n'+Math.random().toString(36).slice(2,8), label:'NUEVO', sub:'', link:'',
+        color:newColor, x:p.x/p.rw, y:p.y/p.rh, r:24 };
+      nodes.push(n2); sel=n2; fillForm(n2); $('iu-nlabel').focus();
+    } else { sel=null; }
+  }
+  function move(e){ if(!drag) return; const p=pos(e);
+    drag.n.x=Math.max(0.04,Math.min(0.96,(p.x-drag.ox)/p.rw));
+    drag.n.y=Math.max(0.06,Math.min(0.94,(p.y-drag.oy)/p.rh)); e.preventDefault(); }
+  function up(){ if(drag){ drag=null; persist(); } }
+  cv.addEventListener('mousedown',down); cv.addEventListener('mousemove',move); addEventListener('mouseup',up);
+  cv.addEventListener('touchstart',down,{passive:true}); cv.addEventListener('touchmove',move,{passive:false});
+  addEventListener('touchend',up);
+
+  function fillForm(n){ $('iu-nlabel').value=n.label||''; $('iu-nsub').value=n.sub||'';
+    $('iu-nlink').value=n.link||''; newColor=n.color||COLORS[0]; paintCols(); }
+  function paintCols(){ const b=$('iu-ncols'); b.innerHTML='';
+    COLORS.forEach(c=>{ const d=document.createElement('div'); d.className='iu-col'+(c===newColor?' on':'');
+      d.style.background=c; d.onclick=()=>{ newColor=c; if(sel) sel.color=c; paintCols(); }; b.appendChild(d); }); }
+
+  async function persist(){
+    if(!T) return false;
+    T.nodes=nodes;
+    let ok=false;
+    const row={ slug:T.slug, name:T.name, code:T.code, sub:T.sub||'', bio:T.bio||'', color:T.color, form:T.form,
+      bg:T.bg||'', tier:T.tier||'referido', active:T.active!==false,
+      agents:JSON.stringify(T.agents||[]), links:JSON.stringify(T.links||[]),
+      nodes:JSON.stringify(nodes), created_at:T.created_at||new Date().toISOString() };
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_galaxies',{method:'POST',
+      headers:{...HEAD, Prefer:'resolution=merge-duplicates'}, body:JSON.stringify(row)}); ok=r.ok; }catch(e){}
+    try{ const loc=localTen().filter(x=>x.slug!==T.slug); loc.push(T); localStorage.setItem('hk23_inquilinos',JSON.stringify(loc)); }catch(e){}
+    const m=$('iu-msg'); if(m){ m.style.color=ok?'#AAFF00':'#FFB020';
+      m.textContent=ok?'✓ guardado en el universo — lo ve todo el mundo':'✓ guardado en este dispositivo (corré el SQL para que sea global)'; }
+    return ok;
+  }
+  $('iu-nsave').onclick=async()=>{
+    if(!sel){ const m=$('iu-msg'); m.style.color='#FF3A1F'; m.textContent='Tocá el vacío para crear un nodo, o uno existente para editarlo.'; return; }
+    sel.label=($('iu-nlabel').value||'NUEVO').toUpperCase().slice(0,22);
+    sel.sub=($('iu-nsub').value||'').slice(0,40); sel.link=($('iu-nlink').value||'').trim(); sel.color=newColor;
+    await persist(); log('inquilino','nodo guardado: '+sel.label); };
+  $('iu-ndel').onclick=async()=>{ if(!sel) return; const l=sel.label;
+    nodes=nodes.filter(n=>n!==sel); sel=null; ['nlabel','nsub','nlink'].forEach(k=>$('iu-'+k).value='');
+    await persist(); log('inquilino','nodo borrado: '+l); };
+  $('iu-bio-edit').onclick=()=>{ const cur=(T&&T.bio)||'';
+    (window.hkPrompt||function(a,b,cb){ cb(prompt(a,cur)||cur); })('Escribí su historia','quién es, qué hace',v=>{
+      if(v==null) return; T.bio=v; $('iu-bio').textContent=v; persist(); }); };
+  $('iu-done').onclick=()=>setEdit(false);
+
+  function setEdit(on){
+    if(on&&!canEdit()){ const m=$('iu-msg'); return; }
+    editing=on; $('iu-edit').classList.toggle('on',on); $('iu-editbtn').classList.toggle('on',on);
+    $('iu-editbtn').textContent=on?'✎ EDITANDO':'✎ EDITAR';
+    if(on){ paintCols(); log('inquilino','modo edición en '+(T&&T.slug)); }
+  }
+  $('iu-editbtn').onclick=()=>setEdit(!editing);
+  $('iu-info').onclick=()=>$('iu-panel').classList.toggle('on');
+
+  function paintSide(){
+    const col=(T&&T.color)||'#B84DFF';
+    $('iu').style.setProperty('--iuc',col);
+    $('iu-bio').textContent=(T&&T.bio)||(canEdit()?'Todavía no escribiste tu historia. Tocá ✎ EDITAR → ✎ SU BIO.':'Su historia está en camino.');
+    const ags=AG();
+    $('iu-agents').innerHTML=((T&&T.agents)||[]).filter(k=>ags[k]).map(k=>
+      '<div class="iu-ag" data-ag="'+esc(k)+'"><span class="d"></span><b>'+esc(ags[k].n)+'</b><i>'+esc(ags[k].d)+'</i></div>').join('')
+      ||'<div class="iu-empty">Todavía no tiene agentes prestados.</div>';
+    $('iu-agents').querySelectorAll('[data-ag]').forEach(el=>el.onclick=()=>{
+      const a=ags[el.dataset.ag]; if(!a) return; log('inquilino',(T&&T.slug)+' usó '+a.n);
+      $('iu').classList.remove('open'); a.fn(); });
+    const ps=(window.Inquilinos&&window.Inquilinos.products?window.Inquilinos.products():[]).filter(p=>p.owner===(T&&T.slug));
+    $('iu-prods').innerHTML=ps.map(p=>'<div class="iu-pr"><div class="k">'+esc((p.kind||'PRODUCTO').toUpperCase())+'</div>'+
+      '<div class="t">'+esc(p.name)+'</div><div class="d">'+esc(p.desc||'')+'</div>'+
+      (safeUrl(p.url)?'<a href="'+esc(safeUrl(p.url))+'" target="_blank" rel="noopener noreferrer">VER →</a>':'')+'</div>').join('')
+      ||'<div class="iu-empty">Sus productos se publican desde ◈ INQUILINOS.</div>';
+  }
+
+  // ── el portal sintoniza: barrido de espectro detrás de su nombre ──
+  const pcv=$('iu-pcv'), px=pcv.getContext('2d'); let pRaf=null;
+  function portalFrame(t){
+    const w=pcv.clientWidth,h=pcv.clientHeight; if(!w||!h){ pRaf=requestAnimationFrame(portalFrame); return; }
+    if(pcv.width!==w*2||pcv.height!==h*2){ pcv.width=w*2; pcv.height=h*2; }
+    const PW=w*2, PH=h*2, base=PH*0.74;
+    px.clearRect(0,0,PW,PH);
+    const N=88, bw=PW/N, scan=(t/1400)%1.6;                                // la aguja que barre el dial
+    for(let i=0;i<N;i++){
+      const fx=i/(N-1);
+      const near=Math.exp(-Math.pow((fx-(scan-0.3))/0.16,2));              // resuena donde pasa el barrido
+      const v=0.06+0.42*near+0.10*Math.abs(Math.sin(fx*9+t/700))*(1-fx*0.5);
+      const hgt=v*PH*0.30;
+      const g=px.createLinearGradient(0,base,0,base-hgt);
+      g.addColorStop(0,freqCol(fx,0.06)); g.addColorStop(1,freqCol(fx,0.75));
+      px.fillStyle=g; px.fillRect(i*bw, base-hgt, bw-2, hgt);
+    }
+    px.strokeStyle='#12202A'; px.lineWidth=2;
+    px.beginPath(); px.moveTo(0,base+1); px.lineTo(PW,base+1); px.stroke();
+    pRaf=requestAnimationFrame(portalFrame);
+  }
+  function startPortalFx(){ if(!pRaf) pRaf=requestAnimationFrame(portalFrame); }
+  function stopPortalFx(){ if(pRaf){ cancelAnimationFrame(pRaf); pRaf=null; } px.clearRect(0,0,pcv.width,pcv.height); }
+
+  function open(t){
+    if(!t) return false;
+    if(t.active===false){ log('inquilino','acceso cerrado: '+t.slug); return false; }
+    T=t; nodes=parseNodes(t.nodes);
+    $('iu').classList.add('open');
+    $('iu').classList.toggle('espectro', ((t.skin||'')==='espectro'));
+    $('iu').style.setProperty('--iuc',t.color||'#B84DFF');
+    $('iu-pname').textContent=t.name||'—';
+    $('iu-psub').textContent=skin()? ((t.sub||'')+' · SINTONIZÁ').toUpperCase()
+                                   : (t.sub||'GALAXIA INQUILINA')+' · HK23 UNIVERSE';
+    $('iu-enter').textContent=skin()?'SINTONIZAR':'ENTRAR A SU UNIVERSO';
+    $('iu-pquote').textContent=t.bio? String(t.bio).slice(0,120)
+      : (skin()? 'Cada nodo vive en su frecuencia. Donde lo pongas define si es grave o agudo.'
+               : 'Su universo vive dentro de HK23 — sus agentes corren en el universo madre.');
+    if(skin()) startPortalFx(); else stopPortalFx();
+    $('iu-portal').classList.remove('gone'); $('iu-world').classList.remove('on');
+    $('iu-panel').classList.remove('on'); setEdit(false);
+    $('iu-editbtn').style.display=canEdit()?'':'none';
+    log('inquilino','abrió el universo de '+t.name);
+    return true;
+  }
+  $('iu-enter').onclick=()=>{
+    stopPortalFx();
+    $('iu-portal').classList.add('gone'); $('iu-world').classList.add('on');
+    $('iu-title').innerHTML=esc(T&&T.name||'')+'<small>'+esc((T&&T.sub)||'SU UNIVERSO')+'</small>';
+    paintSide(); if(!raf) raf=requestAnimationFrame(draw);
+    if(T&&T.bg&&window.MediaEngine&&window.MediaEngine.add){ try{ window.MediaEngine.add(T.bg); }catch(e){} }
+  };
+  function close(){ $('iu').classList.remove('open'); if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  $('iu-x').onclick=close;
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if((e.key==='x'||e.key==='X'||e.key==='Escape')&&$('iu').classList.contains('open')) close();
+  });
+
+  // tira de espectro para su landing: mismo motor, misma ley de color
+  let sRaf=null;
+  function strip(cvs, t){
+    if(!cvs) return [];
+    const ns=parseNodes(t&&t.nodes);
+    if(sRaf) cancelAnimationFrame(sRaf);
+    const sx=cvs.getContext('2d'); let peaks2=new Array(64).fill(0);
+    function fr(ts){
+      const w=cvs.clientWidth,h=cvs.clientHeight; if(!w||!h){ sRaf=requestAnimationFrame(fr); return; }
+      if(cvs.width!==w*2||cvs.height!==h*2){ cvs.width=w*2; cvs.height=h*2; }
+      const SW=w*2, SH=h*2, N=64, bw=SW/N, base=SH*0.94;
+      sx.clearRect(0,0,SW,SH);
+      for(let i=0;i<N;i++){
+        const fx=i/(N-1);
+        let v=0.05+0.04*Math.abs(Math.sin(fx*8+ts/900));
+        ns.forEach((n,k)=>{ const d=fx-(n.x||0.5);
+          v+=(1-(n.y||0.5)*0.55)*0.85*Math.exp(-(d*d)/0.0022)*(0.74+0.26*Math.sin(ts/(280+k*80)+k)); });
+        v=Math.min(1,v); peaks2[i]=Math.max(v,peaks2[i]-0.006);
+        const hh=v*SH*0.82, g=sx.createLinearGradient(0,base,0,base-hh);
+        g.addColorStop(0,freqCol(fx,0.08)); g.addColorStop(1,freqCol(fx,0.88));
+        sx.fillStyle=g; sx.fillRect(i*bw, base-hh, bw-2, hh);
+        sx.fillStyle=freqCol(fx,0.8); sx.fillRect(i*bw, base-peaks2[i]*SH*0.82-3, bw-2, 2);
+      }
+      if(document.getElementById('inq-land').classList.contains('open')) sRaf=requestAnimationFrame(fr);
+      else sRaf=null;
+    }
+    sRaf=requestAnimationFrame(fr);
+    return ns.slice().sort((a,b)=>(a.x||0)-(b.x||0)).map(n=>({
+      label:n.label||'', sub:n.sub||'', hz:fmtHz(freqOf(n.x||0.5)), col:freqCol(n.x||0.5) }));
+  }
+  window.InqUniverse={ open, close, nodes:()=>nodes, current:()=>T, strip };
+
+  // ── reemplaza la vista de galaxia: todo lo que abría la galaxia ahora abre SU UNIVERSO ──
+  function hook(){
+    if(!window.Inquilinos||window.Inquilinos.__hooked) return;
+    const prev=window.Inquilinos.galaxy;
+    window.Inquilinos.galaxy=function(slug){
+      const t=(window.Inquilinos.list()||[]).find(x=>x.slug===slug);
+      if(t){ const old=document.getElementById('inq'); if(old) old.classList.remove('open');
+        return open(t); }
+      return prev?prev(slug):false;
+    };
+    window.Inquilinos.__hooked=true;
+  }
+  hook(); setTimeout(hook,1200);
+})();
+</script>
+
+<script>
 (function(){ const d=document.getElementById("hk-dock");
   if(d){ const b=document.createElement("button"); b.className="dk"; b.textContent="🏛 MADRE";
-    b.style.setProperty("--dc","#FFD200"); b.style.color="#FFD200CC"; b.title="Volver al universo madre (152 nodos, El Gatsby, market)";
+    b.style.setProperty("--dc","#FFD200"); b.style.color="#FFD200CC";
     b.onclick=()=>location.href="./hk23-universe"; d.insertBefore(b, d.firstChild); } })();
 </script>
 </body>

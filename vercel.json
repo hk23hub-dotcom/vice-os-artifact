@@ -2,13 +2,50 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "crons": [
-    { "path": "/api/gta6-research", "schedule": "0 13 * * *" }
+    {
+      "path": "/api/gta6-research",
+      "schedule": "0 13 * * *"
+    }
   ],
   "redirects": [
-    { "source": "/agent-os", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
-    { "source": "/agentos", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
-    { "source": "/agent", "destination": "https://hk23hub.gumroad.com/l/agentos", "permanent": false },
-    { "source": "/designer", "destination": "/agent-designer", "permanent": false },
-    { "source": "/try", "destination": "/agent-designer", "permanent": false }
+    {
+      "source": "/agent-os",
+      "destination": "https://hk23hub.gumroad.com/l/agentos",
+      "permanent": false
+    },
+    {
+      "source": "/agentos",
+      "destination": "https://hk23hub.gumroad.com/l/agentos",
+      "permanent": false
+    },
+    {
+      "source": "/agent",
+      "destination": "https://hk23hub.gumroad.com/l/agentos",
+      "permanent": false
+    },
+    {
+      "source": "/designer",
+      "destination": "/agent-designer",
+      "permanent": false
+    },
+    {
+      "source": "/try",
+      "destination": "/agent-designer",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/g/:slug",
+      "destination": "/universe-os.html?g=:slug"
+    },
+    {
+      "source": "/frequency",
+      "destination": "/universe-os.html?g=frequency"
+    },
+    {
+      "source": "/jc",
+      "destination": "/universe-os.html?g=frequency"
+    }
   ]
 }
