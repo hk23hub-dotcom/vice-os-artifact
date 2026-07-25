@@ -3618,6 +3618,11 @@ document.addEventListener('keydown', e => {
     const affirmation = document.getElementById('affirmation-overlay');
     if (fractal.style.opacity === '1') { closeFractalUniverse(); return; }
     if (affirmation.style.opacity === '1') { closeAffirmation(); return; }
+    // si hay un mundo abierto encima (MVB, TALLER, CRYPTO, COSMOS, un overlay…),
+    // ESC/X le pertenece a ese mundo: cerrarlo NO debe además mover la pantalla base
+    if (document.querySelector('#mvb.open, #taller.open, .hkov.open') ||
+        ['cw','cosmos'].some(id => { const el = document.getElementById(id);
+          return el && el.style.display && el.style.display !== 'none'; })) return;
     if (currentScreen !== 'portal' && currentScreen !== 'map') goTo('map');
     else if (currentScreen === 'map') goTo('portal');
   }
@@ -7155,6 +7160,7 @@ var qrcode = function() {
       card('QR VIVO','Las entidades forman un QR escaneable con destino editable. Export PNG.','LIVE','#AAFF00',()=>{ $('ov-bib').classList.remove('open'); const p=document.getElementById('ag-panel'); if(p)p.classList.add('open'); const t=document.querySelector('.ag-tab[data-pane="qr"]'); if(t)t.click(); },'◈ ABRIR →');
       card('ENTITY LAB','Agarrá, fusioná y jugá con las entidades. Tetris, Pong, foto-mapping.','LIVE','#AAFF00',()=>{ $('ov-bib').classList.remove('open'); if(window.EntityLab) window.EntityLab.on(); },'🧪 ACTIVAR →');
       card('MUNDO CRYPTO','Biblioteca educativa, blockchain visual y market gigante.','LIVE','#AAFF00',()=>{ $('ov-bib').classList.remove('open'); if(window.CryptoWorld) window.CryptoWorld.open('biblioteca'); },'₿ ENTRAR →');
+      card('MUNDO MVB','La noche en vivo: eventos del momento con su porqué, mapa de la ciudad, buscador y el agente CONECTOR con los vendedores de entradas.','LIVE','#AAFF00',()=>{ $('ov-bib').classList.remove('open'); if(window.MVB) window.MVB.open(); },'🌃 SALIR DE NOCHE →');
     } else if(bibSection==='agentes'){
       card('ATLAS','Control central del universo: QR, ideas, fondos, galaxias, comandos.','24/7','#00F0FF',()=>{ $('ov-bib').classList.remove('open'); const p=document.getElementById('ag-panel'); if(p)p.classList.add('open'); },'◈ HABLAR CON ATLAS →');
       card('ORACLE','El reporter: estado del universo + acciones ejecutables, export MD/JSON diario.','24/7','#00F0FF',()=>{ $('ov-bib').classList.remove('open'); if(window.hkOracle) window.hkOracle(); },'📡 PEDIR REPORTE →');
@@ -8539,6 +8545,7 @@ var qrcode = function() {
   const KEYS=[
     ['G','Galaxia nueva',      ()=>{ if(window.hkGalaxia) window.hkGalaxia(); }],
     ['C','Cripto · señales',   ()=>{ if(window.CryptoSignals) window.CryptoSignals.open(); }],
+    ['E','MVB · la noche en vivo', ()=>{ if(window.MVB) window.MVB.open(); }],
     ['I','Ideas · blueprints', ()=>openPanelTab('ideas')],
     ['Y','YouTube / media',    ()=>{ const p=document.getElementById('me-panel'); if(p) p.classList.toggle('open'); }],
     ['M','Media engine',       ()=>{ const p=document.getElementById('me-panel'); if(p) p.classList.toggle('open'); }],
@@ -10156,6 +10163,480 @@ addEventListener('DOMContentLoaded', function(){
   }, true);
 })();
 </script>
+<!-- ═══════════ MUNDO MVB — la noche en vivo: eventos del momento, mapa, buscador y CONECTOR ═══════════ -->
+<style id="mvb-style">
+  #mvb{ position:fixed; inset:0; z-index:772; display:none; background:#05060C; overflow:hidden;
+    font-family:'Space Mono',monospace; }
+  #mvb.open{ display:flex; flex-direction:column; }
+  #mvb-top{ display:flex; align-items:center; gap:10px;
+    padding:14px 18px; border-bottom:1px solid #10182A; background:rgba(5,6,12,.94); flex-wrap:wrap; }
+  #mvb-title{ font-size:11px; letter-spacing:4px; color:#FF3AC8; white-space:nowrap; }
+  #mvb-title span{ color:#3A3A5A; }
+  #mvb-q{ flex:1; min-width:150px; background:#090B14; border:1px solid #1A2440; border-radius:2px;
+    color:#EAF0FF; font-family:'Space Mono',monospace; font-size:11px; padding:9px 12px; letter-spacing:1px; }
+  #mvb-q::placeholder{ color:#3A4460; }
+  #mvb-x{ font-size:9px; letter-spacing:3px; color:#000; background:#FF3AC8; border:none; border-radius:2px;
+    padding:8px 14px; cursor:pointer; }
+  #mvb-cats{ display:flex; gap:6px; flex-wrap:wrap;
+    padding:10px 18px; background:rgba(5,6,12,.9); border-bottom:1px solid #10182A; }
+  .mvb-cat{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; padding:7px 12px;
+    border-radius:2px; cursor:pointer; background:transparent; border:1px solid var(--cc,#2A2A2A);
+    color:var(--cc,#888); transition:all .15s; }
+  .mvb-cat.on{ background:var(--cc); color:#000; font-weight:700; box-shadow:0 0 18px var(--cc); }
+  /* las barras miden lo que miden (se envuelven en iPhone) y el cuerpo toma el resto:
+     nada de offsets fijos que se solapen con el mapa */
+  #mvb-head{ flex:none; z-index:6; }
+  #mvb-body{ flex:1; min-height:0; display:flex; }
+  #mvb-mapwrap{ flex:1.1; position:relative; border-right:1px solid #10182A; min-width:0; }
+  #mvb-map{ position:absolute; inset:0; width:100%; height:100%; cursor:pointer; }
+  #mvb-maplabel{ position:absolute; left:14px; bottom:12px; font-size:8px; letter-spacing:3px; color:#2E3A56; pointer-events:none; }
+  #mvb-list{ flex:1; max-width:520px; overflow-y:auto; padding:16px 18px 90px;
+    scrollbar-width:thin; scrollbar-color:#1A2440 #05060C; }
+  .mvb-h{ font-size:8px; letter-spacing:4px; color:#3A4460; margin-bottom:12px; }
+  .mvb-ev{ border:1px solid #131B30; border-left:3px solid var(--ec,#555); border-radius:2px;
+    background:#080A12; padding:14px 16px; margin-bottom:10px; }
+  .mvb-ev.hot{ box-shadow:0 0 22px color-mix(in srgb, var(--ec) 25%, transparent); }
+  .mvb-ev-top{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .mvb-ico{ font-size:15px; }
+  .mvb-name{ font-size:13px; font-weight:700; letter-spacing:.5px; color:#EAF0FF; flex:1; }
+  .mvb-fire{ font-size:9px; color:var(--ec); white-space:nowrap; }
+  .mvb-meta{ font-size:9px; color:#5A6480; letter-spacing:1px; line-height:1.8; margin-bottom:8px; }
+  .mvb-meta b{ color:#9AA6C8; font-weight:700; }
+  .mvb-line{ font-size:10px; color:#C8D2EE; line-height:1.7; margin-bottom:8px; }
+  .mvb-line span{ color:var(--ec); }
+  .mvb-tags{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+  .mvb-tag{ font-size:7px; letter-spacing:2px; padding:2px 7px; border:1px solid #1A2440; border-radius:2px; color:#5A6480; }
+  .mvb-why{ list-style:none; margin:0 0 10px; padding:0; }
+  .mvb-why li{ font-size:9.5px; color:#7A86A8; line-height:1.65; padding-left:14px; position:relative; margin-bottom:3px; }
+  .mvb-why li::before{ content:'▸'; position:absolute; left:0; color:var(--ec); }
+  .mvb-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+  .mvb-btn{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; padding:7px 11px;
+    border-radius:2px; cursor:pointer; border:1px solid #1A2440; background:transparent; color:#9AA6C8; }
+  .mvb-btn.buy{ background:var(--ec); border-color:var(--ec); color:#000; font-weight:700; }
+  #mvb-conector{ display:none; border:1px solid #2A1A40; border-radius:2px; background:#0B0714;
+    padding:14px 16px; margin-bottom:14px; }
+  #mvb-conector.open{ display:block; }
+  #mvb-con-title{ font-size:9px; letter-spacing:3px; color:#B84DFF; margin-bottom:10px; }
+  .mvb-seller{ display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid #1A1030;
+    border-radius:2px; margin-bottom:6px; background:#0D0918; }
+  .mvb-seller .sd{ width:7px; height:7px; border-radius:50%; background:#B84DFF; animation:pulse 2s infinite; flex-shrink:0; }
+  .mvb-seller .sn{ flex:1; min-width:0; }
+  .mvb-seller .sn b{ font-size:10px; color:#EAF0FF; display:block; }
+  .mvb-seller .sn i{ font-size:8px; color:#5A6480; font-style:normal; letter-spacing:1px; }
+  .mvb-seller a{ font-size:8px; letter-spacing:2px; color:#B84DFF; text-decoration:none; border:1px solid #B84DFF55;
+    padding:5px 9px; border-radius:2px; white-space:nowrap; }
+  .mvb-demo{ font-size:6px; letter-spacing:2px; color:#000; background:#FFD200; padding:2px 5px; border-radius:2px; }
+  #mvb-scan{ padding:4px 0; }
+  .mvb-scanline{ font-size:9px; letter-spacing:1px; color:#4A5470; padding:7px 4px; border-bottom:1px solid #0D1120; }
+  #mvb-sellform{ display:none; margin-top:10px; border-top:1px solid #1A1030; padding-top:10px; }
+  #mvb-sellform.open{ display:block; }
+  #mvb-sellform input{ width:100%; background:#090B14; border:1px solid #1A2440; border-radius:2px; color:#EAF0FF;
+    font-family:'Space Mono',monospace; font-size:10px; padding:8px 10px; margin-bottom:6px; letter-spacing:1px; }
+  @media(max-width:860px){
+    #mvb-body{ flex-direction:column; }
+    #mvb-mapwrap{ flex:none; height:34vh; border-right:none; border-bottom:1px solid #10182A; }
+    #mvb-list{ max-width:none; }
+  }
+</style>
+
+<div id="mvb">
+  <div id="mvb-head">
+  <div id="mvb-top">
+    <div id="mvb-title">🌃 MVB <span>· LA NOCHE EN VIVO — LO QUE ESTÁ SONANDO AHORA</span></div>
+    <input id="mvb-q" placeholder="buscar… ej: electronica, techno, sushi, rooftop" autocomplete="off">
+    <button id="mvb-x">✕ SALIR (X)</button>
+  </div>
+  <div id="mvb-cats"></div>
+  </div>
+  <div id="mvb-body">
+    <div id="mvb-mapwrap">
+      <canvas id="mvb-map"></canvas>
+      <div id="mvb-maplabel">◈ MAPA DE LA CIUDAD — TOCÁ UN PIN PARA VER EL EVENTO</div>
+    </div>
+    <div id="mvb-list">
+      <div id="mvb-conector">
+        <div id="mvb-con-title">◈ CONECTOR — VENDEDORES INTEGRADOS A LA PÁGINA</div>
+        <div id="mvb-sellers"></div>
+        <button class="mvb-btn" id="mvb-be-seller" style="border-color:#B84DFF55;color:#B84DFF">＋ SOY VENDEDOR/A — SUMARME</button>
+        <div id="mvb-sellform">
+          <input id="mvb-sf-name" placeholder="tu nombre / marca" autocomplete="off">
+          <input id="mvb-sf-contact" placeholder="tu contacto (wsp o @instagram)" autocomplete="off">
+          <button class="mvb-btn buy" id="mvb-sf-go" style="--ec:#B84DFF">REGISTRARME EN EL UNIVERSO →</button>
+        </div>
+      </div>
+      <div class="mvb-h" id="mvb-list-h">🔥 EVENTOS DEL MOMENTO</div>
+      <div id="mvb-evs"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ MUNDO MVB — el motor de señales aplicado a la noche: agentes + porqué + CONECTOR ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const log=(k,d)=>{ (window.hkLog||function(){})(k,d); };
+  // NADA que venga de afuera (Supabase, mvb-eventos.json, el propio usuario) entra crudo al DOM
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const SUPA={ url:'https://qhklngvzdmwsbopbkiff.supabase.co',
+    key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoa2xuZ3Z6ZG13c2JvcGJraWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTEwOTYsImV4cCI6MjA5NzM2NzA5Nn0.ttdBrxCF6Wl6I8yKOICfTq7WyPylMmSmdKGUb176BCs' };
+  const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+
+  // ── categorías: ícono + color que las distingue de lejos ──
+  const CATS={
+    club:   { ico:'🎧', label:'NIGHTCLUB', col:'#00F0FF' },
+    fiesta: { ico:'🎉', label:'FIESTA',    col:'#FF3AC8' },
+    resto:  { ico:'🍽', label:'RESTO',     col:'#FFD200' },
+    live:   { ico:'🎸', label:'EN VIVO',   col:'#AAFF00' },
+    rooftop:{ ico:'🥂', label:'ROOFTOP',   col:'#B84DFF' }
+  };
+
+  // ── dataset DEMO editable — el formato ES el producto ──
+  // Reemplazá / alimentá los eventos reales en mvb-eventos.json (mismo esquema) o pasáselos a tu agente.
+  let EVENTS=[
+    { id:'voltaje', cat:'club', name:'NOCHE VOLTAJE', venue:'BODEGA 23', zona:'Barrio Industrial',
+      when:'VIE · 23:59 – 06:00', price:'$15.000 · fase 2', fire:94, px:.28, py:.34,
+      lineup:['DJ KAOSS','LUNA MTZ','ORBITAL b2b VERA'], tags:['electronica','techno','warehouse'],
+      why:[ 'Lineup con headliner internacional confirmado hace 48h — la conversación de la semana.',
+            'Fase 1 agotada en un día; fase 2 al 70% — la demanda es real, no humo.',
+            'Es el after oficial del festival del sábado: toda la escena termina acá.' ] },
+    { id:'perreo-gal', cat:'club', name:'PERREO GALÁCTICO', venue:'LA CÚPULA', zona:'Centro',
+      when:'SÁB · 23:00', price:'$12.000', fire:81, px:.52, py:.48,
+      lineup:['DJ NEBULOSA','EL PATRÓN DEL SPACE'], tags:['reggaeton','urbano','perreo'],
+      why:[ 'La fiesta urbana con mejor rating de la temporada — tercera edición consecutiva llena.',
+            'Sube contenido en vivo toda la noche: la fila de afuera es parte del show.',
+            'Sold out las dos ediciones anteriores — si aparece entrada, vuela.' ] },
+    { id:'techno-fierro', cat:'club', name:'TECHNO INDUSTRIAL', venue:'GALPÓN FIERRO', zona:'Barrio Industrial',
+      when:'SÁB · 00:00 – 08:00', price:'$18.000', fire:76, px:.22, py:.42,
+      lineup:['HIERRO VIVO','MÁQUINA 404','CLARA OSCURA'], tags:['electronica','techno','industrial','after'],
+      why:[ 'El único after de 8 horas del fin de semana — cierre garantizado con sol.',
+            'Sonido nuevo instalado este mes: el galpón entero es el subwoofer.',
+            'Line 100% local en su mejor momento — la escena se está juntando acá.' ] },
+    { id:'luna-llena', cat:'fiesta', name:'FIESTA DE LA LUNA LLENA', venue:'PARQUE ESCONDIDO', zona:'Ladera Norte',
+      when:'VIE · 21:00', price:'$8.000 preventa', fire:87, px:.68, py:.18,
+      lineup:['COLECTIVO SELVA','TAMBORES DEL SUR'], tags:['open air','tribal','luna','fiesta'],
+      why:[ 'Coincide con la luna llena real de este mes — el ritual es una vez al mes y nada más.',
+            'Open air con permiso hasta las 04:00 — raro en la ciudad, aprovechalo.',
+            'La edición pasada cerró con 400 personas y cero incidentes: la comunidad cuida el lugar.' ] },
+    { id:'neon2000', cat:'fiesta', name:'NEON 2000', venue:'SALÓN RETRO', zona:'Centro',
+      when:'SÁB · 22:30', price:'$10.000', fire:69, px:.48, py:.56,
+      lineup:['DJ MILENIO','VHS SISTERS'], tags:['pop','2000s','retro','fiesta'],
+      why:[ 'La temática 2000s está en su pico — las últimas tres ediciones agotaron.',
+            'Dress code neón con premio al mejor outfit: el público ES el show.',
+            'Karaoke pop a medianoche — el momento más compartido de la noche.' ] },
+    { id:'matine', cat:'fiesta', name:'MATINÉ SECRETA', venue:'UBICACIÓN SORPRESA', zona:'Se revela 3h antes',
+      when:'DOM · 16:00 – 22:00', price:'$14.000 · solo lista', fire:72, px:.62, py:.66,
+      lineup:['SECRET GUEST','ANFITRIONA B2B'], tags:['house','secreta','day party'],
+      why:[ 'Formato secreto: la ubicación llega por la lista 3 horas antes — exclusividad real.',
+            'Fiesta de día que termina temprano: el plan perfecto de domingo.',
+            'El guest secreto de la edición pasada fue el nombre del mes — nadie quiere perderse el próximo.' ] },
+    { id:'omakase', cat:'resto', name:'OMAKASE MEDIANOCHE', venue:'BARRA TOKIO', zona:'Barrio Oriente',
+      when:'JUE a SÁB · 20:00 y 23:30', price:'$$$ · reserva', fire:78, px:.78, py:.38,
+      lineup:['ITAMAE KOJI — 12 pasos'], tags:['sushi','omakase','japonesa','resto'],
+      why:[ 'Solo 10 puestos por servicio — la reserva más difícil del barrio ahora mismo.',
+            'Turno de las 23:30: el único omakase nocturno de la ciudad.',
+            'El menú cambia con la pesca del día — no existe dos veces el mismo servicio.' ] },
+    { id:'trattoria', cat:'resto', name:'PASTA & VINILOS', venue:'TRATTORIA DISCO', zona:'Centro',
+      when:'MIÉ a DOM · desde 19:00', price:'$$', fire:64, px:.44, py:.62,
+      lineup:['DJ set en vinilo toda la noche'], tags:['italiana','pasta','vinilos','resto'],
+      why:[ 'Pasta fresca + cabina de vinilos: la mesa se convierte en pista después de las 23.',
+            'El aperitivo de las 19 es el nuevo punto de encuentro pre-fiesta.',
+            'Carta corta que rota semanal — siempre hay una razón para volver.' ] },
+    { id:'jazz-sotano', cat:'live', name:'JAZZ SUBTERRÁNEO', venue:'SÓTANO CLUB', zona:'Casco Viejo',
+      when:'JUE · 21:30 · 2 sets', price:'$7.000', fire:71, px:.38, py:.72,
+      lineup:['CUARTETO AUSTRAL','JAM ABIERTA 2º SET'], tags:['jazz','en vivo','sotano','live'],
+      why:[ 'La jam del segundo set es abierta: los mejores músicos de la ciudad caen sin aviso.',
+            'Sótano de 80 personas — el show más íntimo que vas a ver este mes.',
+            'Cuarteto Austral vuelve de gira: primera fecha en casa en 6 meses.' ] },
+    { id:'rock-fabrica', cat:'live', name:'ROCK EN LA FÁBRICA', venue:'LA FÁBRICA', zona:'Barrio Industrial',
+      when:'VIE · 20:00 · 3 bandas', price:'$9.000', fire:66, px:.30, py:.28,
+      lineup:['LOS VOLTAICOS','PERRA SUERTE','MOTOR AUSTRAL'], tags:['rock','indie','en vivo','live'],
+      why:[ 'Tres bandas locales en ascenso en una sola entrada — el cartel más eficiente del viernes.',
+            'La Fábrica reabrió hace un mes con sonido nuevo: la sala está en su mejor momento.',
+            'Los Voltaicos presentan disco — show único con invitados.' ] },
+    { id:'sunset', cat:'rooftop', name:'SUNSET ANALÓGICO', venue:'TERRAZA PANORAMA', zona:'Barrio Oriente',
+      when:'VIE y SÁB · 18:30', price:'$6.000 antes de las 20', fire:74, px:.72, py:.30,
+      lineup:['SELECTORES DE VINILO INVITADOS'], tags:['house','vinilo','sunset','rooftop','electronica'],
+      why:[ 'La mejor vista del atardecer de la ciudad — la hora dorada es el show.',
+            'Solo vinilo, solo selectores invitados: curaduría, no algoritmo.',
+            'Entrada rebajada antes de las 20 — el plan puente perfecto antes del club.' ] },
+    { id:'cielo', cat:'rooftop', name:'CIELO ABIERTO', venue:'ROOFTOP AURORA', zona:'Centro',
+      when:'SÁB · 19:00', price:'$8.000', fire:62, px:.55, py:.40,
+      lineup:['AFRO HOUSE SESSION','PERCUSIÓN EN VIVO'], tags:['afrohouse','chill','rooftop','electronica'],
+      why:[ 'Afro house + percusión en vivo: el híbrido que está creciendo en toda la ciudad.',
+            'Terraza climatizada — funciona con frío, con calor y con lluvia.',
+            'A 10 minutos caminando de los tres clubs grandes: la previa estratégica.' ] }
+  ];
+  // vendedores DEMO — los reales se registran desde el propio panel (Supabase universe_sellers)
+  let SELLERS=[
+    { id:'vale',   name:'VALE TICKETS',  rol:'VENDEDORA OFICIAL',   contact:'@vale.tickets',  events:['voltaje','luna-llena','techno-fierro'], demo:true },
+    { id:'bro',    name:'TICKET BRO',    rol:'RESELLER VERIFICADO', contact:'@ticket.bro',    events:['perreo-gal','neon2000','cielo'], demo:true },
+    { id:'puerta', name:'PUERTA NEGRA',  rol:'PRODUCTORA',          contact:'@puerta.negra',  events:['jazz-sotano','rock-fabrica','matine'], demo:true },
+    { id:'clara',  name:'MESA VIP CLARA',rol:'RESERVAS & VIP',      contact:'@mesa.clara',    events:['omakase','trattoria','sunset'], demo:true }
+  ];
+  // ═══ LA LEY DEL MOTOR (igual que en crypto) ═══
+  // Ningún evento se muestra sin lo mínimo: dónde, cuándo, QUIÉN TOCA y su porqué.
+  // Si el agente no puede explicarlo, no existe.
+  function sane(ev){
+    if(!ev||!ev.id||!ev.name) return null;
+    const cat=CATS[ev.cat]?ev.cat:'fiesta';                          // categoría inválida → no desaparece
+    const px=Number.isFinite(+ev.px)?+ev.px:.30+((''+ev.id).length%7)*.09;  // sin coordenadas → igual entra al mapa
+    const py=Number.isFinite(+ev.py)?+ev.py:.28+((''+ev.name).length%6)*.10;
+    const lineup=Array.isArray(ev.lineup)?ev.lineup.filter(Boolean):[];
+    const why=Array.isArray(ev.why)?ev.why.filter(Boolean):[];
+    if(!lineup.length||!why.length) return null;                     // la ley: sin quién toca y sin porqué, no se publica
+    return { ...ev, cat, px, py, lineup, why,
+      venue:ev.venue||'POR CONFIRMAR', zona:ev.zona||'—', when:ev.when||'FECHA POR CONFIRMAR',
+      price:ev.price||'—', fire:Number.isFinite(+ev.fire)?+ev.fire:50,
+      tags:Array.isArray(ev.tags)?ev.tags.filter(Boolean):[] };
+  }
+  EVENTS=EVENTS.map(sane).filter(Boolean);
+  // eventos reales del momento: mvb-eventos.json pisa el seed (merge por campo, dedupe por id)
+  fetch('./mvb-eventos.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+    if(!j) return;
+    if(Array.isArray(j.events)&&j.events.length){
+      const m=new Map(EVENTS.map(e=>[e.id,e])); let dropped=0;
+      j.events.forEach(e=>{ if(!e||!e.id) return;
+        const merged=sane({ ...(m.get(e.id)||{}), ...e });           // merge, no reemplazo: campos ausentes se conservan
+        if(merged) m.set(e.id,merged); else { m.delete(e.id); dropped++; } });
+      EVENTS=[...m.values()];
+      if(dropped) log('mvb', dropped+' evento(s) del json sin quién toca o sin porqué — la ley los deja afuera');
+    }
+    if(Array.isArray(j.sellers)&&j.sellers.length){
+      const m=new Map(SELLERS.map(s=>[s.id,s]));
+      j.sellers.forEach(s=>{ if(s&&s.id) m.set(s.id,{ ...(m.get(s.id)||{}), ...s }); });
+      SELLERS=[...m.values()];
+    }
+    if($('mvb').classList.contains('open')){ renderList(); }
+  }).catch(()=>{});
+
+  let activeCats=new Set(Object.keys(CATS)), query='', selectedId=null, scanned=false, raf=null, pins=[];
+
+  // ── chips de categoría: el shortcut visual — tocá NIGHTCLUB y salen todos los clubs ──
+  const catsBar=$('mvb-cats');
+  Object.entries(CATS).forEach(([k,c])=>{
+    const b=document.createElement('button'); b.className='mvb-cat on'; b.style.setProperty('--cc',c.col);
+    b.textContent=c.ico+' '+c.label; b.dataset.cat=k;
+    b.onclick=()=>{
+      const allOn=activeCats.size===Object.keys(CATS).length;
+      if(allOn){ activeCats=new Set([k]); }            // primer toque: solo esa categoría
+      else if(activeCats.has(k)&&activeCats.size===1){ activeCats=new Set(Object.keys(CATS)); } // repetir: todas
+      else if(activeCats.has(k)){ activeCats.delete(k); }
+      else activeCats.add(k);
+      paintCats(); renderList();
+      log('mvb','filtro: '+[...activeCats].join(','));
+    };
+    catsBar.appendChild(b);
+  });
+  function paintCats(){ [...catsBar.children].forEach(b=>b.classList.toggle('on', activeCats.has(b.dataset.cat))); }
+
+  $('mvb-q').addEventListener('input',()=>{ query=$('mvb-q').value.trim().toLowerCase(); renderList(); });
+
+  // sinónimos: "club de musica electronica" tiene que encontrar los clubs de electrónica
+  const SYN={ club:['club','nightclub','disco','boliche','antro'],
+              fiesta:['fiesta','party','fiestas'], resto:['resto','restaurante','restorán','restoran','comida','cena'],
+              live:['live','en vivo','vivo','concierto','banda','show'],
+              rooftop:['rooftop','terraza','azotea'] };
+  const STOP=new Set(['de','del','la','el','los','las','un','una','y','en','para','con','a','al','que','musica','música','tipo','lugar','lugares','quiero','buscar']);
+  function matches(ev){
+    if(!activeCats.has(ev.cat)) return false;
+    if(!query) return true;
+    const c=CATS[ev.cat]||{};
+    const hay=[ev.name,ev.venue,ev.zona,ev.when,ev.cat,c.label,...(SYN[ev.cat]||[]),
+      ...(ev.lineup||[]),...(ev.tags||[])].join(' ')
+      .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const words=query.normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .split(/\s+/).filter(w=>w&&!STOP.has(w));     // las palabras de relleno no matan la búsqueda
+    if(!words.length) return true;
+    return words.every(w=>hay.includes(w));
+  }
+  const filtered=()=>EVENTS.filter(matches).sort((a,b)=>(b.fire||0)-(a.fire||0));
+
+  // ── la lista: cada evento con su info completa + PORQUÉ ESTÁ SONANDO ──
+  function renderList(){
+    const box=$('mvb-evs'); const evs=filtered();
+    $('mvb-list-h').textContent='🔥 EVENTOS DEL MOMENTO — '+evs.length+(query?' PARA «'+query.toUpperCase()+'»':'');
+    box.innerHTML=evs.map(ev=>{
+      const c=CATS[ev.cat]||CATS.fiesta;
+      return '<div class="mvb-ev'+(ev.id===selectedId?' hot':'')+'" id="mvbev-'+esc(ev.id)+'" style="--ec:'+c.col+'">'+
+        '<div class="mvb-ev-top"><span class="mvb-ico">'+c.ico+'</span>'+
+          '<span class="mvb-name">'+esc(ev.name)+'</span>'+
+          '<span class="mvb-fire">🔥 '+esc(ev.fire)+'% MOMENTO</span></div>'+
+        '<div class="mvb-meta"><b>'+esc(ev.venue)+'</b> · '+esc(ev.zona)+' &nbsp;|&nbsp; '+esc(ev.when)+' &nbsp;|&nbsp; '+esc(ev.price)+'</div>'+
+        '<div class="mvb-line"><span>QUIÉN TOCA:</span> '+ev.lineup.map(esc).join(' · ')+'</div>'+
+        '<div class="mvb-tags">'+ev.tags.map(t=>'<span class="mvb-tag">'+esc(String(t).toUpperCase())+'</span>').join('')+'</div>'+
+        '<ul class="mvb-why">'+ev.why.map(w=>'<li>'+esc(w)+'</li>').join('')+'</ul>'+
+        '<div class="mvb-btns">'+
+          '<button class="mvb-btn" data-map="'+esc(ev.id)+'">📍 VER EN MAPA</button>'+
+          '<button class="mvb-btn buy" data-sell="'+esc(ev.id)+'">🎟 CONTACTAR VENDEDOR</button>'+
+        '</div></div>';
+    }).join('')||'<div style="font-size:9px;color:#3A4460;letter-spacing:2px;padding:20px 0">NADA CON ESE FILTRO — PROBÁ OTRA BÚSQUEDA U OTRA CATEGORÍA.</div>';
+    box.querySelectorAll('[data-map]').forEach(b=>b.onclick=()=>{ selectedId=b.dataset.map; renderList(); });
+    box.querySelectorAll('[data-sell]').forEach(b=>b.onclick=()=>openConector(b.dataset.sell));
+  }
+
+  // ── CONECTOR: el agente que te enchufa con la gente que vende las entradas ──
+  let realSellers=null;
+  const localSellers=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_sellers'))||[]; }catch(e){ return []; } };
+  async function fetchRealSellers(){
+    if(realSellers!==null) return;
+    try{
+      const r=await fetch(SUPA.url+'/rest/v1/universe_sellers?select=id,name,rol,contact,events&order=created_at.desc&limit=40',{headers:HEAD});
+      realSellers=r.ok?await r.json():[];
+    }catch(e){ realSellers=[]; }
+    // los registrados en modo local también son vendedores: se muestran acá aunque Supabase no esté
+    const ids=new Set(realSellers.map(s=>s.id));
+    localSellers().forEach(s=>{ if(!ids.has(s.id)) realSellers.push({...s, local:true}); });
+  }
+  async function openConector(evId){
+    const ev=EVENTS.find(e=>e.id===evId); if(!ev) return;
+    selectedId=evId; renderList();
+    const con=$('mvb-conector'); con.classList.add('open');
+    $('mvb-con-title').textContent='◈ CONECTOR — VENDEDORES PARA: '+ev.name;
+    const box=$('mvb-sellers');
+    box.innerHTML='<div class="mvb-scanline">◈ CONECTOR buscando vendedores integrados a la página…</div>';
+    await fetchRealSellers();
+    const evList=s=>{ if(Array.isArray(s.events)) return s.events;
+      try{ const p=JSON.parse(s.events); return Array.isArray(p)?p:null; }catch(e){ return null; } };
+    const reals=(realSellers||[]).filter(s=>{ const l=evList(s); return !l||l.includes(evId); });
+    const demos=SELLERS.filter(s=>s.events.includes(evId));
+    const rows=[...reals.map(s=>({...s,demo:false})), ...demos];
+    box.innerHTML=rows.map(s=>{
+      const contact=(s.contact||'').trim();
+      // el destino se arma con partes seguras: nunca se inyecta el texto crudo en el href
+      const href=contact.startsWith('@')?'https://instagram.com/'+encodeURIComponent(contact.slice(1).replace(/[^\w.]/g,''))
+        :/^\+?[\d\s-]{8,}$/.test(contact)?'https://wa.me/'+contact.replace(/\D/g,'')
+        :/^https?:\/\//i.test(contact)?encodeURI(contact):'#';
+      const badge=s.demo?'<span class="mvb-demo">DEMO</span>':(s.local?'<span class="mvb-demo" style="background:#00F0FF">LOCAL</span>':'');
+      return '<div class="mvb-seller"><span class="sd"></span>'+
+        '<span class="sn"><b>'+esc(s.name)+' '+badge+'</b><i>'+esc(s.rol||'VENDEDOR/A')+' · '+esc(contact)+'</i></span>'+
+        '<a href="'+esc(href)+'" target="_blank" rel="noopener noreferrer">ESCRIBILE →</a></div>';
+    }).join('')||'<div class="mvb-scanline">Todavía no hay vendedores para este evento — sé el primero abajo.</div>';
+    if(!reals.filter(s=>!s.local).length) box.innerHTML+='<div style="font-size:8px;color:#3A4460;line-height:1.8;margin-top:6px">Los DEMO muestran el formato; los LOCAL viven solo en este dispositivo. Para que un vendedor aparezca para todos, corré el SQL de <b>universe_sellers</b> en tu Supabase.</div>';
+    con.scrollIntoView({behavior:'smooth',block:'nearest'});
+    log('conector', 'buscó vendedores para '+ev.name);
+  }
+  $('mvb-be-seller').onclick=()=>$('mvb-sellform').classList.toggle('open');
+  $('mvb-sf-go').onclick=async()=>{
+    const name=$('mvb-sf-name').value.trim(), contact=$('mvb-sf-contact').value.trim();
+    if(!name||!contact) return;
+    const row={ id:'s'+Math.random().toString(36).slice(2,10), name:name.toUpperCase(), rol:'VENDEDOR/A',
+      contact, events:JSON.stringify(EVENTS.map(e=>e.id)), created_at:new Date().toISOString() };
+    let ok=false;
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_sellers',{method:'POST',headers:HEAD,body:JSON.stringify(row)}); ok=r.ok; }catch(e){}
+    try{ const loc=JSON.parse(localStorage.getItem('hk23_sellers'))||[]; loc.push(row); localStorage.setItem('hk23_sellers',JSON.stringify(loc)); }catch(e){}
+    $('mvb-sf-name').value=''; $('mvb-sf-contact').value=''; $('mvb-sellform').classList.remove('open');
+    realSellers=null;
+    $('mvb-sellers').innerHTML='<div class="mvb-scanline" style="color:#AAFF00">✓ '+esc(row.name)+' registrado '+(ok?'en el universo — visible para todos.':'en este dispositivo — ya aparece en la lista; corré el SQL de universe_sellers para que lo vean todos.')+'</div>';
+    log('conector','nuevo vendedor: '+row.name+(ok?' (global)':' (local)'));
+  };
+
+  // ── el mapa de la ciudad: calles, río, y los pins pulsando con su color ──
+  const cv=$('mvb-map'); const ctx=cv.getContext('2d');
+  function drawMap(t){
+    const w=cv.clientWidth, h=cv.clientHeight;
+    if(!w||!h) return;
+    // re-ajuste ante CUALQUIER cambio (alto o ancho): si no, los pins dibujados
+    // y sus zonas de toque se separan al rotar/abrir el teclado
+    if(cv.width!==w*2||cv.height!==h*2){ cv.width=w*2; cv.height=h*2; }
+    const X=x=>x*w*2, Y=y=>y*h*2;
+    ctx.clearRect(0,0,cv.width,cv.height);
+    // trama urbana
+    ctx.strokeStyle='#0C1222'; ctx.lineWidth=2;
+    for(let i=1;i<14;i++){ ctx.beginPath(); ctx.moveTo(X(i/14),0); ctx.lineTo(X(i/14),Y(1)); ctx.stroke(); }
+    for(let i=1;i<10;i++){ ctx.beginPath(); ctx.moveTo(0,Y(i/10)); ctx.lineTo(X(1),Y(i/10)); ctx.stroke(); }
+    // avenidas
+    ctx.strokeStyle='#131C36'; ctx.lineWidth=7;
+    ctx.beginPath(); ctx.moveTo(0,Y(.52)); ctx.lineTo(X(1),Y(.44)); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X(.36),0); ctx.lineTo(X(.42),Y(1)); ctx.stroke();
+    // río
+    ctx.strokeStyle='#0A1A2E'; ctx.lineWidth=26; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(0,Y(.12)); ctx.bezierCurveTo(X(.4),Y(.20),X(.7),Y(.06),X(1),Y(.16)); ctx.stroke();
+    // parque
+    ctx.fillStyle='#07130D'; ctx.beginPath(); ctx.ellipse(X(.64),Y(.60),X(.09),Y(.10),0,0,7); ctx.fill();
+    // pins
+    pins=[];
+    const evs=filtered();
+    EVENTS.forEach(ev=>{
+      const on=evs.includes(ev); const c=CATS[ev.cat]||CATS.fiesta;
+      const x=X(ev.px), y=Y(ev.py);
+      const pulse=1+Math.sin(t/420+ev.px*9)*0.18;
+      ctx.globalAlpha=on?1:.13;
+      ctx.beginPath(); ctx.arc(x,y,(ev.id===selectedId?22:13)*pulse,0,7);
+      ctx.fillStyle=c.col+'22'; ctx.fill();
+      ctx.beginPath(); ctx.arc(x,y,(ev.id===selectedId?11:7),0,7);
+      ctx.fillStyle=c.col; ctx.shadowColor=c.col; ctx.shadowBlur=on?24:0; ctx.fill(); ctx.shadowBlur=0;
+      ctx.font=(ev.id===selectedId?34:24)+'px serif'; ctx.textAlign='center';
+      ctx.fillText(c.ico, x, y-(ev.id===selectedId?26:18));
+      if(on&&(ev.id===selectedId||evs.length<=6)){
+        ctx.font='700 15px "Space Mono",monospace'; ctx.fillStyle='#EAF0FF';
+        ctx.fillText(ev.name, x, y+(ev.id===selectedId?44:34));
+      }
+      ctx.globalAlpha=1;
+      if(on) pins.push({x:x/2,y:y/2,id:ev.id});
+    });
+    ctx.font='500 14px "Space Mono",monospace'; ctx.fillStyle='#22304E'; ctx.textAlign='left';
+    ctx.fillText('RÍO', X(.03), Y(.10));
+    ctx.fillText('PARQUE', X(.60), Y(.615));
+  }
+  function loop(t){ if(!$('mvb').classList.contains('open')){ raf=null; return; } drawMap(t||0); raf=requestAnimationFrame(loop); }
+  cv.addEventListener('click',e=>{
+    const r=cv.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top;
+    let best=null,bd=1e9;
+    pins.forEach(p=>{ const d=(p.x-x)**2+(p.y-y)**2; if(d<bd){ bd=d; best=p; } });
+    if(best&&bd<40*40){ openConector(best.id);
+      const el=$('mvbev-'+best.id); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); }
+  });
+
+  // ── SCOUT: los agentes salen a barrer la ciudad — se ve, igual que en crypto ──
+  function scanThenRender(){
+    const box=$('mvb-evs');
+    const STEPS=[
+      ['◈ SCOUT','barriendo la ciudad — clubs · fiestas · restos · rooftops · salas en vivo','#00F0FF'],
+      ['◈ CONECTOR','hablando con los vendedores integrados a la página','#B84DFF'],
+      ['◈ ORACLE','armando el PORQUÉ de cada evento — quién toca, por qué está sonando','#FFD200'],
+      ['◈ CURATOR','descartando lo que ya murió o no puede explicarse','#FF3A1F'] ];
+    box.innerHTML='';
+    STEPS.forEach(([who,what,col],i)=>{ setTimeout(()=>{
+      const d=document.createElement('div'); d.className='mvb-scanline';
+      d.innerHTML='<span style="color:'+col+'">'+who+'</span> '+what+' <span style="color:#22304E">…</span>';
+      box.appendChild(d); }, i*420); });
+    setTimeout(()=>{ scanned=true; renderList(); }, STEPS.length*420+460);
+  }
+
+  const MVB={
+    open(cat){
+      $('mvb').classList.add('open');
+      if(cat&&CATS[cat]){ activeCats=new Set([cat]); paintCats(); }
+      if(scanned) renderList(); else scanThenRender();
+      if(!raf) raf=requestAnimationFrame(loop);
+      log('mvb','entró a la noche ('+[...activeCats].join(',')+')');
+    },
+    close(){ $('mvb').classList.remove('open'); log('mvb','salió de la noche'); }
+  };
+  window.MVB=MVB;
+  $('mvb-x').onclick=()=>MVB.close();
+  addEventListener('keydown',e=>{
+    if((e.key==='x'||e.key==='X'||e.key==='Escape')&&$('mvb').classList.contains('open')&&
+       !/INPUT|TEXTAREA/.test((document.activeElement||{}).tagName||'')) MVB.close();
+  });
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if((e.key==='e'||e.key==='E')&&!$('mvb').classList.contains('open')) MVB.open();
+  });
+  const dock=document.getElementById('hk-dock');
+  if(dock){ const b=document.createElement('button'); b.className='dk'; b.textContent='🌃 MVB';
+    b.style.setProperty('--dc','#FF3AC8'); b.style.color='#FF3AC8CC';
+    b.onclick=()=>MVB.open(); dock.insertBefore(b, dock.children[2]||null); }
+  const cmd=document.getElementById('ag-cmd');
+  if(cmd) cmd.addEventListener('keydown',e=>{
+    if(e.key!=='Enter') return; const s=(cmd.value||'').trim().toLowerCase();
+    if(/^(mvb|eventos|noche|fiesta|nightclub)$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault(); cmd.value='';
+      MVB.open(s==='nightclub'?'club':(s==='fiesta'?'fiesta':undefined)); }
+  }, true);
+})();
+</script>
+
 <script>
 // portal de vuelta al UNIVERSO MADRE (solo tiene sentido en hk23universe.vercel.app)
 (function(){ const d=document.getElementById("hk-dock");
