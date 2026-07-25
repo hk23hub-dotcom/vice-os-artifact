@@ -10228,6 +10228,16 @@ addEventListener('DOMContentLoaded', function(){
   .mvb-demo{ font-size:6px; letter-spacing:2px; color:#000; background:#FFD200; padding:2px 5px; border-radius:2px; }
   #mvb-scan{ padding:4px 0; }
   .mvb-scanline{ font-size:9px; letter-spacing:1px; color:#4A5470; padding:7px 4px; border-bottom:1px solid #0D1120; }
+  #mvb-addbar{ margin-bottom:14px; }
+  #mvb-addform{ display:none; border:1px solid #2A1030; border-radius:2px; background:#0C0710; padding:14px 16px; margin-top:8px; }
+  #mvb-addform.open{ display:block; }
+  .mvb-af-h{ font-size:8px; letter-spacing:2px; color:#FF3AC8; margin-bottom:10px; line-height:1.7; }
+  #mvb-addform input, #mvb-addform textarea{ width:100%; background:#090B14; border:1px solid #1A2440; border-radius:2px;
+    color:#EAF0FF; font-family:'Space Mono',monospace; font-size:10px; padding:8px 10px; margin-bottom:6px;
+    letter-spacing:1px; resize:vertical; }
+  #mvb-addform input::placeholder, #mvb-addform textarea::placeholder{ color:#3A4460; }
+  #mvb-af-cats{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px; }
+  #mvb-af-msg{ font-size:9px; line-height:1.7; margin-top:8px; }
   #mvb-sellform{ display:none; margin-top:10px; border-top:1px solid #1A1030; padding-top:10px; }
   #mvb-sellform.open{ display:block; }
   #mvb-sellform input{ width:100%; background:#090B14; border:1px solid #1A2440; border-radius:2px; color:#EAF0FF;
@@ -10262,6 +10272,26 @@ addEventListener('DOMContentLoaded', function(){
           <input id="mvb-sf-name" placeholder="tu nombre / marca" autocomplete="off">
           <input id="mvb-sf-contact" placeholder="tu contacto (wsp o @instagram)" autocomplete="off">
           <button class="mvb-btn buy" id="mvb-sf-go" style="--ec:#B84DFF">REGISTRARME EN EL UNIVERSO →</button>
+        </div>
+      </div>
+      <div id="mvb-addbar">
+        <button class="mvb-btn" id="mvb-add-open" style="border-color:#FF3AC855;color:#FF3AC8">＋ CARGAR UN EVENTO REAL</button>
+        <div id="mvb-addform">
+          <div class="mvb-af-h">◈ NUEVO EVENTO — la ley: sin QUIÉN TOCA y sin PORQUÉ no se publica</div>
+          <div id="mvb-af-cats"></div>
+          <input id="mvb-af-name" placeholder="nombre del evento · ej. NOCHE VOLTAJE" autocomplete="off">
+          <input id="mvb-af-venue" placeholder="lugar · ej. BODEGA 23" autocomplete="off">
+          <input id="mvb-af-zona" placeholder="zona / barrio · ej. Barrio Industrial" autocomplete="off">
+          <input id="mvb-af-when" placeholder="cuándo · ej. VIE · 23:59 – 06:00" autocomplete="off">
+          <input id="mvb-af-price" placeholder="precio · ej. $15.000 · fase 2" autocomplete="off">
+          <input id="mvb-af-lineup" placeholder="QUIÉN TOCA · separá con comas" autocomplete="off">
+          <input id="mvb-af-tags" placeholder="géneros / tags · ej. electronica, techno" autocomplete="off">
+          <textarea id="mvb-af-why" rows="3" placeholder="POR QUÉ está sonando — una razón por línea (mínimo una)"></textarea>
+          <div class="mvb-btns">
+            <button class="mvb-btn buy" id="mvb-af-go" style="--ec:#FF3AC8">PUBLICAR EN EL UNIVERSO →</button>
+            <button class="mvb-btn" id="mvb-af-cancel">CANCELAR</button>
+          </div>
+          <div id="mvb-af-msg"></div>
         </div>
       </div>
       <div class="mvb-h" id="mvb-list-h">🔥 EVENTOS DEL MOMENTO</div>
@@ -10516,6 +10546,69 @@ addEventListener('DOMContentLoaded', function(){
     con.scrollIntoView({behavior:'smooth',block:'nearest'});
     log('conector', 'buscó vendedores para '+ev.name);
   }
+  // ═══ CARGAR UN EVENTO REAL — desde el propio universo, sin tocar archivos ═══
+  // Se publica en Supabase (universe_events) para todos; si no está la tabla,
+  // queda guardado en este dispositivo y se ve igual, marcado como LOCAL.
+  let afCat='club';
+  const afCats=$('mvb-af-cats');
+  Object.entries(CATS).forEach(([k,c])=>{
+    const b=document.createElement('button'); b.className='mvb-cat'+(k===afCat?' on':'');
+    b.style.setProperty('--cc',c.col); b.textContent=c.ico+' '+c.label; b.dataset.k=k;
+    b.onclick=()=>{ afCat=k; [...afCats.children].forEach(x=>x.classList.toggle('on',x.dataset.k===afCat)); };
+    afCats.appendChild(b);
+  });
+  const localEvents=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_mvb_events'))||[]; }catch(e){ return []; } };
+  let remoteEvents=null;
+  async function loadUserEvents(){
+    let rows=[];
+    try{
+      const r=await fetch(SUPA.url+'/rest/v1/universe_events?select=*&order=created_at.desc&limit=100',{headers:HEAD});
+      if(r.ok) rows=await r.json();
+    }catch(e){}
+    remoteEvents=rows;
+    const ids=new Set(rows.map(x=>x.id));
+    const all=[...rows, ...localEvents().filter(x=>!ids.has(x.id)).map(x=>({...x,local:true}))];
+    if(!all.length) return;
+    const m=new Map(EVENTS.map(e=>[e.id,e]));
+    all.forEach(row=>{
+      const ev=sane({ ...row,
+        lineup: Array.isArray(row.lineup)?row.lineup:String(row.lineup||'').split(',').map(s=>s.trim()).filter(Boolean),
+        tags:   Array.isArray(row.tags)  ?row.tags  :String(row.tags||'').split(',').map(s=>s.trim()).filter(Boolean),
+        why:    Array.isArray(row.why)   ?row.why   :String(row.why||'').split('\n').map(s=>s.trim()).filter(Boolean) });
+      if(ev) m.set(ev.id,{...ev, mine:true, local:row.local});
+    });
+    EVENTS=[...m.values()];
+  }
+  $('mvb-add-open').onclick=()=>$('mvb-addform').classList.toggle('open');
+  $('mvb-af-cancel').onclick=()=>$('mvb-addform').classList.remove('open');
+  $('mvb-af-go').onclick=async()=>{
+    const v=id=>($(id).value||'').trim();
+    const lineup=v('mvb-af-lineup').split(',').map(s=>s.trim()).filter(Boolean);
+    const why=v('mvb-af-why').split('\n').map(s=>s.trim()).filter(Boolean);
+    const msg=$('mvb-af-msg');
+    if(!v('mvb-af-name')||!lineup.length||!why.length){
+      msg.style.color='#FF3A1F';
+      msg.textContent='Falta lo mínimo: nombre, QUIÉN TOCA y al menos una razón del porqué. Esa es la ley del motor.';
+      return; }
+    const row={ id:'e'+Math.random().toString(36).slice(2,10), cat:afCat, name:v('mvb-af-name').toUpperCase(),
+      venue:v('mvb-af-venue').toUpperCase()||'POR CONFIRMAR', zona:v('mvb-af-zona')||'—',
+      when:v('mvb-af-when')||'FECHA POR CONFIRMAR', price:v('mvb-af-price')||'—', fire:88,
+      lineup, tags:v('mvb-af-tags').split(',').map(s=>s.trim()).filter(Boolean), why,
+      px:+(0.18+Math.random()*0.66).toFixed(3), py:+(0.16+Math.random()*0.66).toFixed(3),
+      created_at:new Date().toISOString() };
+    let ok=false;
+    try{ const r=await fetch(SUPA.url+'/rest/v1/universe_events',{method:'POST',headers:HEAD,
+      body:JSON.stringify({...row, lineup:JSON.stringify(lineup), tags:JSON.stringify(row.tags), why:JSON.stringify(why)})}); ok=r.ok; }catch(e){}
+    try{ const loc=localEvents(); loc.push(row); localStorage.setItem('hk23_mvb_events',JSON.stringify(loc)); }catch(e){}
+    const ev=sane(row); if(ev) EVENTS=[{...ev, mine:true, local:!ok}, ...EVENTS.filter(e=>e.id!==ev.id)];
+    ['name','venue','zona','when','price','lineup','tags','why'].forEach(k=>{ const el=$('mvb-af-'+k); if(el) el.value=''; });
+    msg.style.color='#AAFF00';
+    msg.textContent='✓ '+row.name+' publicado '+(ok?'en el universo — lo ve todo el mundo.':'en este dispositivo. Para que lo vean todos, corré el SQL de universe_events en tu Supabase.');
+    activeCats=new Set(Object.keys(CATS)); paintCats(); $('mvb-q').value=''; query='';
+    renderList();
+    log('mvb','evento cargado: '+row.name+(ok?' (global)':' (local)'));
+  };
+
   $('mvb-be-seller').onclick=()=>$('mvb-sellform').classList.toggle('open');
   $('mvb-sf-go').onclick=async()=>{
     const name=$('mvb-sf-name').value.trim(), contact=$('mvb-sf-contact').value.trim();
@@ -10609,6 +10702,7 @@ addEventListener('DOMContentLoaded', function(){
       $('mvb').classList.add('open');
       if(cat&&CATS[cat]){ activeCats=new Set([cat]); paintCats(); }
       if(scanned) renderList(); else scanThenRender();
+      loadUserEvents().then(()=>{ if($('mvb').classList.contains('open')&&scanned) renderList(); });
       if(!raf) raf=requestAnimationFrame(loop);
       log('mvb','entró a la noche ('+[...activeCats].join(',')+')');
     },
