@@ -4,7 +4,7 @@ import { generateText } from 'ai';
 import { parseBody, applyCors, clientIp, rateLimit } from './_lib.js';
 
 const TOKEN = process.env.RUN_TOKEN || 'hk23-run-9x';
-const MODEL = process.env.RUN_MODEL || 'deepseek/deepseek-v3.2';
+const MODEL = process.env.RUN_MODEL || 'openai/gpt-oss-120b'; // deepseek quedó fuera del free tier del AI Gateway
 const ALLOW = ['echo', 'ask', 'agent'];
 
 // Agent personas — each is a real prompt the runner executes.

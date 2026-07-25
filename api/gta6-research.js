@@ -7,7 +7,7 @@ import { generateText } from 'ai';
 
 const TOKEN = process.env.RUN_TOKEN || 'hk23-run-9x';
 const MODEL = process.env.INTEL_MODEL || 'perplexity/sonar';
-const FALLBACK = process.env.RUN_MODEL || 'deepseek/deepseek-v3.2';
+const FALLBACK = process.env.RUN_MODEL || 'openai/gpt-oss-120b'; // deepseek quedó fuera del free tier del AI Gateway
 const SB_URL = 'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1';
 const SB_KEY = process.env.SUPABASE_ANON_KEY || 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
 
