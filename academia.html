@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HK23 ACADEMIA · EL MENTOR — aprende a construir con IA</title>
+<meta name="description" content="El agente cuya única misión es enseñarte a construir con IA: agentes, plugins, artifacts, Claude, tokens y prompts. El tier gratis enseña de verdad.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#050508;color:#e6e6ee;font-family:'Space Mono',monospace;min-height:100vh;
+    background-image:radial-gradient(90% 60% at 50% -10%, rgba(255,210,0,.07), transparent 60%);}
+  a{color:inherit;}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 20px 60px;}
+  header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:26px;}
+  .brand{display:flex;align-items:center;gap:12px;}
+  .brand .logo{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:20px;letter-spacing:1px;}
+  .brand .logo em{font-style:normal;color:#FFD200;}
+  .badge{font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid #2a2a3a;border-radius:20px;padding:6px 12px;color:#8a8a98;}
+  .badge b{color:#FFD200;}
+  .back{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:#8a8a98;text-decoration:none;border:1px solid #2a2a3a;border-radius:20px;padding:7px 14px;}
+  .back:hover{color:#fff;border-color:#FFD200;}
+  .hero{text-align:center;margin:10px 0 34px;}
+  .hero .tag{font-size:9px;letter-spacing:4px;color:#FFD200;text-transform:uppercase;}
+  .hero h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(30px,6vw,54px);letter-spacing:1px;margin:8px 0 10px;}
+  .hero h1 span{color:#FFD200;text-shadow:0 0 30px rgba(255,210,0,.45);}
+  .hero p{font-size:12px;color:#9aa2ab;line-height:1.7;max-width:640px;margin:0 auto;}
+  .hero p b{color:#e6e6ee;}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start;}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .panel{background:rgba(10,10,16,.92);border:1px solid #1c1c2a;border-radius:16px;padding:18px;}
+  .cur-h{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:14px;letter-spacing:2px;margin-bottom:4px;}
+  .cur-s{font-size:10px;color:#6a6a82;margin-bottom:14px;}
+  .tier-block{margin-bottom:16px;}
+  .tier-tag{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+  .tier-tag .dot{width:7px;height:7px;border-radius:50%;}
+  .lesson{display:flex;align-items:center;gap:9px;width:100%;text-align:left;background:rgba(255,255,255,.025);border:1px solid #1e1e2e;
+    border-radius:10px;padding:10px 12px;margin-bottom:7px;color:#cdd6de;font-family:'Space Mono',monospace;font-size:11px;line-height:1.4;cursor:pointer;}
+  .lesson:hover{border-color:#FFD200;color:#fff;}
+  .lesson.locked{opacity:.55;cursor:pointer;}
+  .lesson .n{color:#FFD200;font-weight:700;}
+  .free-note{font-size:9px;color:#6a6a82;line-height:1.6;border-top:1px solid #1c1c2a;padding-top:10px;margin-top:4px;}
+  .free-note b{color:#AAFF00;}
+  /* chat */
+  .chat{display:flex;flex-direction:column;min-height:560px;}
+  .chat-h{display:flex;align-items:center;gap:10px;border-bottom:1px solid #1c1c2a;padding-bottom:12px;margin-bottom:12px;}
+  .chat-h .avatar{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;
+    background:radial-gradient(circle at 35% 35%, rgba(255,210,0,.9), rgba(255,210,0,.15));box-shadow:0 0 22px rgba(255,210,0,.35);}
+  .chat-h .who{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:15px;letter-spacing:1px;}
+  .chat-h .st{font-size:9px;color:#AAFF00;letter-spacing:2px;}
+  #log{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px;max-height:520px;}
+  .msg{max-width:88%;border-radius:12px;padding:11px 14px;font-size:12px;line-height:1.7;white-space:pre-wrap;}
+  .msg.ai{background:rgba(255,210,0,.06);border:1px solid rgba(255,210,0,.2);align-self:flex-start;}
+  .msg.me{background:rgba(0,240,255,.07);border:1px solid rgba(0,240,255,.25);align-self:flex-end;color:#d9fbff;}
+  .composer{display:flex;gap:8px;margin-top:12px;}
+  .composer input{flex:1;background:#0e0e16;border:1px solid #2a2a36;color:#fff;font-family:inherit;font-size:12px;padding:12px;border-radius:10px;outline:none;}
+  .composer input:focus{border-color:#FFD200;}
+  .composer button{background:#FFD200;color:#151509;border:none;border-radius:10px;padding:0 20px;font-family:'Space Grotesk',sans-serif;font-weight:900;letter-spacing:1px;cursor:pointer;}
+  .composer button:disabled{opacity:.5;cursor:default;}
+  .hint{font-size:9px;color:#5a5a68;margin-top:8px;letter-spacing:1px;}
+  footer{text-align:center;margin-top:36px;font-size:10px;color:#6a6a82;line-height:1.8;}
+  footer b{color:#FFD200;}
+  footer a{color:#00F0FF;text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">HK<em>23</em> ACADEMIA</div>
+      <div class="badge">tu nivel: <b id="tier-badge">VISITANTE</b></div>
+    </div>
+    <a class="back" href="/hk23-universe">← al universo</a>
+  </header>
+
+  <div class="hero">
+    <div class="tag">◈ el agente maestro</div>
+    <h1>EL <span>MENTOR</span></h1>
+    <p>Un agente con una sola razón de existir: <b>enseñarte a construir con IA</b>. Agentes, plugins, artifacts,
+    cómo funciona Claude, tokens, prompts. Sin humo, con práctica. <b>El tier gratis enseña de verdad.</b></p>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="cur-h">📚 CURRÍCULUM</div>
+      <div class="cur-s">toca una lección y EL MENTOR te la enseña</div>
+
+      <div class="tier-block">
+        <div class="tier-tag"><span class="dot" style="background:#AAFF00"></span><span style="color:#AAFF00">GRATIS · VISITANTE</span></div>
+        <button class="lesson" data-lvl="0" data-t="¿Qué es un agente de IA?"><span class="n">01</span> ¿Qué es un agente de IA? (y qué NO es)</button>
+        <button class="lesson" data-lvl="0" data-t="Cómo funciona Claude por dentro, explicado sin humo"><span class="n">02</span> Cómo funciona Claude por dentro</button>
+        <button class="lesson" data-lvl="0" data-t="Tokens y ventana de contexto: la economía real de usar IA"><span class="n">03</span> Tokens y contexto: la economía real</button>
+        <button class="lesson" data-lvl="0" data-t="Prompts que funcionan: el 80/20 de escribir buenas instrucciones"><span class="n">04</span> Prompts que funcionan (el 80/20)</button>
+        <button class="lesson" data-lvl="0" data-t="Mi primer agente en 10 minutos, paso a paso"><span class="n">05</span> Tu primer agente en 10 minutos</button>
+        <button class="lesson" data-lvl="0" data-t="Qué es un artifact y cuándo conviene usarlo"><span class="n">06</span> Artifacts: de chat a producto</button>
+      </div>
+
+      <div class="tier-block">
+        <div class="tier-tag"><span class="dot" style="background:#00F0FF"></span><span style="color:#00F0FF">PREMIUM</span></div>
+        <button class="lesson" data-lvl="1" data-t="Plugins y skills: cómo empaquetar superpoderes reutilizables para un agente"><span class="n">07</span> Plugins y skills reutilizables</button>
+        <button class="lesson" data-lvl="1" data-t="Agentes con herramientas reales: qué es MCP y cómo conectar un agente al mundo"><span class="n">08</span> Agentes con herramientas (MCP)</button>
+        <button class="lesson" data-lvl="1" data-t="De prompt a producto: convertir un agente en algo que otros usan"><span class="n">09</span> De prompt a producto</button>
+      </div>
+
+      <div class="tier-block">
+        <div class="tier-tag"><span class="dot" style="background:#FFD200"></span><span style="color:#FFD200">FULL · ARQUITECTO</span></div>
+        <button class="lesson" data-lvl="2" data-t="Arquitecturas multi-agente: director, workers y verificación cruzada"><span class="n">10</span> Arquitecturas multi-agente</button>
+        <button class="lesson" data-lvl="2" data-t="Cómo armar mi ejército de agentes: roles, memoria y coordinación"><span class="n">11</span> Tu ejército de agentes</button>
+        <button class="lesson" data-lvl="2" data-t="Cómo monetizar agentes: precios, tiers, licencias y qué cobra la gente hoy"><span class="n">12</span> Monetiza tus agentes</button>
+      </div>
+
+      <div class="free-note"><b>El tier gratis es generoso a propósito.</b> Aprende primero; paga cuando estés construyendo. Las lecciones 🔒 se abren con tu tier en el universo.</div>
+    </div>
+
+    <div class="panel chat">
+      <div class="chat-h">
+        <div class="avatar">🎓</div>
+        <div>
+          <div class="who">EL MENTOR</div>
+          <div class="st">● EN LÍNEA · responde en tu idioma</div>
+        </div>
+      </div>
+      <div id="log">
+        <div class="msg ai">Bienvenido a la HK23 ACADEMIA. Soy EL MENTOR y existo para una sola cosa: que aprendas a construir con IA de verdad — agentes, plugins, artifacts, Claude, tokens, prompts.
+
+Toca una lección del currículum o pregúntame lo que quieras. Empezamos desde cero y terminamos con práctica. ¿Por dónde arrancamos?</div>
+      </div>
+      <div class="composer">
+        <input id="q" placeholder="Pregúntale a EL MENTOR… ej: ¿qué es un token?" maxlength="600">
+        <button id="send">ENSEÑAR →</button>
+      </div>
+      <div class="hint">mini-lección → ejemplo real → práctica de 5 min → siguiente paso · el Mentor puede equivocarse: verifica lo importante</div>
+    </div>
+  </div>
+
+  <footer>
+    HK23 ACADEMIA es parte de <b>HK23 OS</b> — el motor donde lo que aprendes se convierte en universos, agentes y productos.<br>
+    ¿Listo para construir? <a href="/hk23-universe?chooser=1">mira los tiers →</a>
+  </footer>
+</div>
+
+<script>
+(function(){
+  var TOKEN='hk23-run-9x';
+  var LEVELS={visitante:0,premium:1,full:2,founder:3};
+  var tier=(localStorage.getItem('hk23-user-tier')||'visitante').toLowerCase();
+  var lvl=LEVELS[tier]!==undefined?LEVELS[tier]:0;
+  document.getElementById('tier-badge').textContent=tier.toUpperCase();
+
+  var log=document.getElementById('log'), q=document.getElementById('q'), sendBtn=document.getElementById('send');
+  function bubble(t,who){ var d=document.createElement('div'); d.className='msg '+who; d.textContent=t; log.appendChild(d); log.scrollTop=log.scrollHeight; return d; }
+
+  // candados según tier local
+  document.querySelectorAll('.lesson').forEach(function(b){
+    var need=parseInt(b.dataset.lvl,10);
+    if(need>lvl){ b.classList.add('locked'); b.innerHTML='🔒 '+b.innerHTML; }
+    b.addEventListener('click',function(){
+      if(need>lvl){
+        bubble('🔒 Esa lección profunda vive en un tier superior. Lo que SÍ te adelanto gratis: pregúntame la idea general y te la enseño a nivel introductorio. Para la práctica completa: hk23universe.vercel.app/hk23-universe?chooser=1','ai');
+        return;
+      }
+      q.value='Dame la lección: '+b.dataset.t+'. Empieza desde cero.';
+      send();
+    });
+  });
+
+  async function send(){
+    var text=(q.value||'').trim(); if(!text) return;
+    bubble(text,'me'); q.value=''; sendBtn.disabled=true;
+    var thinking=bubble('· · · preparando la lección','ai');
+    try{
+      var r=await fetch('/api/run',{ method:'POST', headers:{'Content-Type':'application/json','x-run-token':TOKEN},
+        body:JSON.stringify({ action:'agent', agent:'mentor', input:text, context:'Tier declarado por el alumno (no verificado): '+tier }) });
+      var j=await r.json();
+      thinking.remove();
+      if(j.ok){ bubble(j.text,'ai'); }
+      else if(r.status===429){ bubble('⏳ Muchas preguntas seguidas — espera un minuto y seguimos la clase.','ai'); }
+      else{ bubble('⚠️ '+(j.error||'No pude responder ahora — intenta de nuevo.'),'ai'); }
+    }catch(_){ thinking.remove(); bubble('⚠️ Error de red — revisa tu conexión.','ai'); }
+    sendBtn.disabled=false; q.focus();
+  }
+  sendBtn.addEventListener('click',send);
+  q.addEventListener('keydown',function(e){ if(e.key==='Enter') send(); });
+})();
+</script>
+</body>
+</html>

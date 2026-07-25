@@ -10162,7 +10162,7 @@ window.refreshEcosystemStats = function(){
     </div>
   </div>
   <div class="cr-idea">
-    <div class="t">🛰️ ¿No sabés qué crear? Preguntale al agente de ideas</div>
+    <div class="t">🛰️ ¿No sabés qué crear? Preguntale al agente de ideas · <a href="/academia" style="color:#FFD200;text-decoration:none">o aprende primero en la Academia 🎓</a></div>
     <div class="row"><input id="cr-idea-in" placeholder="Ej: un universo para mi marca de café de especialidad…"><button onclick="CREAR.idea()">Proponer</button></div>
     <div class="cr-out" id="cr-idea-out"></div>
   </div>
@@ -10566,6 +10566,7 @@ window.refreshEcosystemStats = function(){
     padding:20px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:4px;color:#5a648c;text-transform:uppercase;}
 </style>
 <div id="lib-fab">📚 Biblioteca</div>
+<a id="academia-fab" href="/academia" style="position:fixed;top:232px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:2px;color:#8a8a98;background:rgba(8,8,16,.85);border:1px solid rgba(255,255,255,.14);border-radius:30px;padding:8px 14px;cursor:pointer;user-select:none;backdrop-filter:blur(6px);text-decoration:none;" onmouseover="this.style.borderColor='#FFD200';this.style.color='#fff'" onmouseout="this.style.borderColor='rgba(255,255,255,.14)';this.style.color='#8a8a98'">🎓 Academia</a>
 <div id="lib-overlay"><div id="lib-progress"></div><div id="lib-stage"></div></div>
 <script>
 (function(){
