@@ -12521,6 +12521,330 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+<!-- ═══════════ WINAMP-23 — el plugin: reproductor real con visualizador, alojado en MVB ═══════════ -->
+<style id="wa-style">
+  #wa{ position:fixed; z-index:940; left:50%; top:14%; transform:translateX(-50%);
+    width:min(420px,94vw); display:none; font-family:'Space Mono',ui-monospace,monospace;
+    -webkit-user-select:none; user-select:none; }
+  #wa.open{ display:block; }
+  .wa-win{ background:var(--wa-bg,#1B2A24); border:1px solid var(--wa-edge,#3A5A48);
+    border-radius:3px; box-shadow:0 24px 70px rgba(0,0,0,.6), inset 0 1px 0 var(--wa-hi,#ffffff14);
+    overflow:hidden; }
+  .wa-tt{ display:flex; align-items:center; gap:8px; padding:6px 8px; cursor:grab;
+    background:linear-gradient(180deg,var(--wa-tt1,#2E4A3A),var(--wa-tt2,#1B2A24)); }
+  .wa-tt.grab{ cursor:grabbing; }
+  .wa-logo{ font-size:9px; letter-spacing:3px; color:var(--wa-acc,#AAFF66); font-weight:700; }
+  .wa-tt .sp{ margin-left:auto; display:flex; gap:5px; }
+  .wa-tb{ width:13px; height:13px; border:none; border-radius:2px; cursor:pointer; font-size:8px;
+    background:var(--wa-btn,#20302840); color:var(--wa-acc,#AAFF66); line-height:1; }
+  .wa-scr{ margin:8px; padding:8px 10px; background:var(--wa-scr,#0B120E);
+    border:1px solid var(--wa-edge,#3A5A48); border-radius:2px; }
+  .wa-lcd{ display:flex; align-items:baseline; gap:8px; font-size:11px; color:var(--wa-acc,#AAFF66);
+    text-shadow:0 0 6px var(--wa-glow,#AAFF6655); overflow:hidden; white-space:nowrap; }
+  .wa-time{ font-variant-numeric:tabular-nums; }
+  .wa-marq{ flex:1; overflow:hidden; }
+  .wa-marq span{ display:inline-block; padding-left:100%; animation:waMarq 11s linear infinite; }
+  @keyframes waMarq{ to{ transform:translateX(-100%); } }
+  .wa-vis{ width:100%; height:64px; display:block; margin-top:8px; background:var(--wa-vis,#060B08);
+    border:1px solid var(--wa-edge,#3A5A48); border-radius:2px; }
+  .wa-ctl{ display:flex; align-items:center; gap:6px; margin:0 8px 8px; }
+  .wa-b{ flex:0 0 auto; width:30px; height:26px; border:1px solid var(--wa-edge,#3A5A48); border-radius:2px;
+    background:var(--wa-btn2,#22342A); color:var(--wa-acc,#AAFF66); cursor:pointer; font-size:11px; }
+  .wa-b:hover{ background:var(--wa-acc,#AAFF66); color:var(--wa-bg,#0B120E); }
+  .wa-b:focus-visible{ outline:2px solid #fff; outline-offset:1px; }
+  .wa-slb{ flex:1; display:flex; align-items:center; gap:6px; }
+  .wa-slb label{ font-size:7px; letter-spacing:1px; color:var(--wa-dim,#5E7E6A); }
+  .wa-sl{ flex:1; -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+    background:var(--wa-edge,#3A5A48); }
+  .wa-sl::-webkit-slider-thumb{ -webkit-appearance:none; width:10px; height:14px; border-radius:2px;
+    background:var(--wa-acc,#AAFF66); cursor:pointer; }
+  .wa-skins{ display:flex; gap:4px; padding:0 8px 8px; flex-wrap:wrap; }
+  .wa-skin{ font-size:7px; letter-spacing:1px; padding:4px 7px; border-radius:2px; cursor:pointer;
+    border:1px solid var(--wa-edge,#3A5A48); background:transparent; color:var(--wa-dim,#5E7E6A); }
+  .wa-skin.on{ background:var(--wa-acc,#AAFF66); color:var(--wa-bg,#0B120E); font-weight:700; }
+  .wa-pl{ margin:0 8px 8px; max-height:150px; overflow-y:auto; border:1px solid var(--wa-edge,#3A5A48);
+    border-radius:2px; background:var(--wa-scr,#0B120E); }
+  .wa-tr{ display:flex; align-items:center; gap:8px; padding:6px 9px; font-size:10px; cursor:pointer;
+    border-bottom:1px solid var(--wa-edge,#3A5A4844); color:var(--wa-txt,#9FE0B8); }
+  .wa-tr:hover{ background:var(--wa-edge,#3A5A4830); }
+  .wa-tr.on{ color:var(--wa-acc,#AAFF66); }
+  .wa-tr .n{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wa-tr .fav{ cursor:pointer; opacity:.7; }
+  .wa-tr .fav.on{ opacity:1; color:var(--wa-acc,#AAFF66); }
+  .wa-add{ display:flex; gap:6px; padding:0 8px 10px; }
+  .wa-add input{ flex:1; min-width:0; background:var(--wa-scr,#0B120E); border:1px solid var(--wa-edge,#3A5A48);
+    border-radius:2px; color:var(--wa-txt,#9FE0B8); font-family:'Space Mono',monospace; font-size:9px; padding:6px 8px; }
+  .wa-add button{ font-size:8px; letter-spacing:1px; padding:6px 9px; border-radius:2px; cursor:pointer;
+    border:1px solid var(--wa-edge,#3A5A48); background:var(--wa-btn2,#22342A); color:var(--wa-acc,#AAFF66); }
+  .wa-drop{ margin:0 8px 8px; padding:9px; text-align:center; font-size:8px; letter-spacing:1px;
+    color:var(--wa-dim,#5E7E6A); border:1px dashed var(--wa-edge,#3A5A48); border-radius:2px; }
+  .wa-drop.hot{ border-color:var(--wa-acc,#AAFF66); color:var(--wa-acc,#AAFF66); }
+  .wa-radio{ border-top:1px solid var(--wa-edge,#3A5A48); margin:0 8px 8px; padding-top:8px; }
+  .wa-rh{ display:flex; align-items:center; gap:8px; font-size:7px; letter-spacing:2px;
+    color:var(--wa-dim,#5E7E6A); margin-bottom:6px; }
+  .wa-rh span{ margin-left:auto; cursor:pointer; color:var(--wa-acc,#AAFF66); }
+  .wa-rh span:focus-visible{ outline:2px solid #fff; outline-offset:1px; }
+  .wa-chips{ display:flex; gap:4px; flex-wrap:wrap; }
+  .wa-chip{ font-size:7.5px; letter-spacing:1px; padding:5px 8px; border-radius:2px; cursor:pointer;
+    border:1px solid var(--wa-edge,#3A5A48); background:transparent; color:var(--wa-txt,#9FE0B8); }
+  .wa-chip:hover{ background:var(--wa-edge,#3A5A4840); }
+  .wa-chip.on{ background:var(--wa-acc,#AAFF66); color:var(--wa-bg,#0B120E); font-weight:700; }
+</style>
+
+<div id="wa" role="dialog" aria-label="WINAMP-23 reproductor" tabindex="-1"><div class="wa-win" id="wa-win">
+  <div class="wa-tt" id="wa-tt">
+    <span class="wa-logo">◈ WINAMP-23</span>
+    <span class="sp">
+      <button class="wa-tb" id="wa-min" title="minimizar">–</button>
+      <button class="wa-tb" id="wa-cls" title="cerrar (X)">✕</button>
+    </span>
+  </div>
+  <div class="wa-scr">
+    <div class="wa-lcd"><span class="wa-time" id="wa-time">00:00</span>
+      <span class="wa-marq"><span id="wa-title">◄ ARRASTRÁ UN MP3 O PEGÁ UNA URL — LLENÁ TU PLAYLIST ►</span></span>
+      <span id="wa-kbps" style="font-size:8px;color:var(--wa-dim,#5E7E6A)">--kbps</span></div>
+    <canvas class="wa-vis" id="wa-vis" width="800" height="128"></canvas>
+  </div>
+  <div class="wa-ctl">
+    <button class="wa-b" id="wa-prev" title="anterior" aria-label="Anterior">⏮</button>
+    <button class="wa-b" id="wa-play" title="play/pausa" aria-label="Reproducir o pausar">▶</button>
+    <button class="wa-b" id="wa-stop" title="stop" aria-label="Detener">■</button>
+    <button class="wa-b" id="wa-next" title="siguiente" aria-label="Siguiente">⏭</button>
+    <span class="wa-slb"><label>VOL</label><input class="wa-sl" id="wa-vol" type="range" min="0" max="100" value="80" aria-label="Volumen"></span>
+  </div>
+  <div class="wa-skins" id="wa-skins"></div>
+  <div class="wa-drop" id="wa-drop">SOLTÁ ARCHIVOS MP3 ACÁ</div>
+  <div class="wa-pl" id="wa-pl"></div>
+  <div class="wa-add">
+    <input id="wa-url" placeholder="pegá una URL de audio (mp3, stream…)" autocomplete="off">
+    <button id="wa-addurl">＋ URL</button>
+    <button id="wa-fav" title="ver solo favoritos">★</button>
+  </div>
+  <div class="wa-radio">
+    <div class="wa-rh">📡 RADIO DEL MUNDO <span id="wa-rg" role="button" tabindex="0">🌍 ABRIR RADIO.GARDEN ↗</span></div>
+    <div class="wa-add" style="padding-top:0">
+      <input id="wa-rgurl" placeholder="pegá una estación de radio.garden y suena acá" autocomplete="off">
+      <button id="wa-rgadd">＋ RADIO</button>
+    </div>
+    <div class="wa-chips" id="wa-stations"></div>
+  </div>
+</div></div>
+
+<script>
+// ═══ WINAMP-23 — reproductor real con Web Audio, playlist, favoritos y skins ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const log=(k,d)=>{ (window.hkLog||function(){})(k,d); };
+
+  // skins = los "templates" del plugin (después serán los anillos de Saturno)
+  const SKINS={
+    clasico:{ n:'CLÁSICO', v:{ '--wa-bg':'#1B2A24','--wa-edge':'#3A5A48','--wa-tt1':'#2E4A3A','--wa-tt2':'#1B2A24',
+      '--wa-acc':'#AAFF66','--wa-glow':'#AAFF6655','--wa-scr':'#0B120E','--wa-vis':'#060B08','--wa-btn2':'#22342A',
+      '--wa-txt':'#9FE0B8','--wa-dim':'#5E7E6A' } },
+    frecuencia:{ n:'FRECUENCIA', v:{ '--wa-bg':'#05070E','--wa-edge':'#17303E','--wa-tt1':'#0E2230','--wa-tt2':'#05070E',
+      '--wa-acc':'#5FA8D3','--wa-glow':'#5FA8D355','--wa-scr':'#070C12','--wa-vis':'#03060A','--wa-btn2':'#0C1826',
+      '--wa-txt':'#B8D0E0','--wa-dim':'#46566E' } },
+    magma:{ n:'MAGMA', v:{ '--wa-bg':'#160A08','--wa-edge':'#4A2418','--wa-tt1':'#2E120A','--wa-tt2':'#160A08',
+      '--wa-acc':'#FF6B00','--wa-glow':'#FF6B0055','--wa-scr':'#0E0605','--wa-vis':'#0A0403','--wa-btn2':'#2A140C',
+      '--wa-txt':'#E0A088','--wa-dim':'#7E5648' } },
+    hueso:{ n:'HUESO', v:{ '--wa-bg':'#12121A','--wa-edge':'#2A2A38','--wa-tt1':'#1E1E2A','--wa-tt2':'#12121A',
+      '--wa-acc':'#E6E4DE','--wa-glow':'#E6E4DE44','--wa-scr':'#0A0A10','--wa-vis':'#06060A','--wa-btn2':'#1C1C26',
+      '--wa-txt':'#C8C6BE','--wa-dim':'#6E6E7E' } }
+  };
+  let skin=localStorage.getItem('wa_skin')||'clasico';
+  function applySkin(k){ if(!SKINS[k]) k='clasico'; skin=k;
+    const v=SKINS[k].v; for(const p in v) $('wa').style.setProperty(p,v[p]);
+    try{ localStorage.setItem('wa_skin',k); }catch(e){}
+    [...$('wa-skins').children].forEach(b=>b.classList.toggle('on',b.dataset.k===k)); }
+  Object.entries(SKINS).forEach(([k,s])=>{ const b=document.createElement('button');
+    b.className='wa-skin'; b.dataset.k=k; b.textContent=s.n; b.onclick=()=>applySkin(k); $('wa-skins').appendChild(b); });
+
+  // ── audio real ──
+  let audio=new Audio(); audio.crossOrigin='anonymous'; audio.preload='metadata';
+  let AC=null, analyser=null, srcNode=null, gain=null, dataF=null, dataT=null;
+  function initAudio(){
+    if(AC) return;
+    try{
+      AC=new (window.AudioContext||window.webkitAudioContext)();
+      srcNode=AC.createMediaElementSource(audio);
+      analyser=AC.createAnalyser(); analyser.fftSize=256; analyser.smoothingTimeConstant=0.82;
+      gain=AC.createGain(); gain.gain.value=(+$('wa-vol').value||80)/100;
+      srcNode.connect(analyser); analyser.connect(gain); gain.connect(AC.destination);
+      dataF=new Uint8Array(analyser.frequencyBinCount); dataT=new Uint8Array(analyser.fftSize);
+    }catch(e){ /* algunos orígenes bloquean el análisis por CORS: igual suena */ }
+  }
+
+  // ── playlist + favoritos (persisten) ──
+  const load=(k,d)=>{ try{ return JSON.parse(localStorage.getItem(k))||d; }catch(e){ return d; } };
+  let PL=load('wa_playlist',[]);          // {id,name,src,fav}
+  let cur=-1, onlyFav=false;
+  const save=()=>{ try{ localStorage.setItem('wa_playlist',JSON.stringify(PL.filter(t=>!t.blob))); }catch(e){} };
+  function addTrack(name,src,isBlob){ const t={ id:'t'+Math.random().toString(36).slice(2,8),
+    name:name||'pista', src, fav:false, blob:!!isBlob }; PL.push(t); save(); renderPL();
+    log('winamp','＋ '+t.name); return PL.length-1; }
+  function renderPL(){
+    const box=$('wa-pl'); const list=PL.map((t,i)=>({t,i})).filter(x=>!onlyFav||x.t.fav);
+    box.innerHTML=list.map(({t,i})=>'<div class="wa-tr'+(i===cur?' on':'')+'" data-i="'+i+'">'+
+      '<span class="fav'+(t.fav?' on':'')+'" data-fav="'+i+'">★</span>'+
+      '<span class="n">'+esc(t.name)+'</span></div>').join('')
+      ||'<div class="wa-tr" style="cursor:default"><span class="n" style="color:var(--wa-dim,#5E7E6A)">'+
+        (onlyFav?'Sin favoritos todavía.':'Playlist vacía — soltá un MP3 o pegá una URL.')+'</span></div>';
+    box.querySelectorAll('[data-i]').forEach(el=>el.onclick=e=>{ if(e.target.dataset.fav!=null) return; playAt(+el.dataset.i); });
+    box.querySelectorAll('[data-fav]').forEach(el=>el.onclick=e=>{ e.stopPropagation();
+      const i=+el.dataset.fav; PL[i].fav=!PL[i].fav; save(); renderPL(); });
+  }
+
+  function playAt(i){ if(i<0||i>=PL.length) return; cur=i; const t=PL[i];
+    audio.src=t.src; initAudio(); if(AC&&AC.state==='suspended') AC.resume();
+    audio.play().catch(()=>{});
+    $('wa-title').textContent=t.name; $('wa-play').textContent='❚❚'; renderPL();
+    log('winamp','▶ '+t.name); }
+  function toggle(){ if(cur<0&&PL.length){ playAt(0); return; }
+    if(audio.paused){ initAudio(); if(AC&&AC.state==='suspended') AC.resume(); audio.play().catch(()=>{}); $('wa-play').textContent='❚❚'; }
+    else { audio.pause(); $('wa-play').textContent='▶'; } }
+  $('wa-play').onclick=toggle;
+  $('wa-stop').onclick=()=>{ audio.pause(); audio.currentTime=0; $('wa-play').textContent='▶'; };
+  $('wa-prev').onclick=()=>playAt((cur-1+PL.length)%Math.max(1,PL.length));
+  $('wa-next').onclick=()=>playAt((cur+1)%Math.max(1,PL.length));
+  audio.addEventListener('ended',()=>$('wa-next').click());
+  $('wa-vol').oninput=()=>{ const v=(+$('wa-vol').value||0)/100; audio.volume=v; if(gain) gain.gain.value=v; };
+  audio.volume=0.8;
+  const fmt=s=>{ s=Math.floor(s||0); return String((s/60)|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); };
+  audio.addEventListener('timeupdate',()=>{ $('wa-time').textContent=fmt(audio.currentTime); });
+
+  // ── cargar música ──
+  $('wa-addurl').onclick=()=>{ const u=($('wa-url').value||'').trim(); if(!/^https?:\/\//i.test(u)) return;
+    const nm=decodeURIComponent(u.split('/').pop().split('?')[0])||'stream'; const i=addTrack(nm,u,false);
+    $('wa-url').value=''; if(cur<0) playAt(i); };
+  $('wa-url').addEventListener('keydown',e=>{ if(e.key==='Enter') $('wa-addurl').click(); });
+  $('wa-fav').onclick=()=>{ onlyFav=!onlyFav; $('wa-fav').style.opacity=onlyFav?'1':'.6'; renderPL(); };
+
+  // ── RADIO DEL MUNDO — radio.garden no se puede embeber, pero sus estaciones sí suenan acá ──
+  // estaciones de arranque (streams públicos estables, pensados para DJ): SomaFM
+  const STARTERS=[
+    { n:'📡 GROOVE SALAD', src:'https://ice1.somafm.com/groovesalad-128-mp3' },
+    { n:'📡 DRONE ZONE',   src:'https://ice1.somafm.com/dronezone-128-mp3' },
+    { n:'📡 BEAT BLENDER', src:'https://ice1.somafm.com/beatblender-128-mp3' },
+    { n:'📡 THE TRIP',     src:'https://ice1.somafm.com/thetrip-128-mp3' },
+    { n:'📡 DEF CON',      src:'https://ice1.somafm.com/defcon-128-mp3' }
+  ];
+  // de una URL de radio.garden saco el id de la estación y armo su stream
+  function rgStream(url){
+    const m=String(url).match(/listen\/[^/]+\/([A-Za-z0-9_-]+)/) || String(url).match(/\/([A-Za-z0-9_-]{6,})(?:\?|$)/);
+    return m ? 'https://radio.garden/api/ara/content/listen/'+m[1]+'/channel.mp3' : null;
+  }
+  function playRadio(name,src){
+    audio.src=src; initAudio(); if(AC&&AC.state==='suspended') AC.resume();
+    audio.play().catch(()=>{});
+    cur=-1; $('wa-title').textContent=name; $('wa-play').textContent='❚❚'; $('wa-time').textContent='EN VIVO';
+    [...$('wa-stations').children].forEach(c=>c.classList.toggle('on',c.dataset.src===src));
+    renderPL();
+    log('winamp','📡 '+name);
+  }
+  function renderStations(){
+    const box=$('wa-stations');
+    const extra=load('wa_radios',[]);          // las de radio.garden que agregó el usuario
+    box.innerHTML=[...STARTERS,...extra].map(s=>
+      '<button class="wa-chip" data-src="'+esc(s.src)+'">'+esc(s.n)+'</button>').join('');
+    box.querySelectorAll('.wa-chip').forEach(c=>c.onclick=()=>playRadio(c.textContent,c.dataset.src));
+  }
+  $('wa-rgadd').onclick=()=>{
+    const u=($('wa-rgurl').value||'').trim(); const src=rgStream(u);
+    if(!src){ $('wa-rgurl').style.borderColor='#FF6B00'; setTimeout(()=>$('wa-rgurl').style.borderColor='',700); return; }
+    const nm='📡 '+(u.split('/').filter(Boolean).slice(-2,-1)[0]||'estación').replace(/-/g,' ').toUpperCase().slice(0,22);
+    const list=load('wa_radios',[]); list.push({n:nm,src}); try{ localStorage.setItem('wa_radios',JSON.stringify(list)); }catch(e){}
+    $('wa-rgurl').value=''; renderStations(); playRadio(nm,src);
+  };
+  $('wa-rgurl').addEventListener('keydown',e=>{ if(e.key==='Enter') $('wa-rgadd').click(); });
+  const openRG=()=>{ try{ window.open('https://radio.garden/','_blank','noopener'); }catch(e){} log('winamp','abrió radio.garden'); };
+  $('wa-rg').onclick=openRG;
+  $('wa-rg').addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openRG(); } });
+  function addFiles(files){ let first=-1;
+    [...files].forEach(f=>{ if(!/audio|mp3|ogg|wav|m4a|flac/i.test(f.type+f.name)) return;
+      const i=addTrack(f.name.replace(/\.[^.]+$/,''), URL.createObjectURL(f), true); if(first<0) first=i; });
+    if(first>=0&&cur<0) playAt(first); }
+  const drop=$('wa-drop');
+  ['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.add('hot'); }));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{ e.preventDefault(); drop.classList.remove('hot'); }));
+  drop.addEventListener('drop',e=>{ if(e.dataTransfer&&e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+  drop.addEventListener('click',()=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='audio/*'; inp.multiple=true;
+    inp.onchange=()=>addFiles(inp.files); inp.click(); });
+  // que también se pueda soltar sobre toda la ventana
+  $('wa-win').addEventListener('dragover',e=>e.preventDefault());
+  $('wa-win').addEventListener('drop',e=>{ e.preventDefault(); if(e.dataTransfer&&e.dataTransfer.files) addFiles(e.dataTransfer.files); });
+
+  // ── el visualizador: espectro + osciloscopio reales ──
+  const vc=$('wa-vis'), vx=vc.getContext('2d'); let vraf=null;
+  function accent(){ return getComputedStyle($('wa')).getPropertyValue('--wa-acc').trim()||'#AAFF66'; }
+  function vis(){
+    const W=vc.width, H=vc.height, col=accent();
+    vx.clearRect(0,0,W,H);
+    if(analyser && !audio.paused){
+      analyser.getByteFrequencyData(dataF);
+      const n=48, bw=W/n;
+      for(let i=0;i<n;i++){ const v=dataF[(i*dataF.length/n)|0]/255; const h=v*H*0.9;
+        vx.fillStyle=col; vx.globalAlpha=0.35+v*0.65; vx.fillRect(i*bw, H-h, bw-2, h); }
+      vx.globalAlpha=1;
+      analyser.getByteTimeDomainData(dataT);
+      vx.beginPath();
+      for(let i=0;i<dataT.length;i++){ const x=i/dataT.length*W, y=(dataT[i]/255)*H;
+        i?vx.lineTo(x,y):vx.moveTo(x,y); }
+      vx.strokeStyle=col; vx.globalAlpha=0.5; vx.lineWidth=1.5; vx.stroke(); vx.globalAlpha=1;
+    } else {
+      // en reposo: una onda tenue latiendo, para que nunca esté muerto
+      vx.beginPath();
+      for(let i=0;i<=W;i+=4){ const y=H/2+Math.sin(i*0.04+Date.now()*0.002)*H*0.12;
+        i?vx.lineTo(i,y):vx.moveTo(i,y); }
+      vx.strokeStyle=col; vx.globalAlpha=0.25; vx.lineWidth=1.4; vx.stroke(); vx.globalAlpha=1;
+    }
+    vraf=requestAnimationFrame(vis);
+  }
+
+  // ── ventana arrastrable ──
+  const tt=$('wa-tt'); let drag=null;
+  tt.addEventListener('mousedown',e=>{ const r=$('wa').getBoundingClientRect();
+    drag={dx:e.clientX-r.left, dy:e.clientY-r.top}; tt.classList.add('grab');
+    $('wa').style.transform='none'; $('wa').style.left=r.left+'px'; $('wa').style.top=r.top+'px'; });
+  addEventListener('mousemove',e=>{ if(!drag) return;
+    $('wa').style.left=Math.max(4,Math.min(innerWidth-80,e.clientX-drag.dx))+'px';
+    $('wa').style.top=Math.max(4,Math.min(innerHeight-40,e.clientY-drag.dy))+'px'; });
+  addEventListener('mouseup',()=>{ if(drag){ drag=null; tt.classList.remove('grab'); } });
+
+  const WA={
+    open(k){ $('wa').classList.add('open'); if(k) applySkin(k); else applySkin(skin);
+      renderPL(); renderStations(); if(!vraf) vraf=requestAnimationFrame(vis); $('wa').focus();
+      log('winamp','abierto ('+skin+')'); },
+    close(){ $('wa').classList.remove('open'); if(vraf){ cancelAnimationFrame(vraf); vraf=null; } },
+    play:toggle, add:addTrack, skin:applySkin, skins:()=>Object.keys(SKINS)
+  };
+  window.Winamp=WA;
+  $('wa-cls').onclick=WA.close;
+  $('wa-min').onclick=()=>$('wa-win').classList.toggle('mini');
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if((e.key==='x'||e.key==='X'||e.key==='Escape')&&$('wa').classList.contains('open')){ e.stopImmediatePropagation(); WA.close(); }
+  }, true);
+
+  // ── enganche en MVB + dock + comando ──
+  const dock=document.getElementById('hk-dock');
+  if(dock){ const b=document.createElement('button'); b.className='dk'; b.textContent='◈ WINAMP';
+    b.style.setProperty('--dc','#AAFF66'); b.style.color='#AAFF66CC';
+    b.onclick=()=>WA.open(); dock.insertBefore(b, dock.children[3]||null); }
+  // botón dentro del MVB
+  const mvbTop=document.getElementById('mvb-top');
+  if(mvbTop){ const b=document.createElement('button'); b.id='mvb-wa';
+    b.textContent='◈ WINAMP'; b.style.cssText='font-family:"Space Mono",monospace;font-size:9px;letter-spacing:2px;'+
+      'padding:8px 12px;border-radius:2px;border:1px solid #AAFF6655;background:transparent;color:#AAFF66;cursor:pointer';
+    b.onclick=()=>WA.open(); const x=document.getElementById('mvb-x'); if(x) mvbTop.insertBefore(b,x); }
+  const cmd=document.getElementById('ag-cmd');
+  if(cmd) cmd.addEventListener('keydown',e=>{ if(e.key!=='Enter') return;
+    const s=(cmd.value||'').trim().toLowerCase();
+    if(/^(winamp|reproductor|player|musica|música)$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault(); cmd.value=''; WA.open(); }
+  }, true);
+})();
+</script>
+
 <script>
 (function(){ const d=document.getElementById("hk-dock");
   if(d){ const b=document.createElement("button"); b.className="dk"; b.textContent="🏛 MADRE";
