@@ -8728,7 +8728,7 @@ var qrcode = function() {
   @media (max-width: 820px), (pointer: coarse) {
     /* nav del mapa: una línea deslizable, nunca tapa el mapa */
     .map-ui { padding: 12px 12px calc(env(safe-area-inset-top, 0px)); flex-wrap: nowrap; }
-    .map-nav { overflow-x: auto; flex-wrap: nowrap; max-width: 72vw; scrollbar-width: none;
+    .map-nav { overflow-x: auto; flex-wrap: nowrap; max-width: 58vw; scrollbar-width: none;
       -webkit-overflow-scrolling: touch; }
     .map-nav::-webkit-scrollbar { display: none; }
     .nav-btn { flex-shrink: 0; padding: 8px 10px; }
@@ -12841,6 +12841,102 @@ addEventListener('DOMContentLoaded', function(){
   if(cmd) cmd.addEventListener('keydown',e=>{ if(e.key!=='Enter') return;
     const s=(cmd.value||'').trim().toLowerCase();
     if(/^(winamp|reproductor|player|musica|música)$/.test(s)){ e.stopImmediatePropagation(); e.preventDefault(); cmd.value=''; WA.open(); }
+  }, true);
+})();
+</script>
+
+<!-- ═══════════ LAUNCHER — menú tocable de mundos, para teléfono (y desktop) ═══════════ -->
+<style id="lz-style">
+  /* botón siempre visible, al alcance del pulgar */
+  #lz-fab{ position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:970;
+    width:56px; height:56px; border-radius:50%; border:1px solid #2A2A2A; cursor:pointer;
+    background:radial-gradient(circle at 35% 30%, #202028, #0A0A0E); color:#EAF0FF;
+    font-size:22px; line-height:1; box-shadow:0 10px 30px rgba(0,0,0,.55); }
+  #lz-fab:active{ transform:scale(.94); }
+  #lz-fab:focus-visible{ outline:2px solid #5FA8D3; outline-offset:2px; }
+  #lz{ position:fixed; inset:0; z-index:969; display:none; background:rgba(4,5,10,.94);
+    backdrop-filter:blur(10px); overflow-y:auto; font-family:'Space Mono',ui-monospace,monospace; }
+  #lz.open{ display:block; }
+  .lz-wrap{ max-width:760px; margin:0 auto; padding:26px 18px calc(90px + env(safe-area-inset-bottom,0px)); }
+  .lz-top{ display:flex; align-items:baseline; gap:10px; margin-bottom:18px; }
+  .lz-top b{ font-size:13px; letter-spacing:5px; color:#EAF0FF; font-weight:700; }
+  .lz-top span{ font-size:8px; letter-spacing:3px; color:#4A5568; }
+  .lz-x{ margin-left:auto; font-size:11px; letter-spacing:2px; color:#000; background:#EAF0FF;
+    border:none; border-radius:3px; padding:9px 14px; cursor:pointer; }
+  .lz-h{ font-size:8px; letter-spacing:4px; color:#4A5568; margin:18px 0 10px; }
+  .lz-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:9px; }
+  .lz-b{ display:flex; align-items:center; gap:11px; padding:15px 14px; border-radius:4px;
+    border:1px solid #1E2230; background:#0B0D14; cursor:pointer; text-align:left; min-height:58px; }
+  .lz-b:active{ transform:scale(.97); }
+  .lz-b:focus-visible{ outline:2px solid var(--lc,#5FA8D3); outline-offset:2px; }
+  .lz-b .ic{ font-size:20px; line-height:1; flex:0 0 auto; width:24px; text-align:center; }
+  .lz-b .tx b{ display:block; font-size:12px; letter-spacing:1px; color:#EAF0FF; }
+  .lz-b .tx i{ display:block; font-size:8px; letter-spacing:1px; color:#5A6478; font-style:normal; margin-top:2px; }
+  @media(max-width:520px){ .lz-grid{ grid-template-columns:1fr 1fr; } .lz-b .tx i{ display:none; } }
+</style>
+<button id="lz-fab" aria-label="Abrir el menú de mundos" title="Mundos (M)">⊕</button>
+<div id="lz" role="dialog" aria-label="Menú de mundos" aria-modal="true"></div>
+
+<script>
+// ═══ LAUNCHER — un solo toque para entrar a cualquier mundo, sin teclado ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const call=(fn)=>{ try{ fn&&fn(); }catch(e){} };
+  const openPanel=(id,tab)=>{ const p=$(id); if(p) p.classList.add('open');
+    if(tab){ const t=document.querySelector('.ag-tab[data-pane="'+tab+'"]'); if(t) t.click(); } };
+
+  // los mundos, agrupados — cada uno va a su API real (nada muerto)
+  const GROUPS=[
+    ['◈ TU UNIVERSO', [
+      ['◈','WINAMP','tu música + radios','#AAFF66',()=>call(window.Winamp&&window.Winamp.open)],
+      ['🌃','MVB','la noche en vivo','#FF3AC8',()=>call(window.MVB&&window.MVB.open)],
+      ['📚','BIBLIOTECA','libros y guías','#FFD200',()=>call(window.hkBiblioteca)],
+      ['👁','TALLER','quién está conectado','#AAFF00',()=>call(window.Taller&&window.Taller.open)],
+      ['◈','INQUILINOS','universos de tus usuarios','#B84DFF',()=>call(window.Inquilinos&&window.Inquilinos.open)],
+    ]],
+    ['◉ MÓDULOS', [
+      ['◉','MEDIA','fondos desde cualquier link','#00F0FF',()=>openPanel('me-panel')],
+      ['◈','QR VIVO','QR escaneable editable','#00F0FF',()=>openPanel('ag-panel','qr')],
+      ['🧪','LAB','jugá con las entidades','#AAFF00',()=>call(window.EntityLab&&window.EntityLab.on)],
+      ['₿','CRYPTO','señales con su porqué','#FFD200',()=>call(window.CryptoSignals&&window.CryptoSignals.open)],
+      ['▚','FABLE','fondo de entidades','#B84DFF',()=>call(window.FableFX&&window.FableFX.toggle)],
+      ['🔊','FUSIÓN','parlantes · onda · tornamesa','#FF3A1F',()=>call(window.Fusion&&window.Fusion.next)],
+    ]],
+    ['✧ EL COSMOS', [
+      ['✧','GALAXIA','creá una galaxia nueva','#B84DFF',()=>call(window.hkGalaxia)],
+      ['🌌','COSMOS','vista del universo entero','#5FA8D3',()=>call((window.WarpJump&&window.WarpJump.open)||(window.CosmosView&&window.CosmosView.open))],
+      ['◈','AGENTES','ATLAS · ORACLE · CURATOR','#00F0FF',()=>openPanel('ag-panel')],
+      ['📡','ORACLE','reporte del universo','#00F0FF',()=>call(window.hkOracle)],
+      ['🛡','DEFENSA','MEGA-HEYOKA','#FF3A1F',()=>call(window.hkDefensa)],
+      ['🕳','BACKROOMS','el sótano','#8A8A8A',()=>call(window.hkBackrooms)],
+    ]],
+  ];
+
+  function render(){
+    const el=$('lz');
+    el.innerHTML='<div class="lz-wrap"><div class="lz-top"><b>MUNDOS</b>'+
+      '<span>UN TOQUE PARA ENTRAR</span><button class="lz-x" id="lz-close">✕ CERRAR</button></div>'+
+      GROUPS.map(([h,items])=>'<div class="lz-h">'+h+'</div><div class="lz-grid">'+
+        items.map((it,i)=>'<button class="lz-b" data-g="'+encodeURIComponent(h)+'" data-i="'+i+'" style="--lc:'+it[3]+'">'+
+          '<span class="ic" style="color:'+it[3]+'">'+it[0]+'</span>'+
+          '<span class="tx"><b>'+it[1]+'</b><i>'+it[2]+'</i></span></button>').join('')+
+        '</div>').join('')+'</div>';
+    el.querySelectorAll('.lz-b').forEach(b=>{
+      b.onclick=()=>{ const g=GROUPS.find(x=>encodeURIComponent(x[0])===b.dataset.g);
+        const it=g&&g[1][+b.dataset.i]; if(it){ close(); setTimeout(it[4],120); } }; });
+    $('lz-close').onclick=close;
+  }
+  let lastF=null;
+  function open(){ if(!$('lz').innerHTML) render(); $('lz').classList.add('open');
+    lastF=document.activeElement; const first=$('lz').querySelector('.lz-b'); if(first) setTimeout(()=>first.focus(),30);
+    (window.hkLog||function(){})('launcher','menú de mundos'); }
+  function close(){ $('lz').classList.remove('open'); if(lastF&&lastF.focus) lastF.focus(); }
+  $('lz-fab').onclick=()=>$('lz').classList.contains('open')?close():open();
+  $('lz').addEventListener('click',e=>{ if(e.target.id==='lz') close(); });
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if((e.key==='m'||e.key==='M')&&!$('lz').classList.contains('open')) open();
+    else if((e.key==='Escape'||e.key==='x'||e.key==='X')&&$('lz').classList.contains('open')){ e.stopImmediatePropagation(); close(); }
   }, true);
 })();
 </script>
