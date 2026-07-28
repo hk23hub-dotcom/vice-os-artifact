@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer Restoration Lab — Restore. Personalize. Play.</title>
+<meta name="description" content="Restauración estética, personalización y conservación de palos de golf seleccionados. Old clubs still have stories to play.">
+<meta property="og:title" content="VICEGOLFER RESTORATION LAB">
+<meta property="og:description" content="Restore. Personalize. Play. — Restauración estética y personalización de palos de golf.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{--gold:#C6A15B;--bg:#070707;--surf:#121210;--line:rgba(245,245,245,0.08);--cream:#F5F5F5;--mut:#8d8d83;
+    --F:'Montserrat',sans-serif;--B:'Bebas Neue',sans-serif;--I:'Inter',sans-serif;}
+  body{background:var(--bg);color:var(--cream);font-family:var(--F);-webkit-font-smoothing:antialiased;line-height:1.6;
+    background-image:radial-gradient(circle at 50% -8%,rgba(198,161,91,0.12),transparent 55%);}
+  a{color:inherit;text-decoration:none;}
+  .wrap{max-width:900px;margin:0 auto;padding:40px 22px 90px;}
+  .kick{font-size:11px;font-weight:700;letter-spacing:0.34em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:16px;}
+  h1{font-family:var(--B);font-size:clamp(44px,9vw,88px);line-height:0.92;letter-spacing:0.02em;text-align:center;}
+  h1 .g{color:var(--gold);}
+  .quote{font-family:var(--I);font-style:italic;font-size:17px;color:#c8c8c0;text-align:center;margin:22px auto 6px;max-width:480px;}
+  .sub{font-size:13px;color:var(--mut);text-align:center;max-width:520px;margin:0 auto 30px;}
+  .ctas{text-align:center;margin-bottom:56px;}
+  .btn{display:inline-block;font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;border-radius:6px;padding:16px 30px;margin:6px;}
+  .btn-g{background:var(--gold);color:#0A0A0A;}
+  .btn-o{background:transparent;color:var(--cream);border:1px solid rgba(245,245,245,0.25);}
+  h2{font-family:var(--B);font-size:32px;letter-spacing:0.04em;text-align:center;margin:52px 0 18px;}
+  h2 .g{color:var(--gold);}
+  .card{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:14px;}
+  .card h3{color:var(--gold);font-size:16px;margin-bottom:8px;}
+  .card p{font-size:13px;color:#c8c8c0;}
+  .card .fine{font-size:11.5px;color:var(--mut);margin-top:8px;}
+  .note{background:var(--surf);border:1px solid rgba(198,161,91,0.3);border-radius:14px;padding:24px;text-align:center;margin-bottom:8px;}
+  .note .k{font-size:10px;font-weight:700;letter-spacing:0.2em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+  .note p{font-size:13px;color:var(--mut);}
+  ol.flow{font-size:13.5px;color:#c8c8c0;line-height:2.1;padding-left:22px;max-width:560px;margin:0 auto;}
+  /* form */
+  .formbox{background:linear-gradient(180deg,rgba(198,161,91,0.1),var(--surf));border:1px solid rgba(198,161,91,0.4);border-radius:16px;padding:clamp(22px,5vw,36px);max-width:560px;margin:0 auto;}
+  .formbox label{display:block;font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--mut);margin:12px 0 5px;}
+  .formbox input,.formbox select,.formbox textarea{width:100%;background:#0e0e0c;border:1px solid rgba(245,245,245,0.15);color:var(--cream);
+    padding:13px 14px;font-family:var(--I);font-size:14px;border-radius:8px;outline:none;}
+  .formbox textarea{min-height:90px;resize:vertical;}
+  .formbox button{width:100%;margin-top:18px;background:var(--gold);border:none;color:#0A0A0A;padding:16px;font-family:var(--F);
+    font-size:12px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;border-radius:8px;}
+  .ok-msg{text-align:center;padding:26px 8px;}
+  .ok-msg .big{font-family:var(--B);font-size:32px;color:var(--gold);}
+  details{background:var(--surf);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin-bottom:8px;}
+  summary{cursor:pointer;font-size:13.5px;font-weight:700;}
+  details p{font-size:13px;color:var(--mut);margin-top:10px;}
+  .conds{background:#111110;border:1px solid rgba(245,245,245,0.1);border-radius:12px;padding:22px;}
+  .conds ul{font-size:12px;color:var(--mut);line-height:1.9;padding-left:18px;}
+  .foot{text-align:center;font-family:var(--B);font-size:16px;letter-spacing:0.2em;color:var(--gold);margin-top:56px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="kick">Restore · Personalize · Play</div>
+  <h1>VICEGOLFER<br><span class="g">RESTORATION LAB</span></h1>
+  <p class="quote">“Old clubs still have stories to play.”</p>
+  <p class="sub">Restauración estética, personalización y conservación de palos de golf seleccionados.</p>
+  <div class="ctas">
+    <a class="btn btn-g" href="#evaluar">Solicitar Evaluación</a>
+    <a class="btn btn-o" href="#servicios">Ver Servicios</a>
+  </div>
+
+  <div class="note">
+    <div class="k">Antes y Después</div>
+    <p>📸 Próximamente: nuestros primeros <b style="color:var(--cream)">casos piloto documentados</b> — condición inicial, proceso y resultado real. Sin fotos de terceros: solo trabajo ViceGolfer.</p>
+  </div>
+
+  <h2 id="servicios">SERVI<span class="g">CIOS</span></h2>
+
+  <div class="card">
+    <h3>🧼 Club Refresh — Limpieza y Restauración Estética</h3>
+    <p>Evaluación, limpieza profesional y recuperación estética para palos con suciedad acumulada, oxidación superficial o desgaste visual. Según material y condición: tratamiento de oxidación, recuperación del acabado, limpieza de cavidades, renovación del paint fill, pulido y protección final. Siempre con fotos de antes y después.</p>
+    <p class="fine">Opciones: un palo · wedge o putter · set de fierros · evaluación especial de pieza vintage. <b style="color:var(--gold)">Modalidad: cotización tras evaluación.</b></p>
+  </div>
+
+  <div class="card">
+    <h3>⚡ Custom Engraving — Personalización de Palos</h3>
+    <p>Personalización permanente: iniciales, nombres, números, frases cortas, símbolos o logos autorizados. Para torneos, regalos y empresas. Todo trabajo pasa por evaluación técnica previa y <b>aprobación digital del mockup</b> antes de ejecutar.</p>
+    <p class="fine">No se graban caras de impacto, grooves, hosel ni zonas que afecten la integridad o conformidad del palo. No se reproducen logos protegidos sin autorización del cliente.</p>
+  </div>
+
+  <div class="card">
+    <h3>🎨 Shaft Wrap — Personalización de Varillas</h3>
+    <p>Wraps decorativos para varillas: Matte Black, Matte Navy, Khaki, Copper, Grey Camo, Green Hex y diseño personalizado ViceGolfer. Para un palo, wedges, set parcial o completo.</p>
+    <p class="fine">Personalización 100% estética — no cambia las características técnicas de la varilla. Compatibilidad, terminación y durabilidad se evalúan por pieza.</p>
+  </div>
+
+  <div class="card" style="border-style:dashed;border-color:rgba(198,161,91,0.4)">
+    <h3>🏛 Vintage Club Revival <span style="font-size:10px;letter-spacing:0.15em;color:var(--mut)">· PRÓXIMAMENTE</span></h3>
+    <p>Palos antiguos con historia, seleccionados y documentados por ViceGolfer: marca y modelo, período (solo si está verificado), condición inicial, proceso realizado, defectos que permanecen, medidas y su historia. Piezas únicas — para jugar, coleccionar o decorar, siempre indicado con claridad.</p>
+    <p class="fine">Cada pieza se publica solo después de ser comprada, recibida, inspeccionada y fotografiada por ViceGolfer.</p>
+  </div>
+
+  <h2>CÓMO <span class="g">FUNCIONA</span></h2>
+  <ol class="flow">
+    <li>Envías fotografías de tu palo (formulario o WhatsApp).</li>
+    <li>Evaluamos material, desgaste y viabilidad.</li>
+    <li>Recibes tu cotización.</li>
+    <li>Apruebas el trabajo — y el mockup, si es personalización.</li>
+    <li>Recibimos el palo y documentamos su condición inicial.</li>
+    <li>Un operador capacitado realiza el trabajo con equipamiento profesional.</li>
+    <li>Control final y documentación del resultado.</li>
+    <li>Coordinamos devolución o retiro.</li>
+  </ol>
+
+  <h2 id="evaluar">SOLICITA TU <span class="g">EVALUACIÓN</span></h2>
+  <div class="formbox">
+    <div id="form-view">
+      <label>Tu nombre</label>
+      <input id="f-name" placeholder="Nombre y apellido">
+      <label>WhatsApp o email</label>
+      <input id="f-contact" placeholder="+56 9 … o tu@correo.com">
+      <label>Palo (tipo, marca y modelo)</label>
+      <input id="f-club" placeholder="Ej: Putter Scotty Cameron Newport 2, wedge Vokey 56°…">
+      <label>Servicio</label>
+      <select id="f-service">
+        <option value="Club Refresh">Club Refresh — limpieza y restauración</option>
+        <option value="Custom Engraving">Custom Engraving — personalización</option>
+        <option value="Shaft Wrap">Shaft Wrap — varillas</option>
+        <option value="Vintage / otro">Vintage / otro</option>
+      </select>
+      <label>Cuéntanos qué quieres hacer</label>
+      <textarea id="f-msg" placeholder="Estado del palo, qué te gustaría lograr, texto o diseño si es grabado…"></textarea>
+      <button id="f-send">Enviar solicitud</button>
+      <p style="font-size:11px;color:var(--mut);text-align:center;margin-top:12px">
+        Al enviar, te contactamos para pedirte las <b>fotos del palo</b> y darte tu cotización. Sin compromiso.<br>
+        ¿Prefieres directo? <a href="https://wa.me/?text=Hola%20ViceGolfer%20%F0%9F%91%8B%20Quiero%20una%20evaluaci%C3%B3n%20del%20Restoration%20Lab.%0A%0A1)%20Palo%20(tipo%20y%20modelo)%3A%0A2)%20Material%3A%0A3)%20Servicio%3A%0A4)%20Texto%20o%20dise%C3%B1o%20(si%20aplica)%3A%0A5)%20Adjunto%20fotos%20%F0%9F%93%B7" style="color:var(--gold)">Escríbenos por WhatsApp →</a>
+      </p>
+    </div>
+    <div id="ok-view" class="ok-msg" style="display:none">
+      <div class="big">¡Recibido! 🏌️</div>
+      <p style="font-size:13px;color:#c8c8c0;margin-top:10px">Tu solicitud entró a la lista del Lab. Te contactamos para pedirte fotos y entregarte la cotización.</p>
+    </div>
+  </div>
+
+  <h2>PREGUNTAS <span class="g">FRECUENTES</span></h2>
+  <details><summary>¿Mi palo va a rendir mejor después del servicio?</summary><p>El servicio es principalmente estético y de conservación. No prometemos aumentos de spin, distancia ni rendimiento — prometemos que tu palo se vea y se conserve como merece.</p></details>
+  <details><summary>¿Pueden quedar marcas después de la restauración?</summary><p>Sí. El resultado depende del material, recubrimiento y desgaste previo. Algunas marcas profundas pueden permanecer — te lo decimos en la evaluación, antes de cobrar.</p></details>
+  <details><summary>¿Graban cualquier logo?</summary><p>Solo logos con autorización del cliente. No reproducimos marcas protegidas sin permiso, y no grabamos zonas que afecten la integridad o conformidad del palo.</p></details>
+  <details><summary>¿Puedo revertir una personalización?</summary><p>Los trabajos personalizados no pueden revertirse fácilmente. Por eso todo diseño se aprueba digitalmente (mockup) antes de ejecutar.</p></details>
+  <details style="margin-bottom:30px"><summary>¿Trabajan palos vintage o de colección?</summary><p>Sí — con evaluación especial. Documentamos condición inicial, proceso y defectos que permanecen, e indicamos si la pieza queda para jugar, colección o decoración.</p></details>
+
+  <div class="conds">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px">Condiciones del servicio</div>
+    <ul>
+      <li>El resultado depende del material, recubrimiento y desgaste previo; algunas marcas o daños pueden permanecer.</li>
+      <li>El servicio es principalmente estético; no se garantiza recuperación de rendimiento.</li>
+      <li>No se modifican grooves ni la geometría funcional sin evaluación especializada.</li>
+      <li>Los trabajos personalizados no pueden revertirse fácilmente.</li>
+      <li>El cliente aprueba el diseño (mockup) antes de ejecutarlo.</li>
+      <li>ViceGolfer puede rechazar trabajos que impliquen riesgo de daño.</li>
+      <li>Toda pieza se documenta antes y después del trabajo.</li>
+    </ul>
+  </div>
+
+  <div class="foot">NOT GIVEN. TAKEN.</div>
+</div>
+
+<script>
+// Solicitudes → Supabase (tabla de leads compartida, source=restoration-lab)
+const SB = 'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1/clubscore_leads';
+const KEY = 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+document.getElementById('f-send').addEventListener('click', async () => {
+  const v = id => document.getElementById(id).value.trim();
+  const name = v('f-name'), contact = v('f-contact'), club = v('f-club');
+  const msg = document.getElementById('f-service').value + ' — ' + v('f-msg');
+  if (!name || !contact) { alert('Ponnos tu nombre y un contacto 🙏'); return; }
+  const btn = document.getElementById('f-send');
+  btn.disabled = true; btn.textContent = 'Enviando…';
+  try {
+    await fetch(SB, {
+      method: 'POST',
+      headers: { 'apikey': KEY, 'Authorization': 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ name, contact, club, message: msg, source: 'restoration-lab' })
+    });
+    document.getElementById('form-view').style.display = 'none';
+    document.getElementById('ok-view').style.display = 'block';
+  } catch (e) {
+    btn.disabled = false; btn.textContent = 'Enviar solicitud';
+    alert('No pudimos enviar — inténtalo de nuevo o escríbenos por WhatsApp.');
+  }
+});
+</script>
+</body>
+</html>
