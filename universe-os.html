@@ -3620,7 +3620,7 @@ document.addEventListener('keydown', e => {
     if (affirmation.style.opacity === '1') { closeAffirmation(); return; }
     // si hay un mundo abierto encima (MVB, TALLER, CRYPTO, COSMOS, un overlay…),
     // ESC/X le pertenece a ese mundo: cerrarlo NO debe además mover la pantalla base
-    if (document.querySelector('#mvb.open, #taller.open, .hkov.open') ||
+    if (document.querySelector('#mvb.open, #taller.open, #atlas.open, .hkov.open') ||
         ['cw','cosmos'].some(id => { const el = document.getElementById(id);
           return el && el.style.display && el.style.display !== 'none'; })) return;
     if (currentScreen !== 'portal' && currentScreen !== 'map') goTo('map');
@@ -12947,5 +12947,354 @@ addEventListener('DOMContentLoaded', function(){
     b.style.setProperty("--dc","#FFD200"); b.style.color="#FFD200CC";
     b.onclick=()=>location.href="./hk23-universe"; d.insertBefore(b, d.firstChild); } })();
 </script>
+
+<!-- ═══════════ ATLAS 23 — OPERADOR DEL UNIVERSO ═══════════
+     Un tablero que no informa: verifica y actúa.
+     Regla dura: ninguna fila afirma nada sin la prueba al lado. -->
+<style id="atl-style">
+  #atl-fab{ position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom,0px)); z-index:970;
+    width:56px; height:56px; border-radius:50%; border:1px solid #23303F; cursor:pointer;
+    background:radial-gradient(circle at 34% 28%, #16202E, #05070E); color:#9FE8FF;
+    font:700 15px/1 'Space Mono',ui-monospace,monospace; box-shadow:0 10px 30px rgba(0,0,0,.6); }
+  #atl-fab:active{ transform:scale(.94); }
+  #atl-fab:focus-visible{ outline:2px solid #9FE8FF; outline-offset:2px; }
+  #atl-fab .dot{ position:absolute; top:6px; right:6px; width:9px; height:9px; border-radius:50%;
+    background:#FF6B00; display:none; }
+  #atl-fab.hay .dot{ display:block; }
+  #atlas{ position:fixed; inset:0; z-index:975; display:none; background:#05070E;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    font-family:'Space Mono',ui-monospace,monospace; color:#E6E4DE; }
+  #atlas.open{ display:block; }
+  .atl-w{ max-width:900px; margin:0 auto; padding:24px 16px calc(60px + env(safe-area-inset-bottom,0px)); }
+  .atl-top{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:6px; }
+  .atl-top h2{ font-size:19px; letter-spacing:5px; margin:0; font-weight:700; }
+  .atl-x{ margin-left:auto; font-size:11px; letter-spacing:2px; color:#05070E; background:#E6E4DE;
+    border:none; border-radius:3px; padding:10px 15px; cursor:pointer; }
+  .atl-eye{ font-size:8px; letter-spacing:4px; color:#5A6478; margin-bottom:18px; }
+  .atl-kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+  .atl-k{ border:1px solid #17202C; border-radius:4px; padding:12px 10px; background:#080B12; }
+  .atl-k .v{ font-size:21px; font-weight:700; line-height:1; }
+  .atl-k .l{ font-size:7px; letter-spacing:2px; color:#5A6478; margin-top:7px; }
+  .atl-bar{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:22px; }
+  .atl-go{ font-size:11px; letter-spacing:2px; color:#05070E; background:#9FE8FF; border:none;
+    border-radius:3px; padding:11px 17px; cursor:pointer; font-weight:700; }
+  .atl-go[disabled]{ opacity:.5; cursor:progress; }
+  .atl-when{ font-size:8px; letter-spacing:1px; color:#5A6478; }
+  .atl-h{ font-size:8px; letter-spacing:4px; color:#5A6478; margin:24px 0 9px;
+    border-bottom:1px solid #141C26; padding-bottom:7px; }
+  .atl-r{ display:flex; align-items:flex-start; gap:11px; padding:12px 11px; border-radius:4px;
+    border:1px solid #141C26; background:#080B12; margin-bottom:7px; }
+  .atl-p{ flex:0 0 auto; font-size:7px; letter-spacing:1.5px; font-weight:700; color:#05070E;
+    border-radius:2px; padding:4px 6px; min-width:64px; text-align:center; }
+  .atl-t{ flex:1 1 auto; min-width:0; }
+  .atl-t b{ display:block; font-size:12px; letter-spacing:.5px; color:#E6E4DE; font-weight:700; }
+  .atl-t i{ display:block; font-size:9px; letter-spacing:.4px; color:#8C97A8; font-style:normal;
+    margin-top:4px; line-height:1.55; word-break:break-word; }
+  .atl-t .ev{ display:block; font-size:8px; letter-spacing:.5px; color:#5A6478; margin-top:5px; }
+  .atl-t .ev b{ display:inline; color:#7C8AA0; font-weight:700; }
+  .atl-a{ flex:0 0 auto; display:flex; flex-direction:column; gap:5px; }
+  .atl-b{ font-size:8px; letter-spacing:1.5px; color:#9FE8FF; background:transparent;
+    border:1px solid #24384A; border-radius:3px; padding:7px 9px; cursor:pointer; white-space:nowrap; }
+  .atl-b:hover{ background:#0E1620; }
+  .atl-b:focus-visible{ outline:2px solid #9FE8FF; outline-offset:2px; }
+  .atl-b.hot{ color:#FF6B00; border-color:#4A2A14; }
+  .atl-fix{ display:none; margin:8px 0 2px; gap:6px; }
+  .atl-fix.open{ display:flex; }
+  .atl-fix input{ flex:1 1 auto; min-width:0; background:#05070E; border:1px solid #24384A; border-radius:3px;
+    color:#E6E4DE; font:400 11px 'Space Mono',ui-monospace,monospace; padding:9px 10px; }
+  .atl-fix input:focus-visible{ outline:2px solid #9FE8FF; outline-offset:1px; }
+  .atl-note{ font-size:9px; letter-spacing:.4px; color:#5A6478; line-height:1.7; margin:14px 0 0;
+    border-left:2px solid #1B2634; padding-left:11px; }
+  .atl-sql{ display:none; white-space:pre-wrap; word-break:break-all; font-size:9px; color:#8C97A8;
+    background:#04060B; border:1px solid #141C26; border-radius:4px; padding:12px; margin-top:8px; line-height:1.65; }
+  .atl-sql.open{ display:block; }
+  @media(max-width:560px){
+    .atl-kpis{ grid-template-columns:1fr 1fr; }
+    .atl-r{ flex-wrap:wrap; }
+    .atl-a{ flex-direction:row; width:100%; }
+    .atl-b{ flex:1 1 auto; }
+  }
+  @media(prefers-reduced-motion:reduce){ #atlas *{ animation:none !important; transition:none !important; } }
+</style>
+<button id="atl-fab" aria-label="Abrir ATLAS, el control del universo" title="ATLAS (A)">A23<span class="dot"></span></button>
+<div id="atlas" role="dialog" aria-modal="true" aria-label="ATLAS 23 — control del universo"></div>
+
+<script>
+// ═══ ATLAS 23 — no informa: verifica y actúa. Ninguna fila afirma sin la prueba al lado. ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const SUPA={ url:'https://qhklngvzdmwsbopbkiff.supabase.co', key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoa2xuZ3Z6ZG13c2JvcGJraWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTEwOTYsImV4cCI6MjA5NzM2NzA5Nn0.ttdBrxCF6Wl6I8yKOICfTq7WyPylMmSmdKGUb176BCs' };
+  const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+  const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+  const hora=()=>{ try{ return new Date().toLocaleTimeString('es-CL',{hour12:false}); }catch(e){ return ''; } };
+  const num=n=>{ try{ return Number(n).toLocaleString('es-CL'); }catch(e){ return String(n); } };
+
+  // ── lo que se verifica ──
+  const RUTAS=[ ['/universe-os','tu universo'], ['/frequency','el universo de JC'],
+                ['/jc','atajo corto de JC'], ['/g/frequency','galaxia por slug'] ];
+  const TABLAS=[ ['universe_galaxies','los universos de tus inquilinos'],
+                 ['universe_products','lo que está a la venta'],
+                 ['universe_events','los eventos del mundo MVB'],
+                 ['universe_sellers','quién vende entradas'],
+                 ['universe_presence','quién está conectado ahora'] ];
+  const abrePanel=(id,tab)=>()=>{ const p=document.getElementById(id); if(p) p.classList.add('open');
+    if(tab){ const t=document.querySelector('.ag-tab[data-pane="'+tab+'"]'); if(t) t.click(); } };
+  const MUNDOS=[
+    ['WINAMP',    'api',  'window.Winamp.open',        ()=>window.Winamp&&window.Winamp.open],
+    ['MVB',       'api',  'window.MVB.open',           ()=>window.MVB&&window.MVB.open],
+    ['BIBLIOTECA','api',  'window.hkBiblioteca',       ()=>window.hkBiblioteca],
+    ['TALLER',    'api',  'window.Taller.open',        ()=>window.Taller&&window.Taller.open],
+    ['INQUILINOS','api',  'window.Inquilinos.open',    ()=>window.Inquilinos&&window.Inquilinos.open],
+    ['MEDIA',     'panel','#me-panel',                 ()=>document.getElementById('me-panel')&&abrePanel('me-panel')],
+    ['QR VIVO',   'panel','#ag-panel (pestaña qr)',    ()=>document.getElementById('ag-panel')&&abrePanel('ag-panel','qr')],
+    ['LAB',       'api',  'window.EntityLab.on',       ()=>window.EntityLab&&window.EntityLab.on],
+    ['CRYPTO',    'api',  'window.CryptoSignals.open', ()=>window.CryptoSignals&&window.CryptoSignals.open],
+    ['FABLE',     'api',  'window.FableFX.toggle',     ()=>window.FableFX&&window.FableFX.toggle],
+    ['FUSIÓN',    'api',  'window.Fusion.next',        ()=>window.Fusion&&window.Fusion.next],
+    ['GALAXIA',   'api',  'window.hkGalaxia',          ()=>window.hkGalaxia],
+    ['COSMOS',    'api',  'window.WarpJump / CosmosView.open',
+                          ()=>(typeof window.WarpJump==='function'?window.WarpJump:(window.CosmosView&&window.CosmosView.open))],
+    ['AGENTES',   'panel','#ag-panel',                 ()=>document.getElementById('ag-panel')&&abrePanel('ag-panel')],
+    ['ORACLE',    'api',  'window.hkOracle',           ()=>window.hkOracle],
+    ['DEFENSA',   'api',  'window.hkDefensa',          ()=>window.hkDefensa],
+    ['BACKROOMS', 'api',  'window.hkBackrooms',        ()=>window.hkBackrooms] ];
+  const SQL='-- Corré esto entero en el editor SQL de tu Supabase.\n'+
+    TABLAS.map(([t])=>'-- '+t).join('\n')+
+    '\n-- El bloque completo está en supabase-schema.sql del repositorio.';
+
+  // ── el estado, siempre con su prueba y su hora ──
+  let R={ rutas:[], tablas:[], mundos:[], conten:[], cuando:'', corriendo:false, corrio:false };
+  const esArchivo=()=>location.protocol==='file:';
+
+  async function verRutas(){
+    const out=[];
+    for(const [ruta,que] of RUTAS){
+      if(esArchivo()){ out.push({ k:ruta, que, estado:'nover',
+        prueba:'abierto como archivo local (file://)',
+        detalle:'No hay servidor al que preguntarle. Abrilo desde el link real y vuelvo a chequear.' }); continue; }
+      const t0=Date.now();
+      try{
+        const r=await fetch(location.origin+ruta,{cache:'no-store'});
+        const txt=await r.text(); const ms=Date.now()-t0;
+        const tieneAtlas=txt.indexOf('id="atlas"')>=0;
+        out.push({ k:ruta, que,
+          estado: !r.ok ? 'fail' : (tieneAtlas ? 'ok' : 'warn'),
+          prueba:'HTTP '+r.status+' · '+num(txt.length)+' b · '+ms+' ms',
+          detalle: !r.ok ? 'El servidor contestó '+r.status+'. Esa ruta no está sirviendo nada.'
+                 : tieneAtlas ? 'Responde, y lo publicado incluye este mismo ATLAS.'
+                 : 'Responde, pero lo publicado es una versión anterior: no tiene ATLAS adentro. Falta desplegar.',
+          url: location.origin+ruta });
+      }catch(e){ out.push({ k:ruta, que, estado:'fail', prueba:String(e&&e.message||e).slice(0,80),
+        detalle:'No se pudo consultar la ruta.' }); }
+    }
+    return out;
+  }
+
+  async function verTablas(){
+    const out=[];
+    for(const [tb,que] of TABLAS){
+      try{
+        const r=await fetch(SUPA.url+'/rest/v1/'+tb+'?select=*&limit=1',
+          { headers:Object.assign({},HEAD,{ Prefer:'count=exact', Range:'0-0' }) });
+        const cr=r.headers.get('content-range')||''; const n=(cr.split('/')[1]||'').trim();
+        if(r.ok) out.push({ k:tb, que, estado:'ok',
+          prueba:'HTTP '+r.status+(n&&n!=='*'?' · '+n+' fila(s)':''),
+          detalle:'La tabla existe y responde: '+que+' se guardan para todos, no solo acá.' });
+        else { let msg=''; try{ msg=((await r.json())||{}).message||''; }catch(e){}
+          out.push({ k:tb, que, estado:'local', prueba:'HTTP '+r.status+(msg?' · '+msg.slice(0,64):''),
+            detalle:'Todavía no existe. Mientras tanto '+que+' viven solo en este dispositivo.', sql:true }); }
+      }catch(e){ out.push({ k:tb, que, estado:'nover', prueba:String(e&&e.message||e).slice(0,70),
+        detalle:'No hubo red para preguntarle a Supabase. No sé si existe: no lo doy por bueno.', sqlUI:true }); }
+    }
+    return out;
+  }
+
+  function verMundos(){
+    return MUNDOS.map(([label,tipo,donde,pick])=>{
+      let fn=null; try{ fn=pick(); }catch(e){}
+      const vivo=typeof fn==='function';
+      return { k:label, que:donde, estado: vivo?'ok':'fail',
+        prueba: (vivo?'responde':'no responde')+' · '+donde,
+        detalle: vivo ? (tipo==='panel'?'El panel existe en la página y se abre.':'El botón llama a una función que existe.')
+                      : 'El botón del menú apunta acá y acá no hay nada: entrar no hace nada.',
+        abrir: vivo ? fn : null };
+    });
+  }
+
+  function leerLocal(k,def){ try{ const v=JSON.parse(localStorage.getItem(k)); return v==null?def:v; }catch(e){ return def; } }
+  function verContenido(){
+    const inq=leerLocal('hk23_inquilinos',[]), prodL=leerLocal('hk23_inq_productos',[]);
+    const gal=leerLocal('hk23_galaxias',[]);
+    const out=[];
+    out.push({ k:'INQUILINOS', que:'universos de tus usuarios',
+      estado: inq.length?'local':'warn',
+      prueba: inq.length? inq.length+' guardado(s) en este dispositivo' : 'ninguno guardado acá',
+      detalle: inq.length? 'Guardados en este teléfono/compu. Si la tabla universe_galaxies existe, además viajan.'
+                         : 'Solo está la semilla FREQUENCY. Todavía no creaste ninguno desde el panel.' });
+    out.push({ k:'PRODUCTOS', que:'lo que está a la venta',
+      estado: prodL.length?'local':'warn',
+      prueba: prodL.length? prodL.length+' guardado(s) en este dispositivo' : 'ninguno cargado',
+      detalle: prodL.length? 'Cargados acá. Con universe_products vivos, se ven desde cualquier lado.'
+                           : 'Nadie puede comprarte nada todavía. Creá el primero acá abajo.',
+      crear:true });
+    out.push({ k:'GALAXIAS', que:'las que creaste vos',
+      estado: gal.length?'ok':'warn',
+      prueba: gal.length+' en este dispositivo',
+      detalle: gal.length? 'Existen y se dibujan en el cosmos.' : 'Ninguna creada todavía.' });
+    return out;
+  }
+
+  // ── pintar ──
+  const PILL={ ok:['#4FE0A8','ANDA'], warn:['#FFC24D','A MEDIAS'], fail:['#FF6B00','NO ANDA'],
+               local:['#5FA8D3','SOLO ACÁ'], nover:['#7C8AA0','SIN VERIFICAR'] };
+  function fila(r, botones){
+    const [col,txt]=PILL[r.estado]||PILL.nover;
+    return '<div class="atl-r" data-k="'+esc(r.k)+'">'+
+      '<span class="atl-p" style="background:'+col+'">'+txt+'</span>'+
+      '<span class="atl-t"><b>'+esc(r.k)+'</b>'+
+        '<i>'+esc(r.detalle||'')+'</i>'+
+        '<span class="ev"><b>PRUEBA</b> · '+esc(r.prueba||'')+' · '+esc(R.cuando)+'</span>'+
+        (r.crear?'<span class="atl-fix" id="atl-np"><input id="atl-np-n" placeholder="nombre del producto" maxlength="60">'+
+                 '<input id="atl-np-p" placeholder="precio" maxlength="12" inputmode="decimal" style="max-width:90px">'+
+                 '<button class="atl-b" id="atl-np-ok">GUARDAR</button></span>':'')+
+        (r.sql||r.sqlUI?'<span class="atl-sql" id="atl-sql-'+esc(r.k)+'">'+esc(SQL)+'</span>':'')+
+      '</span>'+
+      '<span class="atl-a">'+(botones||[]).map(b=>
+        '<button class="atl-b'+(b[2]?' hot':'')+'" data-do="'+esc(b[1])+'">'+esc(b[0])+'</button>').join('')+
+      '</span></div>';
+  }
+  function pintar(){
+    const vivos=R.mundos.filter(m=>m.estado==='ok').length;
+    const pubOk=R.rutas.filter(r=>r.estado==='ok').length;
+    const tabOk=R.tablas.filter(t=>t.estado==='ok').length;
+    const pres=R.tablas.find(t=>t.k==='universe_presence');
+    const kpis=[
+      ['MUNDOS QUE ANDAN', vivos+'/'+R.mundos.length, vivos===R.mundos.length?'#4FE0A8':'#FFC24D'],
+      ['RUTAS PUBLICADAS', R.rutas.length?pubOk+'/'+R.rutas.length:'—', pubOk===R.rutas.length&&pubOk?'#4FE0A8':'#FF6B00'],
+      ['TABLAS VIVAS',     tabOk+'/'+R.tablas.length, tabOk===R.tablas.length?'#4FE0A8':'#FFC24D'],
+      ['DATOS GLOBALES',   tabOk?'SÍ':'NO', tabOk?'#4FE0A8':'#FF6B00']
+    ];
+    const H=[];
+    H.push('<div class="atl-w">',
+      '<div class="atl-top"><h2>ATLAS 23</h2>',
+      '<button class="atl-x" id="atl-close">✕ CERRAR</button></div>',
+      '<div class="atl-eye">OPERADOR DEL UNIVERSO · TODO LO QUE DICE ACÁ LLEVA SU PRUEBA</div>',
+      '<div class="atl-kpis">', kpis.map(([l,v,c])=>
+        '<div class="atl-k"><div class="v" style="color:'+c+'">'+esc(v)+'</div><div class="l">'+esc(l)+'</div></div>').join(''),
+      '</div>',
+      '<div class="atl-bar"><button class="atl-go" id="atl-run"'+(R.corriendo?' disabled':'')+'>',
+        R.corriendo?'VERIFICANDO…':'▸ VERIFICAR TODO','</button>',
+      '<span class="atl-when">', R.corrio?('última verificación '+esc(R.cuando)):'todavía no verifiqué nada','</span></div>');
+
+    if(!R.corrio){
+      H.push('<p class="atl-note">No te muestro nada hasta chequearlo. Tocá <b>VERIFICAR TODO</b> ',
+        'y cada línea va a venir con la prueba de dónde salió: el código HTTP, los bytes, la cantidad de filas.</p>');
+    } else {
+      H.push('<div class="atl-h">◆ PUBLICACIÓN — ¿el link vive de verdad?</div>');
+      R.rutas.forEach(r=>H.push(fila(r, r.url?[['COPIAR','copiar:'+r.url],['ABRIR','ir:'+r.url]]:[])));
+
+      H.push('<div class="atl-h">◆ DATOS — ¿se guarda para todos o solo acá?</div>');
+      R.tablas.forEach(r=>H.push(fila(r, r.estado==='ok'?[]:[['CÓMO','sql:'+r.k],['SUPABASE','ir:https://supabase.com/dashboard/project/qhklngvzdmwsbopbkiff/sql/new']])));
+
+      H.push('<div class="atl-h">◆ MUNDOS — ¿el botón hace algo?</div>');
+      R.mundos.forEach(r=>H.push(fila(r, r.abrir?[['ENTRAR','abrir:'+r.k]]:[['REVISAR','nada:'+r.k,true]])));
+
+      H.push('<div class="atl-h">◆ CONTENIDO — ¿hay algo adentro?</div>');
+      R.conten.forEach(r=>H.push(fila(r, r.crear?[['＋ CREAR','nuevoprod']]:[])));
+
+      H.push('<p class="atl-note">Lo que dice <b>SOLO ACÁ</b> vive en este dispositivo y nadie más lo ve. ',
+        'Lo que dice <b>SIN VERIFICAR</b> es que no pude comprobarlo, no que esté bien.</p>');
+    }
+    H.push('</div>');
+    $('atlas').innerHTML=H.join('');
+    $('atl-close').onclick=cerrar;
+    $('atl-run').onclick=correr;
+    $('atlas').querySelectorAll('[data-do]').forEach(b=>b.onclick=()=>hacer(b.dataset.do));
+    const np=$('atl-np-ok'); if(np) np.onclick=guardarProd;
+    const fab=$('atl-fab'); if(fab) fab.classList.toggle('hay',
+      R.corrio && (R.rutas.some(r=>r.estado==='fail') || R.mundos.some(m=>m.estado==='fail')));
+  }
+
+  // ── actuar: cada botón hace algo real ──
+  function avisar(t){ let el=document.getElementById('atl-live');
+    if(!el){ el=document.createElement('div'); el.id='atl-live'; el.setAttribute('aria-live','polite');
+      el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)';
+      document.body.appendChild(el); }
+    el.textContent=t; }
+  function hacer(cmd){
+    const i=cmd.indexOf(':'), verbo=i<0?cmd:cmd.slice(0,i), arg=i<0?'':cmd.slice(i+1);
+    if(verbo==='copiar'){ try{ navigator.clipboard.writeText(arg); }catch(e){}
+      avisar('Link copiado: '+arg); return; }
+    if(verbo==='ir'){ window.open(arg,'_blank','noopener'); return; }
+    if(verbo==='sql'){ const el=$('atl-sql-'+arg); if(el) el.classList.toggle('open');
+      try{ navigator.clipboard.writeText(SQL); }catch(e){}
+      avisar('SQL copiado'); return; }
+    if(verbo==='abrir'){ const m=R.mundos.find(x=>x.k===arg);
+      if(m&&m.abrir){ cerrar(); setTimeout(()=>{ try{ m.abrir(); }catch(e){ avisar('Ese mundo tiró un error al abrir.'); } },130); }
+      return; }
+    if(verbo==='nada'){ avisar(arg+' no está conectado a ninguna función. No es que falle: no hace nada.'); return; }
+    if(cmd==='nuevoprod'){ const f=$('atl-np'); if(f){ f.classList.add('open'); const n=$('atl-np-n'); if(n) n.focus(); } return; }
+  }
+
+  // guardar un producto de verdad: Supabase si vive, si no acá — y lo vuelvo a leer para no mentirte
+  async function guardarProd(){
+    const n=($('atl-np-n')||{}).value||'', p=($('atl-np-p')||{}).value||'';
+    if(!n.trim()){ avisar('Sin nombre no lo guardo.'); const el=$('atl-np-n'); if(el) el.focus(); return; }
+    const row={ id:'p'+Date.now().toString(36), owner:'frequency', name:n.trim(),
+                price:String(p).trim(), created_at:new Date().toISOString() };
+    let global=false, motivo='';
+    try{
+      const r=await fetch(SUPA.url+'/rest/v1/universe_products',
+        { method:'POST', headers:Object.assign({},HEAD,{ Prefer:'return=representation' }), body:JSON.stringify(row) });
+      if(r.ok) global=true; else { try{ motivo=((await r.json())||{}).message||('HTTP '+r.status); }catch(e){ motivo='HTTP '+r.status; } }
+    }catch(e){ motivo=String(e&&e.message||e).slice(0,60); }
+    const local=leerLocal('hk23_inq_productos',[]); local.push(row);
+    try{ localStorage.setItem('hk23_inq_productos',JSON.stringify(local)); }catch(e){}
+    const releido=leerLocal('hk23_inq_productos',[]).some(x=>x.id===row.id);   // lo leo de vuelta
+    avisar(global? 'Producto guardado para todos.' : 'Guardado solo en este dispositivo'+(motivo?': '+motivo:'')+'.');
+    log('atlas','creó el producto '+row.name+(global?' (global)':' (local)'));
+    if(!releido) avisar('No se pudo guardar en ningún lado. Fijate el espacio del navegador.');
+    R.conten=verContenido(); pintar();
+  }
+
+  async function correr(){
+    if(R.corriendo) return;
+    R.corriendo=true; pintar();
+    R.cuando=hora();
+    R.mundos=verMundos();
+    R.conten=verContenido();
+    const [ru,ta]=await Promise.all([verRutas(),verTablas()]);
+    R.rutas=ru; R.tablas=ta; R.cuando=hora(); R.corrio=true; R.corriendo=false;
+    pintar();
+    avisar('Verificación terminada. '+R.mundos.filter(m=>m.estado==='ok').length+' de '+R.mundos.length+' mundos andan.');
+    log('atlas','verificó el universo entero');
+  }
+
+  let ultimo=null;
+  function abrir(){ const el=$('atlas'); if(el.classList.contains('open')) return;
+    if(!el.innerHTML) pintar();
+    el.classList.add('open'); ultimo=document.activeElement;
+    const b=$('atl-run'); if(b) setTimeout(()=>b.focus(),30);
+    log('atlas','abrió el control del universo');
+    if(!R.corrio) correr(); }
+  function cerrar(){ const el=$('atlas'); if(!el.classList.contains('open')) return;
+    el.classList.remove('open'); if(ultimo&&ultimo.focus) ultimo.focus(); ultimo=null; }
+
+  const fab=$('atl-fab'); if(fab) fab.onclick=()=>$('atlas').classList.contains('open')?cerrar():abrir();
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    const ab=$('atlas').classList.contains('open');
+    if((e.key==='a'||e.key==='A')&&!ab){ abrir(); }
+    else if(ab&&(e.key==='Escape'||e.key==='x'||e.key==='X')){ e.stopImmediatePropagation(); cerrar(); }
+  }, true);
+
+  window.Atlas={ open:abrir, close:cerrar, verificar:correr, estado:()=>JSON.parse(JSON.stringify(
+    { cuando:R.cuando, rutas:R.rutas, tablas:R.tablas,
+      mundos:R.mundos.map(m=>({k:m.k,estado:m.estado,prueba:m.prueba})), conten:R.conten })) };
+})();
+</script>
+
 </body>
 </html>
