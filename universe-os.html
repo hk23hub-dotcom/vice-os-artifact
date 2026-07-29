@@ -12888,6 +12888,7 @@ addEventListener('DOMContentLoaded', function(){
   // los mundos, agrupados — cada uno va a su API real (nada muerto)
   const GROUPS=[
     ['◈ TU UNIVERSO', [
+      ['◉','MÚSICA','tu planeta de temas','#E8C86A',()=>call(window.MusicaHK&&window.MusicaHK.open)],
       ['◈','WINAMP','tu música + radios','#AAFF66',()=>call(window.Winamp&&window.Winamp.open)],
       ['🌃','MVB','la noche en vivo','#FF3AC8',()=>call(window.MVB&&window.MVB.open)],
       ['📚','BIBLIOTECA','libros y guías','#FFD200',()=>call(window.hkBiblioteca)],
@@ -13358,6 +13359,416 @@ addEventListener('DOMContentLoaded', function(){
   noQuedarEnBlanco();
 
   window.Movil={ esChico:chico, sacarVideo, version:'1' };
+})();
+</script>
+
+
+<!-- ═══════════ PLANETA MÚSICA — HK23. Toda tu música, un cuerpo. ═══════════ -->
+<style id="mp-style">
+  #mp{ position:fixed; inset:0; z-index:978; display:none; background:#03040A;
+    font-family:'Space Mono',ui-monospace,monospace; color:#E6E4DE; overflow:hidden; }
+  #mp.open{ display:block; }
+  #mp-cv{ position:absolute; inset:0; width:100%; height:100%; touch-action:manipulation; }
+  .mp-top{ position:absolute; left:0; right:0; top:0; z-index:3; display:flex; align-items:center;
+    gap:10px; padding:14px 14px calc(14px) ; padding-top:calc(14px + env(safe-area-inset-top,0px));
+    background:linear-gradient(#03040A, #03040A00); pointer-events:none; flex-wrap:wrap; }
+  .mp-top > *{ pointer-events:auto; }
+  .mp-top b{ font-size:12px; letter-spacing:5px; }
+  .mp-top i{ font-size:8px; letter-spacing:3px; color:#5A6478; font-style:normal; }
+  .mp-x{ margin-left:auto; font-size:11px; letter-spacing:2px; color:#03040A; background:#E6E4DE;
+    border:none; border-radius:3px; padding:11px 15px; cursor:pointer; min-height:44px; }
+  .mp-b{ font-size:9px; letter-spacing:2px; color:#9FE8FF; background:transparent;
+    border:1px solid #24384A; border-radius:3px; padding:11px 13px; cursor:pointer; min-height:44px; }
+  .mp-b:focus-visible,.mp-x:focus-visible{ outline:2px solid #9FE8FF; outline-offset:2px; }
+  .mp-b.on{ background:#9FE8FF; color:#03040A; font-weight:700; }
+
+  /* el tema abierto: entrás adentro */
+  #mp-in{ position:absolute; inset:0; z-index:6; display:none; background:rgba(3,4,10,.96);
+    backdrop-filter:blur(12px); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  #mp-in.open{ display:block; }
+  .mi-w{ max-width:720px; margin:0 auto; padding:26px 18px calc(150px + env(safe-area-inset-bottom,0px)); }
+  .mi-eye{ font-size:8px; letter-spacing:4px; color:#5A6478; margin-bottom:8px; }
+  .mi-t{ font-size:27px; letter-spacing:-.5px; line-height:1.1; font-weight:700; margin:0 0 4px; }
+  .mi-a{ font-size:11px; letter-spacing:3px; color:#8C97A8; margin-bottom:16px; }
+  .mi-ring{ display:inline-block; font-size:8px; letter-spacing:3px; color:#03040A; background:#E8C86A;
+    border-radius:2px; padding:5px 9px; font-weight:700; margin-bottom:16px; }
+  .mi-h{ font-size:8px; letter-spacing:4px; color:#5A6478; margin:22px 0 8px;
+    border-bottom:1px solid #141C26; padding-bottom:7px; }
+  .mi-p{ font-size:13px; line-height:1.85; color:#C7CFDA; margin:0 0 12px; white-space:pre-wrap; }
+  .mi-p.vacio{ color:#5A6478; font-style:italic; }
+  .mi-moons{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px; }
+  .mi-moon{ border:1px solid #141C26; background:#080B12; border-radius:4px; padding:12px 12px;
+    cursor:pointer; text-align:left; min-height:56px; }
+  .mi-moon b{ display:block; font-size:11px; color:#E6E4DE; }
+  .mi-moon i{ display:block; font-size:8px; letter-spacing:1px; color:#5A6478; font-style:normal; margin-top:4px; }
+  .mi-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:20px; }
+
+  /* la cabina: pinchar dos temas */
+  #mp-deck{ position:absolute; left:0; right:0; bottom:0; z-index:7; display:none;
+    background:linear-gradient(#03040A00,#03040A 22%); padding:16px 14px calc(14px + env(safe-area-inset-bottom,0px)); }
+  #mp-deck.open{ display:block; }
+  .dk-row{ display:flex; gap:10px; align-items:stretch; max-width:720px; margin:0 auto; }
+  .dk-side{ flex:1 1 0; min-width:0; border:1px solid #1B2634; border-radius:4px; background:#070A11; padding:11px; }
+  .dk-side.live{ border-color:#9FE8FF; }
+  .dk-side .lb{ font-size:7px; letter-spacing:3px; color:#5A6478; }
+  .dk-side .nm{ font-size:11px; margin:5px 0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .dk-side .nm.vacio{ color:#5A6478; }
+  .dk-side button{ font-size:9px; letter-spacing:1px; background:transparent; border:1px solid #24384A;
+    color:#9FE8FF; border-radius:3px; padding:9px 10px; cursor:pointer; width:100%; min-height:44px; }
+  .dk-fade{ max-width:720px; margin:12px auto 0; }
+  .dk-fade input{ width:100%; height:44px; accent-color:#9FE8FF; }
+  .dk-fade .lb{ display:flex; justify-content:space-between; font-size:7px; letter-spacing:3px; color:#5A6478; }
+
+  /* cargar un tema */
+  #mp-add{ position:absolute; inset:0; z-index:8; display:none; background:rgba(3,4,10,.97); overflow-y:auto; }
+  #mp-add.open{ display:block; }
+  .ma-w{ max-width:560px; margin:0 auto; padding:26px 18px calc(60px + env(safe-area-inset-bottom,0px)); }
+  .ma-f{ display:block; margin-bottom:12px; }
+  .ma-f span{ display:block; font-size:8px; letter-spacing:3px; color:#5A6478; margin-bottom:6px; }
+  .ma-f input,.ma-f textarea{ width:100%; background:#05070E; border:1px solid #24384A; border-radius:3px;
+    color:#E6E4DE; font:400 13px 'Space Mono',ui-monospace,monospace; padding:12px; min-height:46px; }
+  .ma-f textarea{ min-height:88px; line-height:1.7; resize:vertical; }
+  .ma-f input:focus-visible,.ma-f textarea:focus-visible{ outline:2px solid #9FE8FF; outline-offset:1px; }
+  .ma-chk{ display:flex; align-items:center; gap:10px; margin:16px 0; cursor:pointer; min-height:44px; }
+  .ma-chk input{ width:22px; height:22px; accent-color:#E8C86A; }
+  .ma-chk span{ font-size:11px; letter-spacing:1px; }
+  .mp-vacio[hidden]{ display:none !important; }
+  .mp-vacio{ position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
+    pointer-events:none; padding:30px; }
+  .mp-vacio div{ max-width:420px; text-align:center; pointer-events:auto; }
+  .mp-vacio p{ font-size:12px; line-height:1.9; color:#8C97A8; margin:0 0 18px; }
+  @media(prefers-reduced-motion:reduce){ #mp *{ animation:none !important; transition:none !important; } }
+</style>
+
+<div id="mp" role="dialog" aria-modal="true" aria-label="Planeta música HK23">
+  <canvas id="mp-cv"></canvas>
+  <div class="mp-top">
+    <b>MÚSICA</b><i>HK23 · TOCÁ UN TEMA PARA ENTRAR</i>
+    <button class="mp-b" id="mp-new">＋ TEMA</button>
+    <button class="mp-b" id="mp-deck-t">◐ CABINA</button>
+    <button class="mp-x" id="mp-close">✕</button>
+  </div>
+  <div class="mp-vacio" id="mp-vacio" hidden><div>
+    <p>El planeta está encendido y vacío. Todavía no cargaste ningún tema —<br>
+       y no voy a inventarte una discografía que no es tuya.</p>
+    <button class="mp-b on" id="mp-new2">＋ CARGAR MI PRIMER TEMA</button>
+  </div></div>
+  <div id="mp-in" role="dialog" aria-modal="true" aria-label="El tema por dentro"></div>
+  <div id="mp-deck">
+    <div class="dk-row">
+      <div class="dk-side" id="dk-a"><div class="lb">◐ DECK A</div>
+        <div class="nm vacio" id="dk-a-n">vacío</div><button id="dk-a-p">▸ PLAY</button></div>
+      <div class="dk-side" id="dk-b"><div class="lb">DECK B ◑</div>
+        <div class="nm vacio" id="dk-b-n">vacío</div><button id="dk-b-p">▸ PLAY</button></div>
+    </div>
+    <div class="dk-fade">
+      <div class="lb"><span>A</span><span id="dk-mix">CENTRO</span><span>B</span></div>
+      <input type="range" id="dk-x" min="0" max="100" value="50" aria-label="Crossfader entre deck A y deck B">
+    </div>
+  </div>
+  <div id="mp-add" role="dialog" aria-modal="true" aria-label="Cargar un tema"></div>
+</div>
+
+<script>
+// ═══ PLANETA MÚSICA — HK23. El planeta sos vos; los temas orbitan; el anillo dice timeless. ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const esAudio=u=>/\.(mp3|m4a|aac|wav|ogg|opus|flac)(\?|$)/i.test(u||'');
+  const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+  const TAU=Math.PI*2;
+
+  // ── los temas. Vacío a propósito: tu música la cargás vos. ──
+  const K='hk23_musica';
+  const leer=()=>{ try{ return JSON.parse(localStorage.getItem(K))||[]; }catch(e){ return []; } };
+  const guardar=t=>{ try{ localStorage.setItem(K,JSON.stringify(t)); return true; }catch(e){ return false; } };
+  let TEMAS=leer();
+  fetch('./musica.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+    if(!j) return; const arr=Array.isArray(j)?j:(j.temas||j.tracks||[]);
+    if(!arr.length) return;
+    const m=new Map(TEMAS.map(t=>[t.id,t]));
+    arr.forEach(t=>{ if(t&&t.id) m.set(t.id,{...(m.get(t.id)||{}),...t}); });
+    TEMAS=[...m.values()]; layout(); pintarVacio();
+  }).catch(()=>{});
+
+  // ── geometría: dónde vive cada tema ──
+  const cv=$('mp-cv'), g=cv.getContext('2d');
+  let W=0,H=0,DPR=1, ORB=[], CEN={x:0,y:0,r:0};
+  function fit(){ const r=cv.getBoundingClientRect();
+    DPR=Math.min(2,window.devicePixelRatio||1);
+    if(cv.width!==Math.round(r.width*DPR)||cv.height!==Math.round(r.height*DPR)){
+      cv.width=Math.round(r.width*DPR); cv.height=Math.round(r.height*DPR); }
+    W=cv.width; H=cv.height; layout(); }
+  addEventListener('resize',fit);
+
+  function layout(){
+    CEN={ x:W*0.5, y:H*0.50, r:Math.min(W,H)*0.135 };
+    const n=TEMAS.length; ORB=[];
+    if(!n) return;
+    const R0=CEN.r*3.05, R1=Math.min(W,H)*0.46;   // aire: el planeta y su rótulo no se pisan con los temas
+    const porAnillo=Math.max(4,Math.ceil(Math.sqrt(n)*1.6));
+    TEMAS.forEach((t,i)=>{
+      const anillo=Math.floor(i/porAnillo), enAnillo=Math.min(porAnillo,n-anillo*porAnillo);
+      const rad=R0+(R1-R0)*(anillo/Math.max(1,Math.ceil(n/porAnillo)-1||1));
+      const fase=(i%porAnillo)/enAnillo*TAU + anillo*0.6;
+      ORB.push({ t, i, rad:isFinite(rad)?rad:R0, fase, vel:0.000060/(1+anillo*0.45),
+        lunas:(t.lunas||[]).slice(0,6) });
+    });
+  }
+
+  // ── pintar ──
+  function esfera(cx,cy,r,col,vivo){
+    if(r<=0.5) return;
+    const gr=g.createRadialGradient(cx-r*0.34,cy-r*0.36,r*0.06, cx,cy,r);
+    gr.addColorStop(0, vivo?'#FFFFFF':'#8C97A8');
+    gr.addColorStop(0.30, col);
+    gr.addColorStop(1,'#05070E');
+    g.fillStyle=gr; g.beginPath(); g.arc(cx,cy,r,0,TAU); g.fill();
+    g.beginPath(); g.arc(cx,cy,r*1.02,0,TAU);
+    g.strokeStyle=vivo?'rgba(159,232,255,.55)':'rgba(140,151,168,.25)';
+    g.lineWidth=Math.max(1,r*0.06); g.stroke();
+  }
+  function anilloTimeless(cx,cy,r,t){
+    // el anillo no decora: dice que el tema aguantó el tiempo
+    g.save(); g.translate(cx,cy); g.rotate(-0.42);
+    for(let k=0;k<3;k++){
+      g.beginPath(); g.ellipse(0,0, r*(2.05+k*0.30), r*(0.60+k*0.09), 0, 0, TAU);
+      g.strokeStyle='rgba(232,200,106,'+(0.72-k*0.19).toFixed(2)+')';
+      g.lineWidth=Math.max(1.1, r*(0.13-k*0.03)); g.stroke();
+    }
+    g.restore();
+  }
+  let hot=null, t0=0, corriendo=false;
+  const HIT=[];
+  function pintar(ts){
+    if(!corriendo) return;
+    requestAnimationFrame(pintar);
+    fit();
+    g.fillStyle='#03040A'; g.fillRect(0,0,W,H);
+    // estrellas deterministas
+    for(let i=0;i<160;i++){ const a=Math.sin(i*12.9898)*43758.5453, b=Math.sin(i*78.233)*12345.6789;
+      const x=(a-Math.floor(a))*W, y=(b-Math.floor(b))*H, s=(Math.sin(i*3.17)+1)/2;
+      g.globalAlpha=0.10+s*0.55; g.fillStyle='#EAF0FF';
+      g.beginPath(); g.arc(x,y,s>0.93?Math.max(1.4,W*0.0012):Math.max(0.6,W*0.0006),0,TAU); g.fill(); }
+    g.globalAlpha=1;
+
+    HIT.length=0;
+    // órbitas
+    ORB.forEach(o=>{ g.beginPath(); g.ellipse(CEN.x,CEN.y,o.rad,o.rad*0.78,0,0,TAU);
+      g.strokeStyle='rgba(120,150,190,.10)'; g.lineWidth=1; g.stroke(); });
+
+    // el planeta: toda tu música
+    esfera(CEN.x,CEN.y,CEN.r,'#3C7ADF',true);
+    const LS=Math.max(11,W*0.0068);
+    g.textAlign='center'; g.font='700 '+(LS*1.25)+'px "Space Mono",ui-monospace,monospace';
+    g.fillStyle='#EAF2FF'; g.fillText('HK23', CEN.x, CEN.y+CEN.r+LS*2.1);
+    g.font='500 '+(LS*0.86)+'px "Space Mono",ui-monospace,monospace'; g.fillStyle='#8C97A8';
+    g.fillText(TEMAS.length? String(TEMAS.length).padStart(2,'0')+(TEMAS.length===1?' TEMA':' TEMAS') : 'SIN TEMAS',
+      CEN.x, CEN.y+CEN.r+LS*3.3);
+
+    // los temas
+    const orden=ORB.map(o=>{ const a=o.fase+ts*o.vel;
+      return { o, x:CEN.x+Math.cos(a)*o.rad, y:CEN.y+Math.sin(a)*o.rad*0.78, prof:(Math.sin(a)+1)/2, a }; })
+      .sort((p,q)=>p.prof-q.prof);
+    orden.forEach(({o,x,y,prof,a})=>{
+      const s=0.74+0.42*prof, r=Math.max(6,Math.min(W,H)*0.030)*s;
+      const t=o.t, act=hot===t.id;
+      if(t.tl) anilloTimeless(x,y,r,t);
+      esfera(x,y,r, t.tl?'#E8C86A':'#5FA8D3', act||t.tl);
+      // lunas: temas relacionados
+      o.lunas.forEach((m,j)=>{ const ma=a*2.4+j*(TAU/Math.max(1,o.lunas.length));
+        const mx=x+Math.cos(ma)*r*2.2, my=y+Math.sin(ma)*r*1.5;
+        g.beginPath(); g.arc(mx,my,Math.max(1.6,r*0.20),0,TAU);
+        g.fillStyle='rgba(198,214,236,.80)'; g.fill(); });
+      if(act){ g.beginPath(); g.arc(x,y,r*2.6,0,TAU);
+        g.strokeStyle='rgba(159,232,255,.65)'; g.lineWidth=Math.max(1.2,W*0.0011); g.stroke(); }
+      g.font='700 '+(LS*0.92)+'px "Space Mono",ui-monospace,monospace';
+      g.fillStyle='rgba(3,4,10,.85)'; g.fillText((t.t||'').slice(0,20).toUpperCase(), x+1.5, y+r+LS*2.0+1.5);
+      g.fillStyle=t.tl?'#E8C86A':'#DDE6F2'; g.fillText((t.t||'').slice(0,20).toUpperCase(), x, y+r+LS*1.9);
+      HIT.push({ id:t.id, x, y, r:Math.max(r*2.2, 44*DPR) });   // 44px reales, no de adorno
+    });
+    g.textAlign='left';
+  }
+  function golpe(px,py){
+    const rct=cv.getBoundingClientRect(), sx=W/rct.width, sy=H/rct.height;
+    let best=null, bd=1e9;
+    HIT.forEach(h=>{ const d=Math.hypot(h.x-(px-rct.left)*sx, h.y-(py-rct.top)*sy);
+      if(d<h.r&&d<bd){ bd=d; best=h.id; } });
+    return best;
+  }
+
+  // ── entrar al tema: no a reproducirlo, a lo que es ──
+  function entrar(id){
+    const t=TEMAS.find(x=>x.id===id); if(!t) return;
+    const campo=(tit,val,vacio)=>'<div class="mi-h">'+esc(tit)+'</div><p class="mi-p'+(val?'':' vacio')+'">'+
+      esc(val||vacio)+'</p>';
+    const url=safeUrl(t.u);
+    const lunas=(t.lunas||[]);
+    $('mp-in').innerHTML='<div class="mi-w">'+
+      '<div class="mi-eye">◆ ADENTRO DEL TEMA</div>'+
+      (t.tl?'<div class="mi-ring">◍ TIMELESS</div>':'')+
+      '<h2 class="mi-t">'+esc(t.t||'—')+'</h2>'+
+      '<div class="mi-a">'+esc(t.a||'HK23')+(t.y?' · '+esc(t.y):'')+'</div>'+
+      campo('QUÉ ES', t.es, 'Todavía no escribiste qué es este tema.')+
+      campo('LO QUE PROVOCA', t.pr, 'Todavía no escribiste lo que provoca.')+
+      campo('DE DÓNDE SALIÓ', t.dd, 'Todavía no escribiste de dónde salió.')+
+      '<div class="mi-h">LUNAS — TEMAS RELACIONADOS ('+lunas.length+')</div>'+
+      (lunas.length? '<div class="mi-moons">'+lunas.map(m=>
+          '<div class="mi-moon"'+(safeUrl(m.u)?' data-ir="'+esc(safeUrl(m.u))+'"':'')+'>'+
+          '<b>'+esc(m.t||'—')+'</b><i>'+esc(m.a||'')+'</i></div>').join('')+'</div>'
+        : '<p class="mi-p vacio">Sin temas relacionados todavía.</p>')+
+      '<div class="mi-acts">'+
+        (url? (esAudio(url)
+            ? '<button class="mp-b on" data-deck="a">◐ CARGAR EN DECK A</button>'+
+              '<button class="mp-b" data-deck="b">CARGAR EN DECK B ◑</button>'
+            : '<button class="mp-b on" data-abrir="'+esc(url)+'">▸ ESCUCHAR AFUERA</button>')
+          : '<span class="mi-p vacio" style="margin:0">Sin link: no se puede sonar todavía.</span>')+
+        '<button class="mp-b" data-edit="1">✎ EDITAR</button>'+
+        '<button class="mp-b" data-cerrar="1">✕ VOLVER AL PLANETA</button>'+
+      '</div></div>';
+    const P=$('mp-in'); P.classList.add('open');
+    P.querySelectorAll('[data-ir]').forEach(b=>b.onclick=()=>window.open(b.dataset.ir,'_blank','noopener'));
+    P.querySelectorAll('[data-abrir]').forEach(b=>b.onclick=()=>window.open(b.dataset.abrir,'_blank','noopener'));
+    P.querySelectorAll('[data-deck]').forEach(b=>b.onclick=()=>{ cargarDeck(b.dataset.deck,t); cerrarIn(); abrirDeck(true); });
+    P.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{ cerrarIn(); formulario(t); });
+    P.querySelectorAll('[data-cerrar]').forEach(b=>b.onclick=cerrarIn);
+    const c=P.querySelector('.mi-w'); c.setAttribute('tabindex','-1'); setTimeout(()=>c.focus(),20);
+    log('musica','entró a '+(t.t||id));
+  }
+  function cerrarIn(){ $('mp-in').classList.remove('open'); }
+
+  // ── la cabina: dos temas sonando, un crossfader real ──
+  let AC=null, D={ a:null, b:null };
+  function nodo(lado){
+    if(D[lado]) return D[lado];
+    const el=new Audio(); el.crossOrigin='anonymous'; el.loop=true; el.preload='none';
+    D[lado]={ el, gain:null, src:null, tema:null };
+    return D[lado];
+  }
+  function armar(lado){
+    const d=nodo(lado);
+    if(!AC){ try{ AC=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ return d; } }
+    if(!d.gain && AC){ try{ d.src=AC.createMediaElementSource(d.el); d.gain=AC.createGain();
+      d.src.connect(d.gain); d.gain.connect(AC.destination); mezclar(); }catch(e){} }
+    return d;
+  }
+  function cargarDeck(lado,t){
+    const d=armar(lado); d.tema=t; d.el.src=safeUrl(t.u);
+    const n=$('dk-'+lado+'-n'); n.textContent=t.t||'—'; n.classList.remove('vacio');
+    log('musica','deck '+lado.toUpperCase()+': '+(t.t||''));
+  }
+  function mezclar(){
+    const v=+$('dk-x').value/100;
+    if(D.a&&D.a.gain) D.a.gain.gain.value=Math.cos(v*Math.PI/2);
+    if(D.b&&D.b.gain) D.b.gain.gain.value=Math.cos((1-v)*Math.PI/2);
+    if(D.a&&!D.a.gain) D.a.el.volume=Math.cos(v*Math.PI/2);
+    if(D.b&&!D.b.gain) D.b.el.volume=Math.cos((1-v)*Math.PI/2);
+    $('dk-mix').textContent = v<0.35?'◐ A':(v>0.65?'B ◑':'CENTRO');
+    $('dk-a').classList.toggle('live', v<0.65); $('dk-b').classList.toggle('live', v>0.35);
+  }
+  function play(lado){
+    const d=armar(lado); if(!d.el.src){ avisar('Ese deck está vacío. Entrá a un tema y cargalo.'); return; }
+    if(AC&&AC.state==='suspended') AC.resume();
+    if(d.el.paused){ d.el.play().catch(()=>avisar('El navegador no pudo sonar ese link.'));
+      $('dk-'+lado+'-p').textContent='❚❚ PAUSA'; }
+    else { d.el.pause(); $('dk-'+lado+'-p').textContent='▸ PLAY'; }
+    mezclar();
+  }
+  function abrirDeck(v){ $('mp-deck').classList.toggle('open', v!==undefined?v:!$('mp-deck').classList.contains('open'));
+    $('mp-deck-t').classList.toggle('on', $('mp-deck').classList.contains('open')); }
+
+  // ── cargar / editar un tema ──
+  function avisar(t){ let el=$('mp-live');
+    if(!el){ el=document.createElement('div'); el.id='mp-live'; el.setAttribute('aria-live','polite');
+      el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)';
+      $('mp').appendChild(el); }
+    el.textContent=t; }
+  const campoF=(k,l,v,ph,area)=>'<label class="ma-f"><span>'+esc(l)+'</span>'+
+    (area?'<textarea id="mf-'+k+'" placeholder="'+esc(ph||'')+'">'+esc(v||'')+'</textarea>'
+        :'<input id="mf-'+k+'" value="'+esc(v||'')+'" placeholder="'+esc(ph||'')+'">')+'</label>';
+  function formulario(t){
+    t=t||{};
+    $('mp-add').innerHTML='<div class="ma-w">'+
+      '<div class="mi-eye">◆ '+(t.id?'EDITAR TEMA':'CARGAR UN TEMA')+'</div>'+
+      '<h2 class="mi-t" style="font-size:19px;margin-bottom:18px">'+(t.id?esc(t.t||''):'TU MÚSICA, TUS PALABRAS')+'</h2>'+
+      campoF('t','TÍTULO',t.t,'cómo se llama')+
+      campoF('a','ARTISTA',t.a||'HK23','quién lo hizo')+
+      campoF('y','AÑO',t.y,'2024')+
+      campoF('u','LINK','',0)+
+      '<p class="mi-p vacio" style="margin:-6px 0 14px;font-size:10px">Un .mp3 directo se puede pinchar en la cabina. '+
+      'Un link de YouTube o SoundCloud solo se abre afuera.</p>'+
+      campoF('es','QUÉ ES',t.es,'qué es este tema','area')+
+      campoF('pr','LO QUE PROVOCA',t.pr,'qué le hace a quien lo escucha','area')+
+      campoF('dd','DE DÓNDE SALIÓ',t.dd,'el sample, la noche, el club, el sello','area')+
+      campoF('ln','LUNAS — TEMAS RELACIONADOS',(t.lunas||[]).map(m=>(m.t||'')+' — '+(m.a||'')).join('\n'),
+             'uno por línea:  título — artista','area')+
+      '<label class="ma-chk"><input type="checkbox" id="mf-tl"'+(t.tl?' checked':'')+'>'+
+      '<span>◍ Es un tema <b>TIMELESS</b> — le pone anillo, se ve desde lejos</span></label>'+
+      '<div class="mi-acts">'+
+        '<button class="mp-b on" id="mf-ok">GUARDAR</button>'+
+        (t.id?'<button class="mp-b" id="mf-del">BORRAR</button>':'')+
+        '<button class="mp-b" id="mf-x">CANCELAR</button>'+
+      '</div></div>';
+    const A=$('mp-add'); A.classList.add('open');
+    const v=k=>{ const e=$('mf-'+k); return e?e.value.trim():''; };
+    if(t.u){ const e=$('mf-u'); if(e) e.value=t.u; }
+    $('mf-ok').onclick=()=>{
+      const tit=v('t'); if(!tit){ avisar('Sin título no lo guardo.'); $('mf-t').focus(); return; }
+      const lunas=v('ln').split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{
+        const p=l.split(/\s+[—–-]\s+/); return { t:p[0]||l, a:p[1]||'' }; });
+      const row={ id:t.id||('tk'+Date.now().toString(36)), t:tit, a:v('a')||'HK23', y:v('y'),
+        u:v('u'), es:v('es'), pr:v('pr'), dd:v('dd'), tl:!!$('mf-tl').checked, lunas };
+      const i=TEMAS.findIndex(x=>x.id===row.id);
+      if(i>=0) TEMAS[i]=row; else TEMAS.push(row);
+      const ok=guardar(TEMAS);
+      TEMAS=leer();                                  // lo leo de vuelta: no te digo "guardado" sin comprobarlo
+      const quedo=TEMAS.some(x=>x.id===row.id);
+      layout(); pintarVacio(); A.classList.remove('open');
+      avisar(quedo? (ok?'Tema guardado en este dispositivo.':'Guardado.') : 'NO se pudo guardar. Fijate el espacio del navegador.');
+      log('musica',(i>=0?'editó ':'cargó ')+row.t);
+    };
+    if($('mf-del')) $('mf-del').onclick=()=>{
+      TEMAS=TEMAS.filter(x=>x.id!==t.id); guardar(TEMAS); TEMAS=leer();
+      layout(); pintarVacio(); A.classList.remove('open'); avisar('Tema borrado.'); };
+    $('mf-x').onclick=()=>A.classList.remove('open');
+    setTimeout(()=>{ const e=$('mf-t'); if(e) e.focus(); },30);
+  }
+
+  function pintarVacio(){ const v=$('mp-vacio'); if(v) v.hidden = TEMAS.length>0; }
+
+  // ── abrir / cerrar ──
+  let ultimo=null;
+  function abrir(){ const el=$('mp'); if(el.classList.contains('open')) return;
+    el.classList.add('open'); ultimo=document.activeElement;
+    corriendo=true; fit(); pintarVacio(); requestAnimationFrame(pintar);
+    setTimeout(()=>{ const b=$('mp-close'); if(b) b.focus(); },30);
+    log('musica','abrió el planeta música'); }
+  function cerrar(){ const el=$('mp'); if(!el.classList.contains('open')) return;
+    corriendo=false; el.classList.remove('open'); cerrarIn(); $('mp-add').classList.remove('open');
+    ['a','b'].forEach(l=>{ if(D[l]&&D[l].el&&!D[l].el.paused){ D[l].el.pause(); $('dk-'+l+'-p').textContent='▸ PLAY'; } });
+    if(ultimo&&ultimo.focus) ultimo.focus(); ultimo=null; }
+
+  $('mp-close').onclick=cerrar;
+  $('mp-new').onclick=()=>formulario(null);
+  $('mp-new2').onclick=()=>formulario(null);
+  $('mp-deck-t').onclick=()=>abrirDeck();
+  $('dk-a-p').onclick=()=>play('a'); $('dk-b-p').onclick=()=>play('b');
+  $('dk-x').oninput=mezclar;
+  cv.addEventListener('pointerdown',e=>{ const id=golpe(e.clientX,e.clientY); if(id){ hot=id; entrar(id); } });
+  cv.addEventListener('pointermove',e=>{ hot=golpe(e.clientX,e.clientY); });
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(!$('mp').classList.contains('open')) return;
+    if(e.key==='Escape'){ e.stopImmediatePropagation();
+      if($('mp-add').classList.contains('open')) $('mp-add').classList.remove('open');
+      else if($('mp-in').classList.contains('open')) cerrarIn();
+      else cerrar(); }
+  }, true);
+
+  window.MusicaHK={ open:abrir, close:cerrar, nuevo:()=>formulario(null),
+    temas:()=>JSON.parse(JSON.stringify(TEMAS)), cabina:abrirDeck };
 })();
 </script>
 
