@@ -1,0 +1,5 @@
+{
+  "_como_usar": "Este archivo alimenta el MUNDO MVB (tecla E). Reemplazá estos eventos DEMO por los reales del momento — mismo esquema. cat: club|fiesta|resto|live|rooftop. px/py: posición 0..1 en el mapa. fire: 0-100 qué tan del momento está. Los sellers también pueden registrarse solos desde el panel CONECTOR (Supabase universe_sellers).",
+  "events": [],
+  "sellers": []
+}
