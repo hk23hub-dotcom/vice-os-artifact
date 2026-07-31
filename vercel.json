@@ -9,6 +9,11 @@
   ],
   "redirects": [
     {
+      "source": "/hk23-universe",
+      "destination": "/universe-os",
+      "permanent": false
+    },
+    {
       "source": "/agent-os",
       "destination": "https://hk23hub.gumroad.com/l/agentos",
       "permanent": false
@@ -35,6 +40,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/universe-os",
+      "destination": "/universe-os.html"
+    },
     {
       "source": "/g/:slug",
       "destination": "/universe-os.html?g=:slug"
