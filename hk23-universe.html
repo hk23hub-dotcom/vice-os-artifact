@@ -10237,5 +10237,228 @@ window.refreshEcosystemStats = function(){
 })();
 </script>
 <div id="universe-os-portal" onclick="location.href=(String(location.pathname).replace(/[^\/]*$/,''))+'universe-os'" style="position:fixed;right:18px;bottom:18px;z-index:99990;cursor:pointer;background:rgba(6,6,8,.92);border:1px solid #FF3A1F;border-radius:3px;padding:10px 16px;font-family:monospace;font-size:10px;letter-spacing:3px;color:#FF3A1F;backdrop-filter:blur(6px)">🌌 UNIVERSE OS →</div>
+
+<!-- ═══════ DASHBOARD: ejecutar de verdad · vender cualquier cosa · referidos ═══════ -->
+<style id="dx-style">
+  #dash-panel .dx-h{ font-size:10px; letter-spacing:3px; color:#6a6a78; margin:16px 0 8px;
+    border-bottom:1px solid #1c1c26; padding-bottom:6px; }
+  #dash-panel .dx-in,#dash-panel .dx-ta{ width:100%; background:#0e0e16; border:1px solid #20202c;
+    color:#cdd; border-radius:7px; padding:11px; font:400 12px inherit; min-height:44px; margin-bottom:8px; }
+  #dash-panel .dx-ta{ min-height:86px; line-height:1.7; resize:vertical; }
+  #dash-panel .dx-in:focus-visible,#dash-panel .dx-ta:focus-visible{ outline:2px solid #39d0ff; outline-offset:1px; }
+  #dash-panel .dx-ag{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  #dash-panel .dx-ag button{ font-size:10px; letter-spacing:1px; background:transparent; border:1px solid #2a2a36;
+    color:#8a8a98; border-radius:6px; padding:9px 11px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-ag button.on{ background:#39d0ff; color:#06060a; border-color:#39d0ff; font-weight:700; }
+  #dash-panel .dx-b{ background:#39d0ff; color:#06060a; border:none; border-radius:7px; padding:12px 15px;
+    font:700 11px inherit; letter-spacing:2px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-b[disabled]{ opacity:.5; cursor:progress; }
+  #dash-panel .dx-b2{ background:transparent; border:1px solid #2a2a36; color:#8a8a98; border-radius:7px;
+    padding:11px 13px; font:400 10px inherit; letter-spacing:1px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-out{ white-space:pre-wrap; line-height:1.75; font-size:12px; color:#cdd;
+    background:#0b0b12; border:1px solid #1c1c26; border-radius:9px; padding:14px; margin-top:12px; }
+  #dash-panel .dx-out.err{ border-color:#5a2020; color:#ff8a6a; }
+  #dash-panel .dx-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  #dash-panel .dx-it{ background:#0e0e16; border:1px solid #20202c; border-radius:9px; padding:11px 12px; margin-bottom:8px; }
+  #dash-panel .dx-it b{ font-size:12px; color:#cdd; display:block; }
+  #dash-panel .dx-it i{ font-size:10px; color:#6a6a78; font-style:normal; display:block; margin-top:3px; }
+  #dash-panel .dx-it .dx-row{ margin-top:9px; }
+  #dash-panel .dx-tag{ font-size:9px; letter-spacing:1px; color:#06060a; background:#2bd66a;
+    border-radius:4px; padding:3px 7px; font-weight:700; }
+</style>
+<script>
+// ═══ El dashboard deja de ser un cartel: ejecuta, vende y reparte ═══
+(function(){
+  function esperar(){ if(typeof window.DASH!=='object'||!window.DASH.render){ return setTimeout(esperar,300); } armar(); }
+  esperar();
+
+  function armar(){
+    const D=window.DASH;
+    const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+    const SB=(window.__nhCloud&&window.__nhCloud.SB)||
+      { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+    const H=rep=>{ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json',
+      'Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; };
+    const leer=async k=>{ try{ const r=await fetch(SB.url+'/entities?select=id,name,summary,meta&meta->>nh=eq.1&meta->>kind=eq.'+k+'&order=created_at.desc',{headers:H()});
+      return r.ok? await r.json() : []; }catch(e){ return []; } };
+    const crear=async(k,f)=>{ try{ const b=Object.assign({level:'node',kind:'system'},f);
+      b.meta=Object.assign({nh:'1',kind:k}, f.meta||{});
+      const r=await fetch(SB.url+'/entities',{method:'POST',headers:H(1),body:JSON.stringify(b)});
+      return r.ok; }catch(e){ return false; } };
+    const body=()=>document.getElementById('dash-body');
+
+    // ── pestañas nuevas ──
+    const barra=document.querySelector('#dash-panel .d-tabs')||document.getElementById('dt-exec').parentElement;
+    [['vender','Vender'],['referidos','Referidos']].forEach(([k,l])=>{
+      if(document.getElementById('dt-'+k)) return;
+      const b=document.createElement('div'); b.className='d-tab'; b.id='dt-'+k; b.textContent=l;
+      b.onclick=()=>ir(k); barra.appendChild(b);
+    });
+    let mio=null;
+    const TABS=['overview','notes','tasks','worlds','projects','admin','exec','vender','referidos'];
+    const marcar=t=>TABS.forEach(x=>{ const e=document.getElementById('dt-'+x); if(e) e.classList.toggle('on',x===t); });
+    function ir(t){ mio=t; marcar(t); pintar(t); }
+    const tabOrig=D.tab.bind(D);
+    D.tab=function(t){ mio=null; tabOrig(t); };
+    const renderOrig=D.render.bind(D);
+    D.render=async function(){ if(mio){ marcar(mio); return pintar(mio); } await renderOrig();
+      // la pestaña EJECUTAR del original es un cartel: la reemplazo por la de verdad
+      if(document.getElementById('dt-exec')&&document.getElementById('dt-exec').classList.contains('on')) pintarExec(); };
+
+    // ── EJECUTAR de verdad: contra /api/run, que ya está desplegado ──
+    const AGENTES=[['prioritizer','PRIORIZAR'],['strategist','ESTRATEGIA'],['writer','ESCRIBIR'],
+                   ['analyst','ANALIZAR'],['aduanero','ADUANERO'],['futures','FUTUROS'],['gta6','GTA6']];
+    let agSel='prioritizer';
+    function pintarExec(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">EJECUTAR · CORRE DE VERDAD</div>'+
+        '<div class="dx-ag">'+AGENTES.map(([k,l])=>
+          '<button data-ag="'+k+'"'+(k===agSel?' class="on"':'')+'>'+l+'</button>').join('')+'</div>'+
+        '<textarea class="dx-ta" id="dx-p" placeholder="Escribí acá lo que querés que haga el agente…"></textarea>'+
+        '<div class="dx-row"><button class="dx-b" id="dx-go">▶ EJECUTAR</button>'+
+        '<button class="dx-b2" id="dx-save" style="display:none">＋ GUARDAR COMO NOTA</button></div>'+
+        '<div id="dx-out"></div>';
+      b.querySelectorAll('[data-ag]').forEach(x=>x.onclick=()=>{ agSel=x.dataset.ag;
+        b.querySelectorAll('[data-ag]').forEach(y=>y.classList.toggle('on',y===x)); });
+      document.getElementById('dx-go').onclick=correr;
+    }
+    let ultimo='';
+    async function correr(){
+      const p=(document.getElementById('dx-p').value||'').trim();
+      const out=document.getElementById('dx-out'), go=document.getElementById('dx-go');
+      if(!p){ out.className='dx-out err'; out.textContent='Escribí algo primero.'; return; }
+      go.disabled=true; go.textContent='CORRIENDO…';
+      out.className='dx-out'; out.textContent='…';
+      try{
+        const r=await fetch('/api/run',{ method:'POST',
+          headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({ action:'agent', agent:agSel, prompt:p }) });
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok){ out.className='dx-out err';
+          out.textContent='No corrió. HTTP '+r.status+(j.error?' — '+j.error:'')+
+            (r.status===401?'\n\nEl runner pide sesión o token. Está desplegado, pero no me dejó entrar.':'')+
+            (r.status===404?'\n\n/api/run no existe en este despliegue.':'');
+          return; }
+        ultimo=(j.text||j.output||j.result||JSON.stringify(j,null,2));
+        out.className='dx-out'; out.textContent=ultimo;
+        const sv=document.getElementById('dx-save');
+        sv.style.display=''; sv.onclick=async()=>{
+          const ok=await crear('note',{ name:agSel.toUpperCase()+' · '+p.slice(0,40), summary:ultimo });
+          sv.textContent= ok? '✓ GUARDADO EN SUPABASE' : '✕ NO SE PUDO GUARDAR'; };
+      }catch(e){ out.className='dx-out err'; out.textContent='No se pudo llamar al runner: '+(e&&e.message||e); }
+      finally{ go.disabled=false; go.textContent='▶ EJECUTAR'; }
+    }
+
+    // ── VENDER: cualquier nota o tarea se convierte en algo que se vende ──
+    async function pintarVender(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">VENDER · CARGANDO…</div>';
+      const [notas,tareas,prods]=await Promise.all([leer('note'),leer('task'),leer('product')]);
+      if(mio!=='vender') return;
+      const ref=(localStorage.getItem('hk23_mi_ref')||'').trim();
+      const item=(o,tipo)=>'<div class="dx-it"><b>'+esc(o.name||o.summary||'—')+'</b>'+
+        '<i>'+esc(tipo)+'</i><div class="dx-row">'+
+        '<input class="dx-in" style="flex:1;min-width:90px;margin:0" placeholder="precio" data-p="'+esc(o.id)+'">'+
+        '<input class="dx-in" style="flex:2;min-width:130px;margin:0" placeholder="link de pago" data-l="'+esc(o.id)+'">'+
+        '<button class="dx-b" data-v="'+esc(o.id)+'">VENDER</button></div></div>';
+      b.innerHTML='<div class="dx-h">YA A LA VENTA ('+prods.length+')</div>'+
+        (prods.length? prods.map(p=>{ const m=p.meta||{}; const u=safeUrl(m.link);
+            const link=u? u+(ref?(u.indexOf('?')>=0?'&':'?')+'ref='+encodeURIComponent(ref):'') : '';
+            return '<div class="dx-it"><b>'+esc(p.name||'—')+'</b>'+
+              '<i>'+esc(m.precio||'sin precio')+'</i><div class="dx-row">'+
+              '<span class="dx-tag">A LA VENTA</span>'+
+              (link?'<button class="dx-b2" data-copiar="'+esc(link)+'">COPIAR MI LINK</button>':
+                    '<span style="font-size:10px;color:#6a6a78">sin link de pago</span>')+
+              '</div></div>'; }).join('')
+          : '<div class="dx-it"><i>Nada a la venta todavía.</i></div>')+
+        '<div class="dx-h">CONVERTIR EN PRODUCTO</div>'+
+        (notas.length||tareas.length
+          ? notas.map(n=>item(n,'nota')).join('')+tareas.map(t=>item(t,'tarea')).join('')
+          : '<div class="dx-it"><i>No hay notas ni tareas para vender. Creá una primero.</i></div>');
+      b.querySelectorAll('[data-v]').forEach(btn=>btn.onclick=async()=>{
+        const id=btn.dataset.v;
+        const src=[...notas,...tareas].find(o=>o.id===id); if(!src) return;
+        const precio=(b.querySelector('[data-p="'+CSS.escape(id)+'"]')||{}).value||'';
+        const link=(b.querySelector('[data-l="'+CSS.escape(id)+'"]')||{}).value||'';
+        if(!precio.trim()){ btn.textContent='PONÉ PRECIO'; setTimeout(()=>btn.textContent='VENDER',1600); return; }
+        btn.disabled=true; btn.textContent='…';
+        const ok=await crear('product',{ name:src.name||src.summary||'—', summary:src.summary||'',
+          meta:{ precio:precio.trim(), link:link.trim(), origen:id } });
+        btn.textContent= ok?'✓ PUBLICADO':'✕ NO SE PUDO';
+        if(ok) setTimeout(()=>{ if(mio==='vender') pintarVender(); },700);
+      });
+      b.querySelectorAll('[data-copiar]').forEach(x=>x.onclick=()=>{
+        try{ navigator.clipboard.writeText(x.dataset.copiar); x.textContent='✓ COPIADO';
+          setTimeout(()=>x.textContent='COPIAR MI LINK',1600); }catch(e){} });
+    }
+
+    // ── REFERIDOS: el código de cada uno, y el link que le corresponde ──
+    async function pintarReferidos(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">REFERIDOS · CARGANDO…</div>';
+      const [refs,prods]=await Promise.all([leer('referido'),leer('product')]);
+      if(mio!=='referidos') return;
+      const mio_=(localStorage.getItem('hk23_mi_ref')||'');
+      b.innerHTML=
+        '<div class="dx-h">MI CÓDIGO</div>'+
+        '<div class="dx-row"><input class="dx-in" id="dx-miref" style="flex:1;margin:0" '+
+          'placeholder="tu propio código (ej. HK23)" value="'+esc(mio_)+'">'+
+          '<button class="dx-b2" id="dx-miref-ok">GUARDAR</button></div>'+
+        '<div class="dx-h">SUMAR UN REFERIDO</div>'+
+        '<input class="dx-in" id="dx-rn" placeholder="nombre">'+
+        '<div class="dx-row"><input class="dx-in" id="dx-rc" style="flex:2;margin:0" placeholder="su código">'+
+        '<input class="dx-in" id="dx-rp" style="flex:1;min-width:80px;margin:0" placeholder="% suyo"></div>'+
+        '<div class="dx-row" style="margin-top:8px"><button class="dx-b" id="dx-radd">＋ AGREGAR</button></div>'+
+        '<div class="dx-h">MIS REFERIDOS ('+refs.length+')</div>'+
+        (refs.length? refs.map(r=>{ const m=r.meta||{};
+            const cod=m.codigo||''; const base=location.origin+location.pathname;
+            const link=base+'?ref='+encodeURIComponent(cod);
+            return '<div class="dx-it"><b>'+esc(r.name||'—')+'</b>'+
+              '<i>código '+esc(cod||'—')+(m.pct?' · '+esc(m.pct)+'% para él':'')+
+              ' · '+prods.length+' producto(s) para repartir</i>'+
+              '<div class="dx-row">'+(cod?'<button class="dx-b2" data-cp="'+esc(link)+'">COPIAR SU LINK</button>':
+                '<span style="font-size:10px;color:#ff8a6a">sin código: no se le puede atribuir nada</span>')+
+              '</div></div>'; }).join('')
+          : '<div class="dx-it"><i>Todavía no cargaste ningún referido.</i></div>')+
+        '<div class="dx-it" style="border-color:#1c1c26"><i>El link lleva <b>?ref=&lt;código&gt;</b>. '+
+        'El universo lo guarda en el aparato de quien entra, y desde ahí se puede atribuir la venta. '+
+        'El cobro y el reparto de plata no viven acá — eso lo hace tu pasarela de pago.</i></div>';
+      document.getElementById('dx-miref-ok').onclick=()=>{
+        const v=(document.getElementById('dx-miref').value||'').trim();
+        try{ localStorage.setItem('hk23_mi_ref',v); }catch(e){}
+        const leido=(localStorage.getItem('hk23_mi_ref')||'');
+        document.getElementById('dx-miref-ok').textContent = leido===v? '✓ GUARDADO' : '✕ NO SE GUARDÓ';
+        setTimeout(()=>{ const e=document.getElementById('dx-miref-ok'); if(e) e.textContent='GUARDAR'; },1800); };
+      document.getElementById('dx-radd').onclick=async()=>{
+        const n=(document.getElementById('dx-rn').value||'').trim();
+        const c=(document.getElementById('dx-rc').value||'').trim();
+        const p=(document.getElementById('dx-rp').value||'').trim();
+        const btn=document.getElementById('dx-radd');
+        if(!n||!c){ btn.textContent='FALTA NOMBRE Y CÓDIGO'; setTimeout(()=>btn.textContent='＋ AGREGAR',1800); return; }
+        btn.disabled=true; btn.textContent='…';
+        const ok=await crear('referido',{ name:n, summary:'referido con código '+c, meta:{ codigo:c, pct:p } });
+        btn.disabled=false; btn.textContent= ok?'✓ AGREGADO':'✕ NO SE PUDO';
+        if(ok) setTimeout(()=>{ if(mio==='referidos') pintarReferidos(); },700);
+      };
+      b.querySelectorAll('[data-cp]').forEach(x=>x.onclick=()=>{
+        try{ navigator.clipboard.writeText(x.dataset.cp); x.textContent='✓ COPIADO';
+          setTimeout(()=>x.textContent='COPIAR SU LINK',1600); }catch(e){} });
+    }
+
+    // el código de quien te trajo queda guardado apenas entra
+    try{ const r=new URLSearchParams(location.search).get('ref');
+      if(r) localStorage.setItem('hk23_vino_por', r); }catch(e){}
+
+    function pintar(t){ if(t==='vender') return pintarVender();
+      if(t==='referidos') return pintarReferidos(); if(t==='exec') return pintarExec(); }
+
+    window.DASHX={ exec:()=>ir('exec'), vender:()=>ir('vender'), referidos:()=>ir('referidos'),
+      correr, version:'1' };
+  }
+})();
+</script>
+
 </body>
 </html>
