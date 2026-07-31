@@ -12889,6 +12889,7 @@ addEventListener('DOMContentLoaded', function(){
   const GROUPS=[
     ['◈ TU UNIVERSO', [
       ['◉','MÚSICA','tu planeta de temas','#E8C86A',()=>call(window.MusicaHK&&window.MusicaHK.open)],
+      ['▦','DASHBOARD','ejecutar · vender · referidos','#39d0ff',()=>call(window.DASH&&window.DASH.toggle)],
       ['◈','WINAMP','tu música + radios','#AAFF66',()=>call(window.Winamp&&window.Winamp.open)],
       ['🌃','MVB','la noche en vivo','#FF3AC8',()=>call(window.MVB&&window.MVB.open)],
       ['📚','BIBLIOTECA','libros y guías','#FFD200',()=>call(window.hkBiblioteca)],
@@ -13310,6 +13311,18 @@ addEventListener('DOMContentLoaded', function(){
     #atl-fab{ bottom:calc(142px + env(safe-area-inset-bottom,0px)) !important; }
 
     /* 3 · nada tocable puede medir menos que un dedo */
+    #dash-fab{ min-height:44px !important; display:inline-flex !important; align-items:center !important; }
+    /* el dashboard llegó después del arreglo móvil: sus botones también son para un dedo */
+    #dash-panel .d-tab, #dash-panel .d-btn, #dash-panel .d-world, #dash-panel .d-x, #dash-panel .d-del{
+      min-height:44px !important; display:inline-flex !important; align-items:center !important;
+      justify-content:center !important; }
+    #dash-panel #dash-tabs{ flex-wrap:wrap !important; }
+    #dash-panel .d-tab{ flex:1 0 auto !important; padding-left:10px !important; padding-right:10px !important; }
+    #dash-panel .d-world{ justify-content:flex-start !important; }
+    /* los últimos que quedaban cortos: puerta de entrada, lanzadores y CTA de tier */
+    #enter-btn, .gate-cta, #me-launch, #ag-launch{
+      min-height:44px !important; display:inline-flex !important;
+      align-items:center !important; justify-content:center !important; }
     #hk-dock button, #hk-dock a, .nav-btn, .dk, .zone-header button, .zone-header a{
       min-height:44px !important; padding-top:10px !important; padding-bottom:10px !important;
       display:inline-flex !important; align-items:center !important; justify-content:center !important; }
@@ -13772,5 +13785,581 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+
+<!-- ═══════════ DASHBOARD — traído desde hk23-universe.html: un solo universo ═══════════ -->
+<style>
+  #dash-fab{position:fixed;top:66px;left:24px;z-index:9000;font-family:'Space Mono',monospace;font-size:10px;
+    letter-spacing:2px;text-transform:uppercase;color:#cdd;background:rgba(10,10,16,.85);border:1px solid #2a2a36;
+    border-radius:30px;padding:10px 16px;cursor:pointer;backdrop-filter:blur(6px);}
+  #dash-fab:hover{border-color:#39d0ff;color:#fff;}
+  #dash-fab.on{border-color:#39d0ff;color:#39d0ff;}
+  #dash-panel{position:fixed;top:0;left:0;height:100%;width:420px;max-width:94vw;z-index:9001;background:rgba(8,8,13,.97);
+    backdrop-filter:blur(16px);border-right:1px solid #1d1d28;transform:translateX(-102%);transition:transform .35s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;padding:22px 22px 60px;font-family:'Space Mono',monospace;color:#e6e6ee;}
+  #dash-panel.open{transform:translateX(0);}
+  #dash-panel h3{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:18px;letter-spacing:.5px;margin-bottom:2px;}
+  #dash-panel .d-sub{font-size:9px;letter-spacing:2px;color:#5a5a68;text-transform:uppercase;margin-bottom:14px;}
+  #dash-panel .d-x{position:absolute;top:18px;right:18px;cursor:pointer;color:#888;font-size:18px;}
+  #dash-tabs{display:flex;margin:6px 0 14px;}
+  .d-tab{flex:1;text-align:center;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:9px 2px;cursor:pointer;color:#6a6a78;border-bottom:1px solid #20202c;}
+  .d-tab.on{color:#39d0ff;border-color:#39d0ff;}
+  #dash-body input,#dash-body textarea{width:100%;background:#0e0e16;border:1px solid #20202c;border-radius:8px;padding:9px 11px;color:#e6e6ee;font-family:inherit;font-size:12px;outline:none;}
+  #dash-body input:focus,#dash-body textarea:focus{border-color:#39d0ff;}
+  #dash-body textarea{resize:vertical;min-height:48px;line-height:1.5;}
+  .d-btn{width:100%;text-align:center;margin-top:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:9px;padding:11px;cursor:pointer;border:none;background:#39d0ff;color:#06121a;}
+  .d-card{background:#11111a;border:1px solid #20202c;border-radius:10px;padding:11px 12px;margin-top:9px;font-size:12px;line-height:1.5;position:relative;}
+  .d-del{position:absolute;top:8px;right:10px;color:#555;cursor:pointer;font-size:13px;}
+  .d-del:hover{color:#ff6b6b;}
+  .d-pill{display:inline-block;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;cursor:pointer;}
+  .d-metric{display:inline-block;text-align:center;background:#11111a;border:1px solid #20202c;border-radius:10px;padding:12px 0;width:31%;margin-right:2%;}
+  .d-metric b{display:block;font-family:'Space Grotesk',sans-serif;font-size:26px;color:#39d0ff;}
+  .d-metric span{font-size:8px;letter-spacing:1px;color:#6a6a78;text-transform:uppercase;}
+  .d-world{display:flex;align-items:center;gap:10px;padding:11px 12px;border:1px solid #20202c;border-radius:10px;margin-top:9px;text-decoration:none;color:#e6e6ee;font-size:13px;}
+  .d-world:hover{border-color:#39d0ff;}
+  .d-world.soon{opacity:.5;cursor:default;}
+  .d-world .d-go{margin-left:auto;font-size:10px;color:#39d0ff;letter-spacing:1px;}
+  #world-view{position:fixed;inset:0;z-index:9002;background:rgba(5,5,9,.86);backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:24px;font-family:'Space Mono',monospace;}
+  #world-view.open{display:flex;}
+  #world-view .wv-card{position:relative;max-width:520px;width:100%;background:#0c0c14;border:1px solid #20202c;border-radius:16px;padding:30px 28px;color:#e6e6ee;}
+  #world-view .wv-x{position:absolute;top:16px;right:18px;cursor:pointer;color:#888;font-size:18px;}
+  #world-view .wv-status{display:inline-block;font-size:9px;letter-spacing:2px;padding:4px 10px;border-radius:20px;margin-bottom:12px;}
+  #world-view h2{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:30px;letter-spacing:.5px;margin:0 0 4px;}
+  #world-view .wv-sub{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6a6a78;margin-bottom:22px;}
+  #world-view .wv-why-label{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#5a5a68;margin-bottom:7px;}
+  #world-view .wv-why{font-size:14px;line-height:1.65;color:#c6c6d2;}
+  #world-view .wv-road{font-size:12px;color:#8a8a98;margin-top:18px;padding:11px 13px;border:1px dashed #2a2a36;border-radius:9px;}
+  #world-view #wv-actions{display:flex;gap:10px;margin-top:22px;}
+  #world-view .wv-btn{flex:1;text-align:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:12px;letter-spacing:1px;text-transform:uppercase;border-radius:9px;padding:12px;cursor:pointer;}
+</style>
+<div id="dash-fab" onclick="DASH.toggle()">▦ Dashboard</div>
+<div id="dash-panel">
+  <span class="d-x" onclick="DASH.close()">✕</span>
+  <h3>UNIVERSE DASHBOARD</h3>
+  <div class="d-sub">Mission control · escribe y ejecuta de verdad</div>
+  <div id="dash-tabs">
+    <div class="d-tab on" id="dt-overview" onclick="DASH.tab('overview')">Resumen</div>
+    <div class="d-tab" id="dt-notes" onclick="DASH.tab('notes')">Notas</div>
+    <div class="d-tab" id="dt-tasks" onclick="DASH.tab('tasks')">Tareas</div>
+    <div class="d-tab" id="dt-worlds" onclick="DASH.tab('worlds')">Mundos</div>
+    <div class="d-tab" id="dt-projects" onclick="DASH.tab('projects')">Proyectos</div>
+    <div class="d-tab" id="dt-admin" onclick="DASH.tab('admin')">Admin</div>
+    <div class="d-tab" id="dt-exec" onclick="DASH.tab('exec')">Ejecutar</div>
+  </div>
+  <div id="dash-body"></div>
+</div>
+<div id="world-view"><div class="wv-card">
+  <span class="wv-x" onclick="DASH.closeWorld()">✕</span>
+  <div class="wv-status" id="wv-status"></div>
+  <h2 id="wv-title"></h2>
+  <div class="wv-sub" id="wv-sub"></div>
+  <div class="wv-why-label">Por qué está en el universo</div>
+  <div class="wv-why" id="wv-why"></div>
+  <div class="wv-road" id="wv-road"></div>
+  <div id="wv-list"></div>
+  <div id="wv-actions"></div>
+</div></div>
+<script>
+(function(){
+  const SB = (window.__nhCloud && window.__nhCloud.SB) || { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const toast = (m)=>{ try{ (window.__nhToast||function(){})(m); }catch(e){} };
+  function H(rep){ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json','Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; }
+  async function readKind(kind){ try{ const r=await fetch(SB.url+'/entities?select=id,name,summary,meta&meta->>nh=eq.1&meta->>kind=eq.'+kind+'&order=created_at.desc',{headers:H()}); if(!r.ok) return []; return await r.json(); }catch(e){ return []; } }
+  async function countEntities(){ try{ const r=await fetch(SB.url+'/entities?select=id',{headers:Object.assign({Prefer:'count=exact','Range-Unit':'items',Range:'0-0'},H())}); const cr=r.headers.get('content-range')||''; const tot=cr.split('/')[1]; return tot&&tot!=='*'?parseInt(tot,10):'—'; }catch(e){ return '—'; } }
+  async function add(kind, fields){ try{ const body=Object.assign({level:'node',kind:'system'},fields); body.meta=Object.assign({nh:'1',kind:kind}, fields.meta||{}); const r=await fetch(SB.url+'/entities',{method:'POST',headers:H(true),body:JSON.stringify(body)}); if(!r.ok) return null; const j=await r.json(); return j[0]||null; }catch(e){ return null; } }
+  async function patch(id, fields){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'PATCH',headers:H(false),body:JSON.stringify(fields)}); return r.ok; }catch(e){ return false; } }
+  async function del(id){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'DELETE',headers:H()}); return r.ok; }catch(e){ return false; } }
+  const esc=(s)=>String(s==null?'':s).replace(/</g,'&lt;');
+
+  const WORLDS=[
+    {id:'rugby-vice',label:'Rugby Vice',sub:'cartas · kick tracker',status:'build',url:'',roadmap:'Se integra como mundo en el incremento 3.',
+      why:'El mundo de performance de rugby: cartas coleccionables, evaluación 1–5 y kick tracker. Tu deporte convertido en sistema — y la puerta al desbloqueo de mentes (arma tu XV).'},
+    {id:'vicegolfer',label:'ViceGolfer',sub:'golf performance',status:'build',url:'',roadmap:'La app ya existe; falta conectarla como mundo (incr. 4).',
+      why:'Performance de golf — el gemelo de Rugby Vice: mismo motor, otro deporte. El primer Vice que validó el sistema.'},
+    {id:'atlas-x',label:'ATLAS X',sub:'motor de IA',status:'live',url:'https://atlas-x-app.vercel.app',gated:true,
+      roadmap:'Está EN VIVO, pero la app tiene candado de contraseña (Invalid/missing access password). Por eso no se abre directo: entra y mete tu clave, o quítale el password en Vercel para que abra libre.',
+      why:'El motor de IA del universo — el cerebro que va a potenciar los agentes (priorizar, generar, analizar).'},
+    {id:'cosmos',label:'Cosmos',sub:'front door',status:'live',url:'cosmos.html',
+      why:'La puerta principal del universo — el front door coleccionable / marketplace.'},
+    {id:'mundial',label:'Mundial 2026',sub:'dashboard · agente pro',status:'live',url:'mundial.html',
+      why:'Dashboard interactivo del Mundial 2026 con un agente analista: quién va quedando y sus probabilidades de título.'},
+    {id:'vice-gta6',label:'VICE.HUB GTA6',sub:'fan hub · experiencia',status:'live',url:'vice-gta6.html',
+      why:'El fan hub de GTA 6: money methods, crews, guías, easter eggs y base de vehículos. Primera experiencia vendible del universo — acceso por tier en la próxima fase.'},
+    {id:'multiverse',label:'Multiverse',sub:'galería de universos',status:'live',url:'multiverse.html',
+      why:'La galería del multiverso — todos los universos HK23 vistos desde afuera, en una sola página.'},
+    {id:'albatros',label:'Albatros',sub:'torneos de golf · SaaS',status:'live',url:'https://albatros.vercel.app',
+      why:'La app de torneos de golf para clubes: armá el torneo, cargá scores en vivo y compartí el leaderboard. El producto golf del universo que ya está EN VIVO.'},
+  ];
+  const WSTATUS={live:{c:'#2bd66a',label:'EN VIVO'},build:{c:'#FFD200',label:'EN CONSTRUCCIÓN'},idea:{c:'#b06bff',label:'IDEA'}};
+  // ── PUERTAS: cada nodo del universo tiene un destino asignable ──
+  const UDEST_KEY='hk23-udest';
+  let UDEST={}; try{ UDEST=JSON.parse(localStorage.getItem(UDEST_KEY)||'{}'); }catch(e){ UDEST={}; }
+  if(!UDEST['proj:projects_pl']) UDEST['proj:projects_pl']={type:'dashboard',value:'projects'};
+  const PROJ_STATUS={idea:{c:'#b06bff',label:'IDEA'},construyendo:{c:'#FFD200',label:'CONSTRUYENDO'},vivo:{c:'#2bd66a',label:'VIVO'},hecho:{c:'#39d0ff',label:'HECHO'}};
+  const PROJ_NEXT={idea:'construyendo',construyendo:'vivo',vivo:'hecho',hecho:'idea'};
+  const saveDest=()=>localStorage.setItem(UDEST_KEY,JSON.stringify(UDEST));
+  const DEST_TYPES=[['door','Puerta (info/idea)'],['url','Abrir link/mundo'],['dashboard','Pestaña dashboard'],['fractal','Red neural (vieja)'],['zone','Zona original']];
+  const DEST_SHORT={door:'puerta',url:'link',dashboard:'dashboard',fractal:'red neural',zone:'zona'};
+  function destLabel(d){ if(!d||!d.type) return 'puerta (default)'; return (DEST_SHORT[d.type]||d.type)+(d.value?(' · '+d.value):''); }
+  function routeNode(id, obj){ const d=UDEST[id];
+    if(d&&d.type==='url'&&d.value){ window.open(/^(https?:|\/|\.|[\w-]+\.html)/.test(d.value)?d.value:('https://'+d.value),'_blank','noopener'); return; }
+    if(d&&d.type==='dashboard'){ if(!document.getElementById('dash-panel').classList.contains('open')) DASH.toggle(); DASH.tab(d.value||'overview'); return; }
+    if(d&&d.type==='fractal'&&obj&&obj.universe&&DASH._origFractal){ DASH._origFractal(obj); return; }
+    if(d&&d.type==='zone'&&DASH._origGoTo){ DASH._origGoTo(id.replace(/^(gal|proj):/,'')); return; }
+    DASH.showDoor(id, obj); }
+  const STATUS={pendiente:{c:'#6a6a78',bg:'#1a1a24'},haciendo:{c:'#39d0ff',bg:'#0c2531'},hecho:{c:'#2bd66a',bg:'#0e2417'}};
+  const NEXT={pendiente:'haciendo',haciendo:'hecho',hecho:'pendiente'};
+  const PRIO={alta:{c:'#ff6b6b',bg:'#2a1416',label:'ALTA'},media:{c:'#FFD200',bg:'#2a2410',label:'MEDIA'},baja:{c:'#6a8a9a',bg:'#13202a',label:'BAJA'}};
+  const BUMP={baja:'media',media:'alta',alta:'baja'};
+  // local prioritization agent (heuristic) — upgradeable to ATLAS X via the Action Runner
+  function classify(line){ const s=line.toLowerCase();
+    if(/urgent|urgente|\bhoy\b|today|\bya\b|asap|ahora|\bnow\b|cr[ií]tic|deadline|vence|!!/.test(s)) return 'alta';
+    if(/importante|prioridad|priorit|pronto|esta semana|this week|soon|clave|\bkey\b/.test(s)) return 'media';
+    if(/alg[uú]n d[ií]a|someday|cuando pueda|later|opcional|optional|nice to have|backlog/.test(s)) return 'baja';
+    if(/!/.test(line)) return 'media';
+    return 'baja'; }
+  function parseLines(text){ return text.split(/\n|;|·|•/).map(l=>l.replace(/^\s*[-*\d.)\]]+\s*/,'').trim()).filter(l=>l.length>1); }
+  function renderTasks(tasks){ const el=document.getElementById('d-tasklist'); if(!el) return;
+    if(!tasks.length){ el.innerHTML='<div style="color:#6a6a78;font-size:11px">Sin tareas todavía.</div>'; return; }
+    let h=''; ['alta','media','baja'].forEach(p=>{ const grp=tasks.filter(t=>((t.meta&&t.meta.priority)||'baja')===p); if(!grp.length) return; const pc=PRIO[p];
+      h+=`<div style="margin:14px 0 4px;font-size:10px;letter-spacing:2px;color:${pc.c}">${pc.label} · ${grp.length}</div>`;
+      h+=grp.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card" style="border-left:3px solid ${pc.c}"><span class="d-del" onclick="DASH.del('task','${t.id}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${t.id}')">${st} ↻</span> <span class="d-pill" style="margin-top:7px;margin-left:5px;color:${pc.c};background:${pc.bg}" onclick="DASH.bump('${t.id}')">${pc.label} ↑</span></div>`; }).join(''); });
+    el.innerHTML=h; }
+  let state={notes:[],tasks:[]};
+
+  const panel=()=>document.getElementById('dash-panel');
+  const body=()=>document.getElementById('dash-body');
+  let tab='overview';
+
+  const DASH={
+    toggle(){ const p=panel(),f=document.getElementById('dash-fab'); p.classList.toggle('open'); f.classList.toggle('on'); if(p.classList.contains('open')) DASH.render(); },
+    close(){ panel().classList.remove('open'); document.getElementById('dash-fab').classList.remove('on'); },
+    tab(t){ tab=t; ['overview','notes','tasks','worlds','projects','admin','exec'].forEach(x=>document.getElementById('dt-'+x).classList.toggle('on',x===t)); DASH.render(); },
+    async render(){
+      const b=body(); if(!b) return;
+      if(tab==='overview'){ b.innerHTML='<div style="color:#6a6a78;font-size:11px">Cargando…</div>';
+        const [notes,tasks,ents]=await Promise.all([readKind('note'),readKind('task'),countEntities()]);
+        if(tab!=='overview') return;
+        state.notes=notes; state.tasks=tasks;
+        const done=tasks.filter(t=>(t.meta&&t.meta.status)==='hecho').length;
+        b.innerHTML=`<div style="margin:4px 0 8px">
+            <div class="d-metric"><b>${ents}</b><span>Entidades</span></div>
+            <div class="d-metric"><b>${notes.length}</b><span>Notas</span></div>
+            <div class="d-metric" style="margin-right:0"><b>${tasks.length}</b><span>Tareas</span></div>
+          </div>
+          <div class="d-card">Tareas hechas: <b style="color:#2bd66a">${done}/${tasks.length}</b></div>
+          <div class="d-card" style="color:#8a8a98">Todo lo que agregas aquí (notas, tareas, nodos) se guarda <b style="color:#39d0ff">de verdad</b> en Supabase. "Ejecutar" acciones reales llega en el Action Runner (incremento 2).</div>`;
+        return; }
+      if(tab==='notes'){ b.innerHTML=`<textarea id="d-note" placeholder="Escribe una nota… (se guarda en Supabase)"></textarea>
+          <button class="d-btn" onclick="DASH.addNote()">＋ Guardar nota</button><div id="d-notelist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const notes=await readKind('note'); if(tab!=='notes') return; state.notes=notes;
+        document.getElementById('d-notelist').innerHTML = notes.length? notes.map(n=>`<div class="d-card"><span class="d-del" onclick="DASH.del('note','${n.id}')">✕</span>${esc(n.summary||n.name)}</div>`).join('') : '<div style="color:#6a6a78;font-size:11px">Sin notas todavía.</div>';
+        return; }
+      if(tab==='tasks'){ b.innerHTML=`
+          <div class="d-sub">Agente de prioridades</div>
+          <textarea id="d-bulk" placeholder="Pega tu lista o un texto con tareas… el agente las separa por prioridad" style="min-height:80px"></textarea>
+          <button class="d-btn" onclick="DASH.prioritize()">▶ Priorizar con agente</button>
+          <input id="d-task" placeholder="…o agrega una sola" style="margin-top:12px"><button class="d-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.addTask()">＋ Agregar una</button>
+          <div id="d-tasklist" style="margin-top:16px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const tasks=await readKind('task'); if(tab!=='tasks') return; state.tasks=tasks; renderTasks(tasks);
+        return; }
+      if(tab==='worlds'){ b.innerHTML=`<div class="d-sub">Entra a un mundo del universo</div>`+ WORLDS.map(w=>{ const s=WSTATUS[w.status]||WSTATUS.idea; const go=w.status==='live'?'abrir →':'ver →';
+          return `<div class="d-world" onclick="DASH.openWorld('${w.id}')"><span style="width:8px;height:8px;border-radius:50%;background:${s.c};flex-shrink:0"></span><div><div>${w.label}</div><div style="font-size:10px;color:#6a6a78">${w.sub} · <span style="color:${s.c}">${s.label.toLowerCase()}</span></div></div><span class="d-go">${go}</span></div>`;
+        }).join('');
+        return; }
+      if(tab==='exec'){ b.innerHTML=`<div class="d-sub">Acciones reales</div>
+          <div class="d-card" style="color:#8a8a98">La ejecución real (correr un agente, llamar una API con secretos) corre por el <b style="color:#39d0ff">Action Runner</b> — un mini-backend en Vercel con allowlist + token.</div>
+          <div class="d-card soon" style="opacity:.55">▶ Correr VICE SELLER &nbsp;·&nbsp; <span style="color:#6a6a78">requiere Action Runner (incr. 2)</span></div>
+          <div class="d-card soon" style="opacity:.55">▶ Generar con ATLAS X &nbsp;·&nbsp; <span style="color:#6a6a78">requiere Action Runner (incr. 2)</span></div>`;
+        return; }
+      if(tab==='admin'){
+        const gals=(typeof NODES!=='undefined'?NODES:[]), projs=(typeof PROJECTS!=='undefined'?PROJECTS:[]), nexus=(typeof NEXUS_ORBITERS!=='undefined'?NEXUS_ORBITERS:[]);
+        const opt=(sel)=>DEST_TYPES.map(t=>`<option value="${t[0]}"${t[0]===(sel||'door')?' selected':''}>${t[1]}</option>`).join('');
+        const istyle="background:#0e0e16;border:1px solid #20202c;color:#cdd;border-radius:7px;padding:6px;font-size:11px;font-family:inherit";
+        const row=(id,label,kind)=>{ const d=UDEST[id]||{}; return `<div class="d-card" style="padding:10px 11px">
+          <div style="display:flex;justify-content:space-between;align-items:center"><b>${label}</b><span style="font-size:9px;color:#5a5a68">${kind}</span></div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <select id="ad-t-${id}" style="${istyle};flex:1">${opt(d.type)}</select>
+            <input id="ad-v-${id}" value="${(d.value||'').replace(/"/g,'')}" placeholder="url / pestaña" style="${istyle};flex:1;min-width:0">
+            <button onclick="DASH.setDest('${id}')" style="background:#39d0ff;color:#06121a;border:none;border-radius:7px;padding:6px 11px;cursor:pointer;font-weight:700">✓</button>
+          </div>
+          <div style="font-size:9px;color:#5a5a68;margin-top:5px">→ ${destLabel(UDEST[id])}</div></div>`; };
+        b.innerHTML=`<div class="d-sub">Todo el universo · asígnale a cada cosa su función</div>
+          <button class="d-btn" onclick="DASH.newGalaxy()">＋ Crear galaxia</button>
+          <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">GALAXIAS · ${gals.length}</div>
+          ${gals.map(g=>row('gal:'+g.id, g.label, 'galaxia')).join('')}
+          <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">PLANETAS / PROYECTOS · ${projs.length}</div>
+          ${projs.map(p=>row('proj:'+p.id, p.label, 'planeta')).join('')}
+          <div style="margin:16px 0 4px;font-size:10px;letter-spacing:2px;color:#39d0ff">ORBITADORES · ${nexus.length}</div>
+          ${nexus.map(n=>row('nexus:'+n.id, n.label, 'orbitador')).join('')}`;
+        return; }
+      if(tab==='projects'){ b.innerHTML=`<div class="d-sub">Tus proyectos · estado + progreso (persiste)</div>
+          <input id="d-proj" placeholder="Nuevo proyecto…"><button class="d-btn" onclick="DASH.projAdd()">＋ Proyecto</button>
+          <div id="d-projlist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
+        const tracked=await readKind('project'); const byPid={};
+        tracked.forEach(t=>{ const pid=(t.meta&&t.meta.pid)||('c:'+t.id); byPid[pid]={id:t.id,status:(t.meta&&t.meta.status)||'idea',progress:+((t.meta&&t.meta.progress)||0),label:t.name}; });
+        const uni=(typeof PROJECTS!=='undefined'?PROJECTS:[]); const rows={};
+        uni.forEach(p=>{ const pid='u:'+p.id, t=byPid[pid]; rows[pid]={pid,label:p.label,status:t?t.status:'idea',progress:t?t.progress:0,id:t?t.id:null}; });
+        Object.keys(byPid).forEach(pid=>{ if(!rows[pid]){ const t=byPid[pid]; rows[pid]={pid,label:t.label,status:t.status,progress:t.progress,id:t.id}; } });
+        state.projRows=rows;
+        document.getElementById('d-projlist').innerHTML=Object.keys(rows).map(pid=>{ const r=rows[pid], s=PROJ_STATUS[r.status]||PROJ_STATUS.idea; return `<div class="d-card">
+          <div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(r.label)}</b><span class="d-pill" style="color:${s.c};background:${s.c}22" onclick="DASH.projCycle('${pid}')">${s.label} ↻</span></div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
+            <div style="flex:1;height:7px;background:#0c1218;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${r.progress}%;background:${s.c};border-radius:6px"></i></div>
+            <span style="font-size:11px;color:${s.c};width:34px;text-align:right">${r.progress}%</span>
+            <button onclick="DASH.projProg('${pid}',-10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">−</button>
+            <button onclick="DASH.projProg('${pid}',10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">＋</button>
+          </div></div>`; }).join('');
+        return; }
+    },
+    async addNote(){ const el=document.getElementById('d-note'); const v=(el.value||'').trim(); if(!v) return; el.value='';
+      const row=await add('note',{name:v.slice(0,48),summary:v,meta:{body:v}}); toast(row?'Nota guardada ✓ DB':'Error de red'); DASH.render(); },
+    async addTask(){ const el=document.getElementById('d-task'); const v=(el.value||'').trim(); if(!v) return; el.value='';
+      const row=await add('task',{name:v,meta:{status:'pendiente',priority:classify(v)}}); toast(row?'Tarea agregada ✓ DB':'Error de red'); DASH.render(); },
+    async prioritize(){ const el=document.getElementById('d-bulk'); const txt=(el.value||'').trim(); if(!txt) return; const lines=parseLines(txt); if(!lines.length) return; el.value='';
+      toast('Priorizando '+lines.length+'…'); let ok=0;
+      for(const line of lines){ const r=await add('task',{name:line,meta:{status:'pendiente',priority:classify(line)}}); if(r) ok++; }
+      toast('✓ '+ok+' tareas priorizadas'); DASH.render(); },
+    async bump(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const cur=(t.meta&&t.meta.priority)||'baja'; const np=BUMP[cur];
+      const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',priority:np})}); toast(ok?('Prioridad: '+np):'Error'); DASH.render(); },
+    async cycle(id){ const t=state.tasks.find(x=>x.id===id); if(!t) return; const st=(t.meta&&t.meta.status)||'pendiente'; const ns=NEXT[st];
+      const ok=await patch(id,{meta:Object.assign({},t.meta,{nh:'1',kind:'task',status:ns})}); toast(ok?('→ '+ns+' ✓'):'Error'); DASH.render(); },
+    async del(kind,id){ const ok=await del(id); toast(ok?'Borrado ✓':'Error'); DASH.render(); },
+    async saveProj(pid,label,status,progress){ const r=state.projRows&&state.projRows[pid]; const meta={nh:'1',kind:'project',pid:pid,status:status,progress:progress};
+      if(r&&r.id){ await patch(r.id,{name:label,meta:meta}); } else { const row=await add('project',{name:label,meta:meta}); if(row&&state.projRows&&state.projRows[pid]) state.projRows[pid].id=row.id; }
+      toast('Proyecto guardado ✓'); DASH.render(); },
+    async projCycle(pid){ const r=state.projRows&&state.projRows[pid]; if(!r) return; await DASH.saveProj(pid,r.label,PROJ_NEXT[r.status]||'construyendo',r.progress); },
+    async projProg(pid,d){ const r=state.projRows&&state.projRows[pid]; if(!r) return; const np=Math.max(0,Math.min(100,r.progress+d)); await DASH.saveProj(pid,r.label,np>=100?'hecho':r.status,np); },
+    async projAdd(){ const el=document.getElementById('d-proj'); const v=(el.value||'').trim(); if(!v) return; el.value=''; const pid='c:'+Date.now(); state.projRows=state.projRows||{}; state.projRows[pid]={pid,label:v,status:'idea',progress:0,id:null}; await DASH.saveProj(pid,v,'idea',0); },
+    openWorld(id){ const w=WORLDS.find(x=>x.id===id); if(!w) return;
+      if(w.status==='live'&&w.url&&!w.gated){ window.open(w.url,'_blank','noopener'); return; }
+      DASH.showWorld(w); },
+    showWorld(w){ const s=WSTATUS[w.status]||WSTATUS.idea; const st=document.getElementById('wv-status');
+      st.textContent=s.label; st.style.color=s.c; st.style.background=s.c+'22'; st.style.border='1px solid '+s.c+'55';
+      document.getElementById('wv-title').textContent=w.label; document.getElementById('wv-sub').textContent=w.sub;
+      document.getElementById('wv-why').textContent=w.why||''; const _rd=document.getElementById('wv-road'); _rd.style.display=''; _rd.textContent=w.roadmap||'Aún sin fecha — es una idea viva en el universo.';
+      document.getElementById('wv-actions').innerHTML = (w.url? `<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open('${w.url}','_blank','noopener')">Entrar →</button>`:'') + `<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>`;
+      document.getElementById('world-view').classList.add('open'); },
+    closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
+    setDest(id){ const ts=document.getElementById('ad-t-'+id), vs=document.getElementById('ad-v-'+id); if(!ts) return;
+      UDEST[id]={type:ts.value, value:(vs.value||'').trim()}; saveDest(); toast('Destino asignado ✓'); DASH.render(); },
+    newGalaxy(){ let _n=0; try{ _n=(JSON.parse(localStorage.getItem('hk23nh-overrides')||'{}').newGalaxies||[]).length; }catch(_){} if(_n>=1 && window.HK23TIER && !HK23TIER.require(1,'Crear más galaxias')) return; if(window.NH){ if(!document.getElementById('nh-editor').classList.contains('open')) NH.toggle(); NH.tab('new'); toast('Crea tu galaxia en NeuralHub →'); } else toast('NeuralHub no disponible'); },
+    showDoor(id, obj){ obj=obj||(DASH._doorObj&&DASH._doorObj[id]); DASH._doorObj=DASH._doorObj||{}; if(obj) DASH._doorObj[id]=obj;
+      const label=(obj&&obj.label)||id; const uni=obj&&obj.universe; const nodes=(uni&&uni.nodes)||[];
+      const st=document.getElementById('wv-status'); st.textContent=id.indexOf('proj:')===0?'PLANETA':id.indexOf('gal:')===0?'GALAXIA':id.indexOf('nexus:')===0?'ORBITADOR':'NODO';
+      st.style.color='#39d0ff'; st.style.background='#39d0ff22'; st.style.border='1px solid #39d0ff55';
+      document.getElementById('wv-title').textContent=label;
+      document.getElementById('wv-sub').textContent=(uni&&uni.title)||(obj&&obj.sub)||'planeta del universo';
+      document.getElementById('wv-road').style.display='none';
+      const lbl=document.querySelector('#world-view .wv-why-label'), why=document.getElementById('wv-why'), list=document.getElementById('wv-list');
+      if(nodes.length){
+        lbl.textContent='Contenido · '+nodes.length+' dentro'; why.textContent='Entra a cualquiera para ver su ficha completa.';
+        list.innerHTML=nodes.map((n,i)=>{ const d=n.detail||{}; const sc={live:'#2bd66a',build:'#FFD200',soon:'#b06bff'}[d.status]||'#6a6a78'; return `<div onclick="DASH.showFicha('${id}',${i})" style="display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid #20202c;border-radius:9px;margin-top:7px;cursor:pointer" onmouseover="this.style.borderColor='#39d0ff'" onmouseout="this.style.borderColor='#20202c'"><span style="width:7px;height:7px;border-radius:50%;background:${n.color||sc};flex-shrink:0"></span><span style="flex:1;font-size:13px">${((d.title||n.label||'')+'').replace(/\\n/g,' ')}</span><span style="font-size:9px;letter-spacing:1px;color:${sc}">${(d.status||'').toUpperCase()}</span><span style="color:#39d0ff">→</span></div>`; }).join('');
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:#00F0FF;color:#06121a" onclick="DASH.runDoor(\''+id+'\')">▶ Ejecutar con agente</button><button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
+      } else {
+        lbl.textContent='Qué es'; why.textContent=(obj&&obj.sub)||'Este nodo aún no tiene contenido. Ejecútalo con el agente o asígnale un destino desde el Admin.'; list.innerHTML='';
+        document.getElementById('wv-actions').innerHTML='<button class="wv-btn" style="background:#00F0FF;color:#06121a" onclick="DASH.runDoor(\''+id+'\')">▶ Ejecutar con agente</button><button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver</button>';
+      }
+      document.getElementById('world-view').classList.add('open'); },
+    showFicha(id, idx){ const obj=DASH._doorObj&&DASH._doorObj[id]; if(!obj||!obj.universe) return; const n=obj.universe.nodes[idx]; if(!n) return; const d=n.detail||{};
+      const benef=Array.isArray(d.benefits)?d.benefits.join(' · '):(d.benefits||''); const stats=Array.isArray(d.stats)?d.stats.map(s=>(s&&typeof s==='object')?((s.l||'')+': '+(s.v||'')):s).join(' · '):(d.stats||'');
+      const st=document.getElementById('wv-status'); const sc={live:'#2bd66a',build:'#FFD200',soon:'#b06bff'}[d.status]||'#39d0ff';
+      st.textContent=(d.status||'NODO').toUpperCase(); st.style.color=sc; st.style.background=sc+'22'; st.style.border='1px solid '+sc+'55';
+      document.getElementById('wv-title').textContent=((d.title||n.label||'')+'').replace(/\n/g,' ');
+      document.getElementById('wv-sub').textContent=(d.eyebrow||obj.label||'');
+      document.querySelector('#world-view .wv-why-label').textContent='Detalle';
+      document.getElementById('wv-why').innerHTML=(d.desc||'')+(d.howTo?('<br><br><b style="color:#39d0ff">Cómo:</b> '+d.howTo):'')+(benef?('<br><br><b style="color:#39d0ff">Beneficios:</b> '+benef):'')+(stats?('<br><br><b style="color:#39d0ff">Stats:</b> '+stats):'');
+      document.getElementById('wv-list').innerHTML='';
+      const acts=[]; if(d.link) acts.push('<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open(\''+d.link+'\',\'_blank\',\'noopener\')">'+(d.action||'Abrir')+' →</button>');
+      acts.push('<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.showDoor(\''+id+'\')">← Volver</button>');
+      document.getElementById('wv-actions').innerHTML=acts.join(''); },
+    runDoor(id){ const obj=DASH._doorObj&&DASH._doorObj[id]; const label=(obj&&obj.label)||id;
+      let ctx='Planeta: '+label+(obj&&obj.sub?(' — '+obj.sub):'');
+      const nodes=(obj&&obj.universe&&obj.universe.nodes)||[];
+      if(nodes.length) ctx+='\nContenido: '+nodes.map(n=>{const d=n.detail||{}; return ((d.title||n.label||'')+'').replace(/\n/g,' ')+(d.desc?(' ('+d.desc.slice(0,90)+')'):'');}).join('; ');
+      DASH.closeWorld(); RUNNER.open('Dame los próximos pasos concretos para avanzar "'+label+'".', gatherContext(ctx)); },
+  };
+  window.DASH=DASH;
+  // ── ACTION RUNNER: ejecutar agentes de verdad (IA vía /api/run) ──
+  const RUN_TOKEN='hk23-run-9x';
+  const AGENTS_UI=[['prioritizer','Priorizador'],['strategist','Estratega'],['writer','Copywriter'],['analyst','Analista']];
+  let curAgent='strategist';
+  function gatherContext(extra){
+    let c='';
+    try{ const projs=(typeof PROJECTS!=='undefined')?PROJECTS.map(p=>p.label+(p.universe&&p.universe.title?(' — '+p.universe.title):'')).join('; '):'';
+      const gals=(typeof NODES!=='undefined')?NODES.map(n=>n.label).join(', '):'';
+      c='Galaxias: '+gals+'\nPlanetas/proyectos: '+projs; }catch(e){}
+    if(extra) c=extra+'\n\n'+c;
+    return c.slice(0,4500);
+  }
+  const RUNNER={
+    open(preset, context){ RUNNER._ctx = context || gatherContext();
+      document.getElementById('ar-agents').innerHTML=AGENTS_UI.map(a=>`<span class="ar-agent ${a[0]===curAgent?'on':''}" onclick="RUNNER.pick('${a[0]}')">${a[1]}</span>`).join('');
+      const inp=document.getElementById('ar-input'); if(preset && inp) inp.value=preset;
+      document.getElementById('agents-run').classList.add('open');
+      if(window.ARAgent){ ARAgent.start(); ARAgent.setAgent(curAgent); ARAgent.setState('idle'); }
+      setTimeout(()=>{ if(inp) inp.focus(); },60); },
+    close(){ document.getElementById('agents-run').classList.remove('open'); if(window.ARAgent) ARAgent.stop(); },
+    pick(a){ curAgent=a; document.querySelectorAll('#ar-agents .ar-agent').forEach((e,i)=>e.classList.toggle('on', AGENTS_UI[i][0]===a)); if(window.ARAgent) ARAgent.setAgent(a); },
+    async go(){ const input=(document.getElementById('ar-input').value||'').trim(), out=document.getElementById('ar-out'), btn=document.getElementById('ar-runbtn'); if(!input){ out.textContent='Escribe una tarea primero.'; return; }
+      btn.textContent='INVOCANDO…'; btn.disabled=true; out.textContent='⏳ El agente está procesando…'; if(window.ARAgent) ARAgent.setState('think');
+      try{ const hdrs={'Content-Type':'application/json','x-run-token':RUN_TOKEN}; if(window.HK23AUTH&&HK23AUTH.token()) hdrs['Authorization']='Bearer '+HK23AUTH.token();
+        const r=await fetch('/api/run',{method:'POST',headers:hdrs,body:JSON.stringify({action:'agent',agent:curAgent,input:input,context:RUNNER._ctx||''})}); const j=await r.json(); out.textContent=j.ok?j.text:('⚠️ '+(j.error||'falló')); if(window.ARAgent) ARAgent.setState('speak'); }
+      catch(e){ out.textContent='⚠️ Error de red: '+e; if(window.ARAgent) ARAgent.setState('idle'); }
+      btn.textContent='▶ INVOCAR'; btn.disabled=false; },
+  };
+  window.RUNNER=RUNNER;
+  // ── WHITE HOLE: genera una idea NUEVA de verdad (agente) y la siembra en el universo ──
+  window.whiteHoleGenerate = async function(){
+    const t=(window.showCmdToast||function(){}); t('⌘ WHITE HOLE — generando idea…', '#ffffff');
+    try{
+      const whHdrs={'Content-Type':'application/json','x-run-token':RUN_TOKEN}; if(window.HK23AUTH&&HK23AUTH.token()) whHdrs['Authorization']='Bearer '+HK23AUTH.token();
+      const r=await fetch('/api/run',{method:'POST',headers:whHdrs,body:JSON.stringify({action:'agent',agent:'strategist',input:'Genera UNA idea nueva, concreta y original para el ecosistema HK23. Responde SOLO en una línea con formato: TÍTULO CORTO — descripción breve.',context:gatherContext()})});
+      const j=await r.json(); if(!j.ok){ t('⌘ falló: '+(j.error||''), '#ff5b6b'); return; }
+      const text=(j.text||'').trim(); const title=(text.split(/—|:|-/)[0]||'IDEA').trim().slice(0,26); const desc=text.slice(0,220);
+      if(typeof IDEAS_PLANET!=='undefined' && IDEAS_PLANET.ideas){ IDEAS_PLANET.ideas.push({ label:title.toUpperCase().slice(0,16), mr:48+Math.random()*34, ma:Math.random()*6.28, ms:(Math.random()>.5?1:-1)*0.0018, sz:5, col:'#ffffff', px:0, py:0, detail:{ title:title, desc:desc } }); }
+      t('⌘ WHITE HOLE → idea: '+title, '#ffffff');
+      if(window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity('idea:'+Date.now(),{name:title,slug:'wh-idea',level:'node',kind:'system',summary:desc,meta:{nh:'1',kind:'idea',source:'whitehole'}});
+    }catch(e){ t('⌘ error de red','#ff5b6b'); }
+  };
+  // ── PUERTAS: interceptar clicks de planetas (sin red neural por default) y galaxias ──
+  try{
+    if(typeof openFractalUniverse==='function'){ DASH._origFractal=openFractalUniverse; window.openFractalUniverse=function(project){ routeNode('proj:'+project.id, project); }; }
+    if(typeof goTo==='function'){ DASH._origGoTo=goTo; window.goTo=function(id){ if(id==='agents'){ RUNNER.open(); return; } if(UDEST['gal:'+id]){ const g=(typeof NODES!=='undefined')?NODES.find(n=>n.id===id):null; routeNode('gal:'+id, g); return; } return DASH._origGoTo(id); }; }
+    if(typeof openAgentBasePanel==='function'){ window.openAgentBasePanel=function(){ RUNNER.open(); }; }
+  }catch(e){}
+  // ── QUE TODO FUNCIONE: orbitadores + lunas flotantes → abren su puerta (no más clicks muertos) ──
+  try{
+    const mc=(typeof mapCanvas!=='undefined'&&mapCanvas)||null;
+    if(mc){ mc.addEventListener('click',function(e){
+      if(window.MOVE&&window.MOVE.on&&window.MOVE.on()) return;
+      const mx=e.clientX,my=e.clientY; let hit=null;
+      if(typeof NEXUS_ORBITERS!=='undefined'){ for(const n of NEXUS_ORBITERS){ if(Math.hypot(mx-n.px,my-n.py)<((n.size||10)+12)){ hit={id:'nexus:'+n.id,label:n.label}; break; } } }
+      if(!hit&&typeof ORBITAL_MOONS!=='undefined'){ for(const pid in ORBITAL_MOONS){ for(const m of ORBITAL_MOONS[pid]){ if(m.px&&Math.hypot(mx-m.px,my-m.py)<((m.sz||5)+12)){ hit={id:'moon:'+pid+'/'+((m.label||'').replace(/\s+/g,'-')),label:(m.label||'').replace(/\n/g,' ')}; break; } } if(hit)break; } }
+      if(hit){ e.stopImmediatePropagation(); e.preventDefault(); routeNode(hit.id,{label:hit.label}); }
+    },true); }
+  }catch(e){}
+})();
+</script>
+<!-- ═══════ DASHBOARD: ejecutar de verdad · vender cualquier cosa · referidos ═══════ -->
+<style id="dx-style">
+  #dash-panel .dx-h{ font-size:10px; letter-spacing:3px; color:#6a6a78; margin:16px 0 8px;
+    border-bottom:1px solid #1c1c26; padding-bottom:6px; }
+  #dash-panel .dx-in,#dash-panel .dx-ta{ width:100%; background:#0e0e16; border:1px solid #20202c;
+    color:#cdd; border-radius:7px; padding:11px; font:400 12px inherit; min-height:44px; margin-bottom:8px; }
+  #dash-panel .dx-ta{ min-height:86px; line-height:1.7; resize:vertical; }
+  #dash-panel .dx-in:focus-visible,#dash-panel .dx-ta:focus-visible{ outline:2px solid #39d0ff; outline-offset:1px; }
+  #dash-panel .dx-ag{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
+  #dash-panel .dx-ag button{ font-size:10px; letter-spacing:1px; background:transparent; border:1px solid #2a2a36;
+    color:#8a8a98; border-radius:6px; padding:9px 11px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-ag button.on{ background:#39d0ff; color:#06060a; border-color:#39d0ff; font-weight:700; }
+  #dash-panel .dx-b{ background:#39d0ff; color:#06060a; border:none; border-radius:7px; padding:12px 15px;
+    font:700 11px inherit; letter-spacing:2px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-b[disabled]{ opacity:.5; cursor:progress; }
+  #dash-panel .dx-b2{ background:transparent; border:1px solid #2a2a36; color:#8a8a98; border-radius:7px;
+    padding:11px 13px; font:400 10px inherit; letter-spacing:1px; cursor:pointer; min-height:44px; }
+  #dash-panel .dx-out{ white-space:pre-wrap; line-height:1.75; font-size:12px; color:#cdd;
+    background:#0b0b12; border:1px solid #1c1c26; border-radius:9px; padding:14px; margin-top:12px; }
+  #dash-panel .dx-out.err{ border-color:#5a2020; color:#ff8a6a; }
+  #dash-panel .dx-row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  #dash-panel .dx-it{ background:#0e0e16; border:1px solid #20202c; border-radius:9px; padding:11px 12px; margin-bottom:8px; }
+  #dash-panel .dx-it b{ font-size:12px; color:#cdd; display:block; }
+  #dash-panel .dx-it i{ font-size:10px; color:#6a6a78; font-style:normal; display:block; margin-top:3px; }
+  #dash-panel .dx-it .dx-row{ margin-top:9px; }
+  #dash-panel .dx-tag{ font-size:9px; letter-spacing:1px; color:#06060a; background:#2bd66a;
+    border-radius:4px; padding:3px 7px; font-weight:700; }
+</style>
+<script>
+// ═══ El dashboard deja de ser un cartel: ejecuta, vende y reparte ═══
+(function(){
+  function esperar(){ if(typeof window.DASH!=='object'||!window.DASH.render){ return setTimeout(esperar,300); } armar(); }
+  esperar();
+
+  function armar(){
+    const D=window.DASH;
+    const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+    const SB=(window.__nhCloud&&window.__nhCloud.SB)||
+      { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+    const H=rep=>{ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json',
+      'Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; };
+    const leer=async k=>{ try{ const r=await fetch(SB.url+'/entities?select=id,name,summary,meta&meta->>nh=eq.1&meta->>kind=eq.'+k+'&order=created_at.desc',{headers:H()});
+      return r.ok? await r.json() : []; }catch(e){ return []; } };
+    const crear=async(k,f)=>{ try{ const b=Object.assign({level:'node',kind:'system'},f);
+      b.meta=Object.assign({nh:'1',kind:k}, f.meta||{});
+      const r=await fetch(SB.url+'/entities',{method:'POST',headers:H(1),body:JSON.stringify(b)});
+      return r.ok; }catch(e){ return false; } };
+    const body=()=>document.getElementById('dash-body');
+
+    // ── pestañas nuevas ──
+    const barra=document.querySelector('#dash-panel .d-tabs')||document.getElementById('dt-exec').parentElement;
+    [['vender','Vender'],['referidos','Referidos']].forEach(([k,l])=>{
+      if(document.getElementById('dt-'+k)) return;
+      const b=document.createElement('div'); b.className='d-tab'; b.id='dt-'+k; b.textContent=l;
+      b.onclick=()=>ir(k); barra.appendChild(b);
+    });
+    let mio=null;
+    const TABS=['overview','notes','tasks','worlds','projects','admin','exec','vender','referidos'];
+    const marcar=t=>TABS.forEach(x=>{ const e=document.getElementById('dt-'+x); if(e) e.classList.toggle('on',x===t); });
+    function ir(t){ mio=t; marcar(t); pintar(t); }
+    const tabOrig=D.tab.bind(D);
+    D.tab=function(t){ mio=null; tabOrig(t); };
+    const renderOrig=D.render.bind(D);
+    D.render=async function(){ if(mio){ marcar(mio); return pintar(mio); } await renderOrig();
+      // la pestaña EJECUTAR del original es un cartel: la reemplazo por la de verdad
+      if(document.getElementById('dt-exec')&&document.getElementById('dt-exec').classList.contains('on')) pintarExec(); };
+
+    // ── EJECUTAR de verdad: contra /api/run, que ya está desplegado ──
+    const AGENTES=[['prioritizer','PRIORIZAR'],['strategist','ESTRATEGIA'],['writer','ESCRIBIR'],
+                   ['analyst','ANALIZAR'],['aduanero','ADUANERO'],['futures','FUTUROS'],['gta6','GTA6']];
+    let agSel='prioritizer';
+    function pintarExec(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">EJECUTAR · CORRE DE VERDAD</div>'+
+        '<div class="dx-ag">'+AGENTES.map(([k,l])=>
+          '<button data-ag="'+k+'"'+(k===agSel?' class="on"':'')+'>'+l+'</button>').join('')+'</div>'+
+        '<textarea class="dx-ta" id="dx-p" placeholder="Escribí acá lo que querés que haga el agente…"></textarea>'+
+        '<div class="dx-row"><button class="dx-b" id="dx-go">▶ EJECUTAR</button>'+
+        '<button class="dx-b2" id="dx-save" style="display:none">＋ GUARDAR COMO NOTA</button></div>'+
+        '<div id="dx-out"></div>';
+      b.querySelectorAll('[data-ag]').forEach(x=>x.onclick=()=>{ agSel=x.dataset.ag;
+        b.querySelectorAll('[data-ag]').forEach(y=>y.classList.toggle('on',y===x)); });
+      document.getElementById('dx-go').onclick=correr;
+    }
+    let ultimo='';
+    async function correr(){
+      const p=(document.getElementById('dx-p').value||'').trim();
+      const out=document.getElementById('dx-out'), go=document.getElementById('dx-go');
+      if(!p){ out.className='dx-out err'; out.textContent='Escribí algo primero.'; return; }
+      go.disabled=true; go.textContent='CORRIENDO…';
+      out.className='dx-out'; out.textContent='…';
+      try{
+        const r=await fetch('/api/run',{ method:'POST',
+          headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({ action:'agent', agent:agSel, prompt:p }) });
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok){ out.className='dx-out err';
+          out.textContent='No corrió. HTTP '+r.status+(j.error?' — '+j.error:'')+
+            (r.status===401?'\n\nEl runner pide sesión o token. Está desplegado, pero no me dejó entrar.':'')+
+            (r.status===404?'\n\n/api/run no existe en este despliegue.':'');
+          return; }
+        ultimo=(j.text||j.output||j.result||JSON.stringify(j,null,2));
+        out.className='dx-out'; out.textContent=ultimo;
+        const sv=document.getElementById('dx-save');
+        sv.style.display=''; sv.onclick=async()=>{
+          const ok=await crear('note',{ name:agSel.toUpperCase()+' · '+p.slice(0,40), summary:ultimo });
+          sv.textContent= ok? '✓ GUARDADO EN SUPABASE' : '✕ NO SE PUDO GUARDAR'; };
+      }catch(e){ out.className='dx-out err'; out.textContent='No se pudo llamar al runner: '+(e&&e.message||e); }
+      finally{ go.disabled=false; go.textContent='▶ EJECUTAR'; }
+    }
+
+    // ── VENDER: cualquier nota o tarea se convierte en algo que se vende ──
+    async function pintarVender(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">VENDER · CARGANDO…</div>';
+      const [notas,tareas,prods]=await Promise.all([leer('note'),leer('task'),leer('product')]);
+      if(mio!=='vender') return;
+      const ref=(localStorage.getItem('hk23_mi_ref')||'').trim();
+      const item=(o,tipo)=>'<div class="dx-it"><b>'+esc(o.name||o.summary||'—')+'</b>'+
+        '<i>'+esc(tipo)+'</i><div class="dx-row">'+
+        '<input class="dx-in" style="flex:1;min-width:90px;margin:0" placeholder="precio" data-p="'+esc(o.id)+'">'+
+        '<input class="dx-in" style="flex:2;min-width:130px;margin:0" placeholder="link de pago" data-l="'+esc(o.id)+'">'+
+        '<button class="dx-b" data-v="'+esc(o.id)+'">VENDER</button></div></div>';
+      b.innerHTML='<div class="dx-h">YA A LA VENTA ('+prods.length+')</div>'+
+        (prods.length? prods.map(p=>{ const m=p.meta||{}; const u=safeUrl(m.link);
+            const link=u? u+(ref?(u.indexOf('?')>=0?'&':'?')+'ref='+encodeURIComponent(ref):'') : '';
+            return '<div class="dx-it"><b>'+esc(p.name||'—')+'</b>'+
+              '<i>'+esc(m.precio||'sin precio')+'</i><div class="dx-row">'+
+              '<span class="dx-tag">A LA VENTA</span>'+
+              (link?'<button class="dx-b2" data-copiar="'+esc(link)+'">COPIAR MI LINK</button>':
+                    '<span style="font-size:10px;color:#6a6a78">sin link de pago</span>')+
+              '</div></div>'; }).join('')
+          : '<div class="dx-it"><i>Nada a la venta todavía.</i></div>')+
+        '<div class="dx-h">CONVERTIR EN PRODUCTO</div>'+
+        (notas.length||tareas.length
+          ? notas.map(n=>item(n,'nota')).join('')+tareas.map(t=>item(t,'tarea')).join('')
+          : '<div class="dx-it"><i>No hay notas ni tareas para vender. Creá una primero.</i></div>');
+      b.querySelectorAll('[data-v]').forEach(btn=>btn.onclick=async()=>{
+        const id=btn.dataset.v;
+        const src=[...notas,...tareas].find(o=>o.id===id); if(!src) return;
+        const precio=(b.querySelector('[data-p="'+CSS.escape(id)+'"]')||{}).value||'';
+        const link=(b.querySelector('[data-l="'+CSS.escape(id)+'"]')||{}).value||'';
+        if(!precio.trim()){ btn.textContent='PONÉ PRECIO'; setTimeout(()=>btn.textContent='VENDER',1600); return; }
+        btn.disabled=true; btn.textContent='…';
+        const ok=await crear('product',{ name:src.name||src.summary||'—', summary:src.summary||'',
+          meta:{ precio:precio.trim(), link:link.trim(), origen:id } });
+        btn.textContent= ok?'✓ PUBLICADO':'✕ NO SE PUDO';
+        if(ok) setTimeout(()=>{ if(mio==='vender') pintarVender(); },700);
+      });
+      b.querySelectorAll('[data-copiar]').forEach(x=>x.onclick=()=>{
+        try{ navigator.clipboard.writeText(x.dataset.copiar); x.textContent='✓ COPIADO';
+          setTimeout(()=>x.textContent='COPIAR MI LINK',1600); }catch(e){} });
+    }
+
+    // ── REFERIDOS: el código de cada uno, y el link que le corresponde ──
+    async function pintarReferidos(){
+      const b=body(); if(!b) return;
+      b.innerHTML='<div class="dx-h">REFERIDOS · CARGANDO…</div>';
+      const [refs,prods]=await Promise.all([leer('referido'),leer('product')]);
+      if(mio!=='referidos') return;
+      const mio_=(localStorage.getItem('hk23_mi_ref')||'');
+      b.innerHTML=
+        '<div class="dx-h">MI CÓDIGO</div>'+
+        '<div class="dx-row"><input class="dx-in" id="dx-miref" style="flex:1;margin:0" '+
+          'placeholder="tu propio código (ej. HK23)" value="'+esc(mio_)+'">'+
+          '<button class="dx-b2" id="dx-miref-ok">GUARDAR</button></div>'+
+        '<div class="dx-h">SUMAR UN REFERIDO</div>'+
+        '<input class="dx-in" id="dx-rn" placeholder="nombre">'+
+        '<div class="dx-row"><input class="dx-in" id="dx-rc" style="flex:2;margin:0" placeholder="su código">'+
+        '<input class="dx-in" id="dx-rp" style="flex:1;min-width:80px;margin:0" placeholder="% suyo"></div>'+
+        '<div class="dx-row" style="margin-top:8px"><button class="dx-b" id="dx-radd">＋ AGREGAR</button></div>'+
+        '<div class="dx-h">MIS REFERIDOS ('+refs.length+')</div>'+
+        (refs.length? refs.map(r=>{ const m=r.meta||{};
+            const cod=m.codigo||''; const base=location.origin+location.pathname;
+            const link=base+'?ref='+encodeURIComponent(cod);
+            return '<div class="dx-it"><b>'+esc(r.name||'—')+'</b>'+
+              '<i>código '+esc(cod||'—')+(m.pct?' · '+esc(m.pct)+'% para él':'')+
+              ' · '+prods.length+' producto(s) para repartir</i>'+
+              '<div class="dx-row">'+(cod?'<button class="dx-b2" data-cp="'+esc(link)+'">COPIAR SU LINK</button>':
+                '<span style="font-size:10px;color:#ff8a6a">sin código: no se le puede atribuir nada</span>')+
+              '</div></div>'; }).join('')
+          : '<div class="dx-it"><i>Todavía no cargaste ningún referido.</i></div>')+
+        '<div class="dx-it" style="border-color:#1c1c26"><i>El link lleva <b>?ref=&lt;código&gt;</b>. '+
+        'El universo lo guarda en el aparato de quien entra, y desde ahí se puede atribuir la venta. '+
+        'El cobro y el reparto de plata no viven acá — eso lo hace tu pasarela de pago.</i></div>';
+      document.getElementById('dx-miref-ok').onclick=()=>{
+        const v=(document.getElementById('dx-miref').value||'').trim();
+        try{ localStorage.setItem('hk23_mi_ref',v); }catch(e){}
+        const leido=(localStorage.getItem('hk23_mi_ref')||'');
+        document.getElementById('dx-miref-ok').textContent = leido===v? '✓ GUARDADO' : '✕ NO SE GUARDÓ';
+        setTimeout(()=>{ const e=document.getElementById('dx-miref-ok'); if(e) e.textContent='GUARDAR'; },1800); };
+      document.getElementById('dx-radd').onclick=async()=>{
+        const n=(document.getElementById('dx-rn').value||'').trim();
+        const c=(document.getElementById('dx-rc').value||'').trim();
+        const p=(document.getElementById('dx-rp').value||'').trim();
+        const btn=document.getElementById('dx-radd');
+        if(!n||!c){ btn.textContent='FALTA NOMBRE Y CÓDIGO'; setTimeout(()=>btn.textContent='＋ AGREGAR',1800); return; }
+        btn.disabled=true; btn.textContent='…';
+        const ok=await crear('referido',{ name:n, summary:'referido con código '+c, meta:{ codigo:c, pct:p } });
+        btn.disabled=false; btn.textContent= ok?'✓ AGREGADO':'✕ NO SE PUDO';
+        if(ok) setTimeout(()=>{ if(mio==='referidos') pintarReferidos(); },700);
+      };
+      b.querySelectorAll('[data-cp]').forEach(x=>x.onclick=()=>{
+        try{ navigator.clipboard.writeText(x.dataset.cp); x.textContent='✓ COPIADO';
+          setTimeout(()=>x.textContent='COPIAR SU LINK',1600); }catch(e){} });
+    }
+
+    // el código de quien te trajo queda guardado apenas entra
+    try{ const r=new URLSearchParams(location.search).get('ref');
+      if(r) localStorage.setItem('hk23_vino_por', r); }catch(e){}
+
+    function pintar(t){ if(t==='vender') return pintarVender();
+      if(t==='referidos') return pintarReferidos(); if(t==='exec') return pintarExec(); }
+
+    window.DASHX={ exec:()=>ir('exec'), vender:()=>ir('vender'), referidos:()=>ir('referidos'),
+      correr, version:'1' };
+  }
+})();
+</script>
 </body>
 </html>
