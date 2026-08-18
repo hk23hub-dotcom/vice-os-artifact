@@ -23,19 +23,49 @@
   h1{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:clamp(28px,5vw,46px);letter-spacing:-1px;margin:14px 0 4px;}
   .sub{color:var(--mut);font-size:12px;letter-spacing:1px;margin-bottom:26px;}
   /* stat strip */
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:30px;}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:22px;}
   .stat{background:var(--surf);border:1px solid var(--bd);border-radius:14px;padding:16px 18px;}
   .stat .n{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:28px;}
   .stat .l{font-size:9px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-top:2px;}
+  /* ── MISSION CONTROL (cola viva) ── */
+  #mc{background:var(--surf);border:1px solid var(--bd);border-radius:16px;padding:20px 22px;margin-bottom:30px;}
+  #mc .mc-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  #mc h2{font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;}
+  .mc-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}
+  .mtab{font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--mut);background:var(--surf2);border:1px solid var(--bd);border-radius:20px;padding:6px 12px;cursor:pointer;transition:all .15s;}
+  .mtab.on{color:var(--bg);background:var(--cyan);border-color:var(--cyan);font-weight:700;}
+  .mtab .c{font-weight:700;}
+  #mc-empty{color:var(--mut);font-size:11px;padding:14px 2px 6px;line-height:1.6;}
+  .trow{background:var(--surf2);border:1px solid var(--bd);border-radius:12px;padding:12px 14px;margin-top:10px;transition:border-color .2s;}
+  .trow.due{border-color:var(--red);box-shadow:0 0 18px rgba(255,58,31,.15);}
+  .trow .r1{display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+  .trow .st-ico{font-size:14px;}
+  .trow .pj{font-size:9px;letter-spacing:1.5px;color:var(--mut);text-transform:uppercase;}
+  .trow .tx{font-size:12px;font-weight:700;font-family:'Space Grotesk',sans-serif;flex:1;min-width:180px;}
+  .trow .when{font-size:10px;color:var(--gold);}
+  .trow .when.overdue{color:var(--red);font-weight:700;}
+  .trow .acts{display:flex;gap:6px;margin-left:auto;}
+  .abtn{font-family:'Space Mono';font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:6px 11px;border-radius:8px;border:1px solid var(--bd);background:none;color:var(--txt);cursor:pointer;transition:all .15s;white-space:nowrap;}
+  .abtn:hover{border-color:#fff;}
+  .abtn.run{color:var(--green);border-color:#2a3a20;} .abtn.run:hover{background:rgba(170,255,0,.12);border-color:var(--green);}
+  .abtn.cal{color:var(--gold);border-color:#3a3018;} .abtn.cal:hover{background:rgba(255,210,0,.1);border-color:var(--gold);}
+  .abtn.hold{color:#F97316;border-color:#3a2418;} .abtn.hold:hover{background:rgba(249,115,22,.1);border-color:#F97316;}
+  .abtn.del{color:var(--mut);} .abtn.del:hover{color:var(--red);border-color:var(--red);}
+  .trow .out{display:none;margin-top:10px;border-top:1px dashed var(--bd);padding-top:10px;font-size:11.5px;line-height:1.65;color:#c9c9d4;white-space:pre-wrap;}
+  .trow.open .out{display:block;}
+  .trow .who{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;margin-top:6px;}
+  .spin{display:inline-block;width:11px;height:11px;border:2px solid rgba(0,240,255,.25);border-top-color:var(--cyan);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;}
+  @keyframes sp{to{transform:rotate(360deg)}}
   /* next moves */
   .next-wrap{background:linear-gradient(135deg,rgba(255,58,31,.08),rgba(255,210,0,.04));border:1px solid #2a2018;border-radius:16px;padding:22px;margin-bottom:34px;}
   .next-wrap h2{font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px;}
   .moves{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
-  .move{background:var(--surf2);border:1px solid var(--bd);border-radius:12px;padding:15px 16px;cursor:pointer;transition:border-color .2s,transform .2s;}
+  .move{background:var(--surf2);border:1px solid var(--bd);border-radius:12px;padding:15px 16px;transition:border-color .2s,transform .2s;}
   .move:hover{border-color:var(--red);transform:translateY(-2px);}
   .move .rank{font-family:'Space Grotesk',sans-serif;font-weight:900;font-size:11px;color:var(--red);}
-  .move .t{font-weight:700;font-size:13px;margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;}
-  .move .d{font-size:11px;color:var(--mut);line-height:1.5;}
+  .move .t{font-weight:700;font-size:13px;margin:6px 0 4px;font-family:'Space Grotesk',sans-serif;cursor:pointer;}
+  .move .d{font-size:11px;color:var(--mut);line-height:1.5;cursor:pointer;}
+  .move .macts{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;}
   /* filters */
   .filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
   .chip{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);background:var(--surf);border:1px solid var(--bd);border-radius:20px;padding:8px 14px;cursor:pointer;transition:all .15s;}
@@ -54,8 +84,8 @@
   .card .next{font-size:10px;color:var(--gold);letter-spacing:.5px;}
   .typetag{font-size:8px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;}
   /* detail panel */
-  #panel{position:fixed;top:0;right:0;height:100%;width:min(440px,92vw);background:rgba(10,10,16,.97);backdrop-filter:blur(14px);
-    border-left:1px solid var(--bd);z-index:50;transform:translateX(105%);transition:transform .45s cubic-bezier(.16,1,.3,1);padding:30px 30px 40px;overflow-y:auto;}
+  #panel{position:fixed;top:0;right:0;height:100%;width:min(470px,94vw);background:rgba(10,10,16,.97);backdrop-filter:blur(14px);
+    border-left:1px solid var(--bd);z-index:50;transform:translateX(105%);transition:transform .45s cubic-bezier(.16,1,.3,1);padding:30px 26px 40px;overflow-y:auto;}
   #panel.open{transform:translateX(0);}
   #panel .x{position:absolute;top:20px;right:22px;width:34px;height:34px;border:1px solid var(--bd);border-radius:50%;background:none;color:var(--mut);cursor:pointer;font-size:15px;}
   #panel .x:hover{color:#fff;border-color:#fff;}
@@ -69,11 +99,29 @@
   #panel .mrow .v{text-align:right;color:#fff;}
   #panel .pnext{margin-top:22px;}
   #panel .pnext .h{font-size:10px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
-  #panel .step{display:flex;gap:10px;font-size:12px;color:#c2c2cc;padding:7px 0;line-height:1.5;}
-  #panel .step .b{color:var(--red);font-weight:700;}
+  .pstep{border:1px solid var(--bd);border-radius:12px;padding:12px 13px;margin-bottom:10px;background:var(--surf);}
+  .pstep .srow{display:flex;gap:10px;font-size:12px;color:#c2c2cc;line-height:1.5;align-items:flex-start;}
+  .pstep .b{color:var(--red);font-weight:700;}
+  .pstep .sacts{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;}
+  .pstep .flow{display:none;margin-top:10px;border-top:1px dashed var(--bd);padding-top:10px;}
+  .pstep .flow.show{display:block;}
+  .pstep .flow .fl{font-size:9px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-bottom:8px;}
+  .agrow{display:flex;gap:6px;flex-wrap:wrap;}
+  .agbtn{font-family:'Space Mono';font-size:10px;padding:7px 11px;border-radius:8px;border:1px solid var(--bd);background:var(--surf2);cursor:pointer;transition:all .15s;}
+  .agbtn:hover{transform:translateY(-1px);}
+  .agbtn small{display:block;font-size:8px;color:var(--mut);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+  .schedrow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .schedrow input{font-family:'Space Mono';background:var(--surf2);border:1px solid var(--bd);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:12px;color-scheme:dark;}
+  .sout{margin-top:10px;font-size:11.5px;line-height:1.65;color:#c9c9d4;white-space:pre-wrap;background:var(--surf2);border:1px solid var(--bd);border-radius:10px;padding:11px 12px;display:none;}
+  .sout.show{display:block;}
   #backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .4s;z-index:45;}
   #backdrop.open{opacity:1;pointer-events:auto;}
   .path{font-family:'Space Mono';font-size:10px;color:var(--cyan);word-break:break-all;}
+  /* toasts */
+  #toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;width:min(480px,92vw);}
+  .toast{background:#14141c;border:1px solid var(--bd);border-left:3px solid var(--cyan);border-radius:10px;padding:11px 16px;font-size:11.5px;line-height:1.5;box-shadow:0 8px 30px rgba(0,0,0,.5);animation:tin .3s ease;width:100%;}
+  .toast.ok{border-left-color:var(--green);} .toast.err{border-left-color:var(--red);} .toast.warn{border-left-color:var(--gold);}
+  @keyframes tin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -84,9 +132,18 @@
     <div class="live">◉ <b id="liveN">0</b> LIVE</div>
   </header>
   <h1>The Empire, Ordered.</h1>
-  <div class="sub">Cada proyecto, qué es, dónde vive, y el próximo movimiento. Haz clic en cualquiera.</div>
+  <div class="sub">Cada proyecto, su próximo movimiento — y los botones para EJECUTARLO, PROGRAMARLO o dejarlo en HOLD. Aquí los clicks hacen cosas.</div>
 
   <div class="stats" id="stats"></div>
+
+  <section id="mc">
+    <div class="mc-head">
+      <h2>🎛 Mission Control</h2>
+      <div class="mc-tabs" id="mc-tabs"></div>
+    </div>
+    <div id="mc-list"></div>
+    <div id="mc-empty">Nada en cola todavía. Abre un proyecto (o un movimiento de abajo) y aprieta ⚡ EJECUTAR, 📅 PROGRAMAR o ⏸ HOLD — todo lo que dispares vive aquí, persistente.</div>
+  </section>
 
   <div class="next-wrap">
     <h2>⚡ Próximos 3 movimientos — mi recomendación</h2>
@@ -105,8 +162,10 @@
   <h3 id="p-nm"></h3>
   <div class="pwhat" id="p-what"></div>
   <div class="meta" id="p-meta"></div>
-  <div class="pnext"><div class="h">Próximos pasos</div><div id="p-steps"></div></div>
+  <div class="pnext"><div class="h">Próximos pasos — apriétalos</div><div id="p-steps"></div></div>
 </aside>
+
+<div id="toasts"></div>
 
 <script>
 const TYPES={
@@ -127,11 +186,11 @@ const ST={
 const P=[
  {id:'viceos',nm:'Vice OS',type:'system',st:'live',what:'Tu segundo cerebro de por vida — la bóveda Obsidian desde la que operas todo.',path:'~/Library/.../Obsidian',next:['Mantener atómico + sin huérfanos','Destilar partes vendibles → ATLAS X']},
  {id:'platform',nm:'vice-os-platform',type:'system',st:'spec',what:'Los docs de arquitectura del ecosistema completo. El blueprint, no el código.',path:'~/vice-os-platform/docs',next:['Mantener sincronizado con la realidad (galaxias = 6 stages, no 4)']},
- {id:'cosmos',nm:'HK23 Cosmos',type:'web',st:'live',what:'El universo web / marketplace. cosmos.html + command-center; cada proyecto orbita como planeta.',path:'~/vice-os-artifact',link:'https://hk23universe.vercel.app',next:['✓ 0004 aplicada · grafo público (17 edges) · deploy READY','Pulir glow del torus (opcional)']},
- {id:'vicegolfer',nm:'VICEGOLFER',type:'app',st:'building',what:'Golf performance OS: rounds, putting, tokens, league pool, admin de alumnos.',path:'~/vicegolfer',link:'https://vicegolfer.vercel.app',next:['✓ RLS fix corrido · ✓ marca auditada · ✓ fleet 5 agentes','Board NEXT: token economy / caddies / shop links','Despachar vg-orchestrator a las tareas next']},
+ {id:'cosmos',nm:'HK23 Cosmos',type:'web',st:'live',what:'El universo web / marketplace. cosmos.html + command-center; cada proyecto orbita como planeta.',path:'~/vice-os-artifact',link:'https://hk23universe.vercel.app',next:['Pulir glow del torus (opcional)','Difundir el grafo público (17 edges)']},
+ {id:'vicegolfer',nm:'VICEGOLFER',type:'app',st:'building',what:'Golf performance OS: rounds, putting, tokens, league pool, admin de alumnos.',path:'~/vicegolfer',link:'https://vicegolfer.vercel.app',next:['Board NEXT: token economy / caddies / shop links','Despachar vg-orchestrator a las tareas next']},
  {id:'rugbyvice',nm:'RUGBY VICE',type:'app',st:'building',what:'App de rugby — kick tracker 2D y perfil de performance por posición.',path:'~/rugbyvice',next:['Definir estado actual / roadmap']},
  {id:'atlasx',nm:'ATLAS X',type:'product',st:'live',what:'Producto digital: "Personal Intelligence OS" empaquetado. Destilado de Vice OS.',path:'~/Documents/Claude/Projects/ATLAS X',link:'https://hk23hub.gumroad.com/l/ljkokj',next:['Trabajar el launch plan (pineado)','Conectar checkout Stripe (hoy Gumroad)']},
- {id:'prints',nm:'Art Prints',type:'product',st:'live',what:'Tu colección MidJourney vendida en Etsy (HK23Studio). 87 prints PÚBLICOS y vendibles.',path:'Etsy · HK23Studio',next:['✓ 87 publicados (activos)','Pinterest + Printify canvas','Curar las 626 restantes → más drops']},
+ {id:'prints',nm:'Art Prints',type:'product',st:'live',what:'Tu colección MidJourney vendida en Etsy (HK23Studio). 87 prints PÚBLICOS y vendibles.',path:'Etsy · HK23Studio',next:['Pinterest + Printify canvas','Curar las 626 restantes → más drops']},
  {id:'viceseller',nm:'VICE SELLER',type:'agent',st:'paused',what:'Agente autónomo Etsy/Printify/Pinterest. Cura + lista tu arte con SEO de visión. 87 listados.',path:'~/vice-os-artifact/vice-seller',next:['Reanudar curación: 300/926 → seguir','Encender Printify + Pinterest (keys)']},
  {id:'affiliate',nm:'Affiliate Growth Agent',type:'agent',st:'building',what:'Sistema de crecimiento 90 días para CryptoVice: content engine, funnels, KPIs.',path:'~/Documents/Claude/Projects/AFFILIATE GROWTH AGENT',next:['Ejecutar el content engine','Conectar KPI dashboard']},
  {id:'laiglesia',nm:'La Iglesia',type:'venture',st:'building',what:'Exploración de oro en Chile (IV Región, 3.676 ha). Data + material para inversores.',path:'~/la_iglesia',next:['Material de inversores','Pipeline de datos geológicos']},
@@ -140,23 +199,157 @@ const P=[
  {id:'hk23brand',nm:'HK23 Brand',type:'venture',st:'building',what:'Identidad de marca del imperio entero — assets compartidos.',path:'ecosystem/hk23-brand',next:['Consolidar guía de marca','Aplicar a todas las apps']},
 ];
 const MOVES=[
- {rank:'01',t:'🎨 VICE SELLER: curar las 626 restantes',d:'Más volumen vendible. El agente ya cura+lista solo con SEO de visión. 300/926 hecho.',go:'viceseller'},
- {rank:'02',t:'⚙️ VG board: token economy / caddies / links',d:'Despachar vg-orchestrator a las tareas NEXT del Founder Dashboard.',go:'vicegolfer'},
- {rank:'03',t:'💸 ATLAS X launch plan',d:'Trabajar el lanzamiento del producto (pineado) + checkout Stripe.',go:'atlasx'},
+ {rank:'01',t:'🎨 VICE SELLER: curar las 626 restantes',d:'Más volumen vendible. El agente ya cura+lista solo con SEO de visión. 300/926 hecho.',go:'viceseller',step:'Reanudar curación: 300/926 → seguir'},
+ {rank:'02',t:'⚙️ VG board: token economy / caddies / links',d:'Despachar vg-orchestrator a las tareas NEXT del Founder Dashboard.',go:'vicegolfer',step:'Board NEXT: token economy / caddies / shop links'},
+ {rank:'03',t:'💸 ATLAS X launch plan',d:'Trabajar el lanzamiento del producto (pineado) + checkout Stripe.',go:'atlasx',step:'Trabajar el launch plan (pineado)'},
 ];
-// ✓ Sesión anterior: RLS fix · 87 prints publicados · Cosmos 0004 + deploy — todos COMPLETOS
+
+// ── AGENTES DISPONIBLES (los mismos del Action Runner /api/run, ya desplegado) ──
+const AGENTS=[
+ {key:'strategist', nm:'ORÁCULO',   role:'estratega',    col:'#00F0FF'},
+ {key:'prioritizer',nm:'SENTINELA', role:'priorizador',  col:'#FF6600'},
+ {key:'analyst',    nm:'VIGÍA',     role:'analista',     col:'#B84DFF'},
+ {key:'writer',     nm:'HEYOKA',    role:'copywriter',   col:'#FF3A1F'},
+ {key:'aduanero',   nm:'ADUANERO',  role:'realms/privacidad', col:'#FFD200'},
+];
+const RUN_TOKEN='hk23-run-9x';
 
 const byId=Object.fromEntries(P.map(p=>[p.id,p]));
-// stats
+const agById=Object.fromEntries(AGENTS.map(a=>[a.key,a]));
+
+// ── STORE: cola de tareas persistente ──
+const SKEY='hk23-cc-tasks-v1';
+let TASKS=[];
+try{TASKS=JSON.parse(localStorage.getItem(SKEY)||'[]');}catch(_){TASKS=[];}
+// una recarga a mitad de ejecución deja 'running' huérfano — se marca para relanzar
+TASKS.forEach(t=>{if(t.status==='running'){t.status='error';t.result='(interrumpido por recarga — vuelve a ejecutar)';}});
+function save(){localStorage.setItem(SKEY,JSON.stringify(TASKS));}
+function newTask(projId,step,status,extra){
+  const p=byId[projId]||{nm:projId};
+  const t=Object.assign({id:'t'+Date.now()+Math.floor(Math.random()*999),proj:projId,projNm:p.nm,step,status,ts:Date.now()},extra||{});
+  TASKS.unshift(t);save();renderMC();return t;
+}
+function findTask(id){return TASKS.find(t=>t.id===id);}
+
+// ── TOASTS: cada click responde ──
+function toast(msg,kind){
+  const d=document.createElement('div');d.className='toast '+(kind||'');d.innerHTML=msg;
+  document.getElementById('toasts').appendChild(d);
+  setTimeout(()=>{d.style.opacity='0';d.style.transition='opacity .4s';setTimeout(()=>d.remove(),400);},4200);
+}
+
+// ── EJECUTAR: agente real vía /api/run ──
+async function execTask(taskId){
+  const t=findTask(taskId);if(!t)return;
+  const p=byId[t.proj]||{};const ag=agById[t.agent]||agById.strategist;
+  t.status='running';t.result='';save();renderMC();syncPanelStep(t);
+  toast(`⚡ <b style="color:${ag.col}">${ag.nm}</b> ejecutando: ${esc(t.step).slice(0,60)}…`);
+  const ctx=`Proyecto: ${p.nm||t.projNm} (${(TYPES[p.type]||{}).label||''}, estado: ${(ST[p.st]||{}).label||''}). ${p.what||''} Ubicación: ${p.path||''}. Otros pasos pendientes: ${(p.next||[]).join(' | ')}`;
+  try{
+    const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json','x-run-token':RUN_TOKEN},
+      body:JSON.stringify({action:'agent',agent:t.agent||'strategist',input:t.step,context:ctx})});
+    const j=await r.json();
+    if(j.ok&&j.text){t.status='done';t.result=j.text;toast(`✅ <b style="color:${ag.col}">${ag.nm}</b> terminó — resultado en Mission Control`, 'ok');}
+    else{t.status='error';t.result='⚠️ '+(j.error||('HTTP '+r.status));toast('⚠️ Falló: '+esc(j.error||('HTTP '+r.status)),'err');}
+  }catch(e){t.status='error';t.result='⚠️ '+(e.message||'red caída');toast('⚠️ Sin conexión con /api/run — '+esc(e.message||''),'err');}
+  save();renderMC();syncPanelStep(t);
+}
+function startRun(projId,step,fromMoveBtn){
+  // crea la tarea ya con agente por defecto si viene de un botón rápido
+  if(fromMoveBtn){const t=newTask(projId,step,'queued',{agent:'strategist',agentNm:'ORÁCULO'});execTask(t.id);openP(projId);return;}
+}
+
+// ── PROGRAMAR ──
+function scheduleTask(projId,step,whenISO){
+  const when=new Date(whenISO);
+  if(isNaN(when)||when<new Date()){toast('⚠️ Elige una fecha futura','warn');return null;}
+  const t=newTask(projId,step,'scheduled',{when:when.toISOString()});
+  toast(`📅 Programado para <b>${fmtWhen(t.when)}</b> — te avisará aquí al vencer`, 'ok');
+  return t;
+}
+function icsFor(t){
+  const dt=d=>d.toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');
+  const s=new Date(t.when),e=new Date(s.getTime()+30*60000);
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//HK23//CommandCenter//ES','BEGIN:VEVENT',
+   'UID:'+t.id+'@hk23','DTSTAMP:'+dt(new Date()),'DTSTART:'+dt(s),'DTEND:'+dt(e),
+   'SUMMARY:'+('HK23 · '+t.projNm+' — '+t.step).replace(/[,;]/g,'\\$&'),
+   'DESCRIPTION:Disparado desde el HK23 Command Center. Abre hk23universe.vercel.app/command-center para ejecutarlo.',
+   'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:HK23','END:VALARM',
+   'END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a');a.href='data:text/calendar;charset=utf8,'+encodeURIComponent(ics);
+  a.download='hk23-'+t.proj+'.ics';document.body.appendChild(a);a.click();a.remove();
+  toast('📥 .ics descargado — ábrelo y queda en tu calendario real','ok');
+}
+function fmtWhen(iso){const d=new Date(iso);return d.toLocaleDateString('es',{day:'2-digit',month:'short'})+' '+d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});}
+function checkDue(){
+  const now=Date.now();let hit=false;
+  TASKS.forEach(t=>{if(t.status==='scheduled'&&new Date(t.when).getTime()<=now&&!t.notified){t.notified=true;hit=true;
+    toast(`⏰ <b>VENCIÓ:</b> ${esc(t.projNm)} — ${esc(t.step).slice(0,50)}… → dale ⚡ en Mission Control`,'warn');}});
+  if(hit){save();renderMC();}
+}
+setInterval(checkDue,30000);
+
+// ── HOLD ──
+function holdTask(projId,step){
+  newTask(projId,step,'hold');
+  toast('⏸ En HOLD — congelado en Mission Control hasta que lo reactives','ok');
+}
+
+// ── MISSION CONTROL render ──
+let mcTab='all';
+const MTABS=[['all','Todo'],['running','En vuelo'],['scheduled','Agenda'],['hold','Hold'],['done','Hechos']];
+const SICO={running:'<span class="spin"></span>',scheduled:'📅',hold:'⏸',done:'✅',error:'⚠️',queued:'▫️'};
+function renderMC(){
+  const counts=s=>TASKS.filter(t=>s==='all'?true:(s==='running'?(t.status==='running'||t.status==='queued'||t.status==='error'):t.status===s)).length;
+  document.getElementById('mc-tabs').innerHTML=MTABS.map(([k,l])=>`<div class="mtab ${mcTab===k?'on':''}" onclick="setMTab('${k}')">${l} <span class="c">${counts(k)}</span></div>`).join('');
+  const list=TASKS.filter(t=>mcTab==='all'?true:(mcTab==='running'?(t.status==='running'||t.status==='queued'||t.status==='error'):t.status===mcTab));
+  document.getElementById('mc-empty').style.display=list.length?'none':'block';
+  document.getElementById('mc-list').innerHTML=list.map(t=>{
+    const due=t.status==='scheduled'&&new Date(t.when)<=new Date();
+    const ag=t.agent?agById[t.agent]:null;
+    let acts='';
+    if(t.status==='scheduled')acts=`<button class="abtn run" onclick="event.stopPropagation();pickAgentFor('${t.id}')">⚡ ya</button><button class="abtn cal" onclick="event.stopPropagation();icsFor(findTask('${t.id}'))">📥 .ics</button><button class="abtn del" onclick="event.stopPropagation();delTask('${t.id}')">✕</button>`;
+    else if(t.status==='hold')acts=`<button class="abtn run" onclick="event.stopPropagation();pickAgentFor('${t.id}')">▶ reactivar</button><button class="abtn del" onclick="event.stopPropagation();delTask('${t.id}')">✕</button>`;
+    else if(t.status==='done')acts=`<button class="abtn" onclick="event.stopPropagation();toggleOut('${t.id}')">ver</button><button class="abtn run" onclick="event.stopPropagation();pickAgentFor('${t.id}')">↻ re-run</button><button class="abtn del" onclick="event.stopPropagation();delTask('${t.id}')">✕</button>`;
+    else if(t.status==='error')acts=`<button class="abtn run" onclick="event.stopPropagation();pickAgentFor('${t.id}')">↻ reintentar</button><button class="abtn del" onclick="event.stopPropagation();delTask('${t.id}')">✕</button>`;
+    return `<div class="trow ${due?'due':''}" id="row-${t.id}" onclick="toggleOut('${t.id}')">
+      <div class="r1"><span class="st-ico">${SICO[t.status]||'▫️'}</span>
+        <span class="pj">${esc(t.projNm)}</span><span class="tx">${esc(t.step)}</span>
+        ${t.when?`<span class="when ${due?'overdue':''}">${due?'⏰ VENCIÓ · ':''}${fmtWhen(t.when)}</span>`:''}
+        <span class="acts">${acts}</span></div>
+      ${ag?`<div class="who" style="color:${ag.col}">agente: ${ag.nm} · ${ag.role}</div>`:''}
+      ${t.result?`<div class="out">${esc(t.result)}</div>`:''}
+      <div class="agpick" id="agp-${t.id}" style="display:none;margin-top:10px"></div>
+    </div>`;}).join('');
+}
+window.setMTab=k=>{mcTab=k;renderMC();};
+window.toggleOut=id=>{const r=document.getElementById('row-'+id);if(r&&findTask(id)?.result)r.classList.toggle('open');};
+window.delTask=id=>{TASKS=TASKS.filter(t=>t.id!==id);save();renderMC();toast('🗑 Quitado de la cola');};
+window.pickAgentFor=id=>{
+  const box=document.getElementById('agp-'+id);if(!box)return;
+  if(box.style.display==='block'){box.style.display='none';return;}
+  box.style.display='block';
+  box.innerHTML='<div style="font-size:9px;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-bottom:7px">¿Con qué agente?</div><div class="agrow">'
+   +AGENTS.map(a=>`<button class="agbtn" style="color:${a.col};border-color:${a.col}44" onclick="event.stopPropagation();assignAndRun('${id}','${a.key}')">${a.nm}<small>${a.role}</small></button>`).join('')+'</div>';
+};
+window.assignAndRun=(id,ak)=>{const t=findTask(id);if(!t)return;t.agent=ak;t.agentNm=agById[ak].nm;save();execTask(id);};
+
+// ── stats/moves/grid (base) ──
 const liveN=P.filter(p=>p.st==='live').length;
 document.getElementById('liveN').textContent=liveN;
 const counts={total:P.length,live:liveN,building:P.filter(p=>p.st==='building').length,types:new Set(P.map(p=>p.type)).size};
 document.getElementById('stats').innerHTML=[
  ['n',counts.total,'Proyectos'],['n',counts.live,'Live'],['n',counts.building,'En obra'],['n',counts.types,'Categorías']
 ].map(s=>`<div class="stat"><div class="n">${s[1]}</div><div class="l">${s[2]}</div></div>`).join('');
-// moves
-document.getElementById('moves').innerHTML=MOVES.map(m=>`<div class="move" onclick="openP('${m.go}')"><div class="rank">${m.rank}</div><div class="t">${m.t}</div><div class="d">${m.d}</div></div>`).join('');
-// filters
+document.getElementById('moves').innerHTML=MOVES.map((m,i)=>`<div class="move"><div class="rank">${m.rank}</div>
+  <div class="t" onclick="openP('${m.go}')">${m.t}</div><div class="d" onclick="openP('${m.go}')">${m.d}</div>
+  <div class="macts">
+    <button class="abtn run" onclick="quickRun(${i})">⚡ ejecutar</button>
+    <button class="abtn cal" onclick="openP('${m.go}')">📅 programar</button>
+    <button class="abtn hold" onclick="holdTask('${m.go}',MOVES[${i}].step)">⏸ hold</button>
+  </div></div>`).join('');
+window.quickRun=i=>{const m=MOVES[i];const t=newTask(m.go,m.step,'queued',{agent:'strategist',agentNm:'ORÁCULO'});execTask(t.id);document.getElementById('mc').scrollIntoView({behavior:'smooth'});};
+
 let filter='all';
 const types=['all',...Object.keys(TYPES)];
 function renderFilters(){document.getElementById('filters').innerHTML=types.map(t=>`<div class="chip ${filter===t?'on':''}" onclick="setF('${t}')">${t==='all'?'Todo':TYPES[t].ico+' '+TYPES[t].label}</div>`).join('');}
@@ -171,7 +364,10 @@ function renderGrid(){
     <div class="foot"><span class="badge" style="color:${s.col};background:${s.bg}">${s.label}</span>
     <span class="next">→ ${p.next[0].replace(/^[🔴🟢🚀]\s*/,'').slice(0,30)}…</span></div></div>`;}).join('');
 }
-window.openP=id=>{const p=byId[id],ty=TYPES[p.type],s=ST[p.st];
+
+// ── panel con pasos ACCIONABLES ──
+let curProj=null;
+window.openP=id=>{const p=byId[id],ty=TYPES[p.type],s=ST[p.st];curProj=id;
   document.getElementById('p-ico').textContent=ty.ico;
   document.getElementById('p-type').textContent=ty.label;
   document.getElementById('p-nm').textContent=p.nm;
@@ -180,12 +376,60 @@ window.openP=id=>{const p=byId[id],ty=TYPES[p.type],s=ST[p.st];
    <div class="mrow"><span class="k">Ubicación</span><span class="v path">${p.path}</span></div>`;
   if(p.link)meta+=`<div class="mrow"><span class="k">Link</span><span class="v"><a href="${p.link}" target="_blank" style="color:${ty.col}">abrir ↗</a></span></div>`;
   document.getElementById('p-meta').innerHTML=meta;
-  document.getElementById('p-steps').innerHTML=p.next.map((n,i)=>`<div class="step"><span class="b">${i+1}</span><span>${n}</span></div>`).join('');
+  document.getElementById('p-steps').innerHTML=p.next.map((n,i)=>`
+   <div class="pstep" id="ps-${i}">
+     <div class="srow"><span class="b">${i+1}</span><span>${esc(n)}</span></div>
+     <div class="sacts">
+       <button class="abtn run" onclick="stepFlow(${i},'run')">⚡ ejecutar</button>
+       <button class="abtn cal" onclick="stepFlow(${i},'sched')">📅 programar</button>
+       <button class="abtn hold" onclick="holdStep(${i})">⏸ hold</button>
+     </div>
+     <div class="flow" id="psf-${i}"></div>
+     <div class="sout" id="pso-${i}"></div>
+   </div>`).join('');
   document.getElementById('panel').classList.add('open');document.getElementById('backdrop').classList.add('open');
 };
-window.closeP=()=>{document.getElementById('panel').classList.remove('open');document.getElementById('backdrop').classList.remove('open');};
+window.holdStep=i=>{holdTask(curProj,byId[curProj].next[i]);};
+window.stepFlow=(i,mode)=>{
+  const p=byId[curProj];const step=p.next[i];
+  const f=document.getElementById('psf-'+i);
+  if(f.dataset.mode===mode&&f.classList.contains('show')){f.classList.remove('show');return;}
+  f.dataset.mode=mode;f.classList.add('show');
+  if(mode==='run'){
+    f.innerHTML='<div class="fl">Elige el agente que lo ejecuta →</div><div class="agrow">'
+     +AGENTS.map(a=>`<button class="agbtn" style="color:${a.col};border-color:${a.col}44" onclick="runStepWith(${i},'${a.key}')">${a.nm}<small>${a.role}</small></button>`).join('')+'</div>';
+  }else{
+    const min=new Date(Date.now()+5*60000).toISOString().slice(0,16);
+    f.innerHTML=`<div class="fl">¿Para cuándo?</div><div class="schedrow">
+      <input type="datetime-local" id="dt-${i}" min="${min}" value="${min}">
+      <button class="abtn cal" onclick="schedStep(${i})">confirmar 📅</button></div>`;
+  }
+};
+window.runStepWith=(i,ak)=>{
+  const p=byId[curProj];const step=p.next[i];
+  const t=newTask(curProj,step,'queued',{agent:ak,agentNm:agById[ak].nm,psIdx:i});
+  document.getElementById('psf-'+i).classList.remove('show');
+  const out=document.getElementById('pso-'+i);out.classList.add('show');
+  out.innerHTML=`<span class="spin"></span> <b style="color:${agById[ak].col}">${agById[ak].nm}</b> trabajando…`;
+  execTask(t.id);
+};
+window.schedStep=i=>{
+  const p=byId[curProj];const v=document.getElementById('dt-'+i).value;
+  const t=scheduleTask(curProj,p.next[i],v);
+  if(t){document.getElementById('psf-'+i).classList.remove('show');icsFor(t);}
+};
+function syncPanelStep(t){
+  if(t.psIdx==null||t.proj!==curProj)return;
+  const out=document.getElementById('pso-'+t.psIdx);if(!out)return;
+  out.classList.add('show');
+  const ag=agById[t.agent]||{};
+  if(t.status==='running')out.innerHTML=`<span class="spin"></span> <b style="color:${ag.col}">${ag.nm}</b> trabajando…`;
+  else out.innerHTML=(t.status==='done'?`<b style="color:${ag.col}">${ag.nm}</b> →\n`:'')+esc(t.result||'');
+}
+window.closeP=()=>{document.getElementById('panel').classList.remove('open');document.getElementById('backdrop').classList.remove('open');curProj=null;};
 addEventListener('keydown',e=>{if(e.key==='Escape')closeP();});
-renderFilters();renderGrid();
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+renderFilters();renderGrid();renderMC();checkDue();
 </script>
 </body>
 </html>
