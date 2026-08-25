@@ -9480,24 +9480,61 @@ addEventListener('DOMContentLoaded', function(){
   }
 
   // ── MARKET GIGANTE ──
-  const MK={ BTC:{sym:'₿',name:'BITCOIN',price:67420,chg:6.2,color:'#F7931A',vol:'$99.4M'},
-    ETH:{sym:'Ξ',name:'ETHEREUM',price:3280,chg:4.1,color:'#627EEA',vol:'$370M'},
-    SOL:{sym:'◎',name:'SOLANA',price:172,chg:9.4,color:'#14F195',vol:'$34.8M'},
-    DOGE:{sym:'Ð',name:'DOGECOIN',price:0.16,chg:-2.3,color:'#C2A633',vol:'$184K'},
-    ADA:{sym:'₳',name:'CARDANO',price:0.61,chg:1.2,color:'#2A6AFF',vol:'$40.4K'},
-    XRP:{sym:'✕',name:'RIPPLE',price:1.08,chg:-2.4,color:'#25A8C4',vol:'$111M'},
-    LINK:{sym:'⬡',name:'CHAINLINK',price:8.35,chg:-2.2,color:'#2A5ADA',vol:'$1.5M'},
-    DOT:{sym:'●',name:'POLKADOT',price:0.85,chg:0.8,color:'#E6007A',vol:'$85K'},
-    AVAX:{sym:'▲',name:'AVALANCHE',price:6.53,chg:-2.5,color:'#E84142',vol:'$163K'},
-    LTC:{sym:'Ł',name:'LITECOIN',price:44.97,chg:-0.3,color:'#7d93ad',vol:'$1.4M'},
-    BNB:{sym:'◆',name:'BNB',price:573,chg:-1.4,color:'#F0B90B',vol:'$604K'},
-    TRX:{sym:'▼',name:'TRON',price:0.32,chg:-0.4,color:'#FF3A1F',vol:'$241K'} };
+  // Los precios de arranque son DEMO y están marcados como tales hasta que llega el feed real.
+  const MK={ BTC:{id:'bitcoin',sym:'₿',name:'BITCOIN',price:67420,chg:6.2,color:'#F7931A',vol:'$99.4M'},
+    ETH:{id:'ethereum',sym:'Ξ',name:'ETHEREUM',price:3280,chg:4.1,color:'#627EEA',vol:'$370M'},
+    SOL:{id:'solana',sym:'◎',name:'SOLANA',price:172,chg:9.4,color:'#14F195',vol:'$34.8M'},
+    DOGE:{id:'dogecoin',sym:'Ð',name:'DOGECOIN',price:0.16,chg:-2.3,color:'#C2A633',vol:'$184K'},
+    ADA:{id:'cardano',sym:'₳',name:'CARDANO',price:0.61,chg:1.2,color:'#2A6AFF',vol:'$40.4K'},
+    XRP:{id:'ripple',sym:'✕',name:'RIPPLE',price:1.08,chg:-2.4,color:'#25A8C4',vol:'$111M'},
+    LINK:{id:'chainlink',sym:'⬡',name:'CHAINLINK',price:8.35,chg:-2.2,color:'#2A5ADA',vol:'$1.5M'},
+    DOT:{id:'polkadot',sym:'●',name:'POLKADOT',price:0.85,chg:0.8,color:'#E6007A',vol:'$85K'},
+    AVAX:{id:'avalanche-2',sym:'▲',name:'AVALANCHE',price:6.53,chg:-2.5,color:'#E84142',vol:'$163K'},
+    LTC:{id:'litecoin',sym:'Ł',name:'LITECOIN',price:44.97,chg:-0.3,color:'#7d93ad',vol:'$1.4M'},
+    BNB:{id:'binancecoin',sym:'◆',name:'BNB',price:573,chg:-1.4,color:'#F0B90B',vol:'$604K'},
+    TRX:{id:'tron',sym:'▼',name:'TRON',price:0.32,chg:-0.4,color:'#FF3A1F',vol:'$241K'} };
+
+  // ── el feed real. Si no llega, se dice; no se disfraza de vivo. ──
+  const VIVO={ ok:false, cuando:'', error:'', pidiendo:false };
+  const plata=n=>{ const a=Math.abs(n);
+    if(a>=1e9) return '$'+(n/1e9).toFixed(1)+'B';
+    if(a>=1e6) return '$'+(n/1e6).toFixed(1)+'M';
+    if(a>=1e3) return '$'+(n/1e3).toFixed(1)+'K';
+    return '$'+n.toFixed(0); };
+  async function traerPrecios(){
+    if(VIVO.pidiendo) return; VIVO.pidiendo=true;
+    const ids=Object.values(MK).map(c=>c.id).join(',');
+    try{
+      const r=await fetch('https://api.coingecko.com/api/v3/simple/price?ids='+ids+
+        '&vs_currencies=usd&include_24hr_change=true&include_24hr_vol=true',{cache:'no-store'});
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      const j=await r.json();
+      let n=0;
+      Object.values(MK).forEach(c=>{ const d=j[c.id]; if(!d||typeof d.usd!=='number') return;
+        c.price=d.usd;
+        if(typeof d.usd_24h_change==='number') c.chg=Math.round(d.usd_24h_change*10)/10;
+        if(typeof d.usd_24h_vol==='number') c.vol=plata(d.usd_24h_vol);
+        n++; });
+      if(!n) throw new Error('el feed no trajo ninguna moneda');
+      VIVO.ok=true; VIVO.error='';
+      VIVO.cuando=new Date().toLocaleTimeString('es-CL',{hour12:false});
+    }catch(e){ VIVO.ok=false; VIVO.error=String(e&&e.message||e).slice(0,70); }
+    finally{ VIVO.pidiendo=false; mktBuilt=false; buildMkt(); }
+  }
+  let mktTimer=null;
+  function vigilarPrecios(prender){
+    clearInterval(mktTimer); mktTimer=null;
+    if(!prender) return;
+    traerPrecios();
+    mktTimer=setInterval(traerPrecios, 60000);   // una vez por minuto: suficiente y no abusa del feed gratis
+  }
   let mktBuilt=false;
   function buildMkt(){
     if(mktBuilt) return; mktBuilt=true;
     const m=document.getElementById('cw-mkt');
     let h='<div class="mkt-head"><span class="mkt-title">⛁ CRYPTO FUTURES — EL MARKET GIGANTE</span>'+
-      '<span class="mkt-sub">MODO DEMO · TOCÁ UNA MONEDA PARA VERLA GIGANTE</span></div><div class="mkt-grid">';
+      '<span class="mkt-sub">'+(VIVO.ok? 'EN VIVO · '+VIVO.cuando : (VIVO.pidiendo?'BUSCANDO PRECIOS…':'MODO DEMO'))+
+        ' · TOCÁ UNA MONEDA PARA VERLA GIGANTE</span></div><div class="mkt-grid">';
     Object.entries(MK).forEach(([k,c])=>{
       const up=c.chg>0;
       h+='<div class="mkt-card" data-coin="'+k+'" style="background:linear-gradient(135deg,'+c.color+'26 0%, #090d18 55%)">'+
@@ -9507,7 +9544,11 @@ addEventListener('DOMContentLoaded', function(){
         '<div class="mkt-price">'+(c.price<1?c.price.toFixed(4):c.price.toLocaleString())+'</div>'+
         '<div class="mkt-meta">24H VOL: '+c.vol+'<br>LEVERAGE: <b>1000x</b></div></div>';
     });
-    h+='</div><div class="mkt-sub" style="display:block;margin-top:16px">PRECIOS DEMO — EL FORMATO ES EL PRODUCTO; CONECTÁ TU FEED CUANDO QUIERAS</div>';
+    h+='</div><div class="mkt-sub" style="display:block;margin-top:16px">'+
+      (VIVO.ok
+        ? 'PRECIOS REALES · CoinGecko · actualizado '+VIVO.cuando+' · se refresca solo cada minuto'
+        : 'PRECIOS DEMO — no pude traer el feed'+(VIVO.error?': '+VIVO.error:'')+'. Lo que ves son números de ejemplo, no el mercado.')+
+      '</div>';
     m.innerHTML=h;
     m.querySelectorAll('.mkt-card').forEach(card=>card.onclick=()=>{ coin=card.dataset.coin; syncMkt(); });
   }
@@ -9515,6 +9556,7 @@ addEventListener('DOMContentLoaded', function(){
     const grid=document.getElementById('cw-mkt');
     const showGrid = mode==='market' && coin==='ALL';
     if(showGrid) buildMkt();
+    vigilarPrecios(mode==='market');   // el feed corre solo mientras el market está a la vista
     grid.classList.toggle('show', showGrid);
   }
   function candleChart(cx,cy,w,h,up,color){
