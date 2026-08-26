@@ -16179,5 +16179,252 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+
+<!-- ═══════════ BACKROOMS v2 — más hondo, más trauma, más cosas caminando ═══════════ -->
+<style id="br2-style">
+  /* el trauma del cambio de sala: el mundo entero se rompe medio segundo */
+  #backrooms.br-trauma{ animation: brTrauma .55s steps(2,end) 1; }
+  @keyframes brTrauma{
+    0%{ filter:invert(1) hue-rotate(60deg); transform:translate(-7px,3px) scale(1.02); }
+    22%{ filter:none; transform:translate(6px,-4px); }
+    40%{ filter:invert(1) saturate(3); transform:translate(-4px,0) scale(.985); }
+    62%{ filter:contrast(3) brightness(.35); transform:translate(3px,5px); }
+    80%{ filter:invert(1); transform:none; }
+    100%{ filter:none; }
+  }
+  /* cada piso es peor que el anterior */
+  #backrooms[data-piso="2"]{ filter:hue-rotate(-18deg) brightness(.86); }
+  #backrooms[data-piso="3"]{ filter:hue-rotate(-55deg) saturate(.75) brightness(.72); }
+  #backrooms[data-piso="4"]{ filter:hue-rotate(-90deg) saturate(.55) brightness(.58) contrast(1.15); }
+  #backrooms[data-piso="5"]{ filter:grayscale(.65) brightness(.42) contrast(1.3); }
+  #br-white{ position:absolute; inset:0; z-index:60; background:#fff; opacity:0;
+    pointer-events:none; transition:opacity .12s; }
+  #br-piso{ position:absolute; left:10px; top:104px; z-index:20;
+    font-family:'Space Mono',monospace; font-size:11px; letter-spacing:3px; color:#3a3520; }
+  /* la escalera que baja: más oscura que cualquier puerta */
+  .br-trap{ position:absolute; bottom:6vh; width:76px; height:110px; z-index:12; cursor:pointer;
+    background:linear-gradient(#0d0b04 20%, #000 100%); border:2px solid #201c0c;
+    box-shadow:inset 0 -30px 40px #000, 0 0 24px #00000088; }
+  .br-trap:before{ content:'↓'; position:absolute; left:50%; top:38%; transform:translateX(-50%);
+    color:#4a4020; font:700 26px 'Space Mono',monospace; animation:brDown 1.6s infinite; }
+  @keyframes brDown{ 0%,100%{ transform:translate(-50%,0); opacity:.5; } 50%{ transform:translate(-50%,8px); opacity:1; } }
+  /* entidades: siluetas que cruzan, y ojos en lo hondo */
+  .br-ent{ position:absolute; bottom:6vh; width:34px; height:120px; z-index:11; pointer-events:none;
+    background:radial-gradient(circle at 50% 12%, #000 12px, transparent 13px),
+               linear-gradient(transparent 8%, #000 20%, #000 100%);
+    filter:blur(1.5px); opacity:0; transition:opacity .5s; }
+  .br-ojos{ position:absolute; z-index:11; width:34px; height:10px; cursor:pointer; }
+  .br-ojos i{ position:absolute; top:0; width:9px; height:9px; border-radius:50%;
+    background:#ffefad; box-shadow:0 0 9px #ffefad; animation:brBlink 4.2s infinite; }
+  .br-ojos i:last-child{ right:0; }
+  @keyframes brBlink{ 0%,88%,100%{ transform:scaleY(1); } 92%,96%{ transform:scaleY(.06); } }
+  .br-q{ font-family:'Space Mono',monospace; font-size:12px; letter-spacing:1px; color:#c9bd7a;
+    line-height:1.7; margin-bottom:10px; }
+  @media(prefers-reduced-motion:reduce){
+    #backrooms.br-trauma{ animation:none; }
+    .br-trap:before,.br-ojos i{ animation:none; }
+  }
+</style>
+
+<script>
+// ═══ BACKROOMS v2 — se baja, se sufre, se adivina; y el dueño sale apretando el reloj ═══
+(function(){
+  function esperar(){ if(!window.Backrooms || !document.getElementById('backrooms')) return setTimeout(esperar,400); armar(); }
+  esperar();
+  function armar(){
+    const B=window.Backrooms, $=id=>document.getElementById(id);
+    const room=$('backrooms');
+    const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+    const tier=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_tier'))||'visita'; }catch(e){ return 'visita'; } };
+    const redMot=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // piezas nuevas del escenario
+    if(!$('br-white')){ const w=document.createElement('div'); w.id='br-white'; room.appendChild(w); }
+    if(!$('br-piso')){ const p=document.createElement('div'); p.id='br-piso'; room.appendChild(p); }
+    B.piso=1;
+
+    // ── el trauma del cambio ──
+    let AC=null;
+    function golpe(){ try{
+      AC=AC||new (window.AudioContext||window.webkitAudioContext)();
+      const o=AC.createOscillator(), g=AC.createGain();
+      o.frequency.value=62+Math.random()*18; o.type='sine';
+      g.gain.setValueAtTime(0.001,AC.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.11,AC.currentTime+0.02);
+      g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+0.5);
+      o.connect(g); g.connect(AC.destination); o.start(); o.stop(AC.currentTime+0.55);
+    }catch(e){} }
+    const FRASES=['no mires atrás.','eso no era una puerta.','acá abajo el tiempo debe plata.',
+      'alguien anotó tu nombre.','las paredes te escucharon.','el zumbido sabe dónde estás.',
+      'ese pasillo no estaba ayer.','...¿escuchaste eso? nosotros también.'];
+    function trauma(msg){
+      golpe();
+      if(!redMot){ room.classList.remove('br-trauma'); void room.offsetWidth; room.classList.add('br-trauma'); }
+      const w=$('br-white'); w.style.opacity='0.9'; setTimeout(()=>w.style.opacity='0', 90);
+      const m=$('br-msg'); if(m){ m.style.opacity='1';
+        m.textContent=msg||FRASES[Math.floor(Math.random()*FRASES.length)];
+        setTimeout(()=>{ if(m) m.style.opacity='0'; }, 2600); }
+    }
+
+    // ── entidades rondando: cruzan, se paran a mirarte, y en lo hondo hay ojos ──
+    let entTimer=null;
+    function unaEntidad(){
+      if(!room.classList.contains('open')) return;
+      if(room.querySelectorAll('.br-ent').length>=3) return;
+      const e=document.createElement('div'); e.className='br-ent';
+      const der=Math.random()<0.5, esc=0.6+Math.random()*0.9;
+      e.style.transform='scale('+esc+')';
+      e.style.left= der? '-40px':'calc(100vw + 40px)';
+      room.appendChild(e);
+      requestAnimationFrame(()=>{ e.style.opacity=String(0.35+Math.random()*0.4);
+        const dur=(redMot?0:6000+Math.random()*7000);
+        e.style.transition='opacity .5s, left '+(dur||1)+'ms linear';
+        e.style.left= der? 'calc(100vw + 40px)':'-40px'; });
+      // a veces se frena en seco a mirarte
+      if(Math.random()<0.35) setTimeout(()=>{ if(!e.parentNode) return;
+        const li=e.getBoundingClientRect().left; e.style.transition='opacity .3s'; e.style.left=li+'px';
+        trauma('...te vio.');
+        setTimeout(()=>{ e.style.opacity='0'; setTimeout(()=>e.remove(),600); }, 900+Math.random()*900);
+      }, 1500+Math.random()*3000);
+      setTimeout(()=>e.remove(), 15000);
+    }
+    function ojos(){
+      if(B.piso<3 || !room.classList.contains('open')) return;
+      const o=document.createElement('div'); o.className='br-ojos';
+      o.style.left=(6+Math.random()*80)+'vw'; o.style.top=(30+Math.random()*40)+'vh';
+      o.innerHTML='<i></i><i></i>';
+      o.onclick=()=>{ o.remove(); trauma('parpadeaste primero.'); };
+      room.appendChild(o); setTimeout(()=>o.remove(), 12000);
+    }
+    function arrancarEntidades(){
+      clearInterval(entTimer);
+      entTimer=setInterval(()=>{ if(Math.random()<0.7) unaEntidad(); if(Math.random()<0.30) ojos(); },
+        Math.max(2400, 7000-B.piso*900));
+    }
+
+    // ── acertijos: la terminal pregunta distinto cada vez ──
+    const ACERTIJOS=[
+      ['NOT GIVEN. ¿ENTONCES QUÉ?', ['taken','toma','tomado','se toma']],
+      ['¿CUÁNTOS LO SABEN?', ['23','veintitres','veintitrés']],
+      ['EL ___ NO PREGUNTA. AGARRA.', ['buho','búho','el buho','owl']],
+      ['LO QUE VALE NO SE PIDE. SE ___', ['toma','agarra','taken']],
+      ['H K ___ — COMPLETÁ LA CLAVE DEL UNIVERSO', ['23','veintitres','veintitrés']]
+    ];
+
+    // ── bromas: no todas las puertas dicen la verdad ──
+    const BROMAS=[
+      br=>{ trauma('jaja no. mismo nivel.'); },
+      br=>{ br.level=Math.max(0,br.level-1); $('br-level').textContent=br.level;
+            trauma('esta puerta te DEVOLVIÓ. nivel '+br.level+'.'); },
+      br=>{ br.bajar(true); trauma('el piso opinó distinto.'); },
+      br=>{ const t=$('br-time'); if(t){ const v=t.textContent; t.textContent='66:60';
+            setTimeout(()=>{ if(t.textContent==='66:60') t.textContent=v; },2000); }
+            trauma('el reloj también miente.'); },
+      br=>{ trauma('1.4K SE ESTÁN RIENDO DE VOS AHORA MISMO.'); }
+    ];
+
+    // ── bajar un piso ──
+    B.bajar=function(silencio){
+      this.piso=Math.min(9,(this.piso||1)+1);
+      room.setAttribute('data-piso', String(Math.min(5,this.piso)));
+      $('br-piso').textContent='PISO −'+this.piso;
+      this.level++; $('br-level').textContent=this.level;
+      if(!silencio) trauma('PISO −'+this.piso+'. ACÁ EL ZUMBIDO ES MÁS GRAVE.');
+      log('backrooms','bajó al piso -'+this.piso);
+      arrancarEntidades(); this.buildRoom();
+    };
+
+    // ── la sala, reconstruida entera ──
+    B.buildRoom=function(){
+      document.querySelectorAll('.br-door,.br-light,.br-graffiti,.br-shadow,.br-trap,.br-ojos').forEach(n=>n.remove());
+      $('br-terminal').style.display='none'; $('br-exit').style.display='none';
+      const nDoors=2+Math.floor(Math.random()*3), nLights=Math.max(1,4-Math.floor(this.piso/2));
+      for(let i=0;i<nLights;i++){ const l=document.createElement('div'); l.className='br-light';
+        l.style.left=(8+Math.random()*84)+'vw'; l.style.animationDelay=(Math.random()*6)+'s'; room.appendChild(l); }
+      const CLUES=['NO SE PIDE','NADIE TE LO VA A DAR','EL BÚHO NO PREGUNTA. AGARRA.','NOT GIVEN.',
+        '23 LO SABE','LA TERMINAL ESCUCHA','MANTENÉ APRETADO EL TIEMPO','EL DUEÑO NO CAMINA','MÁS ABAJO HAY MÁS'];
+      if(Math.random()<0.55){ const g=document.createElement('div'); g.className='br-graffiti';
+        g.textContent=CLUES[Math.floor(Math.random()*CLUES.length)];
+        g.style.left=(8+Math.random()*66)+'vw'; g.style.top=(24+Math.random()*28)+'vh';
+        g.style.transform='rotate('+(Math.random()*10-5).toFixed(1)+'deg)'; room.appendChild(g); }
+      if(Math.random()<0.28){ const bo=$('br-blackout'); if(bo){ bo.style.opacity='0.94';
+        setTimeout(()=>bo.style.opacity='0', 700+Math.random()*1100); } }
+      // la escalera que baja (más común mientras más hondo estás)
+      if(Math.random()<0.22+this.piso*0.04){
+        const t=document.createElement('div'); t.className='br-trap';
+        t.style.left=(12+Math.random()*70)+'vw';
+        t.setAttribute('role','button'); t.setAttribute('aria-label','Bajar un piso');
+        t.onclick=()=>B.bajar(); room.appendChild(t);
+      }
+      const hasTerminal=Math.random()<0.22 || this.level>=6;
+      for(let i=0;i<nDoors;i++){
+        const d=document.createElement('div'); d.className='br-door';
+        d.style.left=(10+i*(80/nDoors)+Math.random()*8)+'vw';
+        d.onclick=()=>{
+          if(Math.random()<0.20){ BROMAS[Math.floor(Math.random()*BROMAS.length)](this); this.buildRoom(); return; }
+          this.level++; $('br-level').textContent=this.level;
+          $('br-sector').textContent=String.fromCharCode(65+Math.floor(Math.random()*6))+'-'+(1+Math.floor(Math.random()*9));
+          trauma(); this.buildRoom();
+        };
+        room.appendChild(d);
+      }
+      if(hasTerminal){
+        const term=$('br-terminal'); term.style.display='block';
+        let q=term.querySelector('.br-q');
+        if(!q){ q=document.createElement('div'); q.className='br-q'; term.insertBefore(q, term.firstChild); }
+        const rid=ACERTIJOS[Math.floor(Math.random()*ACERTIJOS.length)];
+        q.textContent='› '+rid[0]; B._rid=rid[1];
+        const inp=$('br-answer'); inp.value=''; $('br-error').textContent='';
+        inp.onkeydown=(e)=>{
+          if(e.key!=='Enter') return;
+          const a=inp.value.toLowerCase().trim();
+          if(B._rid.some(x=>a.includes(x))){
+            term.style.display='none'; log('backrooms','acertó en nivel '+this.level);
+            const ex=$('br-exit'); ex.style.display='block';
+            $('br-msg').style.opacity='1';
+            $('br-msg').textContent='La puerta estuvo siempre. CRUZALA ANTES DE QUE CAMBIE DE OPINIÓN.';
+            ex.onclick=()=>this.exit(true);
+            setTimeout(()=>{ if(ex.style.display==='block' && room.classList.contains('open')){
+              ex.style.display='none'; this.level+=1; $('br-level').textContent=this.level;
+              trauma('Dudaste. La puerta se fue.'); this.buildRoom(); } }, 6500);
+          } else { $('br-error').textContent='RESPUESTA RECHAZADA. LA TERMINAL SE APAGA.';
+            log('backrooms','falló el acertijo en nivel '+this.level);
+            setTimeout(()=>{ this.level+=2; $('br-level').textContent=this.level; trauma(); this.buildRoom(); },1200); }
+        };
+        setTimeout(()=>inp.focus(),300);
+      }
+    };
+
+    // enter/exit: engancho piso y entidades sin perder lo original
+    const enter0=B.enter.bind(B), exit0=B.exit.bind(B);
+    B.enter=function(reason){ this.piso=1; room.setAttribute('data-piso','1');
+      enter0(reason); $('br-piso').textContent='PISO −1'; arrancarEntidades(); };
+    B.exit=function(escaped){ clearInterval(entTimer);
+      document.querySelectorAll('.br-ent,.br-ojos').forEach(n=>n.remove());
+      room.removeAttribute('data-piso'); exit0(escaped); };
+
+    // ── LA SALIDA DEL DUEÑO: mantené apretado el reloj 1.2s ──
+    const reloj=$('br-time');
+    if(reloj){
+      reloj.style.cssText+=';pointer-events:auto;cursor:pointer;min-width:44px;min-height:24px;display:inline-block';
+      let hold=null;
+      const abajo=()=>{ hold=setTimeout(()=>{
+        if(tier()==='socio'){ trauma('EL DUEÑO NO CAMINA. EL DUEÑO SALE.');
+          log('backrooms','salida del dueño'); setTimeout(()=>B.exit(false),450); }
+        else { B.level++; $('br-level').textContent=B.level;
+          trauma('¿Y VOS QUÉ APRETÁS? CAMINÁ.'); B.buildRoom(); }
+      },1200); };
+      const arriba=()=>{ clearTimeout(hold); hold=null; };
+      reloj.addEventListener('pointerdown',abajo);
+      reloj.addEventListener('pointerup',arriba);
+      reloj.addEventListener('pointercancel',arriba);
+      reloj.addEventListener('pointerleave',arriba);
+    }
+    B.dueño=()=>{ if(tier()==='socio'){ B.exit(false); return true; } return false; };
+    B.v2=true;
+  }
+})();
+</script>
+
 </body>
 </html>
