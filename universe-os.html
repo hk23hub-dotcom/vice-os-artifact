@@ -2384,6 +2384,63 @@ function startMapCanvas() {
   animateMap();
 }
 
+// ── cada proyecto se dibuja como LO QUE ES, no como un planeta genérico ──
+function drawProjIcon(c2, p, x, y, r, hov){
+  c2.save(); c2.translate(x,y);
+  const lw=Math.max(1,r*0.08);
+  if(p.id==='rugbyvice'){
+    c2.rotate(-0.5);
+    const a=r*1.5, b=r*0.95;
+    const g2=c2.createRadialGradient(-a*0.25,-b*0.3,r*0.2, 0,0,a);
+    g2.addColorStop(0,'#3d2b1f'); g2.addColorStop(0.55,'#2a1d15'); g2.addColorStop(1,'#150f0a');
+    c2.beginPath(); c2.ellipse(0,0,a,b,0,0,Math.PI*2); c2.fillStyle=g2; c2.fill();
+    c2.strokeStyle=p.color+(hov?'FF':'AA'); c2.lineWidth=lw; c2.stroke();
+    c2.beginPath(); c2.moveTo(-a*0.55,0); c2.lineTo(a*0.55,0);
+    c2.strokeStyle='#e8f4f8'; c2.lineWidth=lw*0.8; c2.stroke();
+    for(let i=-2;i<=2;i++){ c2.beginPath(); c2.moveTo(i*a*0.18,-b*0.16); c2.lineTo(i*a*0.18,b*0.16); c2.stroke(); }
+  } else if(p.id==='vicegolfer'){
+    const g2=c2.createRadialGradient(-r*0.3,-r*0.3,r*0.1, 0,0,r);
+    g2.addColorStop(0,'#ffffff'); g2.addColorStop(0.7,'#d8dcd8'); g2.addColorStop(1,'#9aa39a');
+    c2.beginPath(); c2.arc(0,0,r,0,Math.PI*2); c2.fillStyle=g2; c2.fill();
+    c2.fillStyle='rgba(0,0,0,0.18)';
+    for(let i=0;i<9;i++){ const aa=i*0.7+0.4, rr=r*(0.25+0.5*((i*37)%10)/10);
+      c2.beginPath(); c2.arc(Math.cos(aa)*rr, Math.sin(aa)*rr, r*0.09,0,Math.PI*2); c2.fill(); }
+    c2.beginPath(); c2.moveTo(r*0.75,-r*0.2); c2.lineTo(r*0.75,-r*1.6);
+    c2.strokeStyle='#e8e8ec'; c2.lineWidth=lw; c2.stroke();
+    c2.beginPath(); c2.moveTo(r*0.75,-r*1.6); c2.lineTo(r*1.45,-r*1.3); c2.lineTo(r*0.75,-r*1.05);
+    c2.closePath(); c2.fillStyle='#ef4444'; c2.fill();
+    c2.strokeStyle=p.color+(hov?'FF':'66'); c2.lineWidth=lw*0.7;
+    c2.beginPath(); c2.arc(0,0,r*1.06,0,Math.PI*2); c2.stroke();
+  } else if(p.id==='laiglesia'){
+    c2.beginPath(); c2.moveTo(-r*1.5,r*0.9); c2.lineTo(-r*0.3,-r*1.1); c2.lineTo(r*0.5,0);
+    c2.lineTo(r*1.0,-r*0.5); c2.lineTo(r*1.6,r*0.9); c2.closePath();
+    const g2=c2.createLinearGradient(0,-r,0,r);
+    g2.addColorStop(0,'#4a3a18'); g2.addColorStop(1,'#241c0c');
+    c2.fillStyle=g2; c2.fill();
+    c2.strokeStyle=p.color+(hov?'FF':'AA'); c2.lineWidth=lw; c2.stroke();
+    c2.beginPath(); c2.moveTo(-r*0.45,r*0.9); c2.lineTo(-r*0.45,r*0.15);
+    c2.arc(-r*0.15,r*0.15,r*0.3,Math.PI,0); c2.lineTo(r*0.15,r*0.9); c2.closePath();
+    c2.fillStyle='#050505'; c2.fill(); c2.strokeStyle=p.color; c2.lineWidth=lw*0.7; c2.stroke();
+    c2.fillStyle=p.color+(hov?'FF':'CC');
+    c2.beginPath(); c2.arc(r*0.9,-r*0.75,r*0.14,0,Math.PI*2); c2.fill();
+  } else if(p.id==='arteworld'){
+    c2.rotate(-0.08);
+    c2.fillStyle='#efe9df'; c2.fillRect(-r*1.2,-r*0.9,r*2.4,r*1.8);
+    c2.strokeStyle='#C6A15B'; c2.lineWidth=lw*1.6; c2.strokeRect(-r*1.2,-r*0.9,r*2.4,r*1.8);
+    c2.strokeStyle=p.color; c2.lineWidth=lw*1.8; c2.lineCap='round';
+    c2.beginPath(); c2.moveTo(-r*0.8,r*0.4);
+    c2.bezierCurveTo(-r*0.2,-r*0.7, r*0.2,r*0.7, r*0.85,-r*0.35); c2.stroke();
+  } else if(p.id==='cryptovice'){
+    const g2=c2.createRadialGradient(-r*0.3,-r*0.3,r*0.1, 0,0,r*1.05);
+    g2.addColorStop(0,'#ffd88a'); g2.addColorStop(0.6,'#F7931A'); g2.addColorStop(1,'#7a4708');
+    c2.beginPath(); c2.arc(0,0,r*1.05,0,Math.PI*2); c2.fillStyle=g2; c2.fill();
+    c2.strokeStyle='#3a2404'; c2.lineWidth=lw; c2.stroke();
+    c2.font='900 '+(r*1.3)+'px "Space Grotesk", system-ui';
+    c2.textAlign='center'; c2.textBaseline='middle';
+    c2.fillStyle='#2a1a04'; c2.fillText('\u20BF',0,r*0.05); c2.textBaseline='alphabetic';
+  } else { c2.restore(); return false; }
+  c2.restore(); return true;
+}
 function animateMap() {
   mapT += 0.005;
   mapCtx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
@@ -2500,38 +2557,37 @@ function animateMap() {
     mapCtx.fillStyle = p.color + '80';
     mapCtx.fill();
 
-    // Core glow
-    const coreGrd = mapCtx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
-    coreGrd.addColorStop(0, p.color + 'FF');
-    coreGrd.addColorStop(0.5, p.color + 'CC');
-    coreGrd.addColorStop(1, p.color + '55');
-    mapCtx.beginPath();
-    mapCtx.arc(x, y, r, 0, Math.PI * 2);
-    mapCtx.fillStyle = coreGrd;
-    mapCtx.fill();
-
-    // Surface ring
-    mapCtx.beginPath();
-    mapCtx.arc(x, y, r, 0, Math.PI * 2);
-    mapCtx.strokeStyle = 'rgba(0,0,0,0.3)';
-    mapCtx.lineWidth = 1;
-    mapCtx.stroke();
-
-    // Label inside
-    mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
-    mapCtx.fillStyle = 'rgba(0,0,0,0.85)';
+    // La forma ES el proyecto: pelota de rugby, pelota de golf, mina, lienzo, moneda
+    const esIcono = drawProjIcon(mapCtx, p, x, y, r, isHovered);
     mapCtx.textAlign = 'center';
-    mapCtx.fillText(p.label, x, y + 3);
-
-    // Sub label below orb
-    mapCtx.font = `400 8px 'Space Mono', monospace`;
-    mapCtx.fillStyle = isHovered ? p.color : p.color + '70';
-    mapCtx.fillText(p.sub, x, y + r + 16);
+    if (!esIcono) {
+      const coreGrd = mapCtx.createRadialGradient(x - r * 0.25, y - r * 0.25, 0, x, y, r);
+      coreGrd.addColorStop(0, p.color + 'FF');
+      coreGrd.addColorStop(0.5, p.color + 'CC');
+      coreGrd.addColorStop(1, p.color + '55');
+      mapCtx.beginPath(); mapCtx.arc(x, y, r, 0, Math.PI * 2);
+      mapCtx.fillStyle = coreGrd; mapCtx.fill();
+      mapCtx.beginPath(); mapCtx.arc(x, y, r, 0, Math.PI * 2);
+      mapCtx.strokeStyle = 'rgba(0,0,0,0.3)'; mapCtx.lineWidth = 1; mapCtx.stroke();
+      mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
+      mapCtx.fillStyle = 'rgba(0,0,0,0.85)';
+      mapCtx.fillText(p.label, x, y + 3);
+      mapCtx.font = `400 8px 'Space Mono', monospace`;
+      mapCtx.fillStyle = isHovered ? p.color : p.color + '70';
+      mapCtx.fillText(p.sub, x, y + r + 16);
+    } else {
+      mapCtx.font = `900 ${isHovered ? 11 : 9}px 'Space Grotesk', system-ui`;
+      mapCtx.fillStyle = isHovered ? '#ffffff' : 'rgba(232,232,236,0.85)';
+      mapCtx.fillText(p.label, x, y + r * 1.6 + 14);
+      mapCtx.font = `400 8px 'Space Mono', monospace`;
+      mapCtx.fillStyle = isHovered ? p.color : p.color + '70';
+      mapCtx.fillText(p.sub, x, y + r * 1.6 + 26);
+    }
 
     if (isHovered) {
       mapCtx.font = `700 8px 'Space Mono', monospace`;
       mapCtx.fillStyle = p.color;
-      mapCtx.fillText('▶ ENTER UNIVERSE', x, y + r + 28);
+      mapCtx.fillText('▶ ENTER UNIVERSE', x, y + (esIcono ? r * 1.6 + 38 : r + 28));
     }
   });
 
@@ -3106,6 +3162,14 @@ mapCanvas.addEventListener('touchend', e => {
 mapCanvas.addEventListener('click', e => {
   if (hoveredProject) {
     const proj = PROJECTS.find(p => p.id === hoveredProject);
+    // cada proyecto abre SU mundo real; el planeta viejo queda solo para los que aún no lo tienen
+    const MUNDO_REAL = {
+      rugbyvice:  () => !!window.RugbyVice  && (window.RugbyVice.open(), true),
+      vicegolfer: () => !!window.ViceGolfer && (window.ViceGolfer.open(), true),
+      arteworld:  () => !!window.HK23Art    && (window.HK23Art.open(), true),
+      cryptovice: () => !!window.CryptoWorld && (window.CryptoWorld.open('biblioteca'), true)
+    };
+    if (MUNDO_REAL[proj.id] && MUNDO_REAL[proj.id]()) return;
     openFractalUniverse(proj);
   } else if (hoveredBlackHole) {
     const bh = BLACK_HOLES.find(b => b.id === hoveredBlackHole);
