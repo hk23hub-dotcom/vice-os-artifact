@@ -10989,9 +10989,9 @@ addEventListener('DOMContentLoaded', function(){
   async function load(){
     let rt=[], rp=[];
     try{ const r=await fetch(SUPA.url+'/rest/v1/universe_galaxies?select=*&order=created_at.desc&limit=60',{headers:HEAD});
-      if(r.ok) rt=await r.json(); }catch(e){}
+      if(r.ok){ const d=await r.json(); if(Array.isArray(d)) rt=d; } }catch(e){}   // 200 con algo que no es lista no puede reventar el universo
     try{ const r=await fetch(SUPA.url+'/rest/v1/universe_products?select=*&order=created_at.desc&limit=200',{headers:HEAD});
-      if(r.ok) rp=await r.json(); }catch(e){}
+      if(r.ok){ const d=await r.json(); if(Array.isArray(d)) rp=d; } }catch(e){}
     const m=new Map(SEED.map(t=>[t.slug,t]));
     [...localTen().map(t=>({...t,local:true})), ...rt].forEach(t=>{ if(t&&t.slug) m.set(t.slug, norm({...(m.get(t.slug)||{}), ...t})); });
     TEN=[...m.values()];
@@ -12930,6 +12930,7 @@ addEventListener('DOMContentLoaded', function(){
   // los mundos, agrupados — cada uno va a su API real (nada muerto)
   const GROUPS=[
     ['◈ TU UNIVERSO', [
+      ['◆','FORMAS','jugá con los cuerpos','#FF6B00',()=>call(window.Formas&&window.Formas.open)],
       ['◉','MÚSICA','tu planeta de temas','#E8C86A',()=>call(window.MusicaHK&&window.MusicaHK.open)],
       ['▦','DASHBOARD','ejecutar · vender · referidos','#39d0ff',()=>call(window.DASH&&window.DASH.toggle)],
       ['◈','WINAMP','tu música + radios','#AAFF66',()=>call(window.Winamp&&window.Winamp.open)],
@@ -14403,5 +14404,415 @@ addEventListener('DOMContentLoaded', function(){
   }
 })();
 </script>
+
+<!-- ═══════════ EL TALLER DE FORMAS — agarralas, movelas, cambialas, ponelas a trabajar ═══════════ -->
+<style id="tf-style">
+  #tf{ position:fixed; inset:0; z-index:979; display:none; background:#03040A;
+    font-family:'Space Mono',ui-monospace,monospace; color:#E6E4DE; overflow:hidden; }
+  #tf.open{ display:block; }
+  #tf-cv{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; cursor:grab; }
+  #tf-cv.agarrando{ cursor:grabbing; }
+  .tf-top{ position:absolute; left:0; right:0; top:0; z-index:3; display:flex; align-items:center; gap:8px;
+    padding:14px; padding-top:calc(14px + env(safe-area-inset-top,0px)); flex-wrap:wrap;
+    background:linear-gradient(#03040A,#03040A00); pointer-events:none; }
+  .tf-top > *{ pointer-events:auto; }
+  .tf-top b{ font-size:12px; letter-spacing:5px; }
+  .tf-top i{ font-size:8px; letter-spacing:3px; color:#5A6478; font-style:normal; }
+  .tf-b{ font-size:9px; letter-spacing:2px; color:#9FE8FF; background:transparent; border:1px solid #24384A;
+    border-radius:4px; padding:11px 13px; cursor:pointer; min-height:44px; }
+  .tf-b.on{ background:#9FE8FF; color:#03040A; font-weight:700; }
+  .tf-b:focus-visible{ outline:2px solid #9FE8FF; outline-offset:2px; }
+  .tf-x{ margin-left:auto; font-size:11px; letter-spacing:2px; color:#03040A; background:#E6E4DE;
+    border:none; border-radius:4px; padding:11px 15px; cursor:pointer; min-height:44px; }
+
+  /* el inspector: lo que cambia la forma seleccionada */
+  #tf-ins{ position:absolute; right:0; top:0; bottom:0; width:340px; max-width:92vw; z-index:5;
+    background:rgba(5,7,14,.97); border-left:1px solid #182230; overflow-y:auto;
+    transform:translateX(100%); transition:transform .18s ease; }
+  #tf-ins.open{ transform:translateX(0); }
+  .ti-w{ padding:20px 16px calc(40px + env(safe-area-inset-bottom,0px)); }
+  .ti-eye{ font-size:8px; letter-spacing:4px; color:#5A6478; margin-bottom:6px; }
+  .ti-t{ font-size:17px; font-weight:700; letter-spacing:-.2px; margin:0 0 16px; word-break:break-word; }
+  .ti-h{ font-size:8px; letter-spacing:4px; color:#5A6478; margin:18px 0 8px;
+    border-bottom:1px solid #141C26; padding-bottom:6px; }
+  .ti-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .ti-chip{ font-size:9px; letter-spacing:1px; background:transparent; border:1px solid #24384A; color:#8C97A8;
+    border-radius:4px; padding:10px 11px; cursor:pointer; min-height:44px; flex:1 0 auto; }
+  .ti-chip.on{ background:#9FE8FF; color:#03040A; border-color:#9FE8FF; font-weight:700; }
+  .ti-col{ width:34px; height:34px; border-radius:50%; border:2px solid transparent; cursor:pointer; padding:0; }
+  .ti-col.on{ border-color:#E6E4DE; }
+  .ti-sl{ width:100%; height:44px; accent-color:#9FE8FF; }
+  .ti-in{ width:100%; background:#03040A; border:1px solid #24384A; border-radius:4px; color:#E6E4DE;
+    font:400 12px 'Space Mono',ui-monospace,monospace; padding:11px; min-height:44px; margin-bottom:8px; }
+  .ti-in:focus-visible{ outline:2px solid #9FE8FF; outline-offset:1px; }
+  .ti-out{ white-space:pre-wrap; font-size:11px; line-height:1.7; color:#C7CFDA; background:#080B12;
+    border:1px solid #141C26; border-radius:5px; padding:11px; margin-top:8px; }
+  .ti-out.err{ border-color:#4A2216; color:#FF8A6A; }
+  .ti-acts{ display:flex; gap:6px; flex-wrap:wrap; margin-top:18px; }
+  #tf-vacio{ position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
+    padding:28px; pointer-events:none; }
+  #tf-vacio[hidden]{ display:none !important; }
+  #tf-vacio div{ max-width:430px; text-align:center; pointer-events:auto; }
+  #tf-vacio p{ font-size:12px; line-height:1.9; color:#8C97A8; margin:0 0 16px; }
+  #tf-add{ position:absolute; inset:0; z-index:8; display:none; background:rgba(3,4,10,.97); overflow-y:auto; }
+  #tf-add.open{ display:block; }
+  .ta-w{ max-width:520px; margin:0 auto; padding:26px 18px; }
+  @media(max-width:560px){ #tf-ins{ width:100%; top:auto; height:66vh; border-left:none; border-top:1px solid #182230;
+    transform:translateY(100%); } #tf-ins.open{ transform:translateY(0); } }
+  @media(prefers-reduced-motion:reduce){ #tf *{ animation:none !important; transition:none !important; } }
+</style>
+<div id="tf" role="dialog" aria-modal="true" aria-label="El taller de formas">
+  <canvas id="tf-cv"></canvas>
+  <div class="tf-top">
+    <b>FORMAS</b><i>ARRASTRÁ · TOCÁ PARA EDITAR</i>
+    <button class="tf-b" id="tf-new">＋ DESDE UN LINK</button>
+    <button class="tf-b" id="tf-import">↧ MIS PROYECTOS</button>
+    <button class="tf-x" id="tf-close">✕</button>
+  </div>
+  <div id="tf-vacio" hidden><div>
+    <p>Órbitas vacías. Pegá el link de un producto tuyo y aparece acá como cuerpo —<br>
+       después lo movés, le cambiás la forma, el tamaño, el color, y le das un trabajo.</p>
+    <button class="tf-b on" id="tf-new2">＋ PEGAR UN LINK</button>
+  </div></div>
+  <div id="tf-ins" role="region" aria-label="Editor de la forma"></div>
+  <div id="tf-add" role="dialog" aria-label="Agregar desde un link"></div>
+</div>
+
+<script>
+// ═══ EL TALLER DE FORMAS — las formas son objetos que se agarran, no dibujos ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+  const TAU=Math.PI*2;
+
+  const FORMAS=[['esfera','ESFERA'],['anillo','ANILLO'],['cubo','CUBO'],['disco','DISCO'],
+                ['nube','NUBE'],['estrella','ESTRELLA'],['rombo','ROMBO']];
+  const ANIMS =[['quieto','QUIETO'],['orbita','ORBITAR'],['pulso','PULSO'],['giro','GIRO']];
+  const COLORES=['#FF6B00','#9FE8FF','#AAFF00','#B84DFF','#FFD200','#FF3AC8','#5FA8D3','#E8C86A','#4FE0A8','#E6E4DE'];
+  const TRABAJOS=[['nada','NADA'],['link','ABRIR LINK'],['mundo','ABRIR MUNDO'],['agente','CORRER AGENTE']];
+  const MUNDOS=[['Winamp','WINAMP',o=>o&&o.open],['MVB','MVB',o=>o&&o.open],['Taller','TALLER',o=>o&&o.open],
+    ['Inquilinos','INQUILINOS',o=>o&&o.open],['MusicaHK','MÚSICA',o=>o&&o.open],['Atlas','ATLAS',o=>o&&o.open],
+    ['CryptoSignals','CRYPTO',o=>o&&o.open],['hkBiblioteca','BIBLIOTECA',o=>o],['hkOracle','ORACLE',o=>o],
+    ['hkGalaxia','GALAXIA',o=>o],['hkDefensa','DEFENSA',o=>o],['hkBackrooms','BACKROOMS',o=>o]];
+  const AGENTES=[['prioritizer','PRIORIZAR'],['strategist','ESTRATEGIA'],['writer','ESCRIBIR'],
+                 ['analyst','ANALIZAR'],['aduanero','ADUANERO'],['futures','FUTUROS'],['gta6','GTA6']];
+
+  // ── los cuerpos. Tuyos, guardados, nada inventado. ──
+  const K='hk23_formas';
+  const leer=()=>{ try{ return JSON.parse(localStorage.getItem(K))||[]; }catch(e){ return []; } };
+  const guardar=()=>{ try{ localStorage.setItem(K,JSON.stringify(F)); return true; }catch(e){ return false; } };
+  let F=leer();
+  const nuevoId=()=>'f'+Date.now().toString(36)+Math.floor(Math.random()*1e3).toString(36);
+  function cuerpo(o){ return Object.assign({ id:nuevoId(), t:'SIN NOMBRE', url:'', fav:'',
+    orb:1, ang:Math.random()*TAU, forma:'esfera', tam:14, color:'#9FE8FF',
+    anim:'orbita', vel:0.6, job:{tipo:'nada',valor:'',prompt:'',agente:'prioritizer'} }, o||{}); }
+
+  // ── lienzo ──
+  const cv=$('tf-cv'), g=cv.getContext('2d');
+  let W=0,H=0,DPR=1,CX=0,CY=0,R0=0,R1=0,ANILLOS=5;
+  function fit(){ const r=cv.getBoundingClientRect();
+    DPR=Math.min(2,window.devicePixelRatio||1);
+    const w=Math.round(r.width*DPR), h=Math.round(r.height*DPR);
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; }
+    W=cv.width; H=cv.height;
+    CX=W*0.5; CY=H*0.52; R0=Math.min(W,H)*0.14; R1=Math.min(W,H)*0.44; }
+  const radio=orb=>orb<=0?0:R0+(R1-R0)*((orb-1)/Math.max(1,ANILLOS-1));
+  addEventListener('resize',()=>{ fit(); });
+
+  // ── dibujar cada forma. La forma es la forma: se distingue de lejos. ──
+  function pintarForma(x,y,r,col,forma,t,vivo,rot){
+    g.save(); g.translate(x,y); if(rot) g.rotate(rot);
+    const gr=g.createRadialGradient(-r*0.34,-r*0.36,r*0.05,0,0,r);
+    gr.addColorStop(0, vivo?'#FFFFFF':'#A8B4C6'); gr.addColorStop(0.30,col); gr.addColorStop(1,'#05070E');
+    g.fillStyle=gr; g.strokeStyle=col; g.lineWidth=Math.max(1.2,r*0.10);
+    if(forma==='esfera'){ g.beginPath(); g.arc(0,0,r,0,TAU); g.fill(); }
+    else if(forma==='cubo'){ const s=r*1.55; g.fillRect(-s/2,-s/2,s,s);
+      g.strokeRect(-s/2,-s/2,s,s); }
+    else if(forma==='rombo'){ g.beginPath(); g.moveTo(0,-r*1.3); g.lineTo(r*1.1,0); g.lineTo(0,r*1.3);
+      g.lineTo(-r*1.1,0); g.closePath(); g.fill(); g.stroke(); }
+    else if(forma==='disco'){ g.beginPath(); g.ellipse(0,0,r*1.5,r*0.42,0,0,TAU); g.fill(); g.stroke(); }
+    else if(forma==='anillo'){ g.beginPath(); g.arc(0,0,r*0.72,0,TAU); g.fill();
+      for(let k=0;k<2;k++){ g.beginPath(); g.ellipse(0,0,r*(1.7+k*0.34),r*(0.52+k*0.10),-0.4,0,TAU);
+        g.strokeStyle=col+(k?'77':'CC'); g.lineWidth=Math.max(1.1,r*(0.14-k*0.05)); g.stroke(); } }
+    else if(forma==='nube'){ [[0,0,1],[-0.8,0.15,0.72],[0.8,0.15,0.72],[-0.4,-0.4,0.6],[0.45,-0.35,0.62]]
+      .forEach(([dx,dy,k])=>{ g.beginPath(); g.arc(dx*r,dy*r,r*k,0,TAU); g.fill(); }); }
+    else if(forma==='estrella'){ g.beginPath();
+      for(let i=0;i<10;i++){ const a=i/10*TAU-Math.PI/2, rr=i%2?r*0.46:r*1.45;
+        i?g.lineTo(Math.cos(a)*rr,Math.sin(a)*rr):g.moveTo(Math.cos(a)*rr,Math.sin(a)*rr); }
+      g.closePath(); g.fill(); g.stroke(); }
+    g.restore();
+  }
+
+  // ── el loop ──
+  let sel=null, hov=null, arrastrando=null, corriendo=false, t0=0;
+  const HIT=[];
+  function pintar(ts){
+    if(!corriendo) return;
+    requestAnimationFrame(pintar);
+    fit();
+    g.fillStyle='#03040A'; g.fillRect(0,0,W,H);
+    for(let i=0;i<130;i++){ const a=Math.sin(i*12.9898)*43758.5453, b=Math.sin(i*78.233)*12345.6789;
+      const x=(a-Math.floor(a))*W, y=(b-Math.floor(b))*H, s=(Math.sin(i*3.17)+1)/2;
+      g.globalAlpha=0.10+s*0.5; g.fillStyle='#EAF0FF';
+      g.beginPath(); g.arc(x,y,s>0.94?Math.max(1.3,W*0.0011):Math.max(0.6,W*0.0006),0,TAU); g.fill(); }
+    g.globalAlpha=1;
+
+    // las órbitas: el riel donde se sueltan las formas
+    for(let o=1;o<=ANILLOS;o++){ const rr=radio(o);
+      g.beginPath(); g.ellipse(CX,CY,rr,rr*0.78,0,0,TAU);
+      const cerca = arrastrando && Math.abs(orbitaCercana(arrastrando._x,arrastrando._y).r-rr)<2;
+      g.strokeStyle= cerca? 'rgba(159,232,255,.55)' : 'rgba(120,150,190,.13)';
+      g.lineWidth= cerca? Math.max(1.6,W*0.0016) : 1; g.stroke(); }
+
+    // el centro: vos
+    pintarForma(CX,CY,R0*0.42,'#3C7ADF','esfera',ts,true,0);
+    const LS=Math.max(11,W*0.0064);
+    g.textAlign='center'; g.font='700 '+(LS*1.1)+'px "Space Mono",ui-monospace,monospace';
+    g.fillStyle='#EAF2FF'; g.fillText('HK23HUB', CX, CY+R0*0.42+LS*2.0);
+
+    HIT.length=0;
+    const orden=F.map(c=>{
+      let x,y,rot=0, r=Math.max(6,c.tam*(Math.min(W,H)/900))*DPR;
+      if(c===arrastrando){ x=c._x; y=c._y; }
+      else { const rr=radio(c.orb);
+        const a=c.ang + (c.anim==='orbita'? ts*0.00004*(c.vel||1) : 0);
+        x=CX+Math.cos(a)*rr; y=CY+Math.sin(a)*rr*0.78; }
+      if(c.anim==='pulso') r*=1+0.16*Math.sin(ts/420*(c.vel||1));
+      if(c.anim==='giro') rot=ts*0.0006*(c.vel||1);
+      const prof=(y-CY)/(H*0.5);
+      return {c,x,y,r,rot,prof};
+    }).sort((p,q)=>p.prof-q.prof);
+
+    orden.forEach(({c,x,y,r,rot})=>{
+      const act = sel===c.id || hov===c.id;
+      pintarForma(x,y,r,c.color,c.forma,ts,act,rot);
+      if(c.job && c.job.tipo!=='nada'){                  // una forma con trabajo lleva su marca
+        g.beginPath(); g.arc(x+r*0.95,y-r*0.95,Math.max(3,r*0.24),0,TAU);
+        g.fillStyle='#FF6B00'; g.fill(); }
+      if(sel===c.id){ g.beginPath(); g.arc(x,y,r*2.3,0,TAU);
+        g.strokeStyle='rgba(159,232,255,.7)'; g.lineWidth=Math.max(1.3,W*0.0012); g.stroke(); }
+      g.font='700 '+(LS*0.92)+'px "Space Mono",ui-monospace,monospace';
+      g.fillStyle='rgba(3,4,10,.85)'; g.fillText((c.t||'').slice(0,18).toUpperCase(), x+1.4, y+r+LS*1.9+1.4);
+      g.fillStyle=act?'#9FE8FF':'#DDE6F2'; g.fillText((c.t||'').slice(0,18).toUpperCase(), x, y+r+LS*1.8);
+      HIT.push({ id:c.id, x, y, r:Math.max(r*1.9, 44*DPR) });   // 44px reales para un dedo
+    });
+    g.textAlign='left';
+  }
+  function orbitaCercana(x,y){
+    const d=Math.hypot((x-CX), (y-CY)/0.78);
+    let best=1, bd=1e9;
+    for(let o=1;o<=ANILLOS;o++){ const dd=Math.abs(radio(o)-d); if(dd<bd){ bd=dd; best=o; } }
+    return { orb:best, r:radio(best), ang:Math.atan2((y-CY)/0.78, x-CX) };
+  }
+  function golpe(px,py){
+    const r=cv.getBoundingClientRect(), sx=W/r.width, sy=H/r.height;
+    const x=(px-r.left)*sx, y=(py-r.top)*sy;
+    let best=null,bd=1e9;
+    HIT.forEach(h=>{ const d=Math.hypot(h.x-x,h.y-y); if(d<h.r&&d<bd){ bd=d; best=h.id; } });
+    return { id:best, x, y };
+  }
+
+  // ── agarrar y soltar en la órbita que quieras ──
+  let movio=false;
+  cv.addEventListener('pointerdown',e=>{
+    const h=golpe(e.clientX,e.clientY); movio=false;
+    if(!h.id) return;
+    const c=F.find(x=>x.id===h.id); if(!c) return;
+    arrastrando=c; c._x=h.x; c._y=h.y; sel=c.id;
+    cv.classList.add('agarrando'); cv.setPointerCapture(e.pointerId);
+  });
+  cv.addEventListener('pointermove',e=>{
+    const h=golpe(e.clientX,e.clientY);
+    if(!arrastrando){ hov=h.id; return; }
+    movio=true; arrastrando._x=h.x; arrastrando._y=h.y;
+  });
+  cv.addEventListener('pointerup',e=>{
+    cv.classList.remove('agarrando');
+    if(arrastrando){
+      const c=arrastrando; arrastrando=null;
+      if(movio){ const o=orbitaCercana(c._x,c._y); c.orb=o.orb; c.ang=o.ang;
+        delete c._x; delete c._y; guardar(); log('formas','movió '+c.t+' a la órbita '+o.orb); }
+      else { delete c._x; delete c._y; }
+      inspector(c.id);
+    }
+  });
+  cv.addEventListener('pointercancel',()=>{ if(arrastrando){ delete arrastrando._x; delete arrastrando._y; arrastrando=null; }
+    cv.classList.remove('agarrando'); });
+
+  // ── el inspector: acá se cambia la forma de verdad ──
+  function avisar(t){ let el=$('tf-live');
+    if(!el){ el=document.createElement('div'); el.id='tf-live'; el.setAttribute('aria-live','polite');
+      el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)'; $('tf').appendChild(el); }
+    el.textContent=t; }
+  function inspector(id){
+    const c=F.find(x=>x.id===id); const P=$('tf-ins');
+    if(!c){ P.classList.remove('open'); return; }
+    sel=id;
+    const job=c.job||{tipo:'nada'};
+    const chips=(arr,k,val)=>arr.map(([v,l])=>
+      '<button class="ti-chip'+(val===v?' on':'')+'" data-set="'+k+'" data-val="'+esc(v)+'">'+esc(l)+'</button>').join('');
+    P.innerHTML='<div class="ti-w">'+
+      '<div class="ti-eye">◆ LA FORMA</div><h3 class="ti-t">'+esc(c.t||'—')+'</h3>'+
+      '<input class="ti-in" id="ti-nom" value="'+esc(c.t||'')+'" placeholder="nombre" aria-label="Nombre">'+
+      '<div class="ti-h">FORMA</div><div class="ti-row">'+chips(FORMAS,'forma',c.forma)+'</div>'+
+      '<div class="ti-h">TAMAÑO · '+c.tam+'</div>'+
+      '<input class="ti-sl" type="range" id="ti-tam" min="6" max="46" value="'+c.tam+'" aria-label="Tamaño">'+
+      '<div class="ti-h">COLOR</div><div class="ti-row">'+COLORES.map(k=>
+        '<button class="ti-col'+(c.color===k?' on':'')+'" style="background:'+k+'" data-set="color" data-val="'+k+
+        '" aria-label="Color '+k+'"></button>').join('')+'</div>'+
+      '<div class="ti-h">ANIMACIÓN</div><div class="ti-row">'+chips(ANIMS,'anim',c.anim)+'</div>'+
+      '<div class="ti-h">VELOCIDAD · '+(c.vel||0).toFixed(1)+'</div>'+
+      '<input class="ti-sl" type="range" id="ti-vel" min="0" max="20" value="'+Math.round((c.vel||0)*10)+'" aria-label="Velocidad">'+
+      '<div class="ti-h">ÓRBITA · '+c.orb+'</div>'+
+      '<input class="ti-sl" type="range" id="ti-orb" min="1" max="'+ANILLOS+'" value="'+c.orb+'" aria-label="Órbita">'+
+      '<div class="ti-h">TRABAJO — QUÉ HACE ESTA FORMA</div><div class="ti-row">'+chips(TRABAJOS,'jobtipo',job.tipo)+'</div>'+
+      (job.tipo==='link'? '<input class="ti-in" id="ti-jv" style="margin-top:8px" value="'+esc(job.valor||c.url||'')+'" placeholder="https://…" aria-label="Link">' :
+       job.tipo==='mundo'? '<div class="ti-row" style="margin-top:8px">'+MUNDOS.map(([k,l])=>
+          '<button class="ti-chip'+(job.valor===k?' on':'')+'" data-set="jobvalor" data-val="'+k+'">'+l+'</button>').join('')+'</div>' :
+       job.tipo==='agente'? '<div class="ti-row" style="margin-top:8px">'+AGENTES.map(([k,l])=>
+          '<button class="ti-chip'+((job.agente||'prioritizer')===k?' on':'')+'" data-set="jobagente" data-val="'+k+'">'+l+'</button>').join('')+
+          '</div><input class="ti-in" id="ti-jp" style="margin-top:8px" value="'+esc(job.prompt||'')+'" placeholder="qué le pedís al agente" aria-label="Prompt">' : '')+
+      '<div id="ti-out"></div>'+
+      '<div class="ti-acts">'+
+        (job.tipo!=='nada'?'<button class="tf-b on" id="ti-run">▶ HACERLO TRABAJAR</button>':'')+
+        '<button class="tf-b" id="ti-dup">⧉ DUPLICAR</button>'+
+        '<button class="tf-b" id="ti-del">✕ BORRAR</button>'+
+        '<button class="tf-b" id="ti-cls">CERRAR</button>'+
+      '</div></div>';
+    P.classList.add('open');
+    P.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{
+      const k=b.dataset.set, v=b.dataset.val;
+      if(k==='jobtipo'){ c.job=Object.assign({valor:'',prompt:'',agente:'prioritizer'},c.job,{tipo:v}); }
+      else if(k==='jobvalor'){ c.job=Object.assign({},c.job,{valor:v}); }
+      else if(k==='jobagente'){ c.job=Object.assign({},c.job,{agente:v}); }
+      else c[k]=v;
+      guardar(); inspector(id); });
+    const liga=(el,fn)=>{ const e=$(el); if(e) e.oninput=()=>{ fn(e.value); guardar(); }; };
+    liga('ti-tam',v=>{ c.tam=+v; const h=P.querySelector('.ti-h'); });
+    liga('ti-vel',v=>{ c.vel=+v/10; });
+    liga('ti-orb',v=>{ c.orb=+v; });
+    const nom=$('ti-nom'); if(nom) nom.oninput=()=>{ c.t=nom.value; guardar(); };
+    const jv=$('ti-jv'); if(jv) jv.oninput=()=>{ c.job=Object.assign({},c.job,{valor:jv.value}); guardar(); };
+    const jp=$('ti-jp'); if(jp) jp.oninput=()=>{ c.job=Object.assign({},c.job,{prompt:jp.value}); guardar(); };
+    if($('ti-run')) $('ti-run').onclick=()=>trabajar(c);
+    $('ti-dup').onclick=()=>{ const n=cuerpo(Object.assign({},c,{id:nuevoId(),ang:c.ang+0.4,t:(c.t||'')+' ·2'}));
+      delete n._x; delete n._y; F.push(n); guardar(); vacio(); inspector(n.id); };
+    $('ti-del').onclick=()=>{ F=F.filter(x=>x.id!==c.id); guardar(); sel=null;
+      P.classList.remove('open'); vacio(); avisar('Forma borrada.'); };
+    $('ti-cls').onclick=()=>{ P.classList.remove('open'); sel=null; };
+  }
+
+  // ── una forma con trabajo es un mini agente ──
+  async function trabajar(c){
+    const job=c.job||{}, out=$('ti-out');
+    const di=(t,err)=>{ if(out){ out.className='ti-out'+(err?' err':''); out.textContent=t; } avisar(t.slice(0,90)); };
+    if(job.tipo==='link'){ const u=safeUrl(job.valor||c.url);
+      if(!u) return di('Esa forma no tiene un link válido.',1);
+      window.open(u,'_blank','noopener'); return di('Abriendo '+u); }
+    if(job.tipo==='mundo'){ const m=MUNDOS.find(x=>x[0]===job.valor);
+      if(!m) return di('Elegí qué mundo abre.',1);
+      let fn=null; try{ fn=m[2](window[m[0]]); }catch(e){}
+      if(typeof fn!=='function') return di('El mundo '+m[1]+' no responde en esta página.',1);
+      cerrar(); setTimeout(()=>{ try{ fn(); }catch(e){} },140); return; }
+    if(job.tipo==='agente'){
+      const p=(job.prompt||'').trim();
+      if(!p) return di('Escribile qué querés que haga.',1);
+      di('Corriendo…');
+      try{
+        const r=await fetch('/api/run',{method:'POST',
+          headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({action:'agent',agent:job.agente||'prioritizer',prompt:p})});
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok) return di('No corrió. HTTP '+r.status+(j.error?' — '+j.error:''),1);
+        di(j.text||j.output||JSON.stringify(j,null,2));
+        log('formas',c.t+' corrió el agente '+(job.agente||''));
+      }catch(e){ di('No se pudo llamar al runner: '+(e&&e.message||e),1); }
+    }
+  }
+
+  // ── ＋ desde un link: pegás la URL y aparece el cuerpo ──
+  function desdeLink(){
+    $('tf-add').innerHTML='<div class="ta-w">'+
+      '<div class="ti-eye">◆ AGREGAR AL UNIVERSO</div>'+
+      '<h3 class="ti-t" style="font-size:19px">PEGÁ EL LINK DE ALGO TUYO</h3>'+
+      '<input class="ti-in" id="tl-u" placeholder="https://tu-producto.com" inputmode="url" aria-label="Link">'+
+      '<input class="ti-in" id="tl-n" placeholder="nombre (si lo dejás vacío, uso el dominio)" aria-label="Nombre">'+
+      '<p class="ti-out" style="border:none;background:none;padding:0;color:#5A6478">Traigo el ícono del sitio para que el cuerpo se parezca a lo que es. '+
+      'El título y la imagen grande no los puedo leer desde el navegador sin un permiso del otro sitio — por eso el nombre lo ponés vos.</p>'+
+      '<div class="ti-acts"><button class="tf-b on" id="tl-ok">＋ CREAR EL CUERPO</button>'+
+      '<button class="tf-b" id="tl-x">CANCELAR</button></div></div>';
+    const A=$('tf-add'); A.classList.add('open');
+    setTimeout(()=>{ const e=$('tl-u'); if(e) e.focus(); },30);
+    $('tl-x').onclick=()=>A.classList.remove('open');
+    $('tl-ok').onclick=()=>{
+      const u=($('tl-u').value||'').trim(), n=($('tl-n').value||'').trim();
+      const ok=safeUrl(u);
+      if(!ok){ avisar('Ese link no sirve — tiene que empezar con http.'); $('tl-u').focus(); return; }
+      let host=''; try{ host=new URL(ok).hostname.replace(/^www\./,''); }catch(e){ host=''; }
+      const c=cuerpo({ t:(n||host||'SIN NOMBRE').toUpperCase(), url:ok,
+        fav: host? 'https://www.google.com/s2/favicons?domain='+encodeURIComponent(host)+'&sz=64' : '',
+        color: COLORES[F.length%COLORES.length], orb:1+(F.length%ANILLOS),
+        job:{tipo:'link',valor:ok,prompt:'',agente:'prioritizer'} });
+      F.push(c); const g1=guardar(); F=leer();
+      const quedo=F.some(x=>x.id===c.id);
+      A.classList.remove('open'); vacio();
+      avisar(quedo? 'Cuerpo creado en la órbita '+c.orb+'.' : 'No se pudo guardar.');
+      if(quedo) inspector(c.id);
+      log('formas','creó un cuerpo desde '+host);
+    };
+  }
+
+  // ── traer los proyectos que ya viven en el universo ──
+  function importar(){
+    const fuentes=[];
+    try{ if(typeof NODES!=='undefined') NODES.forEach(n=>fuentes.push({t:n.label,color:n.color,tam:n.size,forma:'esfera'})); }catch(e){}
+    try{ if(typeof PROJECTS!=='undefined') PROJECTS.forEach(p=>fuentes.push({t:(p.label||p.id||'').toUpperCase(),
+      color:p.color||'#9FE8FF', tam:Math.min(30,(p.size||18)), forma:'anillo'})); }catch(e){}
+    if(!fuentes.length){ avisar('No encontré proyectos en esta página.'); return; }
+    const ya=new Set(F.map(c=>(c.t||'').toUpperCase()));
+    let n=0;
+    fuentes.forEach((s,i)=>{ if(ya.has((s.t||'').toUpperCase())) return;
+      F.push(cuerpo(Object.assign({}, s, { orb:1+(n%ANILLOS), ang:(n*0.9)%TAU }))); n++; });
+    guardar(); F=leer(); vacio();
+    avisar(n? n+' proyecto(s) traído(s) al taller. Los que ya estaban no se duplicaron.'
+             : 'Ya estaban todos acá — no dupliqué nada.');
+    log('formas','importó '+n+' proyectos');
+  }
+
+  function vacio(){ const v=$('tf-vacio'); if(v) v.hidden = F.length>0; }
+
+  // ── abrir / cerrar ──
+  let ultimo=null;
+  function abrir(){ const el=$('tf'); if(el.classList.contains('open')) return;
+    F=leer(); el.classList.add('open'); ultimo=document.activeElement;
+    corriendo=true; fit(); vacio(); requestAnimationFrame(pintar);
+    setTimeout(()=>{ const b=$('tf-close'); if(b) b.focus(); },30);
+    log('formas','abrió el taller de formas'); }
+  function cerrar(){ const el=$('tf'); if(!el.classList.contains('open')) return;
+    corriendo=false; el.classList.remove('open'); $('tf-ins').classList.remove('open');
+    $('tf-add').classList.remove('open'); sel=null;
+    if(ultimo&&ultimo.focus) ultimo.focus(); ultimo=null; }
+
+  $('tf-close').onclick=cerrar;
+  $('tf-new').onclick=desdeLink;
+  $('tf-new2').onclick=desdeLink;
+  $('tf-import').onclick=importar;
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(!$('tf').classList.contains('open')) return;
+    if(e.key==='Escape'){ e.stopImmediatePropagation();
+      if($('tf-add').classList.contains('open')) $('tf-add').classList.remove('open');
+      else if($('tf-ins').classList.contains('open')){ $('tf-ins').classList.remove('open'); sel=null; }
+      else cerrar(); }
+  }, true);
+
+  window.Formas={ open:abrir, close:cerrar, desdeLink, importar,
+    cuerpos:()=>JSON.parse(JSON.stringify(F)), version:'1' };
+})();
+</script>
+
 </body>
 </html>
