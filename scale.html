@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Motivation Scale &middot; HK23</title>
-<meta name="description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, get a card that pushes you.">
+<meta name="description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, unlock the vault, and turn today's fire into a post.">
 <meta property="og:title" content="Motivation Scale &middot; HK23">
-<meta property="og:description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, get a card that pushes you.">
+<meta property="og:description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, unlock the vault, and turn today's fire into a post.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hk23universe.vercel.app/scale">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#128293;</text></svg>">
@@ -60,6 +60,23 @@
 
   /* ---------- header ---------- */
   header { display: flex; flex-direction: column; gap: 6px; }
+  .head-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .lang { display: flex; gap: 4px; }
+  .lang button {
+    appearance: none;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-faint);
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .lang button:hover { color: var(--ink-muted); }
+  .lang button.on { color: var(--gold); border-color: var(--gold); }
+  .lang button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
   .eyebrow {
     font-size: 11px;
     letter-spacing: 0.22em;
@@ -354,6 +371,9 @@
     opacity: 0;
     pointer-events: none;
     transition: opacity 200ms ease, transform 200ms ease;
+    z-index: 30;
+    max-width: min(86vw, 380px);
+    text-align: center;
   }
   .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
@@ -373,6 +393,380 @@
     white-space: nowrap;
   }
 
+  /* ---------- drop actions ---------- */
+  .drop-actions { display: flex; gap: 20px; align-items: center; }
+  .share-open { color: var(--gold-deep); }
+  .share-open:hover { color: var(--gold); }
+
+  /* ---------- the vault ---------- */
+  .vault { display: flex; flex-direction: column; gap: 12px; }
+  .vault-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .vault-next {
+    font-size: 11px;
+    color: var(--ink-faint);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .vault-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .vcard {
+    appearance: none;
+    text-align: left;
+    font-family: var(--body);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    cursor: pointer;
+    color: var(--ink);
+    position: relative;
+    transition: border-color 200ms ease, transform 120ms ease;
+  }
+  .vcard:hover { transform: translateY(-1px); }
+  .vcard:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .vcard .v-days {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .vcard .v-name {
+    font-family: var(--display);
+    font-size: 23px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+  .vcard .v-sub {
+    font-size: 11px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    line-height: 1.4;
+  }
+  .vcard.open { border-color: color-mix(in srgb, var(--vc, var(--gold)) 55%, var(--line)); }
+  .vcard.open .v-name { color: var(--vc, var(--gold)); }
+  .vcard.locked { cursor: default; }
+  .vcard.locked:hover { transform: none; }
+  .vcard.locked .v-name { color: var(--ink-faint); }
+  .vcard.locked .v-lock { position: absolute; top: 12px; right: 12px; font-size: 12px; opacity: 0.75; }
+  .vcard.fresh { animation: vaultPulse 1.5s ease 2; }
+  @keyframes vaultPulse {
+    0%, 100% { box-shadow: none; }
+    50% { box-shadow: 0 0 24px color-mix(in srgb, var(--vc, var(--gold)) 42%, transparent); }
+  }
+
+  /* ---------- overlays ---------- */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in srgb, var(--ground) 93%, transparent);
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    display: none;
+    z-index: 20;
+    overflow-y: auto;
+  }
+  .overlay.show { display: flex; }
+  .overlay-inner {
+    margin: auto;
+    width: 100%;
+    max-width: 430px;
+    padding: 28px 22px 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+  .ov-top { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .ov-close {
+    appearance: none;
+    background: none;
+    border: 1px solid var(--line);
+    color: var(--ink-muted);
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .ov-close:hover { color: var(--gold); border-color: var(--gold); }
+  .ov-close:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  /* ---------- ceremony ---------- */
+  .orb-wrap { position: relative; width: 200px; height: 200px; display: grid; place-items: center; }
+  .orb {
+    width: 128px;
+    height: 128px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 38% 32%,
+      color-mix(in srgb, var(--vc, var(--gold)) 90%, #fff),
+      color-mix(in srgb, var(--vc, var(--gold)) 45%, var(--ground)) 62%,
+      transparent 74%);
+    box-shadow:
+      0 0 60px color-mix(in srgb, var(--vc, var(--gold)) 45%, transparent),
+      0 0 150px color-mix(in srgb, var(--vc, var(--gold)) 22%, transparent);
+    animation: breathe 6s ease-in-out infinite;
+  }
+  @keyframes breathe {
+    0%, 100% { transform: scale(0.88); }
+    50% { transform: scale(1.06); }
+  }
+  .cer-name {
+    font-family: var(--display);
+    font-size: 30px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--vc, var(--gold));
+    margin: 0;
+    line-height: 1.05;
+    text-align: center;
+  }
+  .cer-hz {
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    text-align: center;
+  }
+  .cer-aff {
+    min-height: 92px;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.5;
+    max-width: 28ch;
+    margin: 0;
+    opacity: 1;
+    transition: opacity 500ms ease;
+  }
+  .cer-aff.fade { opacity: 0; }
+  .cer-dots { display: flex; gap: 6px; }
+  .cer-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--line); }
+  .cer-dots span.on { background: var(--vc, var(--gold)); }
+  .cer-controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .cer-btn {
+    appearance: none;
+    font-family: var(--display);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: var(--surface-2);
+    color: var(--ink);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 18px 10px;
+    cursor: pointer;
+  }
+  .cer-btn.primary { background: var(--vc, var(--gold)); border-color: transparent; color: #14100a; }
+  .cer-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .cer-note {
+    font-size: 11px;
+    color: var(--ink-faint);
+    text-align: center;
+    max-width: 36ch;
+    line-height: 1.55;
+    letter-spacing: 0.03em;
+    margin: 0;
+  }
+
+  /* ---------- pass-it-on card ---------- */
+  .msg-card {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid var(--gold-deep);
+    border-radius: 4px;
+    padding: 36px 24px;
+    background: var(--surface);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-items: center;
+    text-align: center;
+  }
+  .msg-card::before, .msg-card::after {
+    content: '';
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--gold);
+  }
+  .msg-card::before { top: -1px; left: -1px; border-right: 0; border-bottom: 0; }
+  .msg-card::after { bottom: -1px; right: -1px; border-left: 0; border-top: 0; }
+  .f-eyebrow { font-size: 10px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--gold); }
+  .f-text { margin: 0; font-size: 20px; font-weight: 600; line-height: 1.5; text-wrap: balance; }
+  .f-text.caps {
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 29px;
+    line-height: 1.12;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .f-meta {
+    font-size: 11px;
+    color: var(--ink-muted);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-variant-numeric: tabular-nums;
+  }
+  .f-brand {
+    font-family: var(--display);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .f-brand em { font-style: normal; color: var(--gold); }
+  .share-hint {
+    font-size: 12px;
+    color: var(--ink-muted);
+    text-align: center;
+    line-height: 1.55;
+    max-width: 36ch;
+    margin: 0;
+  }
+
+  /* ---------- wide vault card + today's five ---------- */
+  .vcard.wide { grid-column: 1 / -1; }
+  .aff-card .cat { color: var(--vc, var(--gold)); }
+  .aff-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .aff-list li {
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.5;
+    padding-left: 16px;
+    position: relative;
+  }
+  .aff-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 7px;
+    height: 2px;
+    background: var(--line);
+  }
+  .aff-list li.core { color: var(--vc, var(--gold)); }
+  .aff-list li.core::before { background: var(--vc, var(--gold)); }
+
+  /* ---------- emotion frequency scale ---------- */
+  .scale-list { width: 100%; display: flex; flex-direction: column; gap: 4px; }
+  .scale-row {
+    appearance: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 9px 14px;
+    cursor: pointer;
+    color: var(--ink);
+    font-family: var(--body);
+    transition: border-color 150ms ease, background 150ms ease;
+  }
+  .scale-row .e {
+    font-family: var(--display);
+    font-size: 16px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--row, var(--gold));
+  }
+  .scale-row .hz {
+    font-size: 12px;
+    color: var(--ink-muted);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+  .scale-row.threshold { border-color: var(--gold); }
+  .scale-row.sel { background: var(--surface-2); border-color: var(--row, var(--gold)); }
+  .scale-row:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .cer-note.teaser {
+    color: var(--gold-deep);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 10px;
+  }
+
+
+  /* ---------- share studio ---------- */
+  .studio {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+  .seg-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .seg {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--surface-2);
+    color: var(--ink-muted);
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    border-radius: 999px;
+    padding: 6px 12px;
+    cursor: pointer;
+    font-family: var(--body);
+  }
+  .seg.on { color: #1c1508; background: var(--gold); border-color: var(--gold); font-weight: 700; }
+  .seg:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .swatch {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--line);
+    cursor: pointer;
+    padding: 0;
+    appearance: none;
+  }
+  .swatch.on { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 40%, transparent); }
+  .studio-canvas-wrap { display: flex; justify-content: center; }
+  #studio-canvas {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    touch-action: pan-y;
+    cursor: grab;
+  }
+  .cta-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: var(--body);
+  }
+  .cta-input:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .gen-btn { font-size: 16px; padding: 12px 0 10px; }
+  .hint { font-size: 11px; color: var(--ink-faint); text-align: center; margin: 0; line-height: 1.5; }
+  .result { display: flex; flex-direction: column; gap: 8px; }
+  .result img { width: 100%; max-width: 320px; align-self: center; border-radius: 8px; border: 1px solid var(--line); }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -380,7 +774,10 @@
 
 <div class="app">
   <header>
-    <p class="eyebrow">HK23 &#183; Daily check-in</p>
+    <div class="head-row">
+      <p class="eyebrow" id="eyebrow">HK23 &#183; Daily check-in</p>
+      <div class="lang" id="lang-switch" role="group" aria-label="Language"></div>
+    </div>
     <h1 class="wordmark">Motivation <em>Scale</em></h1>
     <p class="datestamp" id="datestamp"></p>
   </header>
@@ -401,14 +798,22 @@
   <button class="log-btn" id="log-btn" disabled>Log today</button>
 
   <section class="drop" id="drop" aria-live="polite">
-    <div class="drop-eyebrow"><span class="cat" id="drop-cat"></span><span class="tag">Today's drop</span></div>
+    <div class="drop-eyebrow"><span class="cat" id="drop-cat"></span><span class="tag" id="drop-tag">Today's drop</span></div>
     <p class="drop-text" id="drop-text"></p>
-    <button class="redraw" id="redraw" type="button">&#8635; Draw another</button>
+    <div class="drop-actions">
+      <button class="redraw" id="redraw" type="button">&#8635; Draw another</button>
+      <button class="redraw share-open" id="share-open" type="button">&#10148; Pass it on</button>
+    </div>
+  </section>
+
+  <section class="drop aff-card" id="daily-aff" aria-live="polite">
+    <div class="drop-eyebrow"><span class="cat" id="aff-chakra"></span><span class="tag" id="aff-tag">Today's five</span></div>
+    <ol class="aff-list" id="aff-list"></ol>
   </section>
 
   <section class="history">
     <div class="history-head">
-      <h2 class="history-title">Last 14 days</h2>
+      <h2 class="history-title" id="hist-title">Last 14 days</h2>
       <div class="chips">
         <span class="chip" id="chip-streak">Streak &#183; <strong>0</strong></span>
         <span class="chip" id="chip-avg">Avg &#183; <strong>&#8212;</strong></span>
@@ -423,78 +828,329 @@
     </table>
   </section>
 
-  <footer>Data stays in this browser &#183; HK23</footer>
+  <section class="vault">
+    <div class="vault-head">
+      <h2 class="history-title" id="vault-title">The Vault &#183; streak drops</h2>
+      <span class="vault-next" id="vault-next"></span>
+    </div>
+    <div class="vault-grid" id="vault-grid"></div>
+  </section>
+
+  <section class="studio" aria-label="Share studio">
+    <div class="history-head">
+      <h2 class="history-title" id="studio-title">Make it a post</h2>
+      <div class="chips"><span class="chip">PNG &#183; 1080px</span></div>
+    </div>
+    <div class="seg-row" id="fmt-row" role="group" aria-label="Format"></div>
+    <div class="seg-row" id="theme-row" role="group" aria-label="Color theme"></div>
+    <div class="studio-canvas-wrap">
+      <canvas id="studio-canvas"></canvas>
+    </div>
+    <p class="hint" id="studio-hint"></p>
+    <div class="seg-row" id="el-row" role="group" aria-label="Elements"></div>
+    <input class="cta-input" id="cta-input" maxlength="60">
+    <div class="seg-row" id="cta-row" role="group" aria-label="CTA presets"></div>
+    <button class="log-btn gen-btn" id="gen-btn" type="button" disabled>Generate PNG</button>
+    <div class="result" id="studio-result" hidden>
+      <img id="result-img" alt="Generated share image">
+      <p class="hint" id="studio-save-hint"></p>
+    </div>
+  </section>
+
+  <footer id="footer-line">Data stays in this browser &#183; HK23</footer>
 </div>
 
 <div class="tooltip" id="tooltip" role="presentation"></div>
 <div class="toast" id="toast">Logged.</div>
 
+<div class="overlay" id="ceremony" role="dialog" aria-modal="true" aria-label="Frequency room">
+  <div class="overlay-inner">
+    <div class="ov-top">
+      <p class="eyebrow" id="cer-eyebrow">The Vault</p>
+      <button class="ov-close" id="cer-close" type="button">Close</button>
+    </div>
+    <div class="orb-wrap"><div class="orb"></div></div>
+    <p class="cer-name" id="cer-name"></p>
+    <p class="cer-hz" id="cer-hz"></p>
+    <p class="cer-aff" id="cer-aff" aria-live="polite"></p>
+    <div class="cer-dots" id="cer-dots" aria-hidden="true"></div>
+    <div class="cer-controls">
+      <button class="cer-btn primary" id="cer-tone" type="button">Play tone</button>
+      <button class="cer-btn" id="cer-next" type="button">Next line</button>
+    </div>
+    <p class="cer-note">Solfeggio-tradition frequencies and affirmations. A practice of repetition &#8212; not medicine, not magic. Headphones help.</p>
+  </div>
+</div>
+
+<div class="overlay" id="share" role="dialog" aria-modal="true" aria-label="Pass this message on">
+  <div class="overlay-inner">
+    <div class="ov-top">
+      <p class="eyebrow" id="share-eyebrow">Pass it on</p>
+      <button class="ov-close" id="share-close" type="button">Close</button>
+    </div>
+    <div class="msg-card">
+      <span class="f-eyebrow" id="f-cat"></span>
+      <p class="f-text" id="f-text"></p>
+      <span class="f-meta" id="f-meta"></span>
+      <span class="f-brand">Motivation <em>Scale</em> &#183; HK23</span>
+    </div>
+    <div class="cer-controls">
+      <button class="cer-btn primary" id="f-copy" type="button">Copy message</button>
+      <button class="cer-btn" id="f-share" type="button">Share</button>
+    </div>
+    <p class="share-hint" id="share-hint">Screenshot the card and post it. Someone out there needs this exact message today.</p>
+  </div>
+</div>
+
+<div class="overlay" id="freq" role="dialog" aria-modal="true" aria-label="Emotion frequency scale">
+  <div class="overlay-inner">
+    <div class="ov-top">
+      <p class="eyebrow" id="freq-eyebrow">The Vault &#183; Emotion Frequency</p>
+      <button class="ov-close" id="freq-close" type="button">Close</button>
+    </div>
+    <p class="cer-name" id="freq-title">The scale you vibrate on</p>
+    <p class="cer-hz" id="freq-sub">What you hold is what you attract</p>
+    <div class="scale-list" id="scale-list"></div>
+    <p class="cer-note" id="scale-note">Tap an emotion. Courage &#183; 200 is the line: above it you build, below it it drains.</p>
+    <p class="cer-note" id="freq-trad">Map-of-consciousness tradition. A mirror for reflection &#8212; not physics, not a diagnosis.</p>
+    <p class="cer-note teaser" id="freq-teaser">Emotion Frequency Scale &#8212; a daily check-in like this one, for where you vibrate. In the lab &#183; HK23</p>
+  </div>
+</div>
+
+<div class="overlay" id="grat" role="dialog" aria-modal="true" aria-label="Gratitude" style="--vc:#e8c15c">
+  <div class="overlay-inner">
+    <div class="ov-top">
+      <p class="eyebrow" id="grat-eyebrow">Gratitude</p>
+      <button class="ov-close" id="grat-close" type="button">Close</button>
+    </div>
+    <div class="orb-wrap"><div class="orb"></div></div>
+    <p class="cer-name" id="grat-title">Thank you</p>
+    <p class="cer-aff" id="grat-msg"></p>
+    <p class="cer-hz" id="grat-open-line"></p>
+    <div class="cer-controls">
+      <button class="cer-btn primary" id="grat-go" type="button">Open the vault</button>
+    </div>
+    <p class="cer-note" id="grat-note"></p>
+  </div>
+</div>
+
 <script>
   const STORE_KEY = 'hk23-motivation-log';
   const BOOST_KEY = 'hk23-motivation-boost';
+  const VAULT_KEY = 'hk23-motivation-vault';
+  const LANG_KEY = 'hk23-motivation-lang';
 
-  // Anchor labels from the original notebook scale (0\u201310)
-  const LABELS = [
-    '0% motivation', 'No way!', 'No way!', 'Maybe not', 'Maybe not',
-    'Neutral', "Let's go", "Let's go!", 'Motivated 100%', 'Motivated 100%',
-    'Extreme motivation'
-  ];
-  const MESSAGES = [
-    'Rock bottom holds weight. Stand on it.',
-    'Low fuel. Do one small thing anyway.',
-    'Embers. Protect them.',
-    "Warming up. Don't judge the start.",
-    'Almost neutral. Pick one small target.',
-    'Halfway heat. Choose a direction.',
-    "There's a pulse. Feed it.",
-    'Rolling. Keep the streak alive.',
-    'Hot. Ship something today.',
-    'Blazing. Point it at the big one.',
-    'Full send.'
-  ];
+  // ---------- language ----------
+  const LANG_LIST = ['en', 'es', 'pt'];
+  let lang = (function () {
+    let saved = null;
+    try { saved = localStorage.getItem(LANG_KEY); } catch {}
+    if (LANG_LIST.includes(saved)) return saved;
+    const nav = ((navigator.language || 'en')).slice(0, 2).toLowerCase();
+    return LANG_LIST.includes(nav) ? nav : 'en';
+  })();
+  const LOCALES = { en: 'en-US', es: 'es-CL', pt: 'pt-BR' };
+  const tr = v => (v && typeof v === 'object' && !Array.isArray(v)) ? (v[lang] ?? v.en) : v;
+  const fmt = (s, m) => s.replace(/\{(\w+)\}/g, (_, k) => m[k]);
 
-  // Boost deck \u2014 distilled from your own material
+  const T = {
+    en: {
+      checkin: 'HK23 · Daily check-in',
+      tap: "Tap the meter. Where's the fire today?",
+      log: 'Log today', update: 'Update today', logged: 'Logged.', updated: 'Updated.',
+      day: 'Day',
+      meterAria: 'Motivation meter, 0 to 10', setAria: 'Set motivation to {n}',
+      labels: ['0% motivation', 'No way!', 'No way!', 'Maybe not', 'Maybe not', 'Neutral',
+        "Let's go", "Let's go!", 'Motivated 100%', 'Motivated 100%', 'Extreme motivation'],
+      messages: [
+        'Rock bottom holds weight. Stand on it.',
+        'Low fuel. Do one small thing anyway.',
+        'Embers. Protect them.',
+        "Warming up. Don't judge the start.",
+        'Almost neutral. Pick one small target.',
+        'Halfway heat. Choose a direction.',
+        "There's a pulse. Feed it.",
+        'Rolling. Keep the streak alive.',
+        'Hot. Ship something today.',
+        'Blazing. Point it at the big one.',
+        'Full send.'],
+      todaysDrop: "Today's drop", draw: '↻ Draw another', pass: '➤ Pass it on',
+      todaysFive: "Today's five",
+      last14: 'Last 14 days', streak: 'Streak', avg: 'Avg', notLogged: 'not logged',
+      dayOne: '1 day', days: '{n} days',
+      vaultShort: 'The Vault', vaultTitle: 'The Vault · streak drops',
+      next: 'Next: {name} at {d} days', allOpen: 'The whole ladder is open',
+      dayStreak: '{d}-day streak', lockedSub: 'Locked · best run {b}/{d}',
+      unlockAt: 'Unlocks at a {d}-day streak. Best run so far: {b}.',
+      scaleCardSub: 'The scale you vibrate & attract on',
+      close: 'Close', playTone: 'Play tone', stopTone: 'Stop tone', nextLine: 'Next line',
+      roomNote: 'Solfeggio-tradition frequencies and affirmations. A practice of repetition — not medicine, not magic. Headphones help.',
+      audioNA: 'Audio not available in this browser.',
+      emotionFrequency: 'Emotion Frequency',
+      scaleTitle: 'The scale you vibrate on', scaleSub: 'What you hold is what you attract',
+      scaleTap: 'Tap an emotion. Courage · 200 is the line: above it you build, below it it drains.',
+      scaleTrad: 'Map-of-consciousness tradition. A mirror for reflection — not physics, not a diagnosis.',
+      scaleTeaser: 'Emotion Frequency Scale — a daily check-in like this one, for where you vibrate. In the lab · HK23',
+      passOn: 'Pass it on', copy: 'Copy message', share: 'Share',
+      copied: 'Copied. Now go post it.',
+      copyBlocked: 'Copy blocked — screenshot the card instead.',
+      shareBlocked: 'Sharing blocked here — screenshot the card instead.',
+      shareHint: 'Screenshot the card and post it. Someone out there needs this exact message today.',
+      gratEyebrow: 'Gratitude · {d}-day streak', gratTitle: 'Thank you',
+      gratNote: 'Little by little, you tune to gratitude.',
+      gratGo: 'Open the vault',
+      gratUnlocked: 'Now open in the vault: {names}.',
+      footer: 'Data stays in this browser · HK23',
+    },
+    es: {
+      checkin: 'HK23 · Check-in diario',
+      tap: 'Toca la escala. ¿Dónde está el fuego hoy?',
+      log: 'Registrar hoy', update: 'Actualizar hoy', logged: 'Registrado.', updated: 'Actualizado.',
+      day: 'Día',
+      meterAria: 'Escala de motivación, 0 a 10', setAria: 'Fijar motivación en {n}',
+      labels: ['0% motivación', '¡Ni hablar!', '¡Ni hablar!', 'Quizás no', 'Quizás no', 'Neutral',
+        'Vamos', '¡Vamos!', 'Motivado 100%', 'Motivado 100%', 'Motivación extrema'],
+      messages: [
+        'Tocar fondo también sostiene. Párate ahí.',
+        'Poca energía. Haz una cosa pequeña igual.',
+        'Brasas. Protégelas.',
+        'Calentando. No juzgues el comienzo.',
+        'Casi neutro. Elige un objetivo pequeño.',
+        'Mitad de fuego. Elige una dirección.',
+        'Hay pulso. Aliméntalo.',
+        'Rodando. Mantén viva la racha.',
+        'Caliente. Publica algo hoy.',
+        'Ardiendo. Apúntalo a lo grande.',
+        'A fondo.'],
+      todaysDrop: 'El drop de hoy', draw: '↻ Sacar otra', pass: '➤ Pásalo',
+      todaysFive: 'Las cinco de hoy',
+      last14: 'Últimos 14 días', streak: 'Racha', avg: 'Prom', notLogged: 'sin registro',
+      dayOne: '1 día', days: '{n} días',
+      vaultShort: 'La Bóveda', vaultTitle: 'La Bóveda · drops por racha',
+      next: 'Siguiente: {name} a los {d} días', allOpen: 'La escalera completa está abierta',
+      dayStreak: 'racha de {d} días', lockedSub: 'Bloqueado · mejor racha {b}/{d}',
+      unlockAt: 'Se abre con una racha de {d} días. Tu mejor racha: {b}.',
+      scaleCardSub: 'La escala en la que vibras y atraes',
+      close: 'Cerrar', playTone: 'Reproducir tono', stopTone: 'Detener tono', nextLine: 'Siguiente frase',
+      roomNote: 'Frecuencias de la tradición solfeggio y afirmaciones. Una práctica de repetición — no es medicina ni magia. Con audífonos, mejor.',
+      audioNA: 'Audio no disponible en este navegador.',
+      emotionFrequency: 'Frecuencia Emocional',
+      scaleTitle: 'La escala en la que vibras', scaleSub: 'Lo que sostienes es lo que atraes',
+      scaleTap: 'Toca una emoción. Coraje · 200 es la línea: arriba construyes, abajo drena.',
+      scaleTrad: 'Tradición del mapa de la conciencia. Un espejo para reflexionar — no es física ni un diagnóstico.',
+      scaleTeaser: 'Emotion Frequency Scale — un check-in diario como este, de dónde vibras. En el laboratorio · HK23',
+      passOn: 'Pásalo', copy: 'Copiar mensaje', share: 'Compartir',
+      copied: 'Copiado. Ahora ve a publicarlo.',
+      copyBlocked: 'Copia bloqueada — mejor pantallazo a la carta.',
+      shareBlocked: 'Compartir está bloqueado aquí — pantallazo a la carta.',
+      shareHint: 'Haz pantallazo a la carta y publícala. Alguien ahí afuera necesita este mensaje exacto hoy.',
+      gratEyebrow: 'Gratitud · racha de {d} días', gratTitle: 'Gracias',
+      gratNote: 'De a poco, empiezas a vibrar en gratitud.',
+      gratGo: 'Abrir la bóveda',
+      gratUnlocked: 'Ahora abierto en la bóveda: {names}.',
+      footer: 'Los datos se quedan en este navegador · HK23',
+    },
+    pt: {
+      checkin: 'HK23 · Check-in diário',
+      tap: 'Toque na escala. Onde está o fogo hoje?',
+      log: 'Registrar hoje', update: 'Atualizar hoje', logged: 'Registrado.', updated: 'Atualizado.',
+      day: 'Dia',
+      meterAria: 'Escala de motivação, 0 a 10', setAria: 'Definir motivação em {n}',
+      labels: ['0% motivação', 'Nem pensar!', 'Nem pensar!', 'Talvez não', 'Talvez não', 'Neutro',
+        'Bora', 'Bora!', 'Motivado 100%', 'Motivado 100%', 'Motivação extrema'],
+      messages: [
+        'O fundo também sustenta. Fique em pé nele.',
+        'Pouca energia. Faça uma coisa pequena mesmo assim.',
+        'Brasas. Proteja-as.',
+        'Aquecendo. Não julgue o começo.',
+        'Quase neutro. Escolha um alvo pequeno.',
+        'Metade do fogo. Escolha uma direção.',
+        'Tem pulso. Alimente-o.',
+        'Rodando. Mantenha a sequência viva.',
+        'Quente. Publique algo hoje.',
+        'Em chamas. Aponte para o grande.',
+        'Tudo ou nada.'],
+      todaysDrop: 'O drop de hoje', draw: '↻ Tirar outra', pass: '➤ Passe adiante',
+      todaysFive: 'As cinco de hoje',
+      last14: 'Últimos 14 dias', streak: 'Sequência', avg: 'Méd', notLogged: 'sem registro',
+      dayOne: '1 dia', days: '{n} dias',
+      vaultShort: 'O Cofre', vaultTitle: 'O Cofre · drops por sequência',
+      next: 'Próximo: {name} aos {d} dias', allOpen: 'A escada inteira está aberta',
+      dayStreak: 'sequência de {d} dias', lockedSub: 'Bloqueado · melhor sequência {b}/{d}',
+      unlockAt: 'Abre com uma sequência de {d} dias. Sua melhor: {b}.',
+      scaleCardSub: 'A escala em que você vibra e atrai',
+      close: 'Fechar', playTone: 'Tocar tom', stopTone: 'Parar tom', nextLine: 'Próxima frase',
+      roomNote: 'Frequências da tradição solfeggio e afirmações. Uma prática de repetição — não é medicina nem mágica. Com fones, melhor.',
+      audioNA: 'Áudio indisponível neste navegador.',
+      emotionFrequency: 'Frequência Emocional',
+      scaleTitle: 'A escala em que você vibra', scaleSub: 'O que você sustenta é o que atrai',
+      scaleTap: 'Toque numa emoção. Coragem · 200 é a linha: acima você constrói, abaixo drena.',
+      scaleTrad: 'Tradição do mapa da consciência. Um espelho para refletir — não é física nem diagnóstico.',
+      scaleTeaser: 'Emotion Frequency Scale — um check-in diário como este, de onde você vibra. No laboratório · HK23',
+      passOn: 'Passe adiante', copy: 'Copiar mensagem', share: 'Compartilhar',
+      copied: 'Copiado. Agora vá postar.',
+      copyBlocked: 'Cópia bloqueada — tire um print do cartão.',
+      shareBlocked: 'Compartilhar está bloqueado aqui — tire um print do cartão.',
+      shareHint: 'Tire um print do cartão e poste. Alguém aí fora precisa exatamente desta mensagem hoje.',
+      gratEyebrow: 'Gratidão · sequência de {d} dias', gratTitle: 'Obrigado',
+      gratNote: 'Aos poucos, você começa a vibrar em gratidão.',
+      gratGo: 'Abrir o cofre',
+      gratUnlocked: 'Agora aberto no cofre: {names}.',
+      footer: 'Os dados ficam neste navegador · HK23',
+    },
+  };
+  const t = () => T[lang];
+
+  // ---------- boost deck (trilingual, distilled from the builder's own material) ----------
+  const CATS = {
+    control: { en: 'Control', es: 'Control', pt: 'Controle' },
+    declare: { en: 'Declare', es: 'Declara', pt: 'Declare' },
+    one: { en: 'The 1%', es: 'El 1%', pt: 'O 1%' },
+    mind: { en: 'Strong mind', es: 'Mente fuerte', pt: 'Mente forte' },
+    unbreakable: { en: 'Unbreakable', es: 'Inquebrantable', pt: 'Inquebrável' },
+    receipts: { en: 'Receipts', es: 'Pruebas', pt: 'Provas' },
+  };
   const DECK = [
-    { cat: 'Control', text: 'Rumores, el pasado, opiniones ajenas: fuera de tu c\u00edrculo. Su\u00e9ltalos hoy.' },
-    { cat: 'Control', text: 'Tu energ\u00eda, tu esfuerzo, tu actitud: eso s\u00ed es tuyo. Trabaja solo ah\u00ed.' },
-    { cat: 'Control', text: 'A qui\u00e9n le das tu atenci\u00f3n es decisi\u00f3n tuya. El\u00edgela como si costara plata.' },
-    { cat: 'Control', text: 'Los errores de ayer quedaron fuera del c\u00edrculo. Tu reacci\u00f3n de hoy est\u00e1 dentro.' },
-    { cat: 'Control', text: 'Lo que consumes est\u00e1 en tu control. Cierra la app y abre el proyecto.' },
-    { cat: 'Declara', text: "Deja de decir 'estoy cansado'. Empieza: 'estoy creciendo'. Las palabras moldean." },
-    { cat: 'Declara', text: 'Declara vida sobre ti: agradecido, creciendo, prosperando, ganando.' },
-    { cat: 'Declara', text: 'Habla desde donde vas, no desde donde estuviste.' },
-    { cat: 'Declara', text: 'Las palabras son semillas. Lo que declares hoy, lo cosechas ma\u00f1ana.' },
-    { cat: 'El 1%', text: '10 p\u00e1ginas hoy no te hacen lector. Un a\u00f1o de eso, s\u00ed. Lee las 10.' },
-    { cat: 'El 1%', text: 'Anota un logro peque\u00f1o hoy. Un d\u00eda perdido te va a salvar.' },
-    { cat: 'El 1%', text: 'Una conversaci\u00f3n nueva abre una puerta. Y una puerta lleva a otras.' },
-    { cat: 'El 1%', text: 'No es magia. Es repetici\u00f3n. Respeta lo m\u00ednimo.' },
-    { cat: 'El 1%', text: 'Lo peque\u00f1o no se nota\u2026 hasta que pesa. Y cuando pesa, ya te transform\u00f3.' },
-    { cat: 'Mente fuerte', text: 'Acepta la situaci\u00f3n dif\u00edcil tal como es. Ah\u00ed parte la fuerza.' },
-    { cat: 'Mente fuerte', text: 'Enfrenta hoy una cosa que te asusta. Con una basta.' },
-    { cat: 'Mente fuerte', text: 'Ese pensamiento negativo: \u00bfes un hecho o es un cuento? Desaf\u00edalo.' },
-    { cat: 'Mente fuerte', text: 'El fracaso es lecci\u00f3n, no identidad. \u00dasalo.' },
-    { cat: 'Mente fuerte', text: 'Un cambio real lleva tiempo. Mantente en tu camino.' },
-    { cat: 'Unbreakable', caps: true, text: 'Unbreakable. No matter what comes, you rise again.' },
-    { cat: 'Unbreakable', caps: true, text: 'Discipline makes you unshakable.' },
-    { cat: 'Unbreakable', caps: true, text: 'Your purpose keeps you standing tall.' },
-    { cat: 'Unbreakable', caps: true, text: 'Held by something stronger than fear.' },
-    { cat: 'Unbreakable', caps: true, text: 'Extreme motivation is a decision. Make it.' },
-    { cat: 'Receipts', text: '33.731 ejecuciones en 31 meses. Constancia ya tienes \u2014 ap\u00fantala a lo que pesa.' },
-    { cat: 'Receipts', text: 'Octubre 2023 \u2192 hoy, y sigues en el juego. Eso ya te separa de la mayor\u00eda.' },
-    { cat: 'Receipts', text: 'Llevas 80+ d\u00edas midi\u00e9ndote en papel. Esto solo hace visible lo que ya haces.' }
+    { k: 'control', text: { es: 'Rumores, el pasado, opiniones ajenas: fuera de tu círculo. Suéltalos hoy.', en: "Rumors, the past, other people's opinions: outside your circle. Drop them today.", pt: 'Boatos, o passado, opinião alheia: fora do seu círculo. Solte-os hoje.' } },
+    { k: 'control', text: { es: 'Tu energía, tu esfuerzo, tu actitud: eso sí es tuyo. Trabaja solo ahí.', en: 'Your energy, your effort, your attitude: that is yours. Work only there.', pt: 'Sua energia, seu esforço, sua atitude: isso é seu. Trabalhe só aí.' } },
+    { k: 'control', text: { es: 'A quién le das tu atención es decisión tuya. Elígela como si costara plata.', en: 'Who gets your attention is your call. Choose it like it costs money.', pt: 'Para quem vai sua atenção é decisão sua. Escolha como se custasse dinheiro.' } },
+    { k: 'control', text: { es: 'Los errores de ayer quedaron fuera del círculo. Tu reacción de hoy está dentro.', en: "Yesterday's mistakes are outside the circle. Today's reaction is inside.", pt: 'Os erros de ontem ficaram fora do círculo. Sua reação de hoje está dentro.' } },
+    { k: 'control', text: { es: 'Lo que consumes está en tu control. Cierra la app y abre el proyecto.', en: 'What you consume is in your control. Close the app, open the project.', pt: 'O que você consome está no seu controle. Feche o app e abra o projeto.' } },
+    { k: 'declare', text: { es: "Deja de decir 'estoy cansado'. Empieza: 'estoy creciendo'. Las palabras moldean.", en: "Stop saying 'I'm tired'. Start: 'I'm growing'. Words shape.", pt: "Pare de dizer 'estou cansado'. Comece: 'estou crescendo'. Palavras moldam." } },
+    { k: 'declare', text: { es: 'Declara vida sobre ti: agradecido, creciendo, prosperando, ganando.', en: 'Declare life over yourself: grateful, growing, prospering, winning.', pt: 'Declare vida sobre você: grato, crescendo, prosperando, vencendo.' } },
+    { k: 'declare', text: { es: 'Habla desde donde vas, no desde donde estuviste.', en: 'Speak from where you are going, not from where you have been.', pt: 'Fale de onde você vai, não de onde esteve.' } },
+    { k: 'declare', text: { es: 'Las palabras son semillas. Lo que declares hoy, lo cosechas mañana.', en: 'Words are seeds. What you declare today, you harvest tomorrow.', pt: 'Palavras são sementes. O que você declara hoje, colhe amanhã.' } },
+    { k: 'one', text: { es: '10 páginas hoy no te hacen lector. Un año de eso, sí. Lee las 10.', en: '10 pages today do not make you a reader. A year of that does. Read the 10.', pt: '10 páginas hoje não fazem de você um leitor. Um ano disso, sim. Leia as 10.' } },
+    { k: 'one', text: { es: 'Anota un logro pequeño hoy. Un día perdido te va a salvar.', en: 'Write down one small win today. On a lost day it will save you.', pt: 'Anote uma vitória pequena hoje. Num dia perdido, ela vai te salvar.' } },
+    { k: 'one', text: { es: 'Una conversación nueva abre una puerta. Y una puerta lleva a otras.', en: 'One new conversation opens a door. And a door leads to others.', pt: 'Uma conversa nova abre uma porta. E uma porta leva a outras.' } },
+    { k: 'one', text: { es: 'No es magia. Es repetición. Respeta lo mínimo.', en: 'It is not magic. It is repetition. Respect the minimum.', pt: 'Não é mágica. É repetição. Respeite o mínimo.' } },
+    { k: 'one', text: { es: 'Lo pequeño no se nota… hasta que pesa. Y cuando pesa, ya te transformó.', en: 'The small goes unnoticed… until it weighs. And when it weighs, it already changed you.', pt: 'O pequeno passa despercebido… até pesar. E quando pesa, já transformou você.' } },
+    { k: 'mind', text: { es: 'Acepta la situación difícil tal como es. Ahí parte la fuerza.', en: 'Accept the hard situation as it is. Strength starts there.', pt: 'Aceite a situação difícil como ela é. A força começa aí.' } },
+    { k: 'mind', text: { es: 'Enfrenta hoy una cosa que te asusta. Con una basta.', en: 'Face one thing that scares you today. One is enough.', pt: 'Enfrente hoje uma coisa que te assusta. Uma basta.' } },
+    { k: 'mind', text: { es: 'Ese pensamiento negativo: ¿es un hecho o es un cuento? Desafíalo.', en: 'That negative thought: fact or story? Challenge it.', pt: 'Esse pensamento negativo: fato ou história? Desafie-o.' } },
+    { k: 'mind', text: { es: 'El fracaso es lección, no identidad. Úsalo.', en: 'Failure is a lesson, not an identity. Use it.', pt: 'Fracasso é lição, não identidade. Use-o.' } },
+    { k: 'mind', text: { es: 'Un cambio real lleva tiempo. Mantente en tu camino.', en: 'Real change takes time. Stay on your path.', pt: 'Mudança real leva tempo. Continue no seu caminho.' } },
+    { k: 'unbreakable', caps: true, text: { en: 'Unbreakable. No matter what comes, you rise again.', es: 'Inquebrantable. Venga lo que venga, te levantas de nuevo.', pt: 'Inquebrável. Venha o que vier, você levanta de novo.' } },
+    { k: 'unbreakable', caps: true, text: { en: 'Discipline makes you unshakable.', es: 'La disciplina te hace inamovible.', pt: 'A disciplina torna você inabalável.' } },
+    { k: 'unbreakable', caps: true, text: { en: 'Your purpose keeps you standing tall.', es: 'Tu propósito te mantiene de pie.', pt: 'Seu propósito mantém você de pé.' } },
+    { k: 'unbreakable', caps: true, text: { en: 'Held by something stronger than fear.', es: 'Sostenido por algo más fuerte que el miedo.', pt: 'Sustentado por algo mais forte que o medo.' } },
+    { k: 'unbreakable', caps: true, text: { en: 'Extreme motivation is a decision. Make it.', es: 'La motivación extrema es una decisión. Tómala.', pt: 'Motivação extrema é uma decisão. Tome-a.' } },
+    { k: 'receipts', text: { es: '33.731 ejecuciones en 31 meses. Constancia ya tienes — apúntala a lo que pesa.', en: '33,731 reps in 31 months. You already have consistency — aim it at what matters.', pt: '33.731 execuções em 31 meses. Constância você já tem — aponte-a para o que pesa.' } },
+    { k: 'receipts', text: { es: 'Octubre 2023 → hoy, y sigues en el juego. Eso ya te separa de la mayoría.', en: 'October 2023 → today, and you are still in the game. That alone separates you from most.', pt: 'Outubro de 2023 → hoje, e você segue no jogo. Só isso já te separa da maioria.' } },
+    { k: 'receipts', text: { es: 'Llevas 80+ días midiéndote en papel. Esto solo hace visible lo que ya haces.', en: '80+ days measuring yourself on paper. This only makes visible what you already do.', pt: 'São 80+ dias se medindo no papel. Isto só torna visível o que você já faz.' } },
   ];
   function catsFor(level) {
-    if (level <= 3) return ['Control', 'Declara', 'El 1%'];
-    if (level <= 6) return ['El 1%', 'Mente fuerte', 'Declara', 'Receipts'];
-    return ['Unbreakable', 'Mente fuerte', 'Receipts'];
+    if (level <= 3) return ['control', 'declare', 'one'];
+    if (level <= 6) return ['one', 'mind', 'declare', 'receipts'];
+    return ['unbreakable', 'mind', 'receipts'];
   }
 
   // Heat ramp: ember (0) -> deep gold -> bright gold (10)
   const RAMP_STOPS = [[138, 74, 46], [192, 132, 48], [232, 193, 92]];
   function rampColor(level) {
-    const t = level / 10;
-    const seg = t < 0.5 ? 0 : 1;
-    const local = (t - seg * 0.5) / 0.5;
+    const tt = level / 10;
+    const seg = tt < 0.5 ? 0 : 1;
+    const local = (tt - seg * 0.5) / 0.5;
     const a = RAMP_STOPS[seg], b = RAMP_STOPS[seg + 1];
     const mix = a.map((v, i) => Math.round(v + (b[i] - v) * local));
     return `rgb(${mix.join(',')})`;
@@ -515,11 +1171,11 @@
 
   // ---------- header date + day count ----------
   function renderDatestamp() {
-    const dateText = today.toLocaleDateString('en-US',
+    const dateText = today.toLocaleDateString(LOCALES[lang],
       { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     const n = Object.keys(log).length;
     document.getElementById('datestamp').innerHTML =
-      n ? `${dateText} \u00b7 <strong>Day ${n}</strong>` : dateText;
+      n ? `${dateText} · <strong>${t().day} ${n}</strong>` : dateText;
   }
 
   // ---------- meter ----------
@@ -530,7 +1186,6 @@
     b.type = 'button';
     b.style.setProperty('--i', i);
     b.style.setProperty('--seg', rampColor(i));
-    b.setAttribute('aria-label', `Set motivation to ${i}`);
     b.addEventListener('click', () => setLevel(i));
     b.addEventListener('keydown', e => {
       if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
@@ -547,8 +1202,8 @@
   let scrubbing = false;
   function levelFromX(clientX) {
     const r = meter.getBoundingClientRect();
-    const t = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
-    return Math.min(10, Math.floor(t * 11));
+    const tt = Math.min(1, Math.max(0, (clientX - r.left) / r.width));
+    return Math.min(10, Math.floor(tt * 11));
   }
   meter.addEventListener('pointerdown', e => {
     scrubbing = true;
@@ -573,14 +1228,14 @@
     numEl.textContent = level;
     figEl.style.color = c;
     labelEl.style.color = c;
-    labelEl.textContent = LABELS[level];
-    msgEl.textContent = MESSAGES[level];
+    labelEl.textContent = t().labels[level];
+    msgEl.textContent = t().messages[level];
     bars.forEach((b, idx) => {
       b.classList.toggle('lit', idx <= level);
       b.classList.toggle('tip', idx === level);
     });
     logBtn.disabled = false;
-    logBtn.textContent = (todayKey in log) ? 'Update today' : 'Log today';
+    logBtn.textContent = (todayKey in log) ? t().update : t().log;
   }
 
   // ---------- boost drop ----------
@@ -591,18 +1246,21 @@
 
   function drawBoost(level, excludeIdx) {
     const cats = catsFor(level);
-    let pool = DECK.map((c, i) => ({ c, i })).filter(x => cats.includes(x.c.cat));
+    let pool = DECK.map((c, i) => ({ c, i })).filter(x => cats.includes(x.c.k));
     const trimmed = pool.filter(x => x.i !== excludeIdx);
     if (trimmed.length) pool = trimmed;
     return pool[Math.floor(Math.random() * pool.length)].i;
   }
-  function showBoost(idx) {
+  function paintBoost(idx) {
     const card = DECK[idx];
-    if (!card) return;
-    currentBoost = idx;
-    dropCat.textContent = card.cat;
-    dropText.textContent = card.text;
+    dropCat.textContent = tr(CATS[card.k]);
+    dropText.textContent = tr(card.text);
     dropText.classList.toggle('caps', !!card.caps);
+  }
+  function showBoost(idx) {
+    if (!DECK[idx]) return;
+    currentBoost = idx;
+    paintBoost(idx);
     drop.classList.remove('show');
     void drop.offsetWidth; // restart the drop-in animation
     drop.classList.add('show');
@@ -622,13 +1280,18 @@
     saveLog();
     renderHistory();
     renderDatestamp();
-    logBtn.textContent = 'Update today';
-    toast.textContent = isUpdate ? 'Updated.' : 'Logged.';
+    logBtn.textContent = t().update;
+    toastMsg(isUpdate ? t().updated : t().logged, 1600);
+    showBoost(drawBoost(selected, currentBoost));
+    updateVault();
+  });
+
+  function toastMsg(text, ms = 2600) {
+    toast.textContent = text;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 1600);
-    showBoost(drawBoost(selected, currentBoost));
-  });
+    toastTimer = setTimeout(() => toast.classList.remove('show'), ms);
+  }
 
   // ---------- history ----------
   const strip = document.getElementById('strip');
@@ -656,8 +1319,8 @@
       if (v != null) { bar.style.height = `${v * 10}%`; sum += v; count++; }
       slot.appendChild(bar);
 
-      const label = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-      const tipText = v != null ? `${label} \u00b7 ${v}/10` : `${label} \u00b7 not logged`;
+      const label = d.toLocaleDateString(LOCALES[lang], { weekday: 'short', month: 'short', day: 'numeric' });
+      const tipText = v != null ? `${label} · ${v}/10` : `${label} · ${t().notLogged}`;
       slot.addEventListener('pointerenter', () => {
         tooltip.textContent = tipText;
         const r = slot.getBoundingClientRect();
@@ -669,36 +1332,922 @@
       strip.appendChild(slot);
 
       const dl = document.createElement('span');
-      dl.textContent = d.toLocaleDateString('en-US', { weekday: 'narrow' });
+      dl.textContent = d.toLocaleDateString(LOCALES[lang], { weekday: 'narrow' });
       if (isToday) dl.className = 'today';
       stripDays.appendChild(dl);
 
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${label}</td><td>${v != null ? v : 'not logged'}</td>`;
-      tableBody.appendChild(tr);
+      const trow = document.createElement('tr');
+      trow.innerHTML = `<td>${label}</td><td>${v != null ? v : t().notLogged}</td>`;
+      tableBody.appendChild(trow);
     }
 
-    // streak: consecutive logged days ending today (or yesterday if today pending)
+    const streak = computeStreak();
+    document.getElementById('chip-streak').innerHTML =
+      `${t().streak} · <strong>${streak === 1 ? t().dayOne : fmt(t().days, { n: streak })}</strong>`;
+    document.getElementById('chip-avg').innerHTML =
+      `${t().avg} · <strong>${count ? (sum / count).toFixed(1) : '—'}</strong>`;
+  }
+
+  // ---------- streaks ----------
+  function computeStreak() {
     let streak = 0;
     const start = new Date(today);
     if (!(todayKey in log)) start.setDate(start.getDate() - 1);
     for (let d = new Date(start); dayKey(d) in log; d.setDate(d.getDate() - 1)) streak++;
+    return streak;
+  }
+  // longest consecutive run ever logged (DST-tolerant day diff)
+  function bestRun() {
+    const keys = Object.keys(log).sort();
+    let best = 0, run = 0, prev = null;
+    for (const k of keys) {
+      const d = new Date(k + 'T12:00:00');
+      const diff = prev ? d - prev : 0;
+      run = (prev && diff > 82800000 && diff < 90000000) ? run + 1 : 1;
+      if (run > best) best = run;
+      prev = d;
+    }
+    return best;
+  }
 
-    document.querySelector('#chip-streak strong').textContent =
-      streak === 1 ? '1 day' : `${streak} days`;
-    document.querySelector('#chip-avg strong').textContent =
-      count ? (sum / count).toFixed(1) : '\u2014';
+  // ---------- the vault: streak drops (7 / 14 / 21 / ... / 49) ----------
+  // Once a room unlocks it stays unlocked — a broken streak never takes it back.
+  const CHAKRAS = [
+    { name: { en: 'Root', es: 'Raíz', pt: 'Raiz' }, mantra: { en: 'I Am', es: 'Yo Soy', pt: 'Eu Sou' },
+      sanskrit: 'Muladhara', hz: 396, color: '#c05b4a', pack: {
+      en: ['I am safe and secure.', 'I am grounded in the present moment.', 'I am supported by the earth.', 'I am worthy of a stable life.', 'I am rooted — the day moves, I stay.', 'I am provided for. I have enough for today.', 'I am in my body, here, now.', 'I am building ground I can stand on.'],
+      es: ['Estoy a salvo y seguro.', 'Estoy anclado en el momento presente.', 'La tierra me sostiene.', 'Soy digno de una vida estable.', 'Estoy enraizado — el día se mueve, yo permanezco.', 'Estoy provisto. Tengo suficiente para hoy.', 'Estoy en mi cuerpo, aquí, ahora.', 'Estoy construyendo un suelo donde pararme.'],
+      pt: ['Estou seguro e protegido.', 'Estou ancorado no momento presente.', 'A terra me sustenta.', 'Sou digno de uma vida estável.', 'Estou enraizado — o dia se move, eu permaneço.', 'Estou provido. Tenho o suficiente para hoje.', 'Estou no meu corpo, aqui, agora.', 'Estou construindo um chão para pisar.'] } },
+    { name: { en: 'Sacral', es: 'Sacro', pt: 'Sacral' }, mantra: { en: 'I Feel', es: 'Yo Siento', pt: 'Eu Sinto' },
+      sanskrit: 'Svadhisthana', hz: 417, color: '#c97a3d', pack: {
+      en: ['I feel my emotions without fear.', 'I feel joy and pleasure with ease.', 'I allow my creativity to flow naturally.', 'I feel comfortable in my body.', 'I feel the day fully and let it move through me.', 'I feel desire as fuel, not as lack.', 'I feel free to enjoy the process.', 'I feel my energy return when I stop forcing it.'],
+      es: ['Siento mis emociones sin miedo.', 'Siento alegría y placer con facilidad.', 'Dejo fluir mi creatividad con naturalidad.', 'Me siento cómodo en mi cuerpo.', 'Siento el día completo y dejo que me atraviese.', 'Siento el deseo como combustible, no como carencia.', 'Me siento libre de disfrutar el proceso.', 'Siento volver mi energía cuando dejo de forzarla.'],
+      pt: ['Sinto minhas emoções sem medo.', 'Sinto alegria e prazer com facilidade.', 'Deixo minha criatividade fluir naturalmente.', 'Me sinto confortável no meu corpo.', 'Sinto o dia por inteiro e deixo que ele me atravesse.', 'Sinto o desejo como combustível, não como falta.', 'Me sinto livre para curtir o processo.', 'Sinto minha energia voltar quando paro de forçar.'] } },
+    { name: { en: 'Solar Plexus', es: 'Plexo solar', pt: 'Plexo solar' }, mantra: { en: 'I Do', es: 'Yo Hago', pt: 'Eu Faço' },
+      sanskrit: 'Manipura', hz: 528, color: '#e8c15c', pack: {
+      en: ['I do what needs to be done.', 'I do one small thing, even on low days.', 'I act from my own fire, not from pressure.', 'I am capable of more than this moment feels.', 'I direct my will — the 1% compounds.', 'I decide, and deciding makes me stronger.', 'I finish what I start, at my pace.', 'I turn discipline into self-respect.'],
+      es: ['Hago lo que hay que hacer.', 'Hago una cosa pequeña, incluso en días bajos.', 'Actúo desde mi propio fuego, no desde la presión.', 'Soy capaz de más de lo que este momento siente.', 'Dirijo mi voluntad — el 1% se acumula.', 'Decido, y decidir me hace más fuerte.', 'Termino lo que empiezo, a mi ritmo.', 'Convierto la disciplina en respeto propio.'],
+      pt: ['Faço o que precisa ser feito.', 'Faço uma coisa pequena, mesmo nos dias baixos.', 'Ajo a partir do meu próprio fogo, não da pressão.', 'Sou capaz de mais do que este momento parece.', 'Direciono minha vontade — o 1% se acumula.', 'Decido, e decidir me fortalece.', 'Termino o que começo, no meu ritmo.', 'Transformo disciplina em respeito próprio.'] } },
+    { name: { en: 'Heart', es: 'Corazón', pt: 'Coração' }, mantra: { en: 'I Love', es: 'Yo Amo', pt: 'Eu Amo' },
+      sanskrit: 'Anahata', hz: 639, color: '#7fa374', pack: {
+      en: ['I love and accept myself as I am today.', 'I give and receive with an open heart.', 'I treat myself like someone I love.', 'A low day does not make me less worthy of love.', 'I am grateful for one true thing today.', 'I forgive myself for the days I missed.', 'I let real connection in.', 'Coming back tomorrow is also self-love.'],
+      es: ['Me amo y me acepto como soy hoy.', 'Doy y recibo con el corazón abierto.', 'Me trato como a alguien que amo.', 'Un día bajo no me hace menos digno de amor.', 'Agradezco una cosa verdadera de hoy.', 'Me perdono por los días que falté.', 'Dejo entrar la conexión real.', 'Volver mañana también es amor propio.'],
+      pt: ['Amo e aceito quem sou hoje.', 'Dou e recebo de coração aberto.', 'Me trato como alguém que eu amo.', 'Um dia baixo não me torna menos digno de amor.', 'Agradeço por uma coisa verdadeira de hoje.', 'Me perdoo pelos dias que faltei.', 'Deixo a conexão real entrar.', 'Voltar amanhã também é amor-próprio.'] } },
+    { name: { en: 'Throat', es: 'Garganta', pt: 'Garganta' }, mantra: { en: 'I Speak', es: 'Yo Hablo', pt: 'Eu Falo' },
+      sanskrit: 'Vishuddha', hz: 741, color: '#5f8fa8', pack: {
+      en: ['I speak my truth with calm.', 'I say what I need without apology.', 'My words shape my days.', 'I speak from where I am going, not from where I have been.', 'I tell my story honestly — it serves someone.', 'I choose words that build.', 'I can say "today was hard" out loud.', 'My voice matters in every room.'],
+      es: ['Hablo mi verdad con calma.', 'Digo lo que necesito sin disculparme.', 'Mis palabras dan forma a mis días.', 'Hablo desde donde voy, no desde donde estuve.', 'Cuento mi historia con honestidad — le sirve a alguien.', 'Elijo palabras que construyen.', 'Puedo decir "hoy fue difícil" en voz alta.', 'Mi voz importa en cualquier sala.'],
+      pt: ['Falo minha verdade com calma.', 'Digo o que preciso sem pedir desculpas.', 'Minhas palavras dão forma aos meus dias.', 'Falo de onde vou, não de onde estive.', 'Conto minha história com honestidade — ela serve a alguém.', 'Escolho palavras que constroem.', 'Posso dizer "hoje foi difícil" em voz alta.', 'Minha voz importa em qualquer sala.'] } },
+    { name: { en: 'Third Eye', es: 'Tercer ojo', pt: 'Terceiro olho' }, mantra: { en: 'I See', es: 'Yo Veo', pt: 'Eu Vejo' },
+      sanskrit: 'Ajna', hz: 852, color: '#8a7ab5', pack: {
+      en: ['I see the truth clearly.', 'I see situations beyond surface appearances.', 'I trust my inner guidance.', 'I am open to deep wisdom.', 'I see the pattern, not just the day.', 'I question the dark thought: fact or story?', 'Clarity comes when I log, not when I guess.', 'I trust what I am building.'],
+      es: ['Veo la verdad con claridad.', 'Veo más allá de la superficie.', 'Confío en mi guía interior.', 'Estoy abierto a la sabiduría profunda.', 'Veo el patrón, no solo el día.', 'Cuestiono el pensamiento oscuro: ¿hecho o cuento?', 'La claridad llega cuando registro, no cuando adivino.', 'Confío en lo que estoy construyendo.'],
+      pt: ['Vejo a verdade com clareza.', 'Vejo além das aparências.', 'Confio na minha orientação interior.', 'Estou aberto à sabedoria profunda.', 'Vejo o padrão, não só o dia.', 'Questiono o pensamento escuro: fato ou história?', 'A clareza vem quando registro, não quando adivinho.', 'Confio no que estou construindo.'] } },
+    { name: { en: 'Crown', es: 'Corona', pt: 'Coroa' }, mantra: { en: 'I Understand', es: 'Yo Comprendo', pt: 'Eu Compreendo' },
+      sanskrit: 'Sahasrara', hz: 963, color: '#c4b3de', pack: {
+      en: ['I understand I am part of something larger.', 'I am connected to all that lives.', 'I do not need a perfect day to continue.', 'Repetition is my ritual.', 'I keep open the possibility that things change.', 'I am guided even when the path is quiet.', 'Peace is available in this breath.', 'I trust the timing of my life.'],
+      es: ['Comprendo que soy parte de algo más grande.', 'Estoy conectado con todo lo que vive.', 'No necesito un día perfecto para continuar.', 'La repetición es mi ritual.', 'Mantengo abierta la posibilidad de que algo cambie.', 'Soy guiado incluso cuando el camino está en silencio.', 'La paz está disponible en esta respiración.', 'Confío en los tiempos de mi vida.'],
+      pt: ['Compreendo que faço parte de algo maior.', 'Estou conectado a tudo o que vive.', 'Não preciso de um dia perfeito para continuar.', 'A repetição é o meu ritual.', 'Mantenho aberta a possibilidade de que algo mude.', 'Sou guiado mesmo quando o caminho está em silêncio.', 'A paz está disponível nesta respiração.', 'Confio no tempo da minha vida.'] } }
+  ];
+
+  // Emotion frequency scale — the scale you vibrate and attract on
+  // (map-of-consciousness tradition). Unlocks at the 14-day streak.
+  const SCALE = [
+    { e: { en: 'Enlightenment', es: 'Iluminación', pt: 'Iluminação' }, hz: '700+', n: { en: 'Pure presence. The scale opens here.', es: 'Presencia pura. La escala se abre aquí.', pt: 'Presença pura. A escala se abre aqui.' } },
+    { e: { en: 'Peace', es: 'Paz', pt: 'Paz' }, hz: 600, n: { en: 'Still water. Nothing to defend.', es: 'Agua quieta. Nada que defender.', pt: 'Água parada. Nada a defender.' } },
+    { e: { en: 'Joy', es: 'Alegría', pt: 'Alegria' }, hz: 540, n: { en: 'Energy that overflows into others.', es: 'Energía que desborda hacia otros.', pt: 'Energia que transborda para os outros.' } },
+    { e: { en: 'Love', es: 'Amor', pt: 'Amor' }, hz: 500, n: { en: 'You create from fullness, not need.', es: 'Creas desde la plenitud, no desde la falta.', pt: 'Você cria da plenitude, não da falta.' } },
+    { e: { en: 'Reason', es: 'Razón', pt: 'Razão' }, hz: 400, n: { en: 'Clear mind, long view.', es: 'Mente clara, mirada larga.', pt: 'Mente clara, visão longa.' } },
+    { e: { en: 'Acceptance', es: 'Aceptación', pt: 'Aceitação' }, hz: 350, n: { en: 'You stop fighting what is.', es: 'Dejas de pelear con lo que es.', pt: 'Você para de lutar com o que é.' } },
+    { e: { en: 'Willingness', es: 'Disposición', pt: 'Disposição' }, hz: 310, n: { en: 'Doors open because you say yes.', es: 'Las puertas se abren porque dices que sí.', pt: 'As portas se abrem porque você diz sim.' } },
+    { e: { en: 'Neutrality', es: 'Neutralidad', pt: 'Neutralidade' }, hz: 250, n: { en: 'Unattached. Nothing can hook you.', es: 'Sin enganche. Nada te atrapa.', pt: 'Sem apego. Nada te fisga.' } },
+    { e: { en: 'Courage', es: 'Coraje', pt: 'Coragem' }, hz: 200, threshold: true, n: { en: 'The line. You face it — power begins.', es: 'La línea. Lo enfrentas — empieza el poder.', pt: 'A linha. Você encara — o poder começa.' } },
+    { e: { en: 'Pride', es: 'Orgullo', pt: 'Orgulho' }, hz: 175, n: { en: 'Feels high, breaks easy.', es: 'Se siente alto, se quiebra fácil.', pt: 'Parece alto, quebra fácil.' } },
+    { e: { en: 'Anger', es: 'Rabia', pt: 'Raiva' }, hz: 150, n: { en: 'Fuel — but it burns the tank.', es: 'Combustible — pero quema el estanque.', pt: 'Combustível — mas queima o tanque.' } },
+    { e: { en: 'Desire', es: 'Deseo', pt: 'Desejo' }, hz: 125, n: { en: 'Wanting from lack keeps you in lack.', es: 'Desear desde la falta te mantiene en falta.', pt: 'Desejar da falta mantém você na falta.' } },
+    { e: { en: 'Fear', es: 'Miedo', pt: 'Medo' }, hz: 100, n: { en: 'The world looks dangerous from here.', es: 'Desde aquí el mundo se ve peligroso.', pt: 'Daqui o mundo parece perigoso.' } },
+    { e: { en: 'Grief', es: 'Pena', pt: 'Luto' }, hz: 75, n: { en: 'Heavy water. Let it move.', es: 'Agua pesada. Deja que se mueva.', pt: 'Água pesada. Deixe-a se mover.' } },
+    { e: { en: 'Apathy', es: 'Apatía', pt: 'Apatia' }, hz: 50, n: { en: 'The couch that eats years.', es: 'El sillón que se come años.', pt: 'O sofá que come anos.' } },
+    { e: { en: 'Guilt', es: 'Culpa', pt: 'Culpa' }, hz: 30, n: { en: 'Punishing yourself changes nothing.', es: 'Castigarte no cambia nada.', pt: 'Se punir não muda nada.' } },
+    { e: { en: 'Shame', es: 'Vergüenza', pt: 'Vergonha' }, hz: 20, n: { en: 'The bottom. Even here the scale exists — log the day.', es: 'El fondo. Incluso aquí existe la escala — registra el día.', pt: 'O fundo. Mesmo aqui a escala existe — registre o dia.' } }
+  ];
+
+  // The ladder: every 7-day streak opens the next chakra pack.
+  // Day 14 is a double drop: Sacral + the Emotion Frequency Scale.
+  const LADDER = [
+    { id: 'root',      days: 7,  type: 'chakra', chakra: 0 },
+    { id: 'scale',     days: 14, type: 'scale' },
+    { id: 'sacral',    days: 14, type: 'chakra', chakra: 1 },
+    { id: 'plexus',    days: 21, type: 'chakra', chakra: 2 },
+    { id: 'heart',     days: 28, type: 'chakra', chakra: 3 },
+    { id: 'throat',    days: 35, type: 'chakra', chakra: 4 },
+    { id: 'third-eye', days: 42, type: 'chakra', chakra: 5 },
+    { id: 'crown',     days: 49, type: 'chakra', chakra: 6 }
+  ];
+  let vault = loadJSON(VAULT_KEY) || { best: 0, open: {} };
+  const saveVault = () => localStorage.setItem(VAULT_KEY, JSON.stringify(vault));
+
+  function stepTitle(step) {
+    return step.type === 'scale' ? t().emotionFrequency : tr(CHAKRAS[step.chakra].mantra);
+  }
+  function renderVault(freshIds = []) {
+    const grid = document.getElementById('vault-grid');
+    grid.innerHTML = '';
+    for (const step of LADDER) {
+      const open = !!vault.open[step.id];
+      const el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'vcard ' + (open ? 'open' : 'locked')
+        + (step.type === 'scale' ? ' wide' : '')
+        + (freshIds.includes(step.id) ? ' fresh' : '');
+      const ch = step.type === 'chakra' ? CHAKRAS[step.chakra] : null;
+      el.style.setProperty('--vc', ch ? ch.color : 'var(--gold)');
+      const sub = open
+        ? (ch ? `${tr(ch.name)} · ${ch.hz} Hz` : t().scaleCardSub)
+        : fmt(t().lockedSub, { b: Math.min(vault.best || 0, step.days), d: step.days });
+      el.innerHTML =
+        (open ? '' : '<span class="v-lock" aria-hidden="true">&#128274;</span>')
+        + `<span class="v-days">${fmt(t().dayStreak, { d: step.days })}</span>`
+        + `<span class="v-name">${stepTitle(step)}</span>`
+        + `<span class="v-sub">${sub}</span>`;
+      if (open) {
+        el.addEventListener('click', () => step.type === 'scale' ? openScale() : openChakra(step.chakra));
+      } else {
+        el.setAttribute('aria-disabled', 'true');
+        el.addEventListener('click', () =>
+          toastMsg(fmt(t().unlockAt, { d: step.days, b: vault.best || 0 })));
+      }
+      grid.appendChild(el);
+    }
+    const next = LADDER.find(s => !vault.open[s.id]);
+    document.getElementById('vault-next').textContent = next
+      ? fmt(t().next, { name: stepTitle(next), d: next.days })
+      : t().allOpen;
+  }
+
+  function updateVault() {
+    const s = bestRun();
+    if (s > (vault.best || 0)) vault.best = s;
+    const fresh = [];
+    for (const step of LADDER) {
+      if ((vault.best || 0) >= step.days && !vault.open[step.id]) { vault.open[step.id] = true; fresh.push(step.id); }
+    }
+    saveVault();
+    renderVault(fresh);
+    renderDailyAff();
+    if (fresh.length) {
+      const names = fresh.map(id => stepTitle(LADDER.find(x => x.id === id))).join(' + ');
+      openGratitude(vault.best, names);
+    }
+  }
+
+  // ---------- gratitude moment (on every streak milestone) ----------
+  const GRATITUDE = {
+    en: [
+      'You came back, day after day. That is the whole practice. Thank yourself for it.',
+      'Gratitude vibrates near joy. Stay here for one slow breath before moving on.',
+      'Thank your past self for logging. Thank your future self by continuing.',
+      'A streak is a chain of days you chose yourself. Be grateful for every link.',
+      'Nothing had to be perfect to get here. Be thankful for the honest days too.'],
+    es: [
+      'Volviste, día tras día. Esa es toda la práctica. Agradécetelo.',
+      'La gratitud vibra cerca de la alegría. Quédate aquí una respiración lenta antes de seguir.',
+      'Agradece a tu yo del pasado por registrar. Agradece a tu yo del futuro continuando.',
+      'Una racha es una cadena de días en que te elegiste. Agradece cada eslabón.',
+      'Nada tuvo que ser perfecto para llegar aquí. Agradece también los días honestos.'],
+    pt: [
+      'Você voltou, dia após dia. Essa é toda a prática. Agradeça a si mesmo.',
+      'A gratidão vibra perto da alegria. Fique aqui por uma respiração lenta antes de seguir.',
+      'Agradeça ao seu eu do passado por registrar. Agradeça ao seu eu do futuro continuando.',
+      'Uma sequência é uma corrente de dias em que você se escolheu. Agradeça cada elo.',
+      'Nada precisou ser perfeito para chegar aqui. Agradeça também pelos dias honestos.'],
+  };
+  const gratOv = document.getElementById('grat');
+  let gratDays = 0;
+  function openGratitude(days, names) {
+    gratDays = days;
+    const pool = GRATITUDE[lang] || GRATITUDE.en;
+    document.getElementById('grat-eyebrow').textContent = fmt(t().gratEyebrow, { d: days });
+    document.getElementById('grat-title').textContent = t().gratTitle;
+    document.getElementById('grat-msg').textContent =
+      pool[((Math.floor(days / 7) - 1) % pool.length + pool.length) % pool.length];
+    document.getElementById('grat-open-line').textContent = fmt(t().gratUnlocked, { names });
+    document.getElementById('grat-note').textContent = t().gratNote;
+    gratOv.classList.add('show');
+  }
+  document.getElementById('grat-close').addEventListener('click', () => gratOv.classList.remove('show'));
+  document.getElementById('grat-go').addEventListener('click', () => {
+    gratOv.classList.remove('show');
+    document.getElementById('vault-grid').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  });
+
+  // ---------- today's five (daily affirmations from the current chakra) ----------
+  function currentChakraIdx() {
+    let c = -1;
+    for (const step of LADDER) if (step.type === 'chakra' && vault.open[step.id]) c = step.chakra;
+    return c;
+  }
+  function renderDailyAff() {
+    const el = document.getElementById('daily-aff');
+    const ci = currentChakraIdx();
+    if (ci < 0 || !(todayKey in log)) { el.classList.remove('show'); return; }
+    const ch = CHAKRAS[ci];
+    el.style.setProperty('--vc', ch.color);
+    document.getElementById('aff-chakra').textContent = `${tr(ch.name)} · ${tr(ch.mantra)}`;
+    const list = document.getElementById('aff-list');
+    list.innerHTML = '';
+    const pack = tr(ch.pack);
+    const rest = pack.slice(1);
+    const start = ((Object.keys(log).length - 1) * 4) % rest.length;
+    const picks = [pack[0]];
+    for (let i = 0; i < 4; i++) picks.push(rest[(start + i) % rest.length]);
+    picks.forEach((txt, i) => {
+      const li = document.createElement('li');
+      li.textContent = txt;
+      if (i === 0) li.className = 'core';
+      list.appendChild(li);
+    });
+    el.classList.add('show');
+  }
+
+  // ---------- chakra room ----------
+  const cerOv = document.getElementById('ceremony');
+  const toneBtn = document.getElementById('cer-tone');
+  let cer = null, affIdx = 0, affTimer = null, audio = null;
+
+  function openChakra(ci) {
+    cer = CHAKRAS[ci];
+    cerOv.classList.add('show');
+    cerOv.style.setProperty('--vc', cer.color);
+    document.getElementById('cer-eyebrow').textContent = `${t().vaultShort} · ${tr(cer.name)}`;
+    document.getElementById('cer-name').textContent = tr(cer.mantra);
+    document.getElementById('cer-hz').textContent = `${cer.hz} Hz · ${tr(cer.name)} · ${cer.sanskrit}`;
+    affIdx = 0;
+    renderDots();
+    showAff();
+    if (audio && audio.playing) setTone(cer.hz);
+  }
+  function renderDots() {
+    const dots = document.getElementById('cer-dots');
+    dots.innerHTML = '';
+    const pack = tr(cer.pack);
+    pack.forEach((_, i) => {
+      const s = document.createElement('span');
+      if (i === affIdx % pack.length) s.className = 'on';
+      dots.appendChild(s);
+    });
+  }
+  function showAff() {
+    const el = document.getElementById('cer-aff');
+    el.classList.add('fade');
+    clearTimeout(affTimer);
+    setTimeout(() => {
+      const pack = tr(cer.pack);
+      el.textContent = pack[affIdx % pack.length];
+      el.classList.remove('fade');
+      renderDots();
+    }, 350);
+    affTimer = setTimeout(() => { affIdx++; showAff(); }, 8000);
+  }
+  document.getElementById('cer-next').addEventListener('click', () => {
+    if (!cer) return;
+    affIdx++;
+    showAff();
+  });
+  function closeCeremony() {
+    cerOv.classList.remove('show');
+    clearTimeout(affTimer);
+    stopTone();
+  }
+  document.getElementById('cer-close').addEventListener('click', closeCeremony);
+
+  // gentle sine at the chakra frequency + soft octave shimmer (WebAudio, local)
+  function ensureAudio() {
+    if (audio) return audio;
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return null;
+    const ctx = new Ctx();
+    const gain = ctx.createGain(); gain.gain.value = 0;
+    const osc = ctx.createOscillator(); osc.type = 'sine';
+    const osc2 = ctx.createOscillator(); osc2.type = 'sine';
+    const g2 = ctx.createGain(); g2.gain.value = 0.18;
+    osc.connect(gain); osc2.connect(g2); g2.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(); osc2.start();
+    audio = { ctx, gain, osc, osc2, playing: false };
+    return audio;
+  }
+  function setTone(hz) {
+    const a = ensureAudio(); if (!a) return;
+    const at = a.ctx.currentTime;
+    a.osc.frequency.exponentialRampToValueAtTime(hz, at + 0.6);
+    a.osc2.frequency.exponentialRampToValueAtTime(hz * 2, at + 0.6);
+  }
+  function startTone() {
+    const a = ensureAudio();
+    if (!a) { toastMsg(t().audioNA); return; }
+    if (a.ctx.state === 'suspended') a.ctx.resume();
+    a.osc.frequency.setValueAtTime(cer.hz, a.ctx.currentTime);
+    a.osc2.frequency.setValueAtTime(cer.hz * 2, a.ctx.currentTime);
+    a.gain.gain.cancelScheduledValues(a.ctx.currentTime);
+    a.gain.gain.setTargetAtTime(0.05, a.ctx.currentTime, 0.4);
+    a.playing = true;
+    toneBtn.textContent = t().stopTone;
+  }
+  function stopTone() {
+    if (!audio || !audio.playing) return;
+    audio.gain.gain.setTargetAtTime(0.0001, audio.ctx.currentTime, 0.25);
+    audio.playing = false;
+    toneBtn.textContent = t().playTone;
+  }
+  toneBtn.addEventListener('click', () => (audio && audio.playing) ? stopTone() : startTone());
+
+  // ---------- emotion frequency room ----------
+  const freqOv = document.getElementById('freq');
+  let scaleBuilt = false, selRow = null;
+  function openScale() {
+    freqOv.classList.add('show');
+    if (scaleBuilt) return;
+    scaleBuilt = true;
+    const list = document.getElementById('scale-list');
+    list.innerHTML = '';
+    SCALE.forEach((s, i) => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'scale-row' + (s.threshold ? ' threshold' : '');
+      row.style.setProperty('--row', rampColor((SCALE.length - 1 - i) / (SCALE.length - 1) * 10));
+      row.innerHTML = `<span class="e">${tr(s.e)}</span><span class="hz">${s.hz}</span>`;
+      row.addEventListener('click', () => {
+        if (selRow) selRow.classList.remove('sel');
+        selRow = row;
+        row.classList.add('sel');
+        document.getElementById('scale-note').textContent = `${tr(s.e)} · ${s.hz}: ${tr(s.n)}`;
+      });
+      list.appendChild(row);
+    });
+  }
+  document.getElementById('freq-close').addEventListener('click', () => freqOv.classList.remove('show'));
+
+  // ---------- pass it on ----------
+  const shareOv = document.getElementById('share');
+  document.getElementById('share-open').addEventListener('click', () => {
+    if (currentBoost == null) return;
+    const card = DECK[currentBoost];
+    document.getElementById('f-cat').textContent = tr(CATS[card.k]);
+    const ft = document.getElementById('f-text');
+    ft.textContent = tr(card.text);
+    ft.classList.toggle('caps', !!card.caps);
+    const n = Object.keys(log).length;
+    document.getElementById('f-meta').textContent =
+      today.toLocaleDateString(LOCALES[lang], { month: 'short', day: 'numeric', year: 'numeric' })
+      + (n ? ` · ${t().day} ${n}` : '');
+    shareOv.classList.add('show');
+  });
+  document.getElementById('share-close').addEventListener('click', () => shareOv.classList.remove('show'));
+  const shareText = () => `“${tr(DECK[currentBoost].text)}” — Motivation Scale · HK23`;
+  document.getElementById('f-copy').addEventListener('click', async () => {
+    const txt = shareText();
+    try {
+      await navigator.clipboard.writeText(txt);
+      toastMsg(t().copied);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = txt;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); toastMsg(t().copied); }
+      catch { toastMsg(t().copyBlocked); }
+      ta.remove();
+    }
+  });
+  document.getElementById('f-share').addEventListener('click', async () => {
+    try { await navigator.share({ text: shareText() }); }
+    catch (e) { if (!e || e.name !== 'AbortError') toastMsg(t().shareBlocked); }
+  });
+
+  addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      closeCeremony();
+      shareOv.classList.remove('show');
+      freqOv.classList.remove('show');
+      gratOv.classList.remove('show');
+    }
+  });
+
+  // ---------- language switch + static text ----------
+  const langBox = document.getElementById('lang-switch');
+  LANG_LIST.forEach(l => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = l.toUpperCase();
+    b.dataset.lang = l;
+    b.addEventListener('click', () => { if (lang !== l) { lang = l; applyLang(); } });
+    langBox.appendChild(b);
+  });
+
+  function setText(id, value) { const el = document.getElementById(id); if (el) el.textContent = value; }
+
+  function applyLang() {
+    try { localStorage.setItem(LANG_KEY, lang); } catch {}
+    document.documentElement.lang = lang;
+    langBox.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.lang === lang));
+
+    setText('eyebrow', t().checkin);
+    if (selected == null) msgEl.textContent = t().tap;
+    logBtn.textContent = (todayKey in log) ? t().update : t().log;
+    setText('drop-tag', t().todaysDrop);
+    setText('redraw', t().draw);
+    setText('share-open', t().pass);
+    setText('aff-tag', t().todaysFive);
+    setText('hist-title', t().last14);
+    setText('vault-title', t().vaultTitle);
+    setText('footer-line', t().footer);
+    setText('cer-note', t().roomNote);
+    setText('cer-next', t().nextLine);
+    toneBtn.textContent = (audio && audio.playing) ? t().stopTone : t().playTone;
+    ['cer-close', 'share-close', 'freq-close', 'grat-close'].forEach(id => setText(id, t().close));
+    setText('freq-eyebrow', `${t().vaultShort} · ${t().emotionFrequency}`);
+    setText('freq-title', t().scaleTitle);
+    setText('freq-sub', t().scaleSub);
+    setText('scale-note', t().scaleTap);
+    setText('freq-trad', t().scaleTrad);
+    setText('freq-teaser', t().scaleTeaser);
+    setText('share-eyebrow', t().passOn);
+    setText('f-copy', t().copy);
+    setText('f-share', t().share);
+    setText('share-hint', t().shareHint);
+    setText('grat-go', t().gratGo);
+    setText('grat-title', t().gratTitle);
+    setText('grat-note', t().gratNote);
+    if (gratOv.classList.contains('show') && gratDays) {
+      setText('grat-eyebrow', fmt(t().gratEyebrow, { d: gratDays }));
+    }
+
+    meter.setAttribute('aria-label', t().meterAria);
+    bars.forEach((b, i) => b.setAttribute('aria-label', fmt(t().setAria, { n: i })));
+
+    // rebuild the frequency ladder lazily in the new language
+    scaleBuilt = false; selRow = null;
+    document.getElementById('scale-list').innerHTML = '';
+    if (freqOv.classList.contains('show')) openScale();
+    // re-render the open chakra room in the new language
+    if (cerOv.classList.contains('show') && cer) {
+      document.getElementById('cer-eyebrow').textContent = `${t().vaultShort} · ${tr(cer.name)}`;
+      document.getElementById('cer-name').textContent = tr(cer.mantra);
+      document.getElementById('cer-hz').textContent = `${cer.hz} Hz · ${tr(cer.name)} · ${cer.sanskrit}`;
+      showAff();
+    }
+
+    renderDatestamp();
+    renderHistory();
+    renderVault();
+    renderDailyAff();
+    if (selected != null) setLevel(selected);
+    if (currentBoost != null && drop.classList.contains('show')) paintBoost(currentBoost);
   }
 
   // ---------- init ----------
-  renderDatestamp();
-  renderHistory();
+  updateVault();
+  applyLang();
   if (selected != null) setLevel(selected);
   const savedBoost = loadJSON(BOOST_KEY);
   if (savedBoost && savedBoost.date === todayKey && (todayKey in log) && DECK[savedBoost.idx]) {
     showBoost(savedBoost.idx);
   }
-</script>
 
+  // ---------- share studio ----------
+  Object.assign(T.en, {
+    stTitle: 'Make it a post', stHint: 'Drag any piece on the card to move it · toggle pieces below',
+    stGen: 'Generate PNG', stSave: 'Long-press (mobile) or right-click (desktop) the image to save it, then post.',
+    stReset: 'Reset layout', stCat: 'Daily check-in', stCta: 'Call to action text',
+    stCanvas: 'Template preview. Drag elements to arrange them.', stImg: 'Generated share image'
+  });
+  Object.assign(T.es, {
+    stTitle: 'Hazlo un post', stHint: 'Arrastra cualquier pieza de la tarjeta para moverla · activa piezas abajo',
+    stGen: 'Generar PNG', stSave: 'Mantén presionada (móvil) o clic derecho (escritorio) la imagen para guardarla, y postea.',
+    stReset: 'Restaurar diseño', stCat: 'Check-in diario', stCta: 'Texto del llamado a la acción',
+    stCanvas: 'Vista previa. Arrastra los elementos para ordenarlos.', stImg: 'Imagen generada para compartir'
+  });
+  Object.assign(T.pt, {
+    stTitle: 'Faça um post', stHint: 'Arraste qualquer peça do cartão para movê-la · ative peças abaixo',
+    stGen: 'Gerar PNG', stSave: 'Toque e segure (celular) ou clique com o botão direito (desktop) na imagem para salvar, e poste.',
+    stReset: 'Restaurar layout', stCat: 'Check-in diário', stCta: 'Texto da chamada para ação',
+    stCanvas: 'Prévia. Arraste os elementos para organizá-los.', stImg: 'Imagem gerada para compartilhar'
+  });
+
+  const STUDIO_KEY = 'hk23-motivation-studio';
+  const FORMATS = {
+    story:    { w: 1080, h: 1920, label: 'TikTok / Story 9:16' },
+    square:   { w: 1080, h: 1080, label: 'IG Post 1:1' },
+    portrait: { w: 1080, h: 1350, label: 'IG 4:5' }
+  };
+  const THEMES = {
+    noir:  { bg: '#0c0a08', bg2: null,      ink: '#f2ead9', muted: '#9c8f76', accent: '#e8c15c', accentInk: '#1c1508', unlit: '#2a231b', ramp: true },
+    ember: { bg: '#241008', bg2: '#0c0a08', ink: '#f2ead9', muted: '#a88668', accent: '#e0873c', accentInk: '#1c0f06', unlit: '#3a2417', ramp: true },
+    ivory: { bg: '#f2ead9', bg2: null,      ink: '#171310', muted: '#8a7c62', accent: '#b9862c', accentInk: '#f7f1e3', unlit: '#ddd2bc', ramp: true },
+    gold:  { bg: '#e8c15c', bg2: null,      ink: '#171310', muted: '#7a5f1a', accent: '#171310', accentInk: '#e8c15c', unlit: '#d4ab42', ramp: false }
+  };
+  const EL_NAMES = { logo: 'Logo', score: 'Score', quote: 'Quote', meter: 'Meter', cta: 'CTA' };
+  const CTA_PRESETS = [
+    'TRACK YOUR FIRE →',
+    'SIGUE TU FUEGO →',
+    'RATE YOUR DAY 0–10 →',
+    'JOIN THE STREAK → @HK23'
+  ];
+  const DEFAULT_LAYOUTS = {
+    story:    { logo: [0.5, 0.09], score: [0.5, 0.33], quote: [0.5, 0.56], meter: [0.5, 0.72], cta: [0.5, 0.88] },
+    square:   { logo: [0.5, 0.08], score: [0.5, 0.30], quote: [0.5, 0.60], meter: [0.5, 0.78], cta: [0.5, 0.92] },
+    portrait: { logo: [0.5, 0.08], score: [0.5, 0.30], quote: [0.5, 0.60], meter: [0.5, 0.78], cta: [0.5, 0.92] }
+  };
+  const clamp01 = v => Math.min(0.97, Math.max(0.03, v));
+
+  function defaultStudio() {
+    return {
+      fmt: 'story', theme: 'noir', cta: CTA_PRESETS[0],
+      show: { logo: true, score: true, quote: true, meter: true, cta: true },
+      pos: JSON.parse(JSON.stringify(DEFAULT_LAYOUTS))
+    };
+  }
+  const studio = defaultStudio();
+  (function restoreStudio() {
+    const s = loadJSON(STUDIO_KEY);
+    if (!s) return;
+    if (FORMATS[s.fmt]) studio.fmt = s.fmt;
+    if (THEMES[s.theme]) studio.theme = s.theme;
+    if (typeof s.cta === 'string') studio.cta = s.cta.slice(0, 60);
+    for (const k in studio.show) {
+      if (s.show && typeof s.show[k] === 'boolean') studio.show[k] = s.show[k];
+    }
+    for (const f in studio.pos) {
+      for (const k in studio.pos[f]) {
+        const p = s.pos && s.pos[f] && s.pos[f][k];
+        if (Array.isArray(p) && p.length === 2 && isFinite(p[0]) && isFinite(p[1])) {
+          studio.pos[f][k] = [clamp01(+p[0]), clamp01(+p[1])];
+        }
+      }
+    }
+  })();
+  const saveStudio = () => {
+    try { localStorage.setItem(STUDIO_KEY, JSON.stringify(studio)); } catch {}
+  };
+
+  const sCanvas = document.getElementById('studio-canvas');
+  const sCtx = sCanvas.getContext('2d');
+  const genBtn = document.getElementById('gen-btn');
+  let sBoxes = {};
+
+  let studioRaf = 0;
+  function scheduleStudioRender() {
+    if (studioRaf) return;
+    studioRaf = requestAnimationFrame(() => { studioRaf = 0; renderStudio(); });
+  }
+
+  function studioData() {
+    const lvl = selected != null ? selected : 7;
+    const card = currentBoost != null && DECK[currentBoost] ? DECK[currentBoost] : null;
+    return {
+      lvl,
+      label: t().labels[lvl],
+      quote: card ? tr(card.text) : t().messages[lvl],
+      qcat: card ? tr(CATS[card.k]) : t().stCat,
+      qcaps: card ? !!card.caps : false
+    };
+  }
+
+  function studioRoundRect(c, x, y, w, h, r) {
+    c.beginPath();
+    c.moveTo(x + r, y);
+    c.arcTo(x + w, y, x + w, y + h, r);
+    c.arcTo(x + w, y + h, x, y + h, r);
+    c.arcTo(x, y + h, x, y, r);
+    c.arcTo(x, y, x + w, y, r);
+    c.closePath();
+  }
+  function wrapLines(c, text, maxW) {
+    const words = String(text).split(' ');
+    const lines = [];
+    let line = '';
+    for (const w of words) {
+      const tt = line ? line + ' ' + w : w;
+      if (c.measureText(tt).width > maxW && line) { lines.push(line); line = w; }
+      else line = tt;
+    }
+    if (line) lines.push(line);
+    if (lines.length > 3) {
+      lines.length = 3;
+      lines[2] += '…';
+    }
+    return lines;
+  }
+
+  function renderStudio() {
+    const F = FORMATS[studio.fmt], TH = THEMES[studio.theme];
+    const W = F.w, H = F.h;
+    if (sCanvas.width !== W) sCanvas.width = W;
+    if (sCanvas.height !== H) sCanvas.height = H;
+    const c = sCtx, d = studioData();
+    // shorter canvases (1:1, 4:5) get compact metrics so the default layout never collides
+    const compact = H < 1400;
+    sBoxes = {};
+
+    if (TH.bg2) {
+      const g = c.createLinearGradient(0, 0, 0, H);
+      g.addColorStop(0, TH.bg);
+      g.addColorStop(1, TH.bg2);
+      c.fillStyle = g;
+    } else {
+      c.fillStyle = TH.bg;
+    }
+    c.fillRect(0, 0, W, H);
+
+    const pos = studio.pos[studio.fmt];
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+
+    if (studio.show.logo) {
+      const x = pos.logo[0] * W, y = pos.logo[1] * H;
+      c.fillStyle = TH.accent;
+      c.font = '96px Anton, sans-serif';
+      c.fillText('HK23', x, y);
+      c.fillStyle = TH.muted;
+      c.font = '600 28px system-ui, sans-serif';
+      c.fillText('M O T I V A T I O N   S C A L E', x, y + 76);
+      sBoxes.logo = { x: x - 270, y: y - 70, w: 540, h: 175 };
+    }
+
+    if (studio.show.score) {
+      const x = pos.score[0] * W, y = pos.score[1] * H;
+      c.fillStyle = TH.accent;
+      c.font = (compact ? 230 : 340) + 'px Anton, sans-serif';
+      const numW = c.measureText(String(d.lvl)).width;
+      c.fillText(String(d.lvl), x, y);
+      c.fillStyle = TH.muted;
+      c.font = '600 ' + (compact ? 40 : 46) + 'px system-ui, sans-serif';
+      c.textAlign = 'left';
+      c.fillText('/ 10', x + numW / 2 + 22, y + (compact ? 74 : 108));
+      c.textAlign = 'center';
+      c.fillStyle = TH.ink;
+      c.font = (compact ? 56 : 72) + 'px Anton, sans-serif';
+      c.fillText(d.label.toUpperCase(), x, y + (compact ? 170 : 248), 940);
+      sBoxes.score = compact
+        ? { x: x - 260, y: y - 140, w: 520, h: 350 }
+        : { x: x - 330, y: y - 195, w: 660, h: 505 };
+    }
+
+    if (studio.show.quote) {
+      const x = pos.quote[0] * W, y = pos.quote[1] * H;
+      const qFont = d.qcaps
+        ? (compact ? '54px' : '62px') + ' Anton, sans-serif'
+        : '600 ' + (compact ? 40 : 45) + 'px system-ui, sans-serif';
+      const lh = d.qcaps ? (compact ? 66 : 74) : (compact ? 56 : 62);
+      const head = compact ? 50 : 54;
+      c.font = qFont;
+      const lines = wrapLines(c, d.quote, 840);
+      const blockH = head + lines.length * lh;
+      const top = y - blockH / 2;
+      c.fillStyle = TH.accent;
+      c.font = '700 ' + (compact ? 24 : 26) + 'px system-ui, sans-serif';
+      c.fillText(d.qcat.toUpperCase(), x, top + 13);
+      c.fillStyle = TH.ink;
+      c.font = qFont;
+      let ty = top + head + lh / 2;
+      for (const ln of lines) { c.fillText(ln, x, ty); ty += lh; }
+      sBoxes.quote = { x: x - 440, y: top - 16, w: 880, h: blockH + 32 };
+    }
+
+    if (studio.show.meter) {
+      const x = pos.meter[0] * W, y = pos.meter[1] * H;
+      const totalW = 720, gap = 10, bw = (totalW - gap * 10) / 11;
+      const maxH = compact ? 160 : 190, minH = compact ? 52 : 62;
+      let bx = x - totalW / 2;
+      for (let i = 0; i <= 10; i++) {
+        const bh = minH + (maxH - minH) * (i / 10);
+        c.fillStyle = i <= d.lvl ? (TH.ramp ? rampColor(i) : TH.accent) : TH.unlit;
+        studioRoundRect(c, bx, y + maxH / 2 - bh, bw, bh, 6);
+        c.fill();
+        bx += bw + gap;
+      }
+      sBoxes.meter = { x: x - totalW / 2 - 10, y: y - maxH / 2 - 10, w: totalW + 20, h: maxH + 20 };
+    }
+
+    if (studio.show.cta && studio.cta.trim()) {
+      const x = pos.cta[0] * W, y = pos.cta[1] * H;
+      c.font = (compact ? 40 : 46) + 'px Anton, sans-serif';
+      const tw = Math.min(c.measureText(studio.cta).width, 860);
+      const pw = tw + 120, ph = compact ? 96 : 108;
+      c.fillStyle = TH.accent;
+      studioRoundRect(c, x - pw / 2, y - ph / 2, pw, ph, ph / 2);
+      c.fill();
+      c.fillStyle = TH.accentInk;
+      c.fillText(studio.cta, x, y + 4, 860);
+      sBoxes.cta = { x: x - pw / 2, y: y - ph / 2, w: pw, h: ph };
+    }
+  }
+
+  // controls
+  const fmtRow = document.getElementById('fmt-row');
+  for (const key in FORMATS) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'seg' + (key === studio.fmt ? ' on' : '');
+    b.textContent = FORMATS[key].label;
+    b.dataset.k = key;
+    b.setAttribute('aria-pressed', String(key === studio.fmt));
+    b.addEventListener('click', () => {
+      studio.fmt = key;
+      saveStudio();
+      fmtRow.querySelectorAll('.seg').forEach(s => {
+        const on = s.dataset.k === key;
+        s.classList.toggle('on', on);
+        s.setAttribute('aria-pressed', String(on));
+      });
+      renderStudio();
+    });
+    fmtRow.appendChild(b);
+  }
+  const themeRow = document.getElementById('theme-row');
+  for (const key in THEMES) {
+    const TH = THEMES[key];
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'swatch' + (key === studio.theme ? ' on' : '');
+    b.dataset.k = key;
+    b.style.background = 'linear-gradient(135deg, ' + TH.bg + ' 55%, ' + TH.accent + ' 55%)';
+    b.setAttribute('aria-label', 'Color theme ' + key);
+    b.setAttribute('aria-pressed', String(key === studio.theme));
+    b.addEventListener('click', () => {
+      studio.theme = key;
+      saveStudio();
+      themeRow.querySelectorAll('.swatch').forEach(s => {
+        const on = s.dataset.k === key;
+        s.classList.toggle('on', on);
+        s.setAttribute('aria-pressed', String(on));
+      });
+      renderStudio();
+    });
+    themeRow.appendChild(b);
+  }
+  const elRow = document.getElementById('el-row');
+  for (const key in EL_NAMES) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'seg' + (studio.show[key] ? ' on' : '');
+    b.textContent = EL_NAMES[key];
+    b.setAttribute('aria-pressed', String(!!studio.show[key]));
+    b.addEventListener('click', () => {
+      studio.show[key] = !studio.show[key];
+      saveStudio();
+      b.classList.toggle('on', studio.show[key]);
+      b.setAttribute('aria-pressed', String(studio.show[key]));
+      renderStudio();
+    });
+    elRow.appendChild(b);
+  }
+  const resetBtn = document.createElement('button');
+  resetBtn.type = 'button';
+  resetBtn.className = 'seg';
+  resetBtn.id = 'studio-reset';
+  resetBtn.addEventListener('click', () => {
+    studio.pos[studio.fmt] = JSON.parse(JSON.stringify(DEFAULT_LAYOUTS[studio.fmt]));
+    saveStudio();
+    renderStudio();
+  });
+  elRow.appendChild(resetBtn);
+
+  const ctaInput = document.getElementById('cta-input');
+  ctaInput.value = studio.cta;
+  ctaInput.addEventListener('input', () => {
+    studio.cta = ctaInput.value;
+    saveStudio();
+    scheduleStudioRender();
+  });
+  const ctaRow = document.getElementById('cta-row');
+  CTA_PRESETS.forEach(p => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'seg';
+    b.textContent = p;
+    b.addEventListener('click', () => {
+      studio.cta = p;
+      ctaInput.value = p;
+      saveStudio();
+      renderStudio();
+    });
+    ctaRow.appendChild(b);
+  });
+
+  // drag to arrange
+  let dragEl = null, dragId = null, dragOff = null, dragPos = null;
+  function canvasPoint(e) {
+    const r = sCanvas.getBoundingClientRect();
+    return {
+      x: (e.clientX - r.left) / r.width * sCanvas.width,
+      y: (e.clientY - r.top) / r.height * sCanvas.height
+    };
+  }
+  function hitTest(p) {
+    let el = null, best = Infinity;
+    for (const k in sBoxes) {
+      const b = sBoxes[k];
+      if (p.x >= b.x - 20 && p.x <= b.x + b.w + 20 && p.y >= b.y - 20 && p.y <= b.y + b.h + 20) {
+        const dist = Math.hypot(p.x - (b.x + b.w / 2), p.y - (b.y + b.h / 2));
+        if (dist < best) { best = dist; el = k; }
+      }
+    }
+    return el;
+  }
+  // touch-action is pan-y so the page still scrolls from the canvas; block
+  // native scrolling only when the touch actually lands on a card element
+  sCanvas.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    if (hitTest(canvasPoint(e.touches[0]))) e.preventDefault();
+  }, { passive: false });
+  sCanvas.addEventListener('pointerdown', e => {
+    if (dragEl) return; // one drag at a time; ignore extra fingers
+    const p = canvasPoint(e);
+    const el = hitTest(p);
+    if (!el) return;
+    dragEl = el;
+    dragId = e.pointerId;
+    dragPos = studio.pos[studio.fmt]; // snapshot: a mid-drag format switch must not retarget the write
+    const a = dragPos[el];
+    dragOff = [a[0] * sCanvas.width - p.x, a[1] * sCanvas.height - p.y];
+    try { sCanvas.setPointerCapture(e.pointerId); } catch {}
+    e.preventDefault();
+  });
+  sCanvas.addEventListener('pointermove', e => {
+    if (!dragEl || e.pointerId !== dragId) return;
+    const p = canvasPoint(e);
+    dragPos[dragEl] = [
+      clamp01((p.x + dragOff[0]) / sCanvas.width),
+      clamp01((p.y + dragOff[1]) / sCanvas.height)
+    ];
+    scheduleStudioRender();
+  });
+  const endDrag = e => {
+    if (!dragEl || (e && e.pointerId !== dragId)) return;
+    dragEl = dragId = dragOff = dragPos = null;
+    saveStudio();
+  };
+  sCanvas.addEventListener('pointerup', endDrag);
+  sCanvas.addEventListener('pointercancel', endDrag);
+
+  // generate PNG
+  genBtn.disabled = selected == null;
+  genBtn.addEventListener('click', async () => {
+    renderStudio();
+    const url = sCanvas.toDataURL('image/png');
+    document.getElementById('result-img').src = url;
+    const box = document.getElementById('studio-result');
+    box.hidden = false;
+    box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const filename = 'hk23-motivation-' + studio.fmt + '.png';
+    const dl = (window.claude && window.claude.use) ? await window.claude.use('downloads') : null;
+    if (dl) {
+      // artifact viewer: real save prompt; if declined, the preview + long-press hint still stand
+      try {
+        const blob = await new Promise(res => sCanvas.toBlob(res, 'image/png'));
+        if (blob) await dl.save({ filename, data: blob });
+      } catch {}
+    } else {
+      // un-sandboxed host (hk23universe.vercel.app/scale): plain download works
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  });
+
+  // studio texts, localized alongside the rest of the page
+  function applyStudioLang() {
+    document.getElementById('studio-title').textContent = t().stTitle;
+    document.getElementById('studio-hint').textContent = t().stHint;
+    document.getElementById('studio-save-hint').textContent = t().stSave;
+    genBtn.textContent = t().stGen;
+    resetBtn.textContent = t().stReset;
+    ctaInput.setAttribute('aria-label', t().stCta);
+    sCanvas.setAttribute('aria-label', t().stCanvas);
+    document.getElementById('result-img').alt = t().stImg;
+  }
+
+  // keep the card in sync with the check-in and the language
+  const baseSetLevel2 = setLevel;
+  setLevel = function (l) {
+    const changed = l !== selected;
+    baseSetLevel2(l);
+    genBtn.disabled = false;
+    if (changed) scheduleStudioRender(); // meter scrub fires on every pointermove; only repaint on real changes
+  };
+  const baseShowBoost2 = showBoost;
+  showBoost = function (i) { baseShowBoost2(i); scheduleStudioRender(); };
+  const baseApplyLang2 = applyLang;
+  applyLang = function () { baseApplyLang2(); applyStudioLang(); scheduleStudioRender(); };
+
+  applyStudioLang();
+  renderStudio();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderStudio);
+</script>
 </body>
 </html>
