@@ -12932,6 +12932,7 @@ addEventListener('DOMContentLoaded', function(){
     ['◈ TU UNIVERSO', [
       ['▣','HK23ART','tus obras en 3D','#E8C86A',()=>call(window.HK23Art&&window.HK23Art.open)],
       ['⛳','VICEGOLFER','el green se juega','#C6A15B',()=>call(window.ViceGolfer&&window.ViceGolfer.open)],
+      ['⬢','RUGBY VICE','la cancha vive','#00F0FF',()=>call(window.RugbyVice&&window.RugbyVice.open)],
       ['◆','FORMAS','jugá con los cuerpos','#FF6B00',()=>call(window.Formas&&window.Formas.open)],
       ['◉','MÚSICA','tu planeta de temas','#E8C86A',()=>call(window.MusicaHK&&window.MusicaHK.open)],
       ['▦','DASHBOARD','ejecutar · vender · referidos','#39d0ff',()=>call(window.DASH&&window.DASH.toggle)],
@@ -15387,14 +15388,17 @@ addEventListener('DOMContentLoaded', function(){
 <script>
 // ═══ El botón DASHBOARD vivía en z-index 9000 y tapaba todos los mundos. Se aparta. ═══
 (function(){
-  const MUNDOS='#ar.open, #tf.open, #mp.open, #atlas.open, #cw.open, #mvb.open, #taller.open, #wa.open, .hkov.open';
+  const css=document.createElement('style');
+  css.textContent='#dash-fab.hk-oculto{ display:none !important; }';
+  document.head.appendChild(css);
+  const MUNDOS='#ar.open, #tf.open, #mp.open, #vg.open, #rv.open, #atlas.open, #cw.open, #mvb.open, #taller.open, #wa.open, .hkov.open';
   function revisar(){
     const fab=document.getElementById('dash-fab');
     if(!fab) return;
     const panel=document.getElementById('dash-panel');
     const abierto=!!document.querySelector(MUNDOS);
     const dashAbierto=panel&&panel.classList.contains('open');
-    fab.style.display = (abierto && !dashAbierto) ? 'none' : '';
+    fab.classList.toggle('hk-oculto', abierto && !dashAbierto);
   }
   const arranca=()=>{
     if(!document.getElementById('dash-fab')) return setTimeout(arranca,400);
@@ -15771,6 +15775,343 @@ addEventListener('DOMContentLoaded', function(){
   }, true);
 
   window.ViceGolfer={ open:abrir, close:cerrar, ir, protocolo:()=>st.get('hk23_vg_prot',{}), version:'1' };
+})();
+</script>
+
+
+<!-- ═══════════ RUGBY VICE — no un planeta: la cancha, con cosas pasando encima ═══════════ -->
+<style id="rv-style">
+  #rv{ position:fixed; inset:0; z-index:975; display:none; background:#04070A; overflow:hidden;
+    font-family:'Montserrat',system-ui,sans-serif; color:#e8f4f8; }
+  #rv.open{ display:block; }
+  #rv-cv{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
+  .rv-top{ position:absolute; left:0; right:0; top:0; z-index:3; display:flex; align-items:center; gap:10px;
+    padding:14px; padding-top:calc(14px + env(safe-area-inset-top,0px));
+    background:linear-gradient(#04070AE8,#04070A00); pointer-events:none; }
+  .rv-top > *{ pointer-events:auto; }
+  .rv-top b{ font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; line-height:1; font-weight:400; }
+  .rv-top b em{ font-style:normal; color:#00F0FF; }
+  .rv-top i{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:3px; color:#4a5a66; font-style:normal; }
+  .rv-x{ margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:#04070A; background:#e8f4f8; border:none; border-radius:3px; padding:11px 15px; cursor:pointer; min-height:44px; }
+  .rv-tabs{ position:absolute; left:0; right:0; bottom:0; z-index:3; display:flex; gap:6px; overflow-x:auto;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(#04070A00,#04070AE8 40%); -webkit-overflow-scrolling:touch; }
+  .rv-t{ flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:#8aa0aa; background:transparent; border:1px solid #1e3038; border-radius:3px;
+    padding:11px 14px; cursor:pointer; min-height:44px; }
+  .rv-t.on{ background:#00F0FF; color:#04070A; border-color:#00F0FF; font-weight:700; }
+  .rv-hud{ position:absolute; left:14px; top:74px; z-index:3; font-family:'JetBrains Mono',monospace;
+    font-size:10px; letter-spacing:1px; color:#8aa0aa; line-height:2; pointer-events:none; }
+  .rv-hud b{ color:#00F0FF; font-weight:700; }
+  .rv-modo{ position:absolute; right:14px; top:74px; z-index:3; display:flex; flex-direction:column; gap:6px; }
+  .rv-m{ font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px; color:#8aa0aa;
+    background:#0a1218CC; border:1px solid #1e3038; border-radius:3px; padding:10px 13px;
+    cursor:pointer; min-height:44px; min-width:96px; text-align:center; }
+  .rv-m.on{ background:#00F0FF; color:#04070A; border-color:#00F0FF; font-weight:700; }
+  .rv-panel{ position:absolute; inset:0; z-index:6; display:none; background:#04070AF5; overflow-y:auto;
+    -webkit-overflow-scrolling:touch; }
+  .rv-panel.show{ display:block; }
+  .rp-w{ max-width:680px; margin:0 auto; padding:88px 18px calc(96px + env(safe-area-inset-bottom,0px)); }
+  .rp-eye{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:4px; color:#4a5a66; margin-bottom:8px; }
+  .rp-t{ font-family:'Bebas Neue',sans-serif; font-size:44px; letter-spacing:2px; line-height:.95;
+    margin:0 0 14px; font-weight:400; }
+  .rp-t em{ font-style:normal; color:#00F0FF; }
+  .rp-h{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:4px; color:#4a5a66;
+    margin:24px 0 10px; border-bottom:1px solid #14222a; padding-bottom:7px; }
+  .rp-card{ background:#0a1218; border:1px solid #14222a; border-radius:6px; padding:14px 15px; margin-bottom:9px; }
+  .rp-card b{ display:block; font-size:14px; font-weight:800; margin-bottom:4px; }
+  .rp-card i{ display:block; font-style:normal; font-family:'JetBrains Mono',monospace; font-size:9px;
+    letter-spacing:1px; color:#4a5a66; margin-bottom:6px; }
+  .rp-card p{ margin:0; font-size:12.5px; line-height:1.7; color:#8aa0aa; }
+  .rp-in,.rp-ta{ width:100%; background:#0a1218; border:1px solid #1e3038; border-radius:4px;
+    color:#e8f4f8; font:400 13px 'JetBrains Mono',monospace; padding:12px; min-height:46px; margin-bottom:9px; }
+  .rp-ta{ min-height:80px; line-height:1.7; resize:vertical; font-family:'Montserrat',sans-serif; }
+  .rp-in:focus-visible,.rp-ta:focus-visible{ outline:2px solid #00F0FF; outline-offset:1px; }
+  .rp-b{ background:#00F0FF; color:#04070A; border:none; border-radius:4px; padding:13px 17px;
+    font:700 11px 'JetBrains Mono',monospace; letter-spacing:2px; cursor:pointer; min-height:46px; }
+  .rp-b2{ background:transparent; border:1px solid #1e3038; color:#8aa0aa; border-radius:4px;
+    padding:12px 15px; font:400 10px 'JetBrains Mono',monospace; letter-spacing:1px; cursor:pointer; min-height:46px; }
+  .rp-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .rp-note{ font-size:11px; line-height:1.75; color:#4a5a66; border-left:2px solid #14222a;
+    padding-left:11px; margin:14px 0 0; }
+  .rp-bar{ height:8px; background:#14222a; border-radius:4px; overflow:hidden; margin-top:8px; }
+  .rp-bar > div{ height:100%; background:#00F0FF; }
+  @media(prefers-reduced-motion:reduce){ #rv *{ animation:none !important; transition:none !important; } }
+</style>
+<div id="rv" role="dialog" aria-modal="true" aria-label="Rugby Vice">
+  <canvas id="rv-cv"></canvas>
+  <div class="rv-top"><b>RUGBY <em>VICE</em></b><i>LA CANCHA VIVE · TOCÁ EL MODO</i>
+    <button class="rv-x" id="rv-close">✕</button></div>
+  <div class="rv-hud" id="rv-hud"></div>
+  <div class="rv-modo" id="rv-modo"></div>
+  <div class="rv-tabs" id="rv-tabs"></div>
+  <div class="rv-panel" id="rv-p"></div>
+</div>
+
+<script>
+// ═══ RUGBY VICE — la cancha con cosas pasando: mini agentes corren la jugada, el kicker patea ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+  const TAU=Math.PI*2;
+  const st={ get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+    set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } } };
+
+  // ── la cancha: x lateral [-1,1] · z fondo [0..100] (metros). Postes en z=95. ──
+  const cv=$('rv-cv'), g=cv.getContext('2d');
+  let W=0,H=0,DPR=1, corriendo=false, t0=null;
+  function fit(){ const r=cv.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1);
+    const w=Math.round(r.width*DPR), h=Math.round(r.height*DPR);
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } W=cv.width; H=cv.height; }
+  addEventListener('resize',fit);
+  function proy(x,z,alt){                       // perspectiva + altura (para la pelota en vuelo)
+    const t=z/100, per=1-0.66*t;
+    return { x: W/2 + x*(W*0.40)*per, y: H*0.80 - t*(H*0.56) - (alt||0)*(H*0.16)*per, per };
+  }
+
+  // ── LAS JUGADAS: cada jugador es un mini agente con su ruta ──
+  // rutas: lista de [x,z] por jugador; la pelota viaja entre portadores (idx del jugador)
+  const PLAYS=[
+    { k:'crash', n:'CRASH BALL', d:'El 9 saca, el 12 entra derecho a romper la línea. Simple y honesta.',
+      dur:5.2, rutas:[ [[-0.10,38],[-0.06,40],[0,42]], [[-0.30,36],[-0.18,44],[-0.02,52]],
+        [[0.15,36],[0.15,40],[0.12,46]], [[0.42,34],[0.40,40],[0.38,44]] ],
+      pelota:[[0,0],[1,1.6],[1,5.2]] },
+    { k:'loop', n:'LOOP 10-12', d:'El 10 pasa al 12 y lo envuelve por afuera: sobra un hombre.',
+      dur:6.0, rutas:[ [[-0.12,38],[-0.02,42],[0.18,48],[0.34,54]], [[0.06,36],[0.10,42],[0.14,46]],
+        [[0.30,34],[0.34,42],[0.44,50]], [[-0.35,36],[-0.30,42],[-0.26,46]] ],
+      pelota:[[0,0],[1,1.8],[0,3.4],[2,6.0]] },
+    { k:'blind', n:'LADO CIEGO', d:'Todos miran al abierto; el 9 y el wing atacan el ciego.',
+      dur:5.6, rutas:[ [[0.05,38],[-0.12,40],[-0.34,46],[-0.52,54]], [[-0.45,36],[-0.48,44],[-0.50,52]],
+        [[0.25,36],[0.30,40],[0.36,44]], [[0.50,34],[0.52,38],[0.55,42]] ],
+      pelota:[[0,0],[0,2.4],[1,5.6]] }
+  ];
+  let play=PLAYS[0], playT=0, modo='jugada';
+
+  // ── EL KICKER: arrastrás, soltás, la pelota vuela a los postes ──
+  const K={ bola:null, spot:{x:0,z:62}, res:'', marca:st.get('hk23_rv_kicks',{m:0,a:0}) };
+  let arrastre=null;
+  function patear(dx,dy){
+    const f=Math.hypot(dx,dy)/(H*0.30);
+    K.bola={ x:K.spot.x, z:K.spot.z, alt:0,
+      vx:(-dx/(W*0.30))*1.1, vz:Math.min(1.3,f)*34, valt:Math.min(1.3,f)*2.6, t:0 };
+    K.res='';
+  }
+  function fisicaKick(dt){
+    const b=K.bola; if(!b) return;
+    b.t+=dt; b.x+=b.vx*dt*0.5; b.z+=b.vz*dt; b.alt+=b.valt*dt; b.valt-=3.4*dt;
+    if(b.z>=95 && b.z-b.vz*dt<95){                       // cruza el plano de los postes
+      const dentro=Math.abs(b.x)<0.16 && b.alt>0.18;     // entre palos y sobre el travesaño
+      K.res=dentro?'¡ENTRE LOS PALOS!':'AFUERA';
+      K.marca.a++; if(dentro) K.marca.m++;
+      st.set('hk23_rv_kicks',K.marca); hud();
+    }
+    if(b.alt<=0 && b.valt<0){ K.bola=null; if(!K.res){ K.res='CORTA'; K.marca.a++; st.set('hk23_rv_kicks',K.marca); hud(); }
+      setTimeout(()=>{ K.res=''; },1200); }
+  }
+  cv.addEventListener('pointerdown',e=>{ if(modo!=='kicker'||K.bola) return;
+    const r=cv.getBoundingClientRect(); const pb=proy(K.spot.x,K.spot.z,0);
+    const sx=(e.clientX-r.left)*(W/r.width), sy=(e.clientY-r.top)*(H/r.height);
+    if(Math.hypot(sx-pb.x,sy-pb.y)<Math.max(44*DPR,W*0.07)){ arrastre={x0:sx,y0:sy,dx:0,dy:0};
+      cv.setPointerCapture(e.pointerId); } });
+  cv.addEventListener('pointermove',e=>{ if(!arrastre) return;
+    const r=cv.getBoundingClientRect();
+    arrastre.dx=(e.clientX-r.left)*(W/r.width)-arrastre.x0;
+    arrastre.dy=(e.clientY-r.top)*(H/r.height)-arrastre.y0; });
+  cv.addEventListener('pointerup',()=>{ if(!arrastre) return;
+    if(Math.hypot(arrastre.dx,arrastre.dy)>H*0.03) patear(arrastre.dx,arrastre.dy);
+    arrastre=null; });
+
+  // ── pintar la cancha viva ──
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  function posEnRuta(ruta,t01){
+    const n=ruta.length-1, s=Math.max(0,Math.min(0.999,t01))*n, i=Math.floor(s), f=s-i;
+    return { x:lerp(ruta[i][0],ruta[i+1][0],f), z:lerp(ruta[i][1],ruta[i+1][1],f) };
+  }
+  function pintar(ts){
+    if(!corriendo) return;
+    requestAnimationFrame(pintar);
+    fit(); const dt=t0?Math.min(0.05,(ts-t0)/1000):0.016; t0=ts;
+    if(modo==='kicker') fisicaKick(dt); else playT=(playT+dt)%(play.dur+1.2);
+    g.fillStyle='#04070A'; g.fillRect(0,0,W,H);
+    for(let i=0;i<60;i++){ const a=Math.sin(i*12.9898)*43758.5453,b2=Math.sin(i*78.233)*12345.6789;
+      g.globalAlpha=0.05+((Math.sin(i*3.17)+1)/2)*0.2; g.fillStyle='#e8f4f8';
+      g.beginPath(); g.arc((a-Math.floor(a))*W,(b2-Math.floor(b2))*H*0.35,Math.max(0.6,W*0.0006),0,TAU); g.fill(); }
+    g.globalAlpha=1;
+    // el pasto
+    const p00=proy(-1.05,0), p10=proy(1.05,0), p01=proy(-1.05,100), p11=proy(1.05,100);
+    const grd=g.createLinearGradient(0,p01.y,0,p00.y);
+    grd.addColorStop(0,'#0a1f14'); grd.addColorStop(1,'#10301e');
+    g.beginPath(); g.moveTo(p00.x,p00.y); g.lineTo(p10.x,p10.y); g.lineTo(p11.x,p11.y); g.lineTo(p01.x,p01.y);
+    g.closePath(); g.fillStyle=grd; g.fill();
+    // las líneas de verdad: 22 · 10 · mitad · 10 · 22 · try
+    [[5,'#e8f4f822'],[22,'#e8f4f844'],[40,'#e8f4f833'],[50,'#e8f4f855'],[60,'#e8f4f833'],[78,'#e8f4f844'],[95,'#00F0FF66']]
+      .forEach(([z,c])=>{ const a=proy(-1.05,z), b3=proy(1.05,z);
+        g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b3.x,b3.y);
+        g.strokeStyle=c; g.lineWidth=Math.max(1,W*0.0011); g.stroke(); });
+    // los postes en la línea de try
+    const pl=proy(-0.16,95), pr=proy(0.16,95), alto=H*0.16*pl.per;
+    g.strokeStyle='#e8f4f8'; g.lineWidth=Math.max(1.6,W*0.0018);
+    [[pl],[pr]].forEach(([p])=>{ g.beginPath(); g.moveTo(p.x,p.y); g.lineTo(p.x,p.y-alto*1.7); g.stroke(); });
+    g.beginPath(); g.moveTo(pl.x,pl.y-alto*0.55); g.lineTo(pr.x,pr.y-alto*0.55); g.stroke();
+
+    if(modo==='jugada'){
+      // los mini agentes corren la jugada seleccionada, en loop
+      const t01=Math.min(1, playT/play.dur);
+      const pos=play.rutas.map(r=>posEnRuta(r,t01));
+      // la pelota: en manos de quién está según el guion
+      let portador=play.pelota[0][0], desde=null, hacia=null, fpase=0;
+      for(let i=0;i<play.pelota.length;i++){ if(playT>=play.pelota[i][1]) portador=play.pelota[i][0];
+        else { desde=play.pelota[i-1]; hacia=play.pelota[i];
+          fpase=(playT-desde[1])/Math.max(0.4,hacia[1]-desde[1]); break; } }
+      pos.forEach((p,i)=>{ const s=proy(p.x,p.z);
+        g.beginPath(); g.arc(s.x,s.y,Math.max(5,W*0.009)*s.per,0,TAU);
+        g.fillStyle= i===portador ? '#00F0FF' : '#e8f4f8'; g.fill();
+        g.font='700 '+Math.max(9,W*0.009)+'px "JetBrains Mono",monospace';
+        g.textAlign='center'; g.fillStyle='#04070A';
+        g.fillText(String(i+1), s.x, s.y+Math.max(3,W*0.003)); });
+      // pase en el aire: la pelota viaja entre dos agentes
+      if(hacia && fpase<1 && fpase>0){ const a=pos[desde[0]], b4=pos[hacia[0]];
+        const s=proy(lerp(a.x,b4.x,fpase), lerp(a.z,b4.z,fpase), Math.sin(fpase*Math.PI)*0.25);
+        g.beginPath(); g.ellipse(s.x,s.y,Math.max(4,W*0.006)*s.per,Math.max(2.6,W*0.004)*s.per,0.5,0,TAU);
+        g.fillStyle='#C6A15B'; g.fill(); }
+      g.font='400 '+Math.max(15,W*0.02)+'px "Bebas Neue",sans-serif'; g.textAlign='left';
+      g.fillStyle='#00F0FF'; g.fillText(play.n, W*0.045, H*0.30);
+      g.font='400 '+Math.max(10,W*0.011)+'px "JetBrains Mono",monospace'; g.fillStyle='#8aa0aa';
+      g.fillText('el planificador la corre en loop · cambiala en PLAYBOOK', W*0.045, H*0.30+Math.max(16,W*0.018));
+    } else {
+      // EL KICKER
+      const pb=proy(K.spot.x,K.spot.z,0);
+      if(arrastre){ g.beginPath(); g.moveTo(pb.x,pb.y);
+        g.lineTo(pb.x-arrastre.dx*1.5, pb.y-arrastre.dy*1.5);
+        g.strokeStyle='#00F0FF'; g.setLineDash([6,5]); g.lineWidth=Math.max(1.5,W*0.0018); g.stroke(); g.setLineDash([]); }
+      if(K.bola){ const s=proy(K.bola.x,K.bola.z,K.bola.alt);
+        g.beginPath(); g.ellipse(s.x,s.y,Math.max(4.5,W*0.007)*s.per,Math.max(3,W*0.0046)*s.per,0.5,0,TAU);
+        g.fillStyle='#C6A15B'; g.fill(); }
+      else { g.beginPath(); g.ellipse(pb.x,pb.y,Math.max(4.5,W*0.007),Math.max(3,W*0.0046),0.5,0,TAU);
+        g.fillStyle='#C6A15B'; g.fill(); }
+      if(K.res){ g.font='400 '+Math.max(26,W*0.042)+'px "Bebas Neue",sans-serif'; g.textAlign='center';
+        g.fillStyle=/ENTRE/.test(K.res)?'#00F0FF':'#ef4444'; g.fillText(K.res, W/2, H*0.30); }
+    }
+  }
+  function hud(){
+    $('rv-hud').innerHTML = modo==='kicker'
+      ? 'KICK TRACKER<br>palos: <b>'+K.marca.m+'/'+K.marca.a+'</b><br>desde los <b>'+Math.round(100-K.spot.z)+'m</b>'
+      : 'EN CANCHA: <b>'+play.n+'</b><br>4 agentes · pelota viva';
+  }
+
+  // ── las secciones ──
+  const TABS=[['cancha','⬢ CANCHA'],['playbook','▤ PLAYBOOK'],['reglas','§ REGLAS'],
+              ['skills','↗ SKILLS'],['merch','◈ MERCH']];
+  let tab='cancha';
+  const REGLAS=[
+    ['EL TRY — 5 PUNTOS','Apoyar la pelota con control en el in-goal rival. La conversión que sigue vale 2.'],
+    ['PENAL 3 · DROP 3','La patada a los palos desde el suelo vale 3. El drop, soltando y pateando al bote, también.'],
+    ['EL PASE ES HACIA ATRÁS','Adelante con la mano no existe: knock-on o forward pass, scrum para el rival.'],
+    ['OFFSIDE','Si estás delante del último pie del ruck, no jugás. Volvé o regalás penal.'],
+    ['EL TACKLE','Solo al portador, debajo de la línea de los hombros. Al suelo, soltás: el que tacklea libera.'],
+    ['RUCK Y MAUL','Pelota en el suelo con jugadores encima: ruck — se entra por atrás. Pelota en mano sostenida: maul.'],
+    ['15 CONTRA 15','8 forwards que chocan, 7 backs que corren. 80 minutos. El que llega mejor al 70, gana.']
+  ];
+  const SKILLS=[['pase','PASE'],['tackle','TACKLE'],['kick','KICKING'],['ruck','RUCK'],['mental','MENTAL']];
+  function avisar(t){ let el=$('rv-live');
+    if(!el){ el=document.createElement('div'); el.id='rv-live'; el.setAttribute('aria-live','polite');
+      el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)'; $('rv').appendChild(el); }
+    el.textContent=t; }
+  function ir(t){ tab=t;
+    document.querySelectorAll('#rv-tabs .rv-t').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    const enCancha=t==='cancha';
+    $('rv-p').classList.toggle('show',!enCancha);
+    $('rv-modo').style.display=enCancha?'':'none';
+    $('rv-hud').style.display=enCancha?'':'none';
+    if(!enCancha) pinta(t); }
+  function pinta(t){
+    const P=$('rv-p');
+    if(t==='playbook'){
+      const propias=st.get('hk23_rv_plays',[]);
+      P.innerHTML='<div class="rp-w"><div class="rp-eye">RUGBY VICE · EL GUION</div>'+
+        '<h2 class="rp-t">PLAY<em>BOOK.</em></h2>'+
+        '<div class="rp-h">JUGADAS EN LA CANCHA — TOCÁ Y SE CORRE</div>'+
+        PLAYS.map(p=>'<div class="rp-card"><b>'+esc(p.n)+'</b><p>'+esc(p.d)+'</p>'+
+          '<div class="rp-row" style="margin-top:10px"><button class="rp-b" data-run="'+esc(p.k)+'">▶ CORRERLA</button></div></div>').join('')+
+        '<div class="rp-h">LAS TUYAS ('+propias.length+')</div>'+
+        (propias.length? propias.slice().reverse().map(p=>'<div class="rp-card"><b>'+esc(p.n)+'</b><p>'+esc(p.d)+'</p></div>').join('')
+          : '<div class="rp-card"><p>Todavía ninguna. Las tres de arriba son clásicas del juego — las tuyas anotalas acá, con tu nombre y tu idea.</p></div>')+
+        '<input class="rp-in" id="rp-pn" placeholder="nombre de la jugada">'+
+        '<textarea class="rp-ta" id="rp-pd" placeholder="cómo se corre — quién toca, quién engaña, quién rompe"></textarea>'+
+        '<button class="rp-b" id="rp-pok">＋ AL PLAYBOOK</button></div>';
+      P.querySelectorAll('[data-run]').forEach(b=>b.onclick=()=>{ play=PLAYS.find(p=>p.k===b.dataset.run);
+        playT=0; modo='jugada'; sincModo(); ir('cancha'); hud(); log('rugby','corrió '+play.n); });
+      $('rp-pok').onclick=()=>{ const n=($('rp-pn').value||'').trim(), d=($('rp-pd').value||'').trim();
+        if(!n){ avisar('Nombre, mínimo.'); return; }
+        const L=st.get('hk23_rv_plays',[]); L.push({n,d}); st.set('hk23_rv_plays',L);
+        avisar('Jugada anotada.'); pinta('playbook'); };
+      return;
+    }
+    if(t==='reglas'){
+      P.innerHTML='<div class="rp-w"><div class="rp-eye">RUGBY VICE · LO QUE HAY QUE SABER</div>'+
+        '<h2 class="rp-t">LAS <em>REGLAS.</em></h2>'+
+        REGLAS.map(([a,b5])=>'<div class="rp-card"><b>'+esc(a)+'</b><p>'+esc(b5)+'</p></div>').join('')+
+        '<p class="rp-note">Las siete que explican el 90% de lo que ves en una cancha. El reglamento entero de World Rugby tiene más — esto es para entrar.</p></div>';
+      return;
+    }
+    if(t==='skills'){
+      const S=st.get('hk23_rv_skills',{});
+      P.innerHTML='<div class="rp-w"><div class="rp-eye">RUGBY VICE · SKILL DEVELOPMENT</div>'+
+        '<h2 class="rp-t">EL QUE ENTRENA, <em>GANA.</em></h2>'+
+        SKILLS.map(([k,l])=>{ const v=S[k]||0;
+          return '<div class="rp-card"><b>'+esc(l)+' <span style="float:right;font-family:JetBrains Mono,monospace;font-size:11px;color:#00F0FF">NIVEL '+v+'/10</span></b>'+
+          '<div class="rp-bar"><div style="width:'+(v*10)+'%"></div></div>'+
+          '<div class="rp-row" style="margin-top:10px">'+
+          '<button class="rp-b2" data-sk="'+k+'" data-d="1">＋ SUBIR</button>'+
+          (v>0?'<button class="rp-b2" data-sk="'+k+'" data-d="-1">− BAJAR</button>':'')+
+          '</div></div>'; }).join('')+
+        '<p class="rp-note">El nivel lo ponés vos y se guarda en este aparato. Nadie más que vos sabe si es verdad — así que que sea verdad.</p></div>';
+      P.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{ const S2=st.get('hk23_rv_skills',{});
+        const k=b.dataset.sk; S2[k]=Math.max(0,Math.min(10,(S2[k]||0)+(+b.dataset.d)));
+        st.set('hk23_rv_skills',S2); pinta('skills'); });
+      return;
+    }
+    if(t==='merch'){
+      P.innerHTML='<div class="rp-w"><div class="rp-eye">RUGBY VICE · MERCH</div>'+
+        '<h2 class="rp-t">EL <em>QUIOSCO.</em></h2>'+
+        '<div class="rp-card"><p>Vacío y lo dice — el merch de Rugby Vice se publica desde el DASHBOARD → VENDER '+
+        'con precio y link de pago, y aparece acá cuando exista. No te muestro poleras inventadas.</p>'+
+        '<div class="rp-row" style="margin-top:10px"><button class="rp-b" id="rv-vender">▦ ABRIR VENDER</button></div></div></div>';
+      $('rv-vender').onclick=()=>{ cerrar(); setTimeout(()=>{ try{ window.DASH.toggle(); window.DASHX.vender(); }catch(e){} },160); };
+      return;
+    }
+  }
+
+  // ── armar ──
+  function sincModo(){ document.querySelectorAll('.rv-m').forEach(b=>b.classList.toggle('on',b.dataset.mo===modo)); }
+  $('rv-tabs').innerHTML=TABS.map(([k,l])=>'<button class="rv-t'+(k==='cancha'?' on':'')+'" data-t="'+k+'">'+l+'</button>').join('');
+  document.querySelectorAll('#rv-tabs .rv-t').forEach(b=>b.onclick=()=>ir(b.dataset.t));
+  $('rv-modo').innerHTML='<button class="rv-m on" data-mo="jugada">▶ LA JUGADA</button>'+
+    '<button class="rv-m" data-mo="kicker">⚡ EL KICKER</button>';
+  document.querySelectorAll('.rv-m').forEach(b=>b.onclick=()=>{ modo=b.dataset.mo; sincModo(); hud();
+    avisar(modo==='kicker'?'Kicker: arrastrá desde la pelota y soltá.':'La jugada corre en loop.'); });
+
+  let ultimo=null;
+  function abrir(){ const el=$('rv'); if(el.classList.contains('open')) return;
+    el.classList.add('open'); ultimo=document.activeElement;
+    corriendo=true; t0=null; playT=0; fit(); hud(); ir('cancha'); requestAnimationFrame(pintar);
+    setTimeout(()=>{ const b=$('rv-close'); if(b) b.focus(); },30);
+    log('rugby','entró a RUGBY VICE'); }
+  function cerrar(){ const el=$('rv'); if(!el.classList.contains('open')) return;
+    corriendo=false; el.classList.remove('open');
+    if(ultimo&&ultimo.focus) ultimo.focus(); ultimo=null; }
+  $('rv-close').onclick=cerrar;
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(!$('rv').classList.contains('open')) return;
+    if(e.key==='Escape'){ e.stopImmediatePropagation();
+      if(tab!=='cancha') ir('cancha'); else cerrar(); }
+  }, true);
+
+  window.RugbyVice={ open:abrir, close:cerrar, ir, kicks:()=>st.get('hk23_rv_kicks',{m:0,a:0}), version:'1' };
 })();
 </script>
 
