@@ -14814,5 +14814,260 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+
+<!-- ═══════════ CRYPTO VICE ++ — preguntá, el guardia anti-estafa, señales, asesoría ═══════════ -->
+<style id="cvx-style">
+  #cw .cvx-panel{ position:absolute; inset:64px 0 0 0; z-index:5; overflow-y:auto; display:none;
+    -webkit-overflow-scrolling:touch; padding:20px 16px calc(110px + env(safe-area-inset-bottom,0px));
+    background:#08080C; font-family:'Space Mono',ui-monospace,monospace; color:#E6E4DE; }
+  #cw .cvx-panel.show{ display:block; }
+  .cvx-w{ max-width:760px; margin:0 auto; }
+  .cvx-eye{ font-size:8px; letter-spacing:4px; color:#6a6a78; margin-bottom:8px; }
+  .cvx-t{ font-family:'Space Grotesk',system-ui,sans-serif; font-weight:900; font-size:30px;
+    line-height:1.02; letter-spacing:-.8px; margin:0 0 6px; }
+  .cvx-t em{ font-style:italic; color:#F7931A; }
+  .cvx-sub{ font-size:12px; line-height:1.75; color:#9a9aa8; margin:0 0 20px; max-width:56ch; }
+  .cvx-h{ font-size:8px; letter-spacing:4px; color:#6a6a78; margin:22px 0 9px;
+    border-bottom:1px solid #1c1c26; padding-bottom:7px; }
+  .cvx-in,.cvx-ta{ width:100%; background:#0e0e14; border:1px solid #23232e; border-radius:6px;
+    color:#E6E4DE; font:400 13px 'Space Mono',ui-monospace,monospace; padding:12px; min-height:46px; margin-bottom:9px; }
+  .cvx-ta{ min-height:104px; line-height:1.7; resize:vertical; }
+  .cvx-in:focus-visible,.cvx-ta:focus-visible{ outline:2px solid #F7931A; outline-offset:1px; }
+  .cvx-b{ background:#F7931A; color:#08080C; border:none; border-radius:6px; padding:13px 17px;
+    font:700 11px 'Space Mono',monospace; letter-spacing:2px; cursor:pointer; min-height:46px; }
+  .cvx-b[disabled]{ opacity:.5; cursor:progress; }
+  .cvx-b2{ background:transparent; border:1px solid #23232e; color:#9a9aa8; border-radius:6px;
+    padding:12px 15px; font:400 10px 'Space Mono',monospace; letter-spacing:1px; cursor:pointer; min-height:46px; }
+  .cvx-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .cvx-out{ white-space:pre-wrap; line-height:1.8; font-size:12.5px; color:#d2d2dc; background:#0b0b11;
+    border:1px solid #1c1c26; border-left:3px solid #F7931A; border-radius:6px; padding:16px; margin-top:14px; }
+  .cvx-out.err{ border-left-color:#FF5B4A; color:#ff9a86; }
+  .cvx-card{ background:#0e0e14; border:1px solid #1c1c26; border-radius:8px; padding:14px 15px; margin-bottom:10px; }
+  .cvx-card b{ display:block; font-size:13px; color:#E6E4DE; margin-bottom:5px; }
+  .cvx-card i{ font-style:normal; font-size:11.5px; line-height:1.7; color:#9a9aa8; }
+  .cvx-chk{ display:flex; gap:11px; align-items:flex-start; padding:12px 0; border-bottom:1px solid #15151d; cursor:pointer; }
+  .cvx-chk input{ width:22px; height:22px; margin-top:1px; accent-color:#F7931A; flex:0 0 auto; }
+  .cvx-chk span{ font-size:12px; line-height:1.65; color:#c2c2ce; }
+  .cvx-chk.malo span{ color:#ff9a86; }
+  .cvx-warn{ background:#1a0f0c; border:1px solid #4a2216; border-radius:6px; padding:13px 14px;
+    font-size:11.5px; line-height:1.75; color:#ffb9a6; margin:14px 0; }
+  .cvx-ag{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:11px; }
+  .cvx-ag button{ font-size:9px; letter-spacing:1px; background:transparent; border:1px solid #23232e;
+    color:#8a8a98; border-radius:5px; padding:11px 12px; cursor:pointer; min-height:44px; }
+  .cvx-ag button.on{ background:#F7931A; color:#08080C; border-color:#F7931A; font-weight:700; }
+  @media(max-width:560px){ .cvx-t{ font-size:23px; } #cw .cvx-panel{ inset:96px 0 0 0; } }
+  @media(prefers-reduced-motion:reduce){ #cw .cvx-panel *{ animation:none !important; transition:none !important; } }
+</style>
+
+<script>
+// ═══ CRYPTO VICE ++ — preguntar, protegerse, señales, asesoría ═══
+(function(){
+  function esperar(){ const m=document.getElementById('cw-modes');
+    if(!m){ return setTimeout(esperar,300); } armar(m); }
+  esperar();
+
+  function armar(modos){
+    const $=id=>document.getElementById(id);
+    const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const cw=$('cw');
+    const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+    const TABS=[['cvx-ask','◈ PREGUNTÁ'],['cvx-guard','🛡 EL GUARDIA'],['cvx-book','◷ ASESORÍA']];
+
+    // pestañas nuevas junto a las que ya estaban
+    TABS.forEach(([k,l])=>{ if($('t-'+k)) return;
+      const b=document.createElement('button'); b.className='cwm'; b.id='t-'+k; b.textContent=l;
+      b.onclick=()=>ir(k); modos.appendChild(b); });
+    if(!$('t-cvx-sig')){ const b=document.createElement('button'); b.className='cwm'; b.id='t-cvx-sig';
+      b.textContent='⚑ SEÑALES';
+      b.onclick=()=>{ try{ if(window.CryptoWorld) window.CryptoWorld.close(); }catch(e){}
+        setTimeout(()=>{ if(window.CryptoSignals&&window.CryptoSignals.open) window.CryptoSignals.open();
+          else avisar('El mundo de señales no responde en esta página.'); },140); };
+      modos.appendChild(b); }
+
+    // los paneles
+    TABS.forEach(([k])=>{ if($(k)) return;
+      const d=document.createElement('div'); d.id=k; d.className='cvx-panel'; cw.appendChild(d); });
+
+    let actual=null;
+    function ocultarNativos(){ ['cw-lib','cw-mkt'].forEach(i=>{ const e=$(i); if(e) e.classList.remove('show'); });
+      const cs=$('cw-coinsel'); if(cs) cs.classList.remove('show'); }
+    function ir(k){
+      actual=k; ocultarNativos();
+      TABS.forEach(([x])=>{ const p=$(x); if(p) p.classList.toggle('show', x===k); });
+      document.querySelectorAll('#cw-modes .cwm').forEach(b=>b.classList.toggle('on', b.id==='t-'+k));
+      pintar(k); log('crypto','crypto vice → '+k);
+    }
+    // si tocan una pestaña original, las mías se apagan
+    modos.addEventListener('click',e=>{ const b=e.target.closest('.cwm'); if(!b||!b.dataset.m) return;
+      actual=null; TABS.forEach(([x])=>{ const p=$(x); if(p) p.classList.remove('show'); }); }, true);
+
+    function avisar(t){ let el=$('cvx-live');
+      if(!el){ el=document.createElement('div'); el.id='cvx-live'; el.setAttribute('aria-live','polite');
+        el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)'; cw.appendChild(el); }
+      el.textContent=t; }
+
+    // ── llamar al runner de verdad ──
+    async function correr(agente, prompt, out, btn, textoBtn){
+      out.className='cvx-out'; out.textContent='Pensando…';
+      if(btn){ btn.disabled=true; btn.textContent='CORRIENDO…'; }
+      try{
+        const r=await fetch('/api/run',{method:'POST',
+          headers:{'Content-Type':'application/json','x-run-token':'hk23-run-9x'},
+          body:JSON.stringify({action:'agent',agent:agente,prompt})});
+        const j=await r.json().catch(()=>({}));
+        if(!r.ok){ out.className='cvx-out err';
+          out.textContent='No corrió. HTTP '+r.status+(j.error?' — '+j.error:'')+
+            (r.status===429?'\n\nDemasiadas consultas seguidas. Esperá unos minutos.':'')+
+            (r.status===404?'\n\n/api/run no existe en este despliegue.':'');
+          return null; }
+        const t=j.text||j.output||j.result||JSON.stringify(j,null,2);
+        out.className='cvx-out'; out.textContent=t; return t;
+      }catch(e){ out.className='cvx-out err';
+        out.textContent='No se pudo llamar al agente: '+(e&&e.message||e); return null; }
+      finally{ if(btn){ btn.disabled=false; btn.textContent=textoBtn; } }
+    }
+
+    // ── PREGUNTÁ — el agente que enseña, no el que te vende ──
+    function pintarAsk(){
+      const p=$('cvx-ask');
+      p.innerHTML='<div class="cvx-w">'+
+        '<div class="cvx-eye">CRYPTO VICE · PREGUNTÁ SIN VERGÜENZA</div>'+
+        '<h2 class="cvx-t">NO HAY PREGUNTA<br><em>tonta.</em></h2>'+
+        '<p class="cvx-sub">Preguntá cualquier cosa. El que enseña acá te dice primero el riesgo, '+
+        'después la respuesta, y al final qué te conviene aprender enseguida. Nunca te va a decir "seguro".</p>'+
+        '<div class="cvx-ag">'+
+          '<button data-a="cryptoguia" class="on">◈ EMPEZANDO</button>'+
+          '<button data-a="futures">⚡ FUTUROS</button>'+
+          '<button data-a="analyst">◎ ANALIZAR</button>'+
+        '</div>'+
+        '<textarea class="cvx-ta" id="cvx-q" placeholder="¿qué es un stop loss y por qué todos dicen que lo use?"></textarea>'+
+        '<div class="cvx-row"><button class="cvx-b" id="cvx-qgo">▶ PREGUNTAR</button>'+
+        '<button class="cvx-b2" id="cvx-qcp" style="display:none">COPIAR RESPUESTA</button></div>'+
+        '<div class="cvx-h">SI RECIÉN EMPEZÁS, PROBÁ CON ESTAS</div>'+
+        ['¿qué es una frase semilla y por qué no se comparte?',
+         '¿cómo sé si una moneda es una estafa?',
+         'quiero poner 50 lucas, ¿por dónde empiezo sin cagarla?',
+         '¿qué significa apalancamiento 10x en la práctica?'].map(q=>
+          '<div class="cvx-card" data-q="'+esc(q)+'" style="cursor:pointer"><b>'+esc(q)+'</b>'+
+          '<i>tocá para preguntarla</i></div>').join('')+
+        '<div id="cvx-qout"></div>'+
+        '<div class="cvx-warn">Esto enseña; no es consejo financiero. Nadie que te quiera bien te va a pedir '+
+        'tu frase semilla, ni acá ni en ningún lado.</div></div>';
+      let ag='cryptoguia';
+      p.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ ag=b.dataset.a;
+        p.querySelectorAll('[data-a]').forEach(x=>x.classList.toggle('on',x===b)); });
+      p.querySelectorAll('[data-q]').forEach(c=>c.onclick=()=>{ $('cvx-q').value=c.dataset.q; $('cvx-qgo').click(); });
+      $('cvx-qgo').onclick=async()=>{
+        const q=($('cvx-q').value||'').trim(); const out=$('cvx-qout');
+        if(!q){ out.className='cvx-out err'; out.textContent='Escribí la pregunta primero.'; return; }
+        const t=await correr(ag,q,out,$('cvx-qgo'),'▶ PREGUNTAR');
+        const cp=$('cvx-qcp');
+        if(t){ cp.style.display=''; cp.onclick=()=>{ try{ navigator.clipboard.writeText(t); cp.textContent='✓ COPIADA';
+          setTimeout(()=>cp.textContent='COPIAR RESPUESTA',1600); }catch(e){} }; }
+      };
+    }
+
+    // ── EL GUARDIA — no te dice que algo es seguro. Te dice qué huele mal. ──
+    const CHECKS=[
+      ['¿Te prometieron un rendimiento fijo o garantizado?', 1],
+      ['¿Te apuran? ("queda poco", "cierra hoy", "últimos cupos")', 1],
+      ['¿Te pidieron tu frase semilla, tu clave o una captura de tu billetera?', 1],
+      ['¿Llegaste por un mensaje directo, un influencer o un grupo que no buscaste?', 1],
+      ['¿Te piden depositar primero para poder retirar?', 1],
+      ['¿El proyecto tiene equipo con nombre y cara públicos?', 0],
+      ['¿Podés retirar una parte chica antes de poner más?', 0],
+      ['¿Entendés vos mismo de dónde sale la ganancia?', 0]
+    ];
+    function pintarGuard(){
+      const p=$('cvx-guard');
+      p.innerHTML='<div class="cvx-w">'+
+        '<div class="cvx-eye">CRYPTO VICE · EL GUARDIA</div>'+
+        '<h2 class="cvx-t">NO TE DIGO QUE ES<br><em>seguro.</em></h2>'+
+        '<p class="cvx-sub">Nadie honesto puede decirte eso desde afuera. Lo que sí puedo hacer es '+
+        'encontrar lo que huele mal, y decirte en voz alta lo que no se puede verificar. '+
+        'Si ya mandaste plata o entregaste tu frase, decilo y eso va primero.</p>'+
+        '<div class="cvx-h">CHEQUEO RÁPIDO — 30 SEGUNDOS</div>'+
+        CHECKS.map(([t,malo],i)=>'<label class="cvx-chk'+(malo?' malo':'')+'">'+
+          '<input type="checkbox" data-i="'+i+'"><span>'+esc(t)+'</span></label>').join('')+
+        '<div id="cvx-score" class="cvx-warn" style="display:none"></div>'+
+        '<div class="cvx-h">CONTAME EL CASO</div>'+
+        '<textarea class="cvx-ta" id="cvx-g" placeholder="qué te ofrecieron, quién, por dónde te llegó, qué te piden…"></textarea>'+
+        '<div class="cvx-row"><button class="cvx-b" id="cvx-ggo">🛡 REVISAR</button></div>'+
+        '<div id="cvx-gout"></div>'+
+        '<div class="cvx-warn"><b>Regla sin excepciones:</b> tu frase semilla no se comparte nunca, con nadie, '+
+        'por ningún motivo. Ni soporte, ni un admin, ni yo. Si alguien te la pidió, eso es una estafa y no hay matiz.</div>'+
+        '</div>';
+      const score=()=>{
+        const marcadas=[...p.querySelectorAll('[data-i]')].filter(c=>c.checked).map(c=>+c.dataset.i);
+        const rojas=marcadas.filter(i=>CHECKS[i][1]===1).length;
+        const buenas=marcadas.filter(i=>CHECKS[i][1]===0).length;
+        const el=$('cvx-score');
+        if(!marcadas.length){ el.style.display='none'; return; }
+        el.style.display='';
+        el.innerHTML = rojas
+          ? '<b>'+rojas+' señal(es) de alarma.</b> Cada una por separado ya es motivo para frenar. '+
+            'No pongas un peso hasta entender por qué está ahí. Contame el caso acá abajo.'
+          : '<b>No marcaste ninguna señal de alarma</b> — y eso <u>no</u> significa que sea seguro. '+
+            'Significa que estas ocho preguntas no lo agarraron. '+(buenas?'':'Todavía no confirmaste nada a favor tampoco. ');
+      };
+      p.querySelectorAll('[data-i]').forEach(c=>c.onchange=score);
+      $('cvx-ggo').onclick=()=>{
+        const g=($('cvx-g').value||'').trim(); const out=$('cvx-gout');
+        if(!g){ out.className='cvx-out err'; out.textContent='Contame qué pasó y lo reviso.'; return; }
+        const marcadas=[...p.querySelectorAll('[data-i]')].filter(c=>c.checked)
+          .map(c=>'- '+CHECKS[+c.dataset.i][0]+' → SÍ').join('\n');
+        correr('scamwatch', g+(marcadas?'\n\nChequeo que ya marcó el usuario:\n'+marcadas:''), out, $('cvx-ggo'),'🛡 REVISAR');
+      };
+    }
+
+    // ── ASESORÍA — una sesión de verdad, con lo que hay ──
+    function pintarBook(){
+      const p=$('cvx-book');
+      let g=null; try{ g=JSON.parse(localStorage.getItem('hk23_asesoria')||'null'); }catch(e){}
+      p.innerHTML='<div class="cvx-w">'+
+        '<div class="cvx-eye">CRYPTO VICE · UNO A UNO</div>'+
+        '<h2 class="cvx-t">SESIÓN PARA<br><em>partir bien.</em></h2>'+
+        '<p class="cvx-sub">Una hora, vos y yo. Salís con tu billetera creada, tu frase guardada como corresponde, '+
+        'tu primera compra hecha y un plan que entendés. No con una lista de monedas para comprar.</p>'+
+        '<div class="cvx-card"><b>QUÉ INCLUYE</b><i>'+
+          '· Billetera creada y asegurada — la frase, dónde y cómo se guarda<br>'+
+          '· Tu primera operación hecha con vos mirando, no por vos<br>'+
+          '· Cómo reconocer una estafa antes de que te toque<br>'+
+          '· Un plan escrito para tus próximos 90 días</i></div>'+
+        '<div class="cvx-h">RESERVAR</div>'+
+        '<input class="cvx-in" id="cvx-bn" placeholder="tu nombre" value="'+esc((g&&g.n)||'')+'">'+
+        '<input class="cvx-in" id="cvx-bc" placeholder="tu correo o WhatsApp" value="'+esc((g&&g.c)||'')+'">'+
+        '<textarea class="cvx-ta" id="cvx-bq" placeholder="¿en qué estás hoy? ¿ya compraste algo? ¿qué te frena?">'+esc((g&&g.q)||'')+'</textarea>'+
+        '<div class="cvx-row"><button class="cvx-b" id="cvx-bgo">◷ PEDIR LA SESIÓN</button></div>'+
+        '<div id="cvx-bout"></div></div>';
+      $('cvx-bgo').onclick=async()=>{
+        const n=($('cvx-bn').value||'').trim(), c=($('cvx-bc').value||'').trim(), q=($('cvx-bq').value||'').trim();
+        const out=$('cvx-bout');
+        if(!n||!c){ out.className='cvx-out err'; out.textContent='Necesito tu nombre y por dónde te contesto.'; return; }
+        const row={ n, c, q, cuando:new Date().toISOString() };
+        let guardado=false;
+        try{ localStorage.setItem('hk23_asesoria',JSON.stringify(row));
+          guardado = !!JSON.parse(localStorage.getItem('hk23_asesoria')||'null'); }catch(e){}
+        out.className='cvx-out';
+        out.textContent = guardado
+          ? 'Pedido anotado en este dispositivo:\n\n'+n+'\n'+c+(q?'\n\n'+q:'')+
+            '\n\n— Todavía no viaja solo: esto queda guardado acá hasta que conectemos el envío. '+
+            'Copiá y mandámelo, o esperá a que lo enchufe a Supabase.'
+          : 'No se pudo guardar en este dispositivo. Copiá tus datos y mandámelos directo.';
+        avisar('Pedido de sesión anotado.');
+        log('crypto','pidió una sesión de asesoría');
+      };
+    }
+
+    function pintar(k){ if(k==='cvx-ask') return pintarAsk();
+      if(k==='cvx-guard') return pintarGuard(); if(k==='cvx-book') return pintarBook(); }
+
+    window.CryptoVice={ preguntar:()=>ir('cvx-ask'), guardia:()=>ir('cvx-guard'),
+      asesoria:()=>ir('cvx-book'), version:'1' };
+  }
+})();
+</script>
+
 </body>
 </html>
