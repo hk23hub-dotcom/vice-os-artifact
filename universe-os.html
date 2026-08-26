@@ -12931,6 +12931,7 @@ addEventListener('DOMContentLoaded', function(){
   const GROUPS=[
     ['◈ TU UNIVERSO', [
       ['▣','HK23ART','tus obras en 3D','#E8C86A',()=>call(window.HK23Art&&window.HK23Art.open)],
+      ['⛳','VICEGOLFER','el green se juega','#C6A15B',()=>call(window.ViceGolfer&&window.ViceGolfer.open)],
       ['◆','FORMAS','jugá con los cuerpos','#FF6B00',()=>call(window.Formas&&window.Formas.open)],
       ['◉','MÚSICA','tu planeta de temas','#E8C86A',()=>call(window.MusicaHK&&window.MusicaHK.open)],
       ['▦','DASHBOARD','ejecutar · vender · referidos','#39d0ff',()=>call(window.DASH&&window.DASH.toggle)],
@@ -15402,6 +15403,374 @@ addEventListener('DOMContentLoaded', function(){
       { attributes:true, subtree:true, attributeFilter:['class','style'] });
   };
   arranca();
+})();
+</script>
+
+
+<!-- ═══════════ VICEGOLFER — no un planeta: el green. Tu marca, tu protocolo, tu línea al 2030. ═══════════ -->
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+<style id="vg-style">
+  #vg{ position:fixed; inset:0; z-index:976; display:none; background:#060608; overflow:hidden;
+    font-family:'Montserrat',system-ui,sans-serif; color:#e8e8ec; }
+  #vg.open{ display:block; }
+  #vg-cv{ position:absolute; inset:0; width:100%; height:100%; touch-action:none; }
+  .vg-top{ position:absolute; left:0; right:0; top:0; z-index:3; display:flex; align-items:center; gap:10px;
+    padding:14px; padding-top:calc(14px + env(safe-area-inset-top,0px));
+    background:linear-gradient(#060608E8,#06060800); pointer-events:none; }
+  .vg-top > *{ pointer-events:auto; }
+  .vg-top b{ font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:3px; line-height:1;
+    color:#e8e8ec; font-weight:400; }
+  .vg-top b em{ font-style:normal; color:#C6A15B; }
+  .vg-top i{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:3px; color:#5a5a66; font-style:normal; }
+  .vg-x{ margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2px;
+    color:#060608; background:#e8e8ec; border:none; border-radius:3px; padding:11px 15px; cursor:pointer; min-height:44px; }
+  .vg-tabs{ position:absolute; left:0; right:0; bottom:0; z-index:3; display:flex; gap:6px; overflow-x:auto;
+    padding:12px 14px calc(12px + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(#06060800,#060608E8 40%); -webkit-overflow-scrolling:touch; }
+  .vg-t{ flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px;
+    color:#a0a0aa; background:transparent; border:1px solid #2a2a32; border-radius:3px;
+    padding:11px 14px; cursor:pointer; min-height:44px; }
+  .vg-t.on{ background:#C6A15B; color:#060608; border-color:#C6A15B; font-weight:700; }
+  .vg-t:focus-visible{ outline:2px solid #C6A15B; outline-offset:2px; }
+  .vg-hud{ position:absolute; left:14px; top:74px; z-index:3; font-family:'JetBrains Mono',monospace;
+    font-size:10px; letter-spacing:1px; color:#a0a0aa; line-height:2; pointer-events:none; }
+  .vg-hud b{ color:#C6A15B; font-weight:700; }
+  .vg-dists{ position:absolute; right:14px; top:74px; z-index:3; display:flex; flex-direction:column; gap:6px; }
+  .vg-d{ font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:2px; color:#a0a0aa;
+    background:#0e0f14CC; border:1px solid #2a2a32; border-radius:3px; padding:10px 13px;
+    cursor:pointer; min-height:44px; min-width:64px; text-align:center; }
+  .vg-d.on{ background:#C6A15B; color:#060608; border-color:#C6A15B; font-weight:700; }
+  .vg-panel{ position:absolute; inset:0; z-index:6; display:none; background:#060608F5; overflow-y:auto;
+    -webkit-overflow-scrolling:touch; }
+  .vg-panel.show{ display:block; }
+  .vp-w{ max-width:680px; margin:0 auto; padding:88px 18px calc(96px + env(safe-area-inset-bottom,0px)); }
+  .vp-eye{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:4px; color:#5a5a66; margin-bottom:8px; }
+  .vp-t{ font-family:'Bebas Neue',sans-serif; font-size:44px; letter-spacing:2px; line-height:.95;
+    margin:0 0 14px; font-weight:400; }
+  .vp-t em{ font-style:normal; color:#C6A15B; }
+  .vp-h{ font-family:'JetBrains Mono',monospace; font-size:8px; letter-spacing:4px; color:#5a5a66;
+    margin:24px 0 10px; border-bottom:1px solid #1c1d24; padding-bottom:7px; }
+  .vp-card{ background:#0e0f14; border:1px solid #1c1d24; border-radius:6px; padding:14px 15px; margin-bottom:9px; }
+  .vp-card b{ display:block; font-size:14px; font-weight:800; margin-bottom:4px; }
+  .vp-card i{ display:block; font-style:normal; font-family:'JetBrains Mono',monospace; font-size:9px;
+    letter-spacing:1px; color:#5a5a66; margin-bottom:6px; }
+  .vp-card p{ margin:0; font-size:12.5px; line-height:1.7; color:#a0a0aa; }
+  .vp-in,.vp-ta,.vp-sel{ width:100%; background:#0e0f14; border:1px solid #2a2a32; border-radius:4px;
+    color:#e8e8ec; font:400 13px 'JetBrains Mono',monospace; padding:12px; min-height:46px; margin-bottom:9px; }
+  .vp-ta{ min-height:80px; line-height:1.7; resize:vertical; font-family:'Montserrat',sans-serif; }
+  .vp-in:focus-visible,.vp-ta:focus-visible{ outline:2px solid #C6A15B; outline-offset:1px; }
+  .vp-b{ background:#C6A15B; color:#060608; border:none; border-radius:4px; padding:13px 17px;
+    font:700 11px 'JetBrains Mono',monospace; letter-spacing:2px; cursor:pointer; min-height:46px; }
+  .vp-b2{ background:transparent; border:1px solid #2a2a32; color:#a0a0aa; border-radius:4px;
+    padding:12px 15px; font:400 10px 'JetBrains Mono',monospace; letter-spacing:1px; cursor:pointer; min-height:46px; }
+  .vp-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .vp-note{ font-size:11px; line-height:1.75; color:#5a5a66; border-left:2px solid #1c1d24;
+    padding-left:11px; margin:14px 0 0; }
+  .vp-stat{ display:inline-block; font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1px;
+    border-radius:3px; padding:4px 8px; font-weight:700; }
+  /* la línea al 2030 */
+  .vg-tl{ position:relative; padding-left:26px; }
+  .vg-tl:before{ content:''; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:#2a2a32; }
+  .vg-hito{ position:relative; margin-bottom:14px; }
+  .vg-hito:before{ content:''; position:absolute; left:-24px; top:6px; width:12px; height:12px;
+    border-radius:50%; background:#0e0f14; border:2px solid #5a5a66; }
+  .vg-hito.hecho:before{ background:#C6A15B; border-color:#C6A15B; }
+  .vg-hito .anio{ font-family:'Bebas Neue',sans-serif; font-size:19px; letter-spacing:2px; color:#C6A15B; }
+  @media(prefers-reduced-motion:reduce){ #vg *{ animation:none !important; transition:none !important; } }
+</style>
+<div id="vg" role="dialog" aria-modal="true" aria-label="ViceGolfer">
+  <canvas id="vg-cv"></canvas>
+  <div class="vg-top"><b>VICE<em>GOLFER</em></b><i>ARRASTRÁ DESDE LA BOLA · SOLTÁ PARA PATEAR</i>
+    <button class="vg-x" id="vg-close">✕</button></div>
+  <div class="vg-hud" id="vg-hud"></div>
+  <div class="vg-dists" id="vg-dists"></div>
+  <div class="vg-tabs" id="vg-tabs"></div>
+  <div class="vg-panel" id="vg-p"></div>
+</div>
+
+<script>
+// ═══ VICEGOLFER — el green se juega. El putt de verdad, con caída y con registro. ═══
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const log=(a,b)=>{ try{ (window.hkLog||function(){})(a,b); }catch(e){} };
+  const TAU=Math.PI*2;
+  const st={ get(k,d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d; }catch(e){ return d; } },
+    set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); return true; }catch(e){ return false; } } };
+
+  // ── el protocolo: las distancias de tu app ──
+  const DISTS=[['2FT',2],['3FT',3],['4FT',4],['5FT',5],['MT',9]];
+  let dist='3FT';
+  const hoy=()=>new Date().toISOString().slice(0,10);
+  const prot=()=>st.get('hk23_vg_prot',{});
+  function anotar(hecho){
+    const p=prot(); const d=p[hoy()]=p[hoy()]||{};
+    const r=d[dist]=d[dist]||{m:0,a:0};
+    r.a++; if(hecho) r.m++;
+    st.set('hk23_vg_prot',p); hud();
+  }
+
+  // ── el green: física de putt con caída ──
+  const cv=$('vg-cv'), g=cv.getContext('2d');
+  let W=0,H=0,DPR=1, corriendo=false;
+  function fit(){ const r=cv.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1);
+    const w=Math.round(r.width*DPR), h=Math.round(r.height*DPR);
+    if(cv.width!==w||cv.height!==h){ cv.width=w; cv.height=h; } W=cv.width; H=cv.height; }
+  addEventListener('resize',fit);
+
+  // mundo: x lateral [-1,1] · z profundidad [0..D]. La caída empuja en x.
+  const M={ D:10, hx:0, caida:0, bola:{x:0,z:0,vx:0,vz:0,viva:false}, resultado:'', racha:0, mejor:st.get('hk23_vg_racha',0) };
+  function servir(){
+    const dd=DISTS.find(d=>d[0]===dist)[1];
+    M.D=dd+2; M.hx=(Math.random()*2-1)*Math.min(0.5,dd*0.06);
+    M.caida=(Math.random()*2-1)*0.9;              // la pendiente de este putt
+    M.bola={x:0,z:0,vx:0,vz:0,viva:false}; M.resultado='';
+  }
+  function proy(x,z){                              // perspectiva: lejos = angosto y alto
+    const t=z/M.D, per=1-0.62*t;
+    return { x: W/2 + x*(W*0.34)*per, y: H*0.82 - t*(H*0.58), per };
+  }
+  function fisica(dt){
+    const b=M.bola; if(!b.viva) return;
+    b.vx += M.caida*0.16*dt;                       // la caída trabaja todo el camino
+    b.x += b.vx*dt; b.z += b.vz*dt;
+    const fr=Math.exp(-1.15*dt); b.vx*=fr; b.vz*=fr;
+    const v=Math.hypot(b.vx,b.vz);
+    const dh=Math.hypot((b.x-M.hx)*1.0,(b.z-(M.D-0.55))*1.0);
+    if(dh<0.16 && v<2.1){ b.viva=false; M.resultado='ADENTRO';
+      M.racha++; if(M.racha>M.mejor){ M.mejor=M.racha; st.set('hk23_vg_racha',M.mejor); }
+      anotar(true); avisar('Adentro. Racha '+M.racha+'.'); setTimeout(servir,900); return; }
+    if(dh<0.16 && v>=2.1){ b.vx+=(b.x-M.hx)*3; }   // muy fuerte: escupida
+    if(v<0.07 || b.z>M.D+0.6 || Math.abs(b.x)>1.4){ b.viva=false;
+      M.resultado = b.z<M.D-1.2 ? 'CORTO' : (b.z>M.D+0.2?'LARGO':'AFUERA');
+      M.racha=0; anotar(false); avisar(M.resultado+'.'); setTimeout(servir,900); }
+  }
+  let t0=null, arrastre=null;
+  function pintar(ts){
+    if(!corriendo) return;
+    requestAnimationFrame(pintar);
+    fit(); const dt=t0?Math.min(0.05,(ts-t0)/1000):0.016; t0=ts; fisica(dt);
+    // cielo nocturno de tu marca
+    g.fillStyle='#060608'; g.fillRect(0,0,W,H);
+    for(let i=0;i<70;i++){ const a=Math.sin(i*12.9898)*43758.5453,b2=Math.sin(i*78.233)*12345.6789;
+      g.globalAlpha=0.05+((Math.sin(i*3.17)+1)/2)*0.22; g.fillStyle='#e8e8ec';
+      g.beginPath(); g.arc((a-Math.floor(a))*W,(b2-Math.floor(b2))*H*0.4,Math.max(0.6,W*0.0006),0,TAU); g.fill(); }
+    g.globalAlpha=1;
+    // el green en perspectiva
+    const p00=proy(-1.15,0), p10=proy(1.15,0), p01=proy(-1.15,M.D), p11=proy(1.15,M.D);
+    const grd=g.createLinearGradient(0,p01.y,0,p00.y);
+    grd.addColorStop(0,'#0c2416'); grd.addColorStop(1,'#123420');
+    g.beginPath(); g.moveTo(p00.x,p00.y); g.lineTo(p10.x,p10.y); g.lineTo(p11.x,p11.y); g.lineTo(p01.x,p01.y);
+    g.closePath(); g.fillStyle=grd; g.fill();
+    g.strokeStyle='#C6A15B33'; g.lineWidth=Math.max(1,W*0.001); g.stroke();
+    for(let i=1;i<5;i++){ const a=proy(-1.15,M.D*i/5), b3=proy(1.15,M.D*i/5);
+      g.beginPath(); g.moveTo(a.x,a.y); g.lineTo(b3.x,b3.y); g.strokeStyle='rgba(230,240,235,.045)'; g.stroke(); }
+    // la caída, dicha con flechas — no adivinás: leés
+    for(let i=0;i<3;i++){ const p=proy(M.caida>0?-0.55:0.55, M.D*(0.35+i*0.18));
+      g.font='700 '+Math.max(11,W*0.012)+'px "JetBrains Mono",monospace';
+      g.fillStyle='rgba(198,161,91,.5)'; g.textAlign='center';
+      g.fillText(M.caida>0?'→':'←', p.x + (M.caida>0?1:-1)*i*W*0.012, p.y); }
+    // el hoyo y la bandera
+    const ph=proy(M.hx,M.D-0.55);
+    g.beginPath(); g.ellipse(ph.x,ph.y,Math.max(5,W*0.011)*ph.per,Math.max(2.4,W*0.0052)*ph.per,0,0,TAU);
+    g.fillStyle='#04070a'; g.fill();
+    g.beginPath(); g.moveTo(ph.x,ph.y); g.lineTo(ph.x,ph.y-H*0.075*ph.per);
+    g.strokeStyle='#e8e8ec'; g.lineWidth=Math.max(1.2,W*0.0014); g.stroke();
+    g.beginPath(); g.moveTo(ph.x,ph.y-H*0.075*ph.per); g.lineTo(ph.x+W*0.022*ph.per,ph.y-H*0.062*ph.per);
+    g.lineTo(ph.x,ph.y-H*0.05*ph.per); g.closePath(); g.fillStyle='#ef4444'; g.fill();
+    // la bola
+    const pb=proy(M.bola.x,M.bola.z);
+    if(arrastre){ g.beginPath(); g.moveTo(pb.x,pb.y);
+      g.lineTo(pb.x-(arrastre.dx)*1.6, pb.y-(arrastre.dy)*1.6);
+      g.strokeStyle='#C6A15B'; g.lineWidth=Math.max(1.5,W*0.0018); g.setLineDash([6,5]); g.stroke(); g.setLineDash([]); }
+    g.beginPath(); g.arc(pb.x,pb.y,Math.max(4.5,W*0.0075)*pb.per,0,TAU);
+    g.fillStyle='#F5F5F5'; g.fill();
+    g.beginPath(); g.arc(pb.x-1.5,pb.y-1.5,Math.max(1.6,W*0.0026)*pb.per,0,TAU);
+    g.fillStyle='#ffffff'; g.fill();
+    if(M.resultado){ g.font='400 '+Math.max(30,W*0.05)+'px "Bebas Neue",sans-serif'; g.textAlign='center';
+      g.fillStyle=M.resultado==='ADENTRO'?'#C6A15B':'#ef4444';
+      g.fillText(M.resultado, W/2, H*0.30); }
+  }
+  // patear: arrastrás desde la bola hacia atrás y soltás
+  cv.addEventListener('pointerdown',e=>{ if(M.bola.viva) return;
+    const r=cv.getBoundingClientRect(); const pb=proy(M.bola.x,M.bola.z);
+    const sx=(e.clientX-r.left)*(W/r.width), sy=(e.clientY-r.top)*(H/r.height);
+    if(Math.hypot(sx-pb.x,sy-pb.y)<Math.max(44*DPR, W*0.06)){ arrastre={x0:sx,y0:sy,dx:0,dy:0};
+      cv.setPointerCapture(e.pointerId); } });
+  cv.addEventListener('pointermove',e=>{ if(!arrastre) return;
+    const r=cv.getBoundingClientRect();
+    arrastre.dx=(e.clientX-r.left)*(W/r.width)-arrastre.x0;
+    arrastre.dy=(e.clientY-r.top)*(H/r.height)-arrastre.y0; });
+  cv.addEventListener('pointerup',()=>{ if(!arrastre) return;
+    const fuerza=Math.hypot(arrastre.dx,arrastre.dy)/(H*0.28);
+    if(fuerza>0.08){ M.bola.vz=Math.min(1.15,fuerza*1.05)*3.3*(M.D-0.55);   // fuerza ~0.30 = el putt justo; la fricción ya no lo hace imposible
+      M.bola.vx=(-arrastre.dx/(W*0.3))*2.2; M.bola.viva=true; M.resultado=''; }
+    arrastre=null; });
+  function hud(){
+    const p=prot()[hoy()]||{}; const r=p[dist]||{m:0,a:0};
+    const tot=Object.values(p).reduce((s,x)=>({m:s.m+x.m,a:s.a+x.a}),{m:0,a:0});
+    $('vg-hud').innerHTML='<b>'+dist+'</b> hoy: <b>'+r.m+'/'+r.a+'</b><br>'+
+      'protocolo hoy: <b>'+tot.m+'/'+tot.a+'</b> de 100<br>'+
+      'racha: <b>'+M.racha+'</b> · mejor: <b>'+M.mejor+'</b><br>'+
+      'caída: <b>'+(M.caida>0?'IZQ → DER':'DER → IZQ')+'</b>';
+  }
+
+  // ── las secciones: tarjetas, tiros, la línea al 2030, shop, book ──
+  const TABS=[['green','⛳ GREEN'],['cards','▤ TARJETAS'],['tiros','★ MIS TIROS'],
+              ['linea','→ 2030'],['shop','◈ PRO SHOP'],['book','◷ BOOK ME']];
+  let tab='green';
+  function avisar(t){ let el=$('vg-live');
+    if(!el){ el=document.createElement('div'); el.id='vg-live'; el.setAttribute('aria-live','polite');
+      el.style.cssText='position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)'; $('vg').appendChild(el); }
+    el.textContent=t; }
+  function ir(t){ tab=t;
+    document.querySelectorAll('#vg-tabs .vg-t').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    const enGreen=t==='green';
+    $('vg-p').classList.toggle('show',!enGreen);
+    $('vg-dists').style.display=enGreen?'':'none';
+    $('vg-hud').style.display=enGreen?'':'none';
+    if(!enGreen) pinta(t); }
+
+  const lee=k=>st.get(k,[]);
+  function formCard(){
+    return '<div class="vp-h">NUEVA TARJETA</div>'+
+      '<input class="vp-in" id="vc-c" placeholder="cancha">'+
+      '<div class="vp-row"><input class="vp-in" id="vc-f" type="date" style="flex:1;min-width:130px">'+
+      '<input class="vp-in" id="vc-s" placeholder="score" inputmode="numeric" style="flex:1;min-width:90px">'+
+      '<input class="vp-in" id="vc-p" placeholder="putts" inputmode="numeric" style="flex:1;min-width:90px"></div>'+
+      '<button class="vp-b" id="vc-ok">＋ GUARDAR RONDA</button>';
+  }
+  function pinta(t){
+    const P=$('vg-p');
+    if(t==='cards'){
+      const C=lee('hk23_vg_cards');
+      P.innerHTML='<div class="vp-w"><div class="vp-eye">VICEGOLFER · SCORECARDS</div>'+
+        '<h2 class="vp-t">TUS <em>RONDAS.</em></h2>'+
+        (C.length? C.slice().reverse().map(c=>'<div class="vp-card"><b>'+esc(c.c||'—')+
+          ' <span class="vp-stat" style="background:#C6A15B;color:#060608">'+esc(c.s||'—')+'</span></b>'+
+          '<i>'+esc(c.f||'')+' · '+esc(c.p||'—')+' putts</i></div>').join('')
+        : '<div class="vp-card"><p>Sin rondas todavía. La primera tarjeta se carga acá abajo — real, no de ejemplo.</p></div>')+
+        formCard()+'</div>';
+      $('vc-ok').onclick=()=>{ const c={c:($('vc-c').value||'').trim(), f:$('vc-f').value,
+          s:($('vc-s').value||'').trim(), p:($('vc-p').value||'').trim()};
+        if(!c.c||!c.s){ avisar('Cancha y score, mínimo.'); return; }
+        const C2=lee('hk23_vg_cards'); C2.push(c); st.set('hk23_vg_cards',C2);
+        avisar(lee('hk23_vg_cards').length===C2.length?'Ronda guardada.':'No se pudo guardar.'); pinta('cards'); };
+      return;
+    }
+    if(t==='tiros'){
+      const T=lee('hk23_vg_tiros');
+      P.innerHTML='<div class="vp-w"><div class="vp-eye">VICEGOLFER · DOCUMENTADOS</div>'+
+        '<h2 class="vp-t">MIS MEJORES <em>TIROS.</em></h2>'+
+        (T.length? T.slice().reverse().map(x=>'<div class="vp-card"><b>'+esc(x.t||'—')+'</b>'+
+          '<i>'+esc(x.d||'')+(x.pa?' · '+esc(x.pa):'')+'</i><p>'+esc(x.n||'')+'</p>'+
+          (x.u?'<p><a href="'+esc(x.u)+'" target="_blank" rel="noopener" style="color:#C6A15B">▸ VER EL VIDEO</a></p>':'')+
+          '</div>').join('')
+        : '<div class="vp-card"><p>Ninguno documentado todavía. El primero que cargues queda acá para siempre.</p></div>')+
+        '<div class="vp-h">DOCUMENTAR UNO</div>'+
+        '<input class="vp-in" id="vt-t" placeholder="el tiro — ej: hierro 7 al green del 12">'+
+        '<div class="vp-row"><input class="vp-in" id="vt-d" placeholder="dónde" style="flex:2;min-width:130px">'+
+        '<input class="vp-in" id="vt-p" placeholder="cuándo" style="flex:1;min-width:100px"></div>'+
+        '<input class="vp-in" id="vt-u" placeholder="link al video (si hay)">'+
+        '<textarea class="vp-ta" id="vt-n" placeholder="qué pasó — contalo como fue"></textarea>'+
+        '<button class="vp-b" id="vt-ok">★ DOCUMENTARLO</button></div>';
+      $('vt-ok').onclick=()=>{ const x={t:($('vt-t').value||'').trim(), d:($('vt-d').value||'').trim(),
+          pa:($('vt-p').value||'').trim(), n:($('vt-n').value||'').trim(),
+          u:/^https?:\/\//i.test($('vt-u').value||'')?encodeURI($('vt-u').value):''};
+        if(!x.t){ avisar('Contame cuál fue el tiro.'); return; }
+        const T2=lee('hk23_vg_tiros'); T2.push(x); st.set('hk23_vg_tiros',T2);
+        avisar('Tiro documentado.'); pinta('tiros'); };
+      return;
+    }
+    if(t==='linea'){
+      let H=st.get('hk23_vg_hitos',null);
+      if(!H){ H=[ {a:'2026',t:'CONSTRUIR CORE DE PERFORMANCE',hecho:false,bp:true},
+                  {a:'2027',t:'LANZAR APP MVP',hecho:false,bp:true} ];
+        st.set('hk23_vg_hitos',H); }
+      P.innerHTML='<div class="vp-w"><div class="vp-eye">VICEGOLFER · LA LÍNEA</div>'+
+        '<h2 class="vp-t">DE ACÁ AL <em>2030.</em></h2>'+
+        '<div class="vg-tl">'+H.map((h,i)=>'<div class="vg-hito'+(h.hecho?' hecho':'')+'">'+
+          '<div class="anio">'+esc(h.a)+'</div><div class="vp-card" style="margin:6px 0 0">'+
+          '<b>'+esc(h.t)+'</b>'+(h.bp?'<i>de tu blueprint</i>':'')+
+          '<div class="vp-row" style="margin-top:8px">'+
+          '<button class="vp-b2" data-th="'+i+'">'+(h.hecho?'✓ LOGRADO':'MARCAR LOGRADO')+'</button>'+
+          '<button class="vp-b2" data-xh="'+i+'">✕</button></div></div></div>').join('')+'</div>'+
+        '<div class="vp-h">SUMAR UN HITO</div>'+
+        '<div class="vp-row"><input class="vp-in" id="vh-a" placeholder="año" inputmode="numeric" style="flex:0 0 90px">'+
+        '<input class="vp-in" id="vh-t" placeholder="el hito" style="flex:1;min-width:160px"></div>'+
+        '<button class="vp-b" id="vh-ok">＋ PONERLO EN LA LÍNEA</button>'+
+        '<p class="vp-note">Los dos primeros salen de tu blueprint — el resto de las fases no pude leerlas '+
+        'del archivo, así que no las inventé. Cargalas como son.</p></div>';
+      P.querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{ const H2=st.get('hk23_vg_hitos',[]);
+        H2[+b.dataset.th].hecho=!H2[+b.dataset.th].hecho; st.set('hk23_vg_hitos',H2); pinta('linea'); });
+      P.querySelectorAll('[data-xh]').forEach(b=>b.onclick=()=>{ const H2=st.get('hk23_vg_hitos',[]);
+        H2.splice(+b.dataset.xh,1); st.set('hk23_vg_hitos',H2); pinta('linea'); });
+      $('vh-ok').onclick=()=>{ const a=($('vh-a').value||'').trim(), t2=($('vh-t').value||'').trim();
+        if(!a||!t2){ avisar('Año y qué.'); return; }
+        const H2=st.get('hk23_vg_hitos',[]); H2.push({a,t:t2,hecho:false});
+        H2.sort((x,y)=>String(x.a).localeCompare(String(y.a))); st.set('hk23_vg_hitos',H2); pinta('linea'); };
+      return;
+    }
+    if(t==='shop'){
+      P.innerHTML='<div class="vp-w"><div class="vp-eye">VICEGOLFER · MERCH</div>'+
+        '<h2 class="vp-t">PRO <em>SHOP.</em></h2>'+
+        '<div class="vp-card"><p>El estante existe y está vacío — no te voy a mostrar merch inventado. '+
+        'Los productos se crean desde el DASHBOARD → pestaña VENDER, con precio y link de pago, '+
+        'y van a aparecer acá cuando existan.</p>'+
+        '<div class="vp-row" style="margin-top:10px"><button class="vp-b" id="vs-go">▦ ABRIR VENDER</button></div></div></div>';
+      $('vs-go').onclick=()=>{ cerrar(); setTimeout(()=>{ try{ window.DASH.toggle(); window.DASHX.vender(); }catch(e){} },160); };
+      return;
+    }
+    if(t==='book'){
+      const gset=st.get('hk23_vg_book',null);
+      P.innerHTML='<div class="vp-w"><div class="vp-eye">VICEGOLFER · UNO A UNO</div>'+
+        '<h2 class="vp-t">SESIÓN <em>CONMIGO.</em></h2>'+
+        '<div class="vp-card"><b>QUÉ INCLUYE</b><p>· Tu swing filmado y leído<br>'+
+        '· El 100 Putts Protocol calibrado a tu distancia débil<br>'+
+        '· Un plan de entrenamiento que cabe en tu semana</p></div>'+
+        '<input class="vp-in" id="vb-n" placeholder="tu nombre" value="'+esc((gset&&gset.n)||'')+'">'+
+        '<input class="vp-in" id="vb-c" placeholder="correo o WhatsApp" value="'+esc((gset&&gset.c)||'')+'">'+
+        '<textarea class="vp-ta" id="vb-q" placeholder="tu hándicap, qué te cuesta, qué querés lograr">'+esc((gset&&gset.q)||'')+'</textarea>'+
+        '<button class="vp-b" id="vb-ok">◷ PEDIR LA SESIÓN</button><div id="vb-out"></div></div>';
+      $('vb-ok').onclick=()=>{ const n=($('vb-n').value||'').trim(), c=($('vb-c').value||'').trim();
+        const out=$('vb-out');
+        if(!n||!c){ out.innerHTML='<p class="vp-note" style="color:#ef4444">Nombre y contacto, mínimo.</p>'; return; }
+        const row={n,c,q:($('vb-q').value||'').trim(),cuando:new Date().toISOString()};
+        const ok=st.set('hk23_vg_book',row);
+        out.innerHTML='<p class="vp-note">'+(ok&&st.get('hk23_vg_book',null)
+          ? 'Pedido anotado en este dispositivo. Todavía no viaja solo — copiámelo o esperá a que lo conecte.'
+          : 'No se pudo guardar acá. Copiá tus datos y mandámelos directo.')+'</p>';
+        log('golf','pidió sesión'); };
+      return;
+    }
+  }
+
+  // ── armar y abrir ──
+  $('vg-tabs').innerHTML=TABS.map(([k,l])=>'<button class="vg-t'+(k==='green'?' on':'')+'" data-t="'+k+'">'+l+'</button>').join('');
+  document.querySelectorAll('#vg-tabs .vg-t').forEach(b=>b.onclick=()=>ir(b.dataset.t));
+  $('vg-dists').innerHTML=DISTS.map(([k])=>'<button class="vg-d'+(k===dist?' on':'')+'" data-d="'+k+'">'+k+'</button>').join('');
+  document.querySelectorAll('.vg-d').forEach(b=>b.onclick=()=>{ dist=b.dataset.d;
+    document.querySelectorAll('.vg-d').forEach(x=>x.classList.toggle('on',x===b)); servir(); hud(); });
+
+  let ultimo=null;
+  function abrir(){ const el=$('vg'); if(el.classList.contains('open')) return;
+    el.classList.add('open'); ultimo=document.activeElement;
+    corriendo=true; t0=null; fit(); servir(); hud(); ir('green'); requestAnimationFrame(pintar);
+    setTimeout(()=>{ const b=$('vg-close'); if(b) b.focus(); },30);
+    log('golf','entró a VICEGOLFER'); }
+  function cerrar(){ const el=$('vg'); if(!el.classList.contains('open')) return;
+    corriendo=false; el.classList.remove('open');
+    if(ultimo&&ultimo.focus) ultimo.focus(); ultimo=null; }
+  $('vg-close').onclick=cerrar;
+  addEventListener('keydown',e=>{
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(!$('vg').classList.contains('open')) return;
+    if(e.key==='Escape'){ e.stopImmediatePropagation();
+      if(tab!=='green') ir('green'); else cerrar(); }
+  }, true);
+
+  window.ViceGolfer={ open:abrir, close:cerrar, ir, protocolo:()=>st.get('hk23_vg_prot',{}), version:'1' };
 })();
 </script>
 
