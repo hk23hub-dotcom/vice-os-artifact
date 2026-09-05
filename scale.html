@@ -2,17 +2,26 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Motivation Scale &middot; HK23</title>
 <meta name="description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, unlock the vault, and turn today's fire into a post.">
 <meta property="og:title" content="Motivation Scale &middot; HK23">
 <meta property="og:description" content="A daily 0-10 motivation check-in. Log your level, keep the streak, unlock the vault, and turn today's fire into a post.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://hk23universe.vercel.app/scale">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#128293;</text></svg>">
+<meta name="theme-color" content="#0c0a08">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Scale">
+<link rel="manifest" href="/scale-manifest.webmanifest">
+<link rel="apple-touch-icon" href="/scale-icon-180.png">
+<link rel="icon" href="/scale-icon-192.png" type="image/png">
 <style>*{box-sizing:border-box}</style>
 </head>
 <body>
+
+<meta charset="utf-8">
 <style>
   @font-face {
     font-family: 'Anton';
@@ -1125,10 +1134,10 @@
     { k: 'one', text: { es: 'Una conversación nueva abre una puerta. Y una puerta lleva a otras.', en: 'One new conversation opens a door. And a door leads to others.', pt: 'Uma conversa nova abre uma porta. E uma porta leva a outras.' } },
     { k: 'one', text: { es: 'No es magia. Es repetición. Respeta lo mínimo.', en: 'It is not magic. It is repetition. Respect the minimum.', pt: 'Não é mágica. É repetição. Respeite o mínimo.' } },
     { k: 'one', text: { es: 'Lo pequeño no se nota… hasta que pesa. Y cuando pesa, ya te transformó.', en: 'The small goes unnoticed… until it weighs. And when it weighs, it already changed you.', pt: 'O pequeno passa despercebido… até pesar. E quando pesa, já transformou você.' } },
-    { k: 'mind', text: { es: 'Acepta la situación difícil tal como es. Ahí parte la fuerza.', en: 'Accept the hard situation as it is. Strength starts there.', pt: 'Aceite a situação difícil como ela é. A força começa aí.' } },
-    { k: 'mind', text: { es: 'Enfrenta hoy una cosa que te asusta. Con una basta.', en: 'Face one thing that scares you today. One is enough.', pt: 'Enfrente hoje uma coisa que te assusta. Uma basta.' } },
-    { k: 'mind', text: { es: 'Ese pensamiento negativo: ¿es un hecho o es un cuento? Desafíalo.', en: 'That negative thought: fact or story? Challenge it.', pt: 'Esse pensamento negativo: fato ou história? Desafie-o.' } },
-    { k: 'mind', text: { es: 'El fracaso es lección, no identidad. Úsalo.', en: 'Failure is a lesson, not an identity. Use it.', pt: 'Fracasso é lição, não identidade. Use-o.' } },
+    { k: 'mind', lvl: [0, 5], text: { es: 'Acepta la situación difícil tal como es. Ahí parte la fuerza.', en: 'Accept the hard situation as it is. Strength starts there.', pt: 'Aceite a situação difícil como ela é. A força começa aí.' } },
+    { k: 'mind', lvl: [2, 8], text: { es: 'Enfrenta hoy una cosa que te asusta. Con una basta.', en: 'Face one thing that scares you today. One is enough.', pt: 'Enfrente hoje uma coisa que te assusta. Uma basta.' } },
+    { k: 'mind', lvl: [0, 6], text: { es: 'Ese pensamiento negativo: ¿es un hecho o es un cuento? Desafíalo.', en: 'That negative thought: fact or story? Challenge it.', pt: 'Esse pensamento negativo: fato ou história? Desafie-o.' } },
+    { k: 'mind', lvl: [0, 6], text: { es: 'El fracaso es lección, no identidad. Úsalo.', en: 'Failure is a lesson, not an identity. Use it.', pt: 'Fracasso é lição, não identidade. Use-o.' } },
     { k: 'mind', text: { es: 'Un cambio real lleva tiempo. Mantente en tu camino.', en: 'Real change takes time. Stay on your path.', pt: 'Mudança real leva tempo. Continue no seu caminho.' } },
     { k: 'unbreakable', caps: true, text: { en: 'Unbreakable. No matter what comes, you rise again.', es: 'Inquebrantable. Venga lo que venga, te levantas de nuevo.', pt: 'Inquebrável. Venha o que vier, você levanta de novo.' } },
     { k: 'unbreakable', caps: true, text: { en: 'Discipline makes you unshakable.', es: 'La disciplina te hace inamovible.', pt: 'A disciplina torna você inabalável.' } },
@@ -1246,7 +1255,12 @@
 
   function drawBoost(level, excludeIdx) {
     const cats = catsFor(level);
-    let pool = DECK.map((c, i) => ({ c, i })).filter(x => cats.includes(x.c.k));
+    // coherence rule: a card only drops on scores it fits (lvl: [min,max]) —
+    // "failure is a lesson" belongs to a 3, not to a 7 that says LET'S GO!
+    let pool = DECK.map((c, i) => ({ c, i }))
+      .filter(x => cats.includes(x.c.k))
+      .filter(x => !x.c.lvl || (level >= x.c.lvl[0] && level <= x.c.lvl[1]));
+    if (!pool.length) pool = DECK.map((c, i) => ({ c, i })).filter(x => cats.includes(x.c.k));
     const trimmed = pool.filter(x => x.i !== excludeIdx);
     if (trimmed.length) pool = trimmed;
     return pool[Math.floor(Math.random() * pool.length)].i;
@@ -1904,7 +1918,9 @@
 
   function studioData() {
     const lvl = selected != null ? selected : 7;
-    const card = currentBoost != null && DECK[currentBoost] ? DECK[currentBoost] : null;
+    let card = currentBoost != null && DECK[currentBoost] ? DECK[currentBoost] : null;
+    // coherence rule: never bake a low-day quote onto a high score (or vice versa)
+    if (card && card.lvl && (lvl < card.lvl[0] || lvl > card.lvl[1])) card = null;
     return {
       lvl,
       label: t().labels[lvl],
@@ -2248,6 +2264,15 @@
   applyStudioLang();
   renderStudio();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderStudio);
+</script>
+
+
+<script>
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    addEventListener('load', () => {
+      navigator.serviceWorker.register('/scale-sw.js', { scope: '/scale' }).catch(() => {});
+    });
+  }
 </script>
 </body>
 </html>
