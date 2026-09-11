@@ -776,6 +776,121 @@
   .result { display: flex; flex-direction: column; gap: 8px; }
   .result img { width: 100%; max-width: 320px; align-self: center; border-radius: 8px; border: 1px solid var(--line); }
 
+  /* ---------- circle + daily reminder ---------- */
+  [hidden] { display: none !important; }
+  .circle-pitch { margin: 0; font-size: 14px; color: var(--ink-muted); line-height: 1.5; }
+  .circle-pending { margin: 0; font-size: 13px; font-weight: 700; color: var(--gold); letter-spacing: 0.02em; }
+  .link-btn { text-decoration: none; display: inline-flex; align-items: center; gap: 8px; align-self: flex-start; }
+  .emoji-row { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 4px; }
+  .emoji-row .seg { font-size: 18px; line-height: 1.2; padding: 6px 0; min-width: 0; text-align: center; }
+  .seg-cta { color: #1c1508; background: var(--gold); border-color: var(--gold); font-weight: 700; }
+  .seg[aria-expanded="true"] { color: var(--gold); border-color: var(--gold); }
+  .seg-dot::before {
+    content: '';
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--ink-faint);
+    margin-right: 7px;
+    vertical-align: 1px;
+  }
+  .seg-dot.live { color: var(--ink); }
+  .seg-dot.live::before { background: var(--gold); }
+  .code-chip { user-select: all; -webkit-user-select: all; }
+  .add-row { display: flex; gap: 8px; }
+  .add-row .cta-input {
+    flex: 1;
+    min-width: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-variant-numeric: tabular-nums;
+  }
+  .add-row .cer-btn { padding: 10px 16px 8px; }
+
+  .fr-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+  .fr {
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) 48px 62px;
+    gap: 10px;
+    align-items: center;
+    min-height: 62px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+  }
+  .fr:first-child { border-top: 0; padding-top: 2px; }
+  .fr-ava {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    line-height: 1;
+    overflow: hidden;
+  }
+  .fr-main { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+  .fr-name {
+    max-width: 100%;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .fr-sub { font-size: 11px; color: var(--ink-muted); letter-spacing: 0.02em; line-height: 1.35; font-variant-numeric: tabular-nums; }
+  .fr-sub.quiet { color: var(--ink-faint); }
+  .fr-part { white-space: nowrap; }
+  .fr-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    border: 1px solid color-mix(in srgb, var(--gold) 45%, var(--line));
+    border-radius: 999px;
+    padding: 1px 7px;
+    white-space: nowrap;
+  }
+  .fr-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+  .fr-num { font-family: var(--display); font-size: 30px; line-height: 1; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+  .fr-num.done { color: var(--gold-deep); font-size: 24px; }
+  .fr-week { display: flex; gap: 2px; height: 14px; align-items: flex-end; }
+  .fr-week i { display: block; flex: none; width: 5px; height: 0; min-height: 2px; border-radius: 1px 1px 0 0; background: var(--gold-deep); }
+  .fr-week i.today { background: var(--gold); }
+  .fr-week i.hid { height: 100%; background: color-mix(in srgb, var(--gold-deep) 22%, transparent); }
+  .fr-week i.miss { height: 3px; min-height: 0; background: none; border-bottom: 1px dashed var(--ink-faint); border-radius: 0; }
+  .fr-acts { display: flex; justify-content: flex-end; gap: 2px; }
+  .fr-btn {
+    appearance: none;
+    width: 30px; height: 34px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: none;
+    color: var(--ink-muted);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+  }
+  .fr-btn:hover { border-color: var(--line); color: var(--gold); }
+  .fr-btn:disabled { opacity: 0.4; cursor: default; }
+  .fr-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
+  .fr-gap { width: 30px; }
+  .fr-empty { font-size: 13px; color: var(--ink-muted); line-height: 1.5; padding: 2px 0; }
+
+  .remind-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .remind-at { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-muted); letter-spacing: 0.04em; }
+  .remind-select { width: auto; padding: 7px 10px; font-size: 13px; color-scheme: dark; font-variant-numeric: tabular-nums; }
+  .remind-sub { text-align: left; }
+  .remind .redraw { align-self: flex-start; padding: 2px 0; }
+  .remind.busy { cursor: progress; }
+  .remind.busy .seg, .remind.busy select { opacity: 0.6; }
+
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
   }
@@ -836,6 +951,9 @@
       <tbody></tbody>
     </table>
   </section>
+
+  <section class="history circle" id="circle" aria-labelledby="circle-title"></section>
+  <section class="history remind" id="remind" aria-labelledby="remind-title" hidden></section>
 
   <section class="vault">
     <div class="vault-head">
@@ -2264,6 +2382,973 @@
   applyStudioLang();
   renderStudio();
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(renderStudio);
+
+  // ---------- your circle + daily reminder ----------
+  // Cloud features run only on the app's own host (hk23universe / localhost). Inside the
+  // claude.ai artifact CLOUD is false: one static card, zero network calls.
+  Object.assign(T.en, {
+    circleTitle: 'Your circle', circleTitleN: 'Your circle · {n}',
+    circleTeaser: 'Add friends and get a daily reminder in the app.', openApp: 'Open the app',
+    circlePitch: "Add the people who keep you going. See each other's daily number and nudge whoever goes quiet.",
+    emojiAria: 'Pick your emoji', namePh: 'Your name', create: 'Create my circle',
+    circleHint: 'No email, no password.',
+    pendingJoin: 'Create your circle to join {code}',
+    codeChip: 'Code', circleActions: 'Circle actions', invite: 'Invite',
+    inviteText: 'Join my circle on Motivation Scale', inviteCopied: 'Invite link copied.',
+    inviteManual: 'Share your code: {code}',
+    addByCode: 'Add by code', codeAria: "Friend's code", add: 'Add',
+    shareOn: 'My number: visible', shareOff: 'My number: hidden',
+    frStreak: 'streak {n}', frLogged: 'logged today', frNotYet: 'not yet today', frNudgedMe: '👊 nudged you',
+    frToday: 'Today {n}/10', frHidden: 'Logged today, number hidden', frNone: 'Not logged today',
+    nudgeAria: 'Nudge {name}', moreAria: 'Remove {name}',
+    removeQ: 'Remove {name} from your circle?',
+    emptyCircle: 'Your circle is empty. Send your invite to one person today.',
+    loading: 'Loading…',
+    joined: "You're now in {name}'s circle",
+    nudgeSent: 'Nudge sent 👊', nudgeLogged: 'They already logged today',
+    nudgeAlready: 'Already nudged today', nudgeLater: 'Try again later',
+    errCode: "That code doesn't exist.", errSelf: "That's your own code.", errFull: 'That circle is full.',
+    errSlow: 'Too many tries — try again tomorrow.', errName: 'Pick a name (1–24 characters).',
+    errNet: 'No connection — try again.',
+    rmTitle: 'Daily reminder',
+    rmIOS: 'On iPhone: tap Share → Add to Home Screen, open the app from your home screen, then turn on reminders.',
+    rmNA: "This browser can't send reminders.",
+    rmBlocked: 'Notifications are blocked for this site — allow them in your browser settings.',
+    rmOn: 'On', rmOff: 'Off', rmAt: 'Remind me at', rmSub: "only if you haven't logged yet",
+    rmSet: 'Reminder set for {time}.', rmOffMsg: 'Reminder off.',
+    rmFail: "Couldn't turn on reminders — try again.",
+    rmTest: 'Send a test', rmTestSent: 'Test sent — check your notifications.',
+    footerShared: 'Your circle sees your daily number · HK23',
+    footerHidden: 'Your circle sees that you logged, not your number · HK23',
+    footerSynced: 'Your daily number syncs to power your reminders · HK23'
+  });
+  Object.assign(T.es, {
+    circleTitle: 'Tu círculo', circleTitleN: 'Tu círculo · {n}',
+    circleTeaser: 'Suma amigos y recibe un recordatorio diario en la app.', openApp: 'Abrir la app',
+    circlePitch: 'Suma a la gente que te mantiene en marcha. Vean el número del día de cada uno y denle un empujón al que se quede callado.',
+    emojiAria: 'Elige tu emoji', namePh: 'Tu nombre', create: 'Crear mi círculo',
+    circleHint: 'Sin correo ni contraseña.',
+    pendingJoin: 'Crea tu círculo para unirte a {code}',
+    codeChip: 'Código', circleActions: 'Acciones del círculo', invite: 'Invitar',
+    inviteText: 'Súmate a mi círculo en Motivation Scale', inviteCopied: 'Link de invitación copiado.',
+    inviteManual: 'Comparte tu código: {code}',
+    addByCode: 'Agregar con código', codeAria: 'Código de tu amigo', add: 'Agregar',
+    shareOn: 'Mi número: visible', shareOff: 'Mi número: oculto',
+    frStreak: 'racha de {n}', frLogged: 'registró hoy', frNotYet: 'todavía no registra', frNudgedMe: '👊 te mandó un empujón',
+    frToday: 'Hoy {n}/10', frHidden: 'Registró hoy, número oculto', frNone: 'Todavía no registra hoy',
+    nudgeAria: 'Mandarle un empujón a {name}', moreAria: 'Sacar a {name}',
+    removeQ: '¿Sacar a {name} de tu círculo?',
+    emptyCircle: 'Tu círculo está vacío. Mándale tu invitación a una persona hoy.',
+    loading: 'Cargando…',
+    joined: 'Ahora estás en el círculo de {name}',
+    nudgeSent: 'Empujón enviado 👊', nudgeLogged: 'Ya registró hoy',
+    nudgeAlready: 'Ya le mandaste un empujón hoy', nudgeLater: 'Inténtalo más tarde',
+    errCode: 'Ese código no existe.', errSelf: 'Ese es tu propio código.', errFull: 'Ese círculo está lleno.',
+    errSlow: 'Demasiados intentos — prueba mañana.', errName: 'Elige un nombre (1–24 caracteres).',
+    errNet: 'Sin conexión — inténtalo de nuevo.',
+    rmTitle: 'Recordatorio diario',
+    rmIOS: 'En iPhone: toca Compartir → Agregar a pantalla de inicio, abre la app desde tu pantalla de inicio y activa los recordatorios.',
+    rmNA: 'Este navegador no puede enviar recordatorios.',
+    rmBlocked: 'Las notificaciones están bloqueadas para este sitio — actívalas en la configuración del navegador.',
+    rmOn: 'Activado', rmOff: 'Apagado', rmAt: 'Recordarme a las', rmSub: 'solo si todavía no registras',
+    rmSet: 'Recordatorio listo para las {time}.', rmOffMsg: 'Recordatorio apagado.',
+    rmFail: 'No se pudo activar el recordatorio — inténtalo de nuevo.',
+    rmTest: 'Enviar una prueba', rmTestSent: 'Prueba enviada — revisa tus notificaciones.',
+    footerShared: 'Tu círculo ve tu número del día · HK23',
+    footerHidden: 'Tu círculo ve que registraste, no tu número · HK23',
+    footerSynced: 'Tu número del día se sincroniza para tus recordatorios · HK23'
+  });
+  Object.assign(T.pt, {
+    circleTitle: 'Seu círculo', circleTitleN: 'Seu círculo · {n}',
+    circleTeaser: 'Adicione amigos e receba um lembrete diário no app.', openApp: 'Abrir o app',
+    circlePitch: 'Adicione as pessoas que te mantêm em movimento. Vejam o número do dia de cada um e deem um empurrão em quem sumir.',
+    emojiAria: 'Escolha seu emoji', namePh: 'Seu nome', create: 'Criar meu círculo',
+    circleHint: 'Sem e-mail, sem senha.',
+    pendingJoin: 'Crie seu círculo para entrar em {code}',
+    codeChip: 'Código', circleActions: 'Ações do círculo', invite: 'Convidar',
+    inviteText: 'Entre no meu círculo no Motivation Scale', inviteCopied: 'Link de convite copiado.',
+    inviteManual: 'Compartilhe seu código: {code}',
+    addByCode: 'Adicionar por código', codeAria: 'Código do amigo', add: 'Adicionar',
+    shareOn: 'Meu número: visível', shareOff: 'Meu número: oculto',
+    frStreak: 'sequência de {n}', frLogged: 'registrou hoje', frNotYet: 'ainda não registrou', frNudgedMe: '👊 te deu um empurrão',
+    frToday: 'Hoje {n}/10', frHidden: 'Registrou hoje, número oculto', frNone: 'Ainda não registrou hoje',
+    nudgeAria: 'Dar um empurrão em {name}', moreAria: 'Remover {name}',
+    removeQ: 'Remover {name} do seu círculo?',
+    emptyCircle: 'Seu círculo está vazio. Mande seu convite para uma pessoa hoje.',
+    loading: 'Carregando…',
+    joined: 'Agora você está no círculo de {name}',
+    nudgeSent: 'Empurrão enviado 👊', nudgeLogged: 'Já registrou hoje',
+    nudgeAlready: 'Você já deu um empurrão hoje', nudgeLater: 'Tente mais tarde',
+    errCode: 'Esse código não existe.', errSelf: 'Esse é o seu próprio código.', errFull: 'Esse círculo está cheio.',
+    errSlow: 'Tentativas demais — tente amanhã.', errName: 'Escolha um nome (1–24 caracteres).',
+    errNet: 'Sem conexão — tente de novo.',
+    rmTitle: 'Lembrete diário',
+    rmIOS: 'No iPhone: toque em Compartilhar → Adicionar à Tela de Início, abra o app pela tela de início e ative os lembretes.',
+    rmNA: 'Este navegador não consegue enviar lembretes.',
+    rmBlocked: 'As notificações estão bloqueadas para este site — permita nas configurações do navegador.',
+    rmOn: 'Ligado', rmOff: 'Desligado', rmAt: 'Lembrar às', rmSub: 'só se você ainda não registrou',
+    rmSet: 'Lembrete marcado para as {time}.', rmOffMsg: 'Lembrete desligado.',
+    rmFail: 'Não deu para ativar o lembrete — tente de novo.',
+    rmTest: 'Enviar um teste', rmTestSent: 'Teste enviado — confira suas notificações.',
+    footerShared: 'Seu círculo vê seu número do dia · HK23',
+    footerHidden: 'Seu círculo vê que você registrou, não seu número · HK23',
+    footerSynced: 'Seu número do dia é sincronizado para os seus lembretes · HK23'
+  });
+
+  const CLOUD = /(^|\.)hk23universe(-[a-z0-9-]+)?\.vercel\.app$|^localhost$|^127\.0\.0\.1$/.test(location.hostname);
+  const SB_ANON = 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+  const SB_URL = (function () {
+    const base = 'https://iiqhhglgjsbnuihythko.supabase.co';
+    if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return base; // ?sb= is a local test hook only
+    let o = null;
+    try { o = new URLSearchParams(location.search).get('sb'); } catch {}
+    return (o && /^https?:\/\/\S+$/.test(o)) ? o.replace(/\/+$/, '') : base;
+  })();
+  const VAPID_PUBLIC = 'BPvW6VjJzoMhaxFR-8jQBNrKYyZ8HrkHbZa91wyXE7WMYjjL46B0F4HsE5BYg8ZF2XNCL8rSVdvs1NCi5aW4EY8';
+  const APP_URL = 'https://hk23universe.vercel.app/scale';
+  const CLOUD_KEY = 'hk23-motivation-cloud';
+  const PUSH_KEY = 'hk23-motivation-push';
+  const SYNC_KEY = 'hk23-motivation-synced';
+  const NUDGE_KEY = 'hk23-motivation-nudged';
+  const CIRCLE_KEY = 'hk23-motivation-circle'; // last circle list, so the card paints instantly
+  const JOIN_KEY = 'hk23-motivation-join';     // sessionStorage: a ?join= code waiting for a profile
+  const EMOJIS = ['🔥', '🌱', '🦁', '⚡', '🌊', '🏌️', '🎨', '🐺'];
+
+  function storeSet(key, value) { try { localStorage.setItem(key, value); } catch {} }
+  function storeDel(key) { try { localStorage.removeItem(key); } catch {} }
+  function sessionGet(key) { try { return sessionStorage.getItem(key); } catch { return null; } }
+  function sessionSet(key, value) {
+    try { if (value == null) sessionStorage.removeItem(key); else sessionStorage.setItem(key, value); } catch {}
+  }
+  const reduceMotion = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
+  const normCode = raw => String(raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const fmtCode = raw => { const s = normCode(raw); return s.length === 8 ? s.slice(0, 4) + '-' + s.slice(4) : s; };
+  const byName = (a, b) => String(a.name || '').toLowerCase().localeCompare(String(b.name || '').toLowerCase());
+  function tzName() {
+    try { return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'; } catch { return 'UTC'; }
+  }
+  function mk(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text; // friend names/emojis are user data: text only, never HTML
+    return n;
+  }
+  function mkBtn(cls, text, onClick) {
+    const b = mk('button', cls, text);
+    b.type = 'button';
+    if (onClick) b.addEventListener('click', onClick);
+    return b;
+  }
+  // re-render without dropping keyboard focus (elements keep their ids across renders)
+  function keepFocus(fn) {
+    const a = document.activeElement;
+    const id = a && a.id;
+    fn();
+    if (id && document.activeElement !== a) {
+      const n = document.getElementById(id);
+      if (n) n.focus({ preventScroll: true });
+    }
+  }
+
+  // ---------- cloud: PostgREST RPCs with the public anon key ----------
+  async function rpc(fn, args) {
+    if (!CLOUD) throw new Error('network');
+    let res;
+    try {
+      res = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {
+        method: 'POST',
+        headers: { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON, 'content-type': 'application/json' },
+        body: JSON.stringify(args || {})
+      });
+    } catch { throw new Error('network'); }
+    let data = null;
+    try { data = await res.json(); } catch {}
+    if (!res.ok) throw new Error((data && typeof data.message === 'string' && data.message) || 'network');
+    // some RPCs answer 200 with an error object (so a failed join still counts toward the daily limit)
+    if (data && typeof data === 'object' && !Array.isArray(data)
+      && typeof data.message === 'string' && data.message.startsWith('scale: ')) throw new Error(data.message);
+    return data;
+  }
+  async function pushApi(body) {
+    if (!CLOUD) throw new Error('network');
+    let res;
+    try {
+      res = await fetch('/api/scale-push', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+    } catch { throw new Error('network'); }
+    let data = null;
+    try { data = await res.json(); } catch {}
+    return { ok: res.ok, data: data || {} };
+  }
+  const ERR_KEYS = {
+    'scale: code not found': 'errCode', 'scale: that is you': 'errSelf', 'scale: circle full': 'errFull',
+    'scale: slow down': 'errSlow', 'scale: bad name': 'errName', 'scale: bad endpoint': 'rmNA'
+  };
+  function errText(e) {
+    const m = String((e && e.message) || '');
+    for (const k in ERR_KEYS) if (m.includes(k)) return t()[ERR_KEYS[k]];
+    return t().errNet;
+  }
+
+  // ---------- identity: a device-bound secret, never an account ----------
+  function getCloud() {
+    const c = loadJSON(CLOUD_KEY);
+    return (c && typeof c.id === 'string' && typeof c.code === 'string'
+      && typeof c.secret === 'string' && /^[0-9a-f]{64}$/.test(c.secret)) ? c : null;
+  }
+  let cloud = CLOUD ? getCloud() : null;
+  function saveCloud(c) { cloud = c; storeSet(CLOUD_KEY, JSON.stringify(c)); }
+
+  let identityJob = null;
+  function ensureIdentity() {
+    if (cloud) return Promise.resolve(cloud);
+    if (!identityJob) {
+      identityJob = (async () => {
+        const bytes = crypto.getRandomValues(new Uint8Array(32));
+        const secret = Array.from(bytes, b => b.toString(16).padStart(2, '0')).join('');
+        const r = await rpc('scale_register', { p_secret: secret, p_lang: lang, p_tz: tzName() });
+        saveCloud({ id: r.id, secret, code: r.code, name: null, emoji: null, share: true });
+        return cloud;
+      })().finally(() => { identityJob = null; });
+    }
+    return identityJob;
+  }
+
+  // today's number → server (streak/best for the circle, "already logged" for reminders)
+  async function cloudSync(force) {
+    if (!CLOUD || !cloud || !(todayKey in log)) return;
+    let synced = null;
+    try { synced = localStorage.getItem(SYNC_KEY); } catch {}
+    if (!force && synced === todayKey) return;
+    try {
+      await rpc('scale_log', {
+        p_id: cloud.id, p_secret: cloud.secret, p_day: todayKey, p_score: log[todayKey],
+        p_streak: computeStreak(), p_best: Math.max(vault.best || 0, bestRun())
+      });
+      storeSet(SYNC_KEY, todayKey);
+    } catch {
+      if (force) storeDel(SYNC_KEY); // silent — the next load retries
+    }
+  }
+
+  // ---------- the circle ----------
+  const circleEl = document.getElementById('circle');
+  let circle = null, circleAt = 0, circleBusy = false, circleErr = false, circleGen = 0;
+  let nameDraft = '', codeDraft = '', addOpen = false, circleEmoji = EMOJIS[0], creating = false, shareBusy = false;
+  let circleTitleEl = null, circleListEl = null;
+  if (cloud && cloud.name) {
+    const cached = loadJSON(CIRCLE_KEY);
+    if (cached && cached.id === cloud.id && Array.isArray(cached.items)) {
+      // yesterday's "nudged you" badges are stale — the next fetch brings today's
+      circle = cached.day === todayKey ? cached.items : cached.items.map(f => Object.assign({}, f, { nudged_me: false }));
+    }
+  }
+  function saveCircleCache() {
+    if (cloud) storeSet(CIRCLE_KEY, JSON.stringify({ id: cloud.id, day: todayKey, items: circle || [] }));
+  }
+  function nudgedMap() {
+    const m = loadJSON(NUDGE_KEY);
+    return (m && typeof m === 'object' && !Array.isArray(m)) ? m : {};
+  }
+  function markNudged(id) {
+    const m = nudgedMap();
+    for (const k in m) if (m[k] !== todayKey) delete m[k]; // only today's nudges matter
+    m[id] = todayKey;
+    storeSet(NUDGE_KEY, JSON.stringify(m));
+  }
+
+  function renderCircle() {
+    circleEl.innerHTML = '';
+    circleTitleEl = circleListEl = null;
+    const head = mk('div', 'history-head');
+    const title = mk('h2', 'history-title', t().circleTitle);
+    title.id = 'circle-title';
+    head.appendChild(title);
+    circleEl.appendChild(head);
+
+    if (!CLOUD) {
+      circleEl.appendChild(mk('p', 'circle-pitch', t().circleTeaser));
+      const a = mk('a', 'cer-btn primary link-btn', t().openApp);
+      a.href = APP_URL;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      const arrow = mk('span', null, '→');
+      arrow.setAttribute('aria-hidden', 'true');
+      a.appendChild(arrow);
+      circleEl.appendChild(a);
+      return;
+    }
+    if (!cloud || !cloud.name) renderCircleSetup();
+    else renderCircleMain(head, title);
+  }
+
+  function renderCircleSetup() {
+    const pending = sessionGet(JOIN_KEY);
+    if (pending) circleEl.appendChild(mk('p', 'circle-pending', fmt(t().pendingJoin, { code: fmtCode(pending) })));
+    circleEl.appendChild(mk('p', 'circle-pitch', t().circlePitch));
+
+    const emo = mk('div', 'seg-row emoji-row');
+    emo.setAttribute('role', 'group');
+    emo.setAttribute('aria-label', t().emojiAria);
+    EMOJIS.forEach((e, i) => {
+      const b = mkBtn('seg' + (e === circleEmoji ? ' on' : ''), e, () => {
+        circleEmoji = e;
+        emo.querySelectorAll('.seg').forEach(s => {
+          const on = s.dataset.e === e;
+          s.classList.toggle('on', on);
+          s.setAttribute('aria-pressed', String(on));
+        });
+      });
+      b.id = 'circle-emoji-' + i;
+      b.dataset.e = e;
+      b.setAttribute('aria-pressed', String(e === circleEmoji));
+      emo.appendChild(b);
+    });
+    circleEl.appendChild(emo);
+
+    const input = mk('input', 'cta-input');
+    input.id = 'circle-name';
+    input.type = 'text';
+    input.maxLength = 24;
+    input.autocomplete = 'nickname';
+    input.placeholder = t().namePh;
+    input.setAttribute('aria-label', t().namePh);
+    input.value = nameDraft;
+    input.addEventListener('input', () => { nameDraft = input.value; });
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') createCircle(); });
+    circleEl.appendChild(input);
+
+    const go = mkBtn('log-btn gen-btn', t().create, createCircle);
+    go.id = 'circle-create';
+    if (creating) { go.disabled = true; go.setAttribute('aria-busy', 'true'); }
+    circleEl.appendChild(go);
+    circleEl.appendChild(mk('p', 'hint', t().circleHint));
+  }
+
+  function renderCircleMain(head, title) {
+    circleTitleEl = title;
+    const chips = mk('div', 'chips');
+    const chip = mk('span', 'chip code-chip', t().codeChip + ' · ');
+    chip.appendChild(mk('strong', null, fmtCode(cloud.code)));
+    chips.appendChild(chip);
+    head.appendChild(chips);
+
+    const acts = mk('div', 'seg-row');
+    acts.setAttribute('role', 'group');
+    acts.setAttribute('aria-label', t().circleActions);
+    const inv = mkBtn('seg seg-cta', t().invite, invite);
+    inv.id = 'circle-invite';
+    acts.appendChild(inv);
+    const addBtn = mkBtn('seg', t().addByCode, () => {
+      addOpen = !addOpen;
+      keepFocus(renderCircle);
+      const i = document.getElementById('circle-code');
+      if (i) i.focus();
+    });
+    addBtn.id = 'circle-add';
+    addBtn.setAttribute('aria-expanded', String(addOpen));
+    if (addOpen) addBtn.setAttribute('aria-controls', 'circle-add-row');
+    acts.appendChild(addBtn);
+    const shareBtn = mkBtn('seg seg-dot', '', toggleShare);
+    shareBtn.id = 'circle-share';
+    acts.appendChild(shareBtn);
+    circleEl.appendChild(acts);
+    paintShare();
+
+    if (addOpen) {
+      const row = mk('div', 'add-row');
+      row.id = 'circle-add-row';
+      const input = mk('input', 'cta-input');
+      input.id = 'circle-code';
+      input.type = 'text';
+      input.maxLength = 12;
+      input.placeholder = 'XXXX-XXXX';
+      input.autocomplete = 'off';
+      input.spellcheck = false;
+      input.setAttribute('autocapitalize', 'characters');
+      input.setAttribute('aria-label', t().codeAria);
+      input.value = codeDraft;
+      input.addEventListener('input', () => { codeDraft = input.value; });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') submitCode(); });
+      row.appendChild(input);
+      const b = mkBtn('cer-btn primary', t().add, submitCode);
+      b.id = 'circle-join';
+      row.appendChild(b);
+      circleEl.appendChild(row);
+    }
+
+    circleListEl = mk('ul', 'fr-list');
+    circleListEl.setAttribute('aria-label', t().circleTitle);
+    circleEl.appendChild(circleListEl);
+    paintFriends();
+  }
+
+  function paintShare() {
+    const b = document.getElementById('circle-share');
+    if (!b || !cloud) return;
+    const live = cloud.share !== false;
+    b.textContent = live ? t().shareOn : t().shareOff;
+    b.classList.toggle('live', live);
+  }
+
+  function paintFriends() {
+    if (!circleListEl) return;
+    circleTitleEl.textContent = circle ? fmt(t().circleTitleN, { n: circle.length }) : t().circleTitle;
+    circleListEl.innerHTML = '';
+    if (!circle) {
+      const li = mk('li', 'fr-empty');
+      if (circleErr) li.appendChild(mkBtn('redraw', t().errNet, () => loadCircle(true)));
+      else li.textContent = t().loading;
+      circleListEl.appendChild(li);
+      return;
+    }
+    if (!circle.length) {
+      circleListEl.appendChild(mk('li', 'fr-empty', t().emptyCircle));
+      return;
+    }
+    const week = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(today.getDate() - i);
+      week.push(dayKey(d));
+    }
+    const nudged = nudgedMap();
+    for (const f of circle) circleListEl.appendChild(friendRow(f, week, nudged));
+  }
+
+  function friendRow(f, week, nudged) {
+    const byDay = {};
+    for (const d of (Array.isArray(f.days) ? f.days : [])) if (d && d.day) byDay[String(d.day).slice(0, 10)] = d;
+    const td = byDay[todayKey];
+    const loggedToday = !!td;
+    const score = td && td.score != null ? Number(td.score) : null;
+    const name = String(f.name || '');
+
+    const li = mk('li', 'fr');
+    const ava = mk('span', 'fr-ava', f.emoji || '·');
+    ava.setAttribute('aria-hidden', 'true');
+    li.appendChild(ava);
+
+    const main = mk('div', 'fr-main');
+    main.appendChild(mk('span', 'fr-name', name));
+    const sub = mk('span', 'fr-sub' + (loggedToday ? '' : ' quiet'));
+    const bits = [];
+    if (Number(f.streak) > 0) bits.push(fmt(t().frStreak, { n: Number(f.streak) }));
+    bits.push(loggedToday ? t().frLogged : t().frNotYet);
+    // each part stays whole: a narrow row breaks between parts, never inside one
+    bits.forEach((b, i) => sub.appendChild(mk('span', 'fr-part', i < bits.length - 1 ? b + ' · ' : b)));
+    main.appendChild(sub);
+    if (f.nudged_me) main.appendChild(mk('span', 'fr-badge', t().frNudgedMe));
+    li.appendChild(main);
+
+    const right = mk('div', 'fr-right');
+    const num = mk('span', 'fr-num');
+    const glyph = mk('span', null, score != null ? String(score) : (loggedToday ? '✓' : '—'));
+    glyph.setAttribute('aria-hidden', 'true');
+    num.appendChild(glyph);
+    num.appendChild(mk('span', 'visually-hidden',
+      score != null ? fmt(t().frToday, { n: score }) : (loggedToday ? t().frHidden : t().frNone)));
+    if (score != null) num.style.color = rampColor(Math.max(0, Math.min(10, score)));
+    else if (loggedToday) num.classList.add('done');
+    right.appendChild(num);
+    const wk = mk('span', 'fr-week');
+    wk.setAttribute('aria-hidden', 'true');
+    for (const k of week) {
+      const d = byDay[k];
+      const bar = mk('i', k === todayKey ? 'today' : null);
+      if (!d) bar.classList.add('miss');
+      else if (d.score == null) bar.classList.add('hid');
+      else bar.style.height = Math.max(0, Math.min(10, Number(d.score))) * 10 + '%';
+      wk.appendChild(bar);
+    }
+    right.appendChild(wk);
+    li.appendChild(right);
+
+    const acts = mk('div', 'fr-acts');
+    if (!loggedToday && nudged[f.id] !== todayKey) {
+      const nb = mkBtn('fr-btn', '👊', () => nudge(f, nb));
+      nb.setAttribute('aria-label', fmt(t().nudgeAria, { name }));
+      nb.title = fmt(t().nudgeAria, { name });
+      acts.appendChild(nb);
+    } else {
+      acts.appendChild(mk('span', 'fr-gap')); // keeps every row's columns aligned
+    }
+    const more = mkBtn('fr-btn', '⋯', () => removeFriend(f));
+    more.setAttribute('aria-label', fmt(t().moreAria, { name }));
+    more.title = fmt(t().moreAria, { name });
+    acts.appendChild(more);
+    li.appendChild(acts);
+    return li;
+  }
+
+  async function loadCircle(force) {
+    if (!CLOUD || !cloud || !cloud.name || circleBusy) return;
+    if (!force && Date.now() - circleAt < 20000) return; // throttle
+    circleBusy = true;
+    circleAt = Date.now();
+    const gen = circleGen;
+    let list = null, failed = false;
+    try { list = await rpc('scale_circle', { p_id: cloud.id, p_secret: cloud.secret }); }
+    catch { failed = true; }
+    circleBusy = false;
+    if (gen !== circleGen) return loadCircle(true); // a join/unfriend landed mid-flight: refetch
+    if (failed) circleErr = true;
+    else {
+      circle = Array.isArray(list) ? list : [];
+      circleErr = false;
+      saveCircleCache();
+    }
+    paintFriends();
+  }
+
+  async function createCircle() {
+    if (creating) return;
+    const name = nameDraft.trim();
+    if (!name || name.length > 24) {
+      toastMsg(t().errName);
+      const i = document.getElementById('circle-name');
+      if (i) i.focus();
+      return;
+    }
+    creating = true;
+    keepFocus(renderCircle);
+    try {
+      const c = await ensureIdentity();
+      const me = await rpc('scale_profile', {
+        p_id: c.id, p_secret: c.secret, p_name: name, p_emoji: circleEmoji,
+        p_share_score: true, p_lang: lang, p_tz: tzName()
+      });
+      saveCloud(Object.assign({}, c, {
+        name: (me && me.name) || name,
+        emoji: (me && me.emoji) || circleEmoji,
+        share: !(me && me.share_score === false),
+        code: (me && me.code) || c.code
+      }));
+      nameDraft = '';
+      await cloudSync(true);
+    } catch (e) {
+      toastMsg(errText(e));
+    }
+    creating = false;
+    renderCircle();
+    renderFooter();
+    if (!cloud || !cloud.name) {
+      const i = document.getElementById('circle-name');
+      if (i) i.focus({ preventScroll: true });
+      return;
+    }
+    const inv = document.getElementById('circle-invite');
+    if (inv) inv.focus({ preventScroll: true });
+    const pending = sessionGet(JOIN_KEY);
+    if (pending) {
+      sessionSet(JOIN_KEY, null);
+      await joinCode(pending);
+    }
+    loadCircle(true);
+  }
+
+  async function joinCode(raw) {
+    if (!cloud || !cloud.name) return false;
+    const code = normCode(raw);
+    if (code.length !== 8) { toastMsg(t().errCode); return false; }
+    if (code === normCode(cloud.code)) { toastMsg(t().errSelf); return false; }
+    try {
+      const f = await rpc('scale_join', { p_id: cloud.id, p_secret: cloud.secret, p_code: code });
+      if (!f || !f.id) throw new Error('scale: code not found'); // never toast a join that didn't happen
+      circleGen++;
+      circle = (circle || []).filter(x => x.id !== f.id).concat([f]).sort(byName);
+      saveCircleCache();
+      toastMsg(fmt(t().joined, { name: f.name || fmtCode(code) }));
+      paintFriends();
+      return true;
+    } catch (e) {
+      toastMsg(errText(e));
+      return false;
+    }
+  }
+  async function submitCode() {
+    const btn = document.getElementById('circle-join');
+    if (btn && btn.disabled) return;
+    if (btn) btn.disabled = true;
+    const ok = await joinCode(codeDraft);
+    if (ok) {
+      codeDraft = '';
+      addOpen = false;
+      keepFocus(renderCircle);
+      const add = document.getElementById('circle-add');
+      if (add && !document.activeElement.id) add.focus({ preventScroll: true });
+    } else {
+      const b = document.getElementById('circle-join');
+      if (b) b.disabled = false;
+      const i = document.getElementById('circle-code');
+      if (i) i.focus();
+    }
+  }
+
+  async function invite() {
+    if (!cloud) return;
+    const url = location.origin + '/scale?join=' + normCode(cloud.code);
+    const text = t().inviteText;
+    if (navigator.share) {
+      try { await navigator.share({ title: 'Motivation Scale', text, url }); return; }
+      catch (e) { if (e && e.name === 'AbortError') return; }
+    }
+    const full = text + ' ' + url;
+    try { await navigator.clipboard.writeText(full); toastMsg(t().inviteCopied); return; } catch {}
+    const ta = document.createElement('textarea');
+    ta.value = full;
+    ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch {}
+    ta.remove();
+    toastMsg(ok ? t().inviteCopied : fmt(t().inviteManual, { code: fmtCode(cloud.code) }));
+  }
+
+  async function toggleShare() {
+    if (!cloud || shareBusy) return;
+    shareBusy = true;
+    const next = cloud.share === false; // hidden → visible, visible → hidden
+    try {
+      const me = await rpc('scale_profile', {
+        p_id: cloud.id, p_secret: cloud.secret, p_name: null, p_emoji: null, p_share_score: next
+      });
+      saveCloud(Object.assign({}, cloud, { share: (me && typeof me.share_score === 'boolean') ? me.share_score : next }));
+    } catch (e) {
+      toastMsg(errText(e));
+    }
+    shareBusy = false;
+    paintShare();
+    renderFooter();
+  }
+
+  async function nudge(f, btn) {
+    if (!cloud) return;
+    btn.disabled = true;
+    let msg = t().nudgeLater;
+    try {
+      const r = await pushApi({ kind: 'nudge', id: cloud.id, secret: cloud.secret, friend: f.id });
+      const err = String(r.data.error || '');
+      if (r.ok) { markNudged(f.id); msg = t().nudgeSent; }
+      else if (err.includes('already nudged')) { markNudged(f.id); msg = t().nudgeAlready; }
+      else if (err.includes('already logged')) { msg = t().nudgeLogged; loadCircle(true); }
+    } catch {}
+    toastMsg(msg);
+    paintFriends();
+  }
+
+  async function removeFriend(f) {
+    if (!cloud || !confirm(fmt(t().removeQ, { name: String(f.name || '') }))) return;
+    try {
+      await rpc('scale_unfriend', { p_id: cloud.id, p_secret: cloud.secret, p_friend: f.id });
+      circleGen++;
+      circle = (circle || []).filter(x => x.id !== f.id);
+      saveCircleCache();
+      paintFriends();
+    } catch (e) {
+      toastMsg(errText(e));
+    }
+  }
+
+  // ?join=CODE → join now (with a profile) or hold it until the circle exists
+  function readJoinLink() {
+    let q;
+    try { q = new URLSearchParams(location.search); } catch { return; }
+    if (!q.has('join')) return;
+    const code = normCode(q.get('join'));
+    q.delete('join');
+    const rest = q.toString();
+    try { history.replaceState(history.state, '', location.pathname + (rest ? '?' + rest : '') + location.hash); } catch {}
+    if (!code) return;
+    // after load (fonts, canvas, scroll restoration) so the scroll sticks; setTimeout also runs in background tabs
+    const reveal = () => {
+      const go = () => setTimeout(() =>
+        circleEl.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'center' }), 0);
+      if (document.readyState === 'complete') go();
+      else addEventListener('load', go, { once: true });
+    };
+    if (cloud && cloud.name) {
+      joinCode(code).then(ok => { if (ok) reveal(); });
+      return;
+    }
+    sessionSet(JOIN_KEY, code);
+    renderCircle();
+    reveal();
+  }
+
+  // ---------- daily reminder (Web Push) ----------
+  const remindEl = document.getElementById('remind');
+  let push = (function () {
+    const p = CLOUD ? loadJSON(PUSH_KEY) : null;
+    const hour = p && Number.isInteger(p.hour) && p.hour >= 6 && p.hour <= 23 ? p.hour : 21;
+    return { endpoint: (p && typeof p.endpoint === 'string') ? p.endpoint : null, hour, enabled: !!(p && p.enabled) };
+  })();
+  const savePush = () => storeSet(PUSH_KEY, JSON.stringify(push));
+  let remindBusy = false, testBusy = false;
+
+  // iPadOS reports a Mac UA; touch points give it away (Android excluded for emulators)
+  const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1 && !/Android/i.test(navigator.userAgent));
+  const isStandalone = () => navigator.standalone === true
+    || !!(window.matchMedia && matchMedia('(display-mode: standalone)').matches);
+  const pushSupported = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+  function remindMode() {
+    if (isIOS() && !isStandalone()) return 'ios';
+    if (!pushSupported()) return 'na';
+    if (Notification.permission === 'denied') return 'denied';
+    return 'ok';
+  }
+  function fmtHour(h) {
+    try { return new Date(2000, 0, 1, h).toLocaleTimeString(LOCALES[lang], { hour: 'numeric', minute: '2-digit' }); }
+    catch { return String(h).padStart(2, '0') + ':00'; }
+  }
+  function urlBase64ToUint8Array(b64) {
+    const pad = '='.repeat((4 - b64.length % 4) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(raw, ch => ch.charCodeAt(0));
+  }
+
+  function renderReminder() {
+    if (!CLOUD) { remindEl.hidden = true; return; }
+    remindEl.hidden = false;
+    remindEl.innerHTML = '';
+    const head = mk('div', 'history-head');
+    const title = mk('h2', 'history-title', t().rmTitle);
+    title.id = 'remind-title';
+    head.appendChild(title);
+    remindEl.appendChild(head);
+
+    const mode = remindMode();
+    if (mode !== 'ok') {
+      remindEl.appendChild(mk('p', 'circle-pitch', mode === 'ios' ? t().rmIOS : mode === 'na' ? t().rmNA : t().rmBlocked));
+      return;
+    }
+    const row = mk('div', 'remind-row');
+    const seg = mk('div', 'seg-row');
+    seg.setAttribute('role', 'group');
+    seg.setAttribute('aria-label', t().rmTitle);
+    const on = mkBtn('seg' + (push.enabled ? ' on' : ''), t().rmOn, () => { if (!push.enabled) remindOn(); });
+    const off = mkBtn('seg' + (push.enabled ? '' : ' on'), t().rmOff, () => { if (push.enabled) remindOff(); });
+    on.id = 'remind-on';
+    off.id = 'remind-off';
+    on.setAttribute('aria-pressed', String(push.enabled));
+    off.setAttribute('aria-pressed', String(!push.enabled));
+    seg.append(on, off);
+    row.appendChild(seg);
+
+    const lab = mk('label', 'remind-at');
+    lab.appendChild(mk('span', null, t().rmAt));
+    const sel = mk('select', 'cta-input remind-select');
+    sel.id = 'remind-hour';
+    for (let h = 6; h <= 23; h++) {
+      const o = mk('option', null, fmtHour(h));
+      o.value = String(h);
+      if (h === push.hour) o.selected = true;
+      sel.appendChild(o);
+    }
+    sel.addEventListener('change', () => changeHour(Number(sel.value)));
+    lab.appendChild(sel);
+    row.appendChild(lab);
+    remindEl.appendChild(row);
+    remindEl.appendChild(mk('p', 'hint remind-sub', t().rmSub));
+    if (push.enabled) {
+      const test = mkBtn('redraw', t().rmTest, sendTest);
+      test.id = 'remind-test';
+      remindEl.appendChild(test);
+    }
+  }
+  function setRemindBusy(b) {
+    remindBusy = b;
+    remindEl.classList.toggle('busy', b);
+    if (b) remindEl.setAttribute('aria-busy', 'true');
+    else remindEl.removeAttribute('aria-busy');
+  }
+  function remindErr(e) {
+    const m = String((e && e.message) || '');
+    return (m === 'network' || m.startsWith('scale:')) ? errText(e) : t().rmFail;
+  }
+  // Safari still ships the callback form; either way this runs inside the tap
+  function askPermission() {
+    return new Promise(resolve => {
+      try {
+        const r = Notification.requestPermission(resolve);
+        if (r && typeof r.then === 'function') r.then(resolve, () => resolve(Notification.permission));
+      } catch { resolve(Notification.permission); }
+    });
+  }
+  async function swRegistration() {
+    let reg = await navigator.serviceWorker.getRegistration();
+    if (!reg) reg = await navigator.serviceWorker.register('/scale-sw.js', { scope: '/scale' });
+    if (reg.active) return reg;
+    return Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, rej) => setTimeout(() => rej(new Error('sw')), 15000))
+    ]);
+  }
+  function sameServerKey(sub) {
+    const k = sub.options && sub.options.applicationServerKey;
+    if (!k) return true;
+    const a = new Uint8Array(k), b = urlBase64ToUint8Array(VAPID_PUBLIC);
+    return a.length === b.length && a.every((v, i) => v === b[i]);
+  }
+  function pushSet(c, sub, hour, enabled) {
+    const keys = (sub.toJSON && sub.toJSON().keys) || {};
+    return rpc('scale_push_set', {
+      p_id: c.id, p_secret: c.secret, p_endpoint: sub.endpoint, p_p256dh: keys.p256dh, p_auth: keys.auth,
+      p_hour: hour, p_tz: tzName(), p_enabled: enabled, p_lang: lang
+    });
+  }
+  async function enablePush(hour) {
+    const reg = await swRegistration();
+    let sub = await reg.pushManager.getSubscription();
+    if (sub && !sameServerKey(sub)) { await sub.unsubscribe(); sub = null; }
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC) });
+    }
+    const c = await ensureIdentity();
+    await pushSet(c, sub, hour, true);
+    push = { endpoint: sub.endpoint, hour, enabled: true };
+    savePush();
+    cloudSync(true); // a check-in logged before reminders existed must count tonight
+  }
+  async function remindOn() {
+    if (remindBusy) return;
+    const perm = askPermission(); // first thing in the click handler, so the browser shows the prompt
+    setRemindBusy(true);
+    try {
+      if ((await perm) !== 'granted') return; // denied → the card switches to the "blocked" note
+      await enablePush(push.hour);
+      toastMsg(fmt(t().rmSet, { time: fmtHour(push.hour) }));
+    } catch (e) {
+      toastMsg(remindErr(e));
+    } finally {
+      setRemindBusy(false);
+      keepFocus(renderReminder);
+    }
+  }
+  async function remindOff() {
+    if (remindBusy) return;
+    setRemindBusy(true);
+    try {
+      const reg = await navigator.serviceWorker.getRegistration();
+      const sub = reg && await reg.pushManager.getSubscription();
+      if (sub) {
+        if (cloud) { try { await pushSet(cloud, sub, push.hour, false); } catch {} }
+        try { await sub.unsubscribe(); } catch {}
+      }
+    } catch {}
+    push = { endpoint: null, hour: push.hour, enabled: false };
+    savePush();
+    toastMsg(t().rmOffMsg);
+    setRemindBusy(false);
+    keepFocus(renderReminder);
+  }
+  async function changeHour(h) {
+    if (!(h >= 6 && h <= 23)) return;
+    const prev = push.hour;
+    push.hour = h;
+    savePush();
+    if (!push.enabled || remindBusy) return;
+    setRemindBusy(true);
+    try {
+      await enablePush(h);
+      toastMsg(fmt(t().rmSet, { time: fmtHour(h) }));
+    } catch (e) {
+      push.hour = prev;
+      savePush();
+      toastMsg(remindErr(e));
+    }
+    setRemindBusy(false);
+    keepFocus(renderReminder);
+  }
+  async function sendTest() {
+    if (!cloud || testBusy) return;
+    testBusy = true;
+    let msg = t().nudgeLater;
+    try {
+      const r = await pushApi({ kind: 'test', id: cloud.id, secret: cloud.secret });
+      if (r.ok && r.data.delivered !== 0) msg = t().rmTestSent;
+    } catch {}
+    testBusy = false;
+    toastMsg(msg);
+  }
+  // on load: the switch must match reality (permission revoked, subscription rotated)
+  async function verifyPush() {
+    if (!CLOUD || !push.enabled || remindMode() !== 'ok') return;
+    let sub = null;
+    try {
+      const reg = Notification.permission === 'granted' ? await navigator.serviceWorker.getRegistration() : null;
+      sub = reg ? await reg.pushManager.getSubscription() : null;
+    } catch { return; }
+    if (!sub) {
+      push.enabled = false;
+      savePush();
+      keepFocus(renderReminder);
+      return;
+    }
+    if (sub.endpoint !== push.endpoint && cloud) {
+      try { await pushSet(cloud, sub, push.hour, true); push.endpoint = sub.endpoint; savePush(); } catch {}
+    }
+  }
+
+  // ---------- footer truthfulness ----------
+  function renderFooter() {
+    const f = document.getElementById('footer-line');
+    if (!f) return;
+    f.textContent = !(CLOUD && cloud) ? t().footer
+      : !cloud.name ? t().footerSynced
+      : (cloud.share === false ? t().footerHidden : t().footerShared);
+  }
+
+  // server-side lang drives reminder + nudge copy: follow the in-app switch
+  let syncedLang = lang;
+  function syncLang() {
+    if (!CLOUD || !cloud || lang === syncedLang) return;
+    syncedLang = lang;
+    if (cloud.name) {
+      rpc('scale_profile', {
+        p_id: cloud.id, p_secret: cloud.secret, p_name: null, p_emoji: null, p_share_score: null, p_lang: lang
+      }).catch(() => {});
+    } else if (push.enabled && pushSupported()) {
+      navigator.serviceWorker.getRegistration()
+        .then(reg => reg && reg.pushManager.getSubscription())
+        .then(sub => sub && pushSet(cloud, sub, push.hour, true))
+        .catch(() => {});
+    }
+  }
+
+  const baseApplyLang3 = applyLang;
+  applyLang = function () {
+    baseApplyLang3();
+    keepFocus(() => { renderCircle(); renderReminder(); });
+    renderFooter();
+    syncLang();
+  };
+
+  // runs after the existing log handler has saved today's number
+  logBtn.addEventListener('click', () => {
+    if (!CLOUD || !(todayKey in log)) return;
+    cloudSync(true).then(() => loadCircle());
+  });
+
+  renderCircle();
+  renderReminder();
+  renderFooter();
+  if (CLOUD) {
+    readJoinLink();
+    cloudSync();
+    loadCircle();
+    verifyPush();
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') loadCircle();
+    });
+  }
 </script>
 
 

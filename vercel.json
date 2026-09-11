@@ -1,6 +1,11 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "api/scale-push.js": {
+      "maxDuration": 60
+    }
+  },
   "crons": [
     {
       "path": "/api/gta6-research",

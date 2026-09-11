@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "ai": "^6.0.0",
-    "@ai-sdk/gateway": "^3.0.0"
+    "@ai-sdk/gateway": "^3.0.0",
+    "web-push": "^3.6.7"
   }
 }
