@@ -1,0 +1,24 @@
+# MI ESTADO — Isi
+
+> Fuente de verdad de Cayena. Se actualiza con cada acción.
+
+## Hoy
+- Fecha: 
+- Nivel de energía / disponibilidad: 
+
+## Abierto (orden de prioridad)
+- [ ] 
+
+## Próxima sesión
+- Fecha/hora: 
+- Brief: (ver `ISI/BRIEF_FOTOS.md`)
+- Plan de sesión: (Cayena lo genera y lo pega aquí)
+
+## Ideas en cola
+- 
+
+## Bloqueos
+- 
+
+## Historial (entradas arriba)
+- YYYY-MM-DD · 
