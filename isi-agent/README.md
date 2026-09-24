@@ -14,6 +14,8 @@ Cayena también existe como **grabador de voz**, al estilo del que usa Louis Lit
 - **Switch AUTO / N1 / N2 / N3** en el cuerpo del grabador: nivel de eficiencia. En AUTO ella elige.
 - **Pantallita OLED**: estado (REC · THINKING · SPEAKING), cronómetro, nota #, y el **EFF** de la última nota (auto-auditoría 0–100).
 - **▶ VOZ**: responde hablado (voz en español del navegador). **■ STOP** corta grabación o voz.
+- **Filtro de ruido**: separa el pedido real de la conversación de fondo y ejecuta solo el pedido. Sin pedido → lo dice en 2 líneas.
+- **Decisiones**: cada dato o decisión que aparece en una nota queda anotado (líneas `MEMO:` del agente, o **+ anotar** a mano) y viaja en cada consulta. Si una nota repite un tema, Cayena arranca con "Ya lo teníamos". Hacer repetir a Isi baja su score a 0 en autonomía.
 - **Memoria**: las notas quedan en el dispositivo (localStorage). **Exportar .md** genera el `EFICIENCIA.md` listo para pegar en `ISI/`.
 - Sin micrófono o sin permiso: campo de texto abajo, misma ejecución.
 Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todos.
@@ -22,7 +24,7 @@ Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todo
 1. Copiar `isi-agent/SKILL.md`.
 2. En claude.ai → **Configuración → Capacidades → Skills → Crear skill** (o en Cowork: proyecto → Skills → agregar). Pegar el contenido tal cual, con el frontmatter.
 3. Darle a Isi acceso a la carpeta **Chilli Toes** (o al menos a `ISI/`). Crear dentro de `ISI/` los tres archivos desde `isi-agent/plantillas/`:
-   - `MI_ESTADO.md` · `ENTREGAS.md` · `EFICIENCIA.md`
+   - `MI_ESTADO.md` · `ENTREGAS.md` · `EFICIENCIA.md` · `DECISIONES.md`
 4. Primer mensaje de Isi: **"Cayena, arrancá"**. Lee onboarding, brief y updates, y devuelve su estado + plan de la próxima sesión.
 
 Si Isi usa su propia cuenta de Claude: instala el skill ahí y comparte solo la carpeta `ISI/` (no `SALES_LOG.csv` ni `ESTADO.md`).

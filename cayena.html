@@ -151,6 +151,11 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       </div>
 
       <div class="card">
+        <h3>Decisiones · no se repiten <span class="row"><button class="chip" id="add-memo">+ anotar</button></span></h3>
+        <div class="notes" id="memos"></div>
+      </div>
+
+      <div class="card">
         <h3>Memoria <span class="row"><button class="chip" id="export">exportar .md</button><button class="chip" id="clear">borrar</button></span></h3>
         <div class="notes" id="notes"></div>
       </div>
@@ -159,7 +164,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   <footer>
     N1 Flash · respuesta directa &nbsp;|&nbsp; N2 Pro · entregable listo &nbsp;|&nbsp; N3 Deep · plan → entrega → verificación &nbsp;|&nbsp; AUTO · Cayena elige<br>
-    EFF = auto-auditoría por nota (velocidad · precisión · completitud · autonomía). Menos de 80 no se entrega. Memoria solo en este dispositivo.<br>
+    EFF = auto-auditoría por nota (velocidad · precisión · completitud · autonomía; pedir algo ya dicho = autonomía 0). Menos de 80 no se entrega.<br>Filtra el ruido de fondo de la grabación y ejecuta solo el pedido. Decisiones y memoria solo en este dispositivo.<br>
     Reglas duras: anonimato total · nunca explícito · Isi veta · cuentas, publicar y cobrar son de HK23.
   </footer>
 </div>
@@ -169,13 +174,14 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 (() => {
   const $ = (id) => document.getElementById(id);
   const RUN_TOKEN = 'hk23-run-9x';
-  const KEY = 'cayena_notes';
-  const S = { level: 'AUTO', recording: false, busy: false, transcript: '', interim: '', t0: 0, timer: null, notes: [], voice: true, lastAnswer: '' };
+  const KEY = 'cayena_notes'; const MKEY = 'cayena_memos';
+  const S = { level: 'AUTO', recording: false, busy: false, transcript: '', interim: '', t0: 0, timer: null, notes: [], memos: [], voice: true, lastAnswer: '' };
 
   // ── memory ──
   try { S.notes = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (_) { S.notes = []; }
   try { S.voice = localStorage.getItem('cayena_voice') !== 'off'; } catch (_) {}
-  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S.notes.slice(0, 200))); } catch (_) {} };
+  try { S.memos = JSON.parse(localStorage.getItem(MKEY) || '[]'); } catch (_) { S.memos = []; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S.notes.slice(0, 200))); localStorage.setItem(MKEY, JSON.stringify(S.memos.slice(0, 80))); } catch (_) {} };
 
   const toast = (m) => { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200); };
   const pad = (n) => String(n).padStart(2, '0');
@@ -245,8 +251,10 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   // ── The brain: /api/run with the cayena persona ──
   function context() {
-    const last = S.notes.slice(0, 5).map(n => n.when.slice(0, 10) + ' [' + n.level + '] ' + n.ask.slice(0, 140) + ' → ' + n.answer.slice(0, 240).replace(/\n+/g, ' ')).join('\n');
-    return last ? ('ÚLTIMAS NOTAS DE ISI (memoria del dictáfono):\n' + last) : '';
+    const memos = S.memos.slice(0, 40).map(m => '- ' + m.when.slice(0, 10) + ': ' + m.text).join('\n');
+    const last = S.notes.slice(0, 8).map(n => n.when.slice(0, 10) + ' [' + n.level + '] ' + n.ask.slice(0, 160) + ' → ' + n.answer.slice(0, 220).replace(/\n+/g, ' ')).join('\n');
+    return (memos ? ('DECISIONES YA TOMADAS (no volver a preguntar; si la nota las toca, arrancá con "Ya lo teníamos"):\n' + memos + '\n\n') : '')
+         + (last ? ('ÚLTIMAS NOTAS DE ISI (memoria del dictáfono):\n' + last) : '');
   }
   async function run(text, forceLevel) {
     if (S.busy) return; S.busy = true;
@@ -259,10 +267,13 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       if (!r.ok || !j.ok) throw new Error(j.error || (r.status === 404 ? '/api/run no existe en este despliegue.' : 'falló'));
       let ans = (j.text || '').trim(), eff = null;
       const m = ans.match(/\n?\s*EFF\s*:\s*(\d{1,3})\s*$/i); if (m) { eff = Math.min(100, parseInt(m[1], 10)); ans = ans.slice(0, m.index).trim(); }
+      const memos = []; ans = ans.split('\n').filter(line => { const mm = line.match(/^\s*MEMO\s*:\s*(.+?)\s*$/i); if (mm) { memos.push(mm[1]); return false; } return true; }).join('\n').trim();
+      memos.slice(0, 2).forEach(t => { if (!S.memos.some(x => x.text.toLowerCase() === t.toLowerCase())) S.memos.unshift({ when: new Date().toISOString(), text: t }); });
+      if (memos.length) toast('Anotado: ' + memos[0].slice(0, 60));
       const lvlm = ans.match(/^N([123])\b/); const lvl = lvlm ? 'N' + lvlm[1] : (level === 'AUTO' ? 'AUTO' : level);
       $('answer').textContent = ans; $('ans-lvl').textContent = lvl; S.lastAnswer = ans;
       $('o-eff').textContent = eff == null ? 'EFF —' : ('EFF ' + eff + ' · ' + grade(eff));
-      S.notes.unshift({ when: new Date().toISOString(), level: lvl, ask: text, answer: ans, eff }); save(); renderNotes(); refreshMeta();
+      S.notes.unshift({ when: new Date().toISOString(), level: lvl, ask: text, answer: ans, eff }); save(); renderNotes(); renderMemos(); refreshMeta();
       oled('DONE', eff == null ? '--' : String(eff)); setLed('speak');
       if (S.voice) speak(ans); else setTimeout(() => { oled('READY', '00:00'); setLed(''); }, 1200);
     } catch (e) {
@@ -297,6 +308,18 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     });
   }
 
+  function renderMemos() {
+    const box = $('memos'); box.innerHTML = '';
+    if (!S.memos.length) { box.innerHTML = '<div class="empty">Nada anotado todavía. Cada decisión, fecha o precio que Isi diga queda acá y Cayena no vuelve a preguntarlo.</div>'; return; }
+    S.memos.slice(0, 40).forEach((m, i) => {
+      const d = document.createElement('div'); d.className = 'note'; d.title = 'click para borrar';
+      d.innerHTML = '<div class="m"><span>' + m.when.slice(0, 10) + '</span><b>✕</b></div><div class="t" style="white-space:normal">' + esc(m.text) + '</div>';
+      d.onclick = () => { if (confirm('¿Olvidar esta decisión?\n\n' + m.text)) { S.memos.splice(i, 1); save(); renderMemos(); } };
+      box.appendChild(d);
+    });
+  }
+  $('add-memo').onclick = () => { const t = prompt('Qué tiene que recordar Cayena (una frase):'); if (t && t.trim()) { S.memos.unshift({ when: new Date().toISOString(), text: t.trim() }); save(); renderMemos(); toast('Anotado'); } };
+
   // ── wiring ──
   document.querySelectorAll('.switch button').forEach(b => b.onclick = () => { document.querySelectorAll('.switch button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.level = b.dataset.lvl; refreshMeta(); toast('Nivel ' + S.level + (S.level === 'AUTO' ? ' · Cayena elige' : S.level === 'N1' ? ' · Flash' : S.level === 'N2' ? ' · Pro' : ' · Deep')); });
   $('rec').onclick = () => S.recording ? stopRec(true) : startRec();
@@ -319,7 +342,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   document.addEventListener('keydown', e => { if (e.code === 'Space' && !spaceDown && document.activeElement === document.body) { e.preventDefault(); spaceDown = true; $('rec').classList.add('down'); startRec(); } });
   document.addEventListener('keyup', e => { if (e.code === 'Space' && spaceDown) { e.preventDefault(); spaceDown = false; $('rec').classList.remove('down'); stopRec(true); } });
 
-  renderNotes(); refreshMeta();
+  renderNotes(); renderMemos(); refreshMeta();
 })();
 </script>
 </body>
