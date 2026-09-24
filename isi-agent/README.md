@@ -8,6 +8,16 @@ Agente personal de Isi para Chilli Toes y para todo lo demás. Mismo formato que
 - **Puente con Pepper**: lee `ISI/BRIEF_FOTOS.md` y `ISI/UPDATES.md`; escribe `ISI/ENTREGAS.md`, `ISI/MI_ESTADO.md`, `ISI/EFICIENCIA.md`.
 - **Reglas duras** iguales a Pepper: anonimato total, nunca explícito, Isi veta, nunca cuentas/publicar/cobrar.
 
+## El dictáfono (`/cayena`)
+Cayena también existe como **grabador de voz**, al estilo del que usa Louis Litt: `cayena.html`, publicado en `/cayena`.
+- **● REC** (o mantener la barra espaciadora): dicta la nota. Al soltar, Cayena la ejecuta vía `/api/run` (persona `cayena`).
+- **Switch AUTO / N1 / N2 / N3** en el cuerpo del grabador: nivel de eficiencia. En AUTO ella elige.
+- **Pantallita OLED**: estado (REC · THINKING · SPEAKING), cronómetro, nota #, y el **EFF** de la última nota (auto-auditoría 0–100).
+- **▶ VOZ**: responde hablado (voz en español del navegador). **■ STOP** corta grabación o voz.
+- **Memoria**: las notas quedan en el dispositivo (localStorage). **Exportar .md** genera el `EFICIENCIA.md` listo para pegar en `ISI/`.
+- Sin micrófono o sin permiso: campo de texto abajo, misma ejecución.
+Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todos.
+
 ## Instalar (3 minutos)
 1. Copiar `isi-agent/SKILL.md`.
 2. En claude.ai → **Configuración → Capacidades → Skills → Crear skill** (o en Cowork: proyecto → Skills → agregar). Pegar el contenido tal cual, con el frontmatter.
