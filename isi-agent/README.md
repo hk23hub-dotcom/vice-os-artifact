@@ -1,4 +1,4 @@
-# Cayena — super agente de Isi
+# Luis — super agente de Isi
 
 Agente personal de Isi para Chilli Toes y para todo lo demás. Mismo formato que Pepper (`chilli-manager`): un `SKILL.md` que se instala en Claude / Cowork. Ejecuta primero, pregunta solo si cambia el resultado, y opera en **niveles de eficiencia** con auto-auditoría por tarea.
 
@@ -8,14 +8,14 @@ Agente personal de Isi para Chilli Toes y para todo lo demás. Mismo formato que
 - **Puente con Pepper**: lee `ISI/BRIEF_FOTOS.md` y `ISI/UPDATES.md`; escribe `ISI/ENTREGAS.md`, `ISI/MI_ESTADO.md`, `ISI/EFICIENCIA.md`.
 - **Reglas duras** iguales a Pepper: anonimato total, nunca explícito, Isi veta, nunca cuentas/publicar/cobrar.
 
-## El dictáfono (`/cayena`)
-Cayena también existe como **grabador de voz**, al estilo del que usa Louis Litt: `cayena.html`, publicado en `/cayena`.
-- **● REC** (o mantener la barra espaciadora): dicta la nota. Al soltar, Cayena la ejecuta vía `/api/run` (persona `cayena`).
-- **Switch AUTO / N1 / N2 / N3** en el cuerpo del grabador: nivel de eficiencia. En AUTO ella elige.
+## El dictáfono (`/luis`)
+Luis también existe como **grabador de voz**, al estilo del que usa Louis Litt: `luis.html`, publicado en `/luis`.
+- **● REC** (o mantener la barra espaciadora): dicta la nota. Al soltar, Luis la ejecuta vía `/api/run` (persona `luis`).
+- **Switch AUTO / N1 / N2 / N3** en el cuerpo del grabador: nivel de eficiencia. En AUTO elige Luis.
 - **Pantallita OLED**: estado (REC · THINKING · SPEAKING), cronómetro, nota #, y el **EFF** de la última nota (auto-auditoría 0–100).
 - **▶ VOZ**: responde hablado (voz en español del navegador). **■ STOP** corta grabación o voz.
 - **Filtro de ruido**: separa el pedido real de la conversación de fondo y ejecuta solo el pedido. Sin pedido → lo dice en 2 líneas.
-- **Decisiones**: cada dato o decisión que aparece en una nota queda anotado (líneas `MEMO:` del agente, o **+ anotar** a mano) y viaja en cada consulta. Si una nota repite un tema, Cayena arranca con "Ya lo teníamos". Hacer repetir a Isi baja su score a 0 en autonomía.
+- **Decisiones**: cada dato o decisión que aparece en una nota queda anotado (líneas `MEMO:` del agente, o **+ anotar** a mano) y viaja en cada consulta. Si una nota repite un tema, Luis arranca con "Ya lo teníamos". Hacer repetir a Isi baja su score a 0 en autonomía.
 - **Memoria**: las notas quedan en el dispositivo (localStorage). **Exportar .md** genera el `EFICIENCIA.md` listo para pegar en `ISI/`.
 - Sin micrófono o sin permiso: campo de texto abajo, misma ejecución.
 Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todos.
@@ -25,7 +25,7 @@ Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todo
 2. En claude.ai → **Configuración → Capacidades → Skills → Crear skill** (o en Cowork: proyecto → Skills → agregar). Pegar el contenido tal cual, con el frontmatter.
 3. Darle a Isi acceso a la carpeta **Chilli Toes** (o al menos a `ISI/`). Crear dentro de `ISI/` los tres archivos desde `isi-agent/plantillas/`:
    - `MI_ESTADO.md` · `ENTREGAS.md` · `EFICIENCIA.md` · `DECISIONES.md`
-4. Primer mensaje de Isi: **"Cayena, arrancá"**. Lee onboarding, brief y updates, y devuelve su estado + plan de la próxima sesión.
+4. Primer mensaje de Isi: **"Luis, arrancá"**. Lee onboarding, brief y updates, y devuelve su estado + plan de la próxima sesión.
 
 Si Isi usa su propia cuenta de Claude: instala el skill ahí y comparte solo la carpeta `ISI/` (no `SALES_LOG.csv` ni `ESTADO.md`).
 
@@ -39,6 +39,6 @@ Agregar en el skill `chilli-manager`, sección **Loop operativo**, paso 2:
 - `isi-weekly-efficiency` (lunes 09:00): promedio de `EFICIENCIA.md`, 1 mejora, propuesta de mini-sesión temática de la semana.
 
 ## Personalizar
-- Nombre: reemplazar `Cayena` en `SKILL.md`.
+- Nombre: reemplazar `Luis` en `SKILL.md`.
 - Umbral de calidad: `< 80 no entregas` → subir a 85 cuando el promedio semanal esté en A dos semanas seguidas.
 - Dominios: agregar secciones bajo **Qué haces** sin tocar las reglas duras.

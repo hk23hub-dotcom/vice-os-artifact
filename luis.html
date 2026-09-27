@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0608">
-<title>Cayena · Dictáfono de Isi</title>
-<meta name="description" content="Cayena: el super agente de Isi en forma de grabador de voz. Apretás REC, dictás, ella ejecuta.">
+<title>Luis · Dictáfono de Isi</title>
+<meta name="description" content="Luis: el super agente de Isi en forma de grabador de voz. Apretás REC, dictás, Luis ejecuta.">
 <link rel="icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -69,7 +69,7 @@ header h1 span{color:var(--chilli)}
 .card h3 b{color:var(--chilli)}
 #live{min-height:64px;font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 #live .int{color:var(--mute)}
-#live:empty::before{content:"Apretá REC (o mantené la barra espaciadora) y hablá. Soltá y Cayena ejecuta.";color:var(--mute);font-size:14px}
+#live:empty::before{content:"Apretá REC (o mantené la barra espaciadora) y hablá. Soltá y Luis ejecuta.";color:var(--mute);font-size:14px}
 #answer{white-space:pre-wrap;line-height:1.55;font-size:15px;word-break:break-word;min-height:40px}
 #answer:empty::before{content:"—";color:var(--mute)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -96,7 +96,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   <header>
     <div>
       <p class="eyebrow">Chilli Toes · agente de Isi</p>
-      <h1>CAYENA <span>●</span> DICTÁFONO</h1>
+      <h1>LUIS <span>●</span> DICTÁFONO</h1>
     </div>
     <div class="eyebrow" id="hdr-eff">EFF — · sin notas</div>
   </header>
@@ -125,7 +125,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
           <button class="btn" id="stop">■ STOP</button>
           <button class="btn" id="play">▶ VOZ</button>
         </div>
-        <div class="brand">Cayena · CT</div>
+        <div class="brand">Luis · CT</div>
       </div>
     </div>
 
@@ -141,7 +141,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       </div>
 
       <div class="card">
-        <h3>Cayena <b id="ans-lvl"></b></h3>
+        <h3>Luis <b id="ans-lvl"></b></h3>
         <div id="answer"></div>
         <div class="row" style="margin-top:12px">
           <button class="chip" id="copy">copiar</button>
@@ -163,7 +163,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   </div>
 
   <footer>
-    N1 Flash · respuesta directa &nbsp;|&nbsp; N2 Pro · entregable listo &nbsp;|&nbsp; N3 Deep · plan → entrega → verificación &nbsp;|&nbsp; AUTO · Cayena elige<br>
+    N1 Flash · respuesta directa &nbsp;|&nbsp; N2 Pro · entregable listo &nbsp;|&nbsp; N3 Deep · plan → entrega → verificación &nbsp;|&nbsp; AUTO · Luis elige<br>
     EFF = auto-auditoría por nota (velocidad · precisión · completitud · autonomía; pedir algo ya dicho = autonomía 0). Menos de 80 no se entrega.<br>Filtra el ruido de fondo de la grabación y ejecuta solo el pedido. Decisiones y memoria solo en este dispositivo.<br>
     Reglas duras: anonimato total · nunca explícito · Isi veta · cuentas, publicar y cobrar son de HK23.
   </footer>
@@ -174,12 +174,12 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 (() => {
   const $ = (id) => document.getElementById(id);
   const RUN_TOKEN = 'hk23-run-9x';
-  const KEY = 'cayena_notes'; const MKEY = 'cayena_memos';
+  const KEY = 'luis_notes'; const MKEY = 'luis_memos';
   const S = { level: 'AUTO', recording: false, busy: false, transcript: '', interim: '', t0: 0, timer: null, notes: [], memos: [], voice: true, lastAnswer: '' };
 
   // ── memory ──
   try { S.notes = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (_) { S.notes = []; }
-  try { S.voice = localStorage.getItem('cayena_voice') !== 'off'; } catch (_) {}
+  try { S.voice = localStorage.getItem('luis_voice') !== 'off'; } catch (_) {}
   try { S.memos = JSON.parse(localStorage.getItem(MKEY) || '[]'); } catch (_) { S.memos = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S.notes.slice(0, 200))); localStorage.setItem(MKEY, JSON.stringify(S.memos.slice(0, 80))); } catch (_) {} };
 
@@ -249,7 +249,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     if (send && text) run(text); else { oled('READY', '00:00'); setLed(''); }
   }
 
-  // ── The brain: /api/run with the cayena persona ──
+  // ── The brain: /api/run with the luis persona ──
   function context() {
     const memos = S.memos.slice(0, 40).map(m => '- ' + m.when.slice(0, 10) + ': ' + m.text).join('\n');
     const last = S.notes.slice(0, 8).map(n => n.when.slice(0, 10) + ' [' + n.level + '] ' + n.ask.slice(0, 160) + ' → ' + n.answer.slice(0, 220).replace(/\n+/g, ' ')).join('\n');
@@ -262,7 +262,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     oled('THINKING', level); setLed('think'); $('rec').disabled = true; $('answer').textContent = ''; $('ans-lvl').textContent = level === 'AUTO' ? '' : level;
     const input = '[NIVEL ' + level + '] ' + text;
     try {
-      const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-run-token': RUN_TOKEN }, body: JSON.stringify({ action: 'agent', agent: 'cayena', input, context: context() }) });
+      const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-run-token': RUN_TOKEN }, body: JSON.stringify({ action: 'agent', agent: 'luis', input, context: context() }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) throw new Error(j.error || (r.status === 404 ? '/api/run no existe en este despliegue.' : 'falló'));
       let ans = (j.text || '').trim(), eff = null;
@@ -310,7 +310,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   function renderMemos() {
     const box = $('memos'); box.innerHTML = '';
-    if (!S.memos.length) { box.innerHTML = '<div class="empty">Nada anotado todavía. Cada decisión, fecha o precio que Isi diga queda acá y Cayena no vuelve a preguntarlo.</div>'; return; }
+    if (!S.memos.length) { box.innerHTML = '<div class="empty">Nada anotado todavía. Cada decisión, fecha o precio que Isi diga queda acá y Luis no vuelve a preguntarlo.</div>'; return; }
     S.memos.slice(0, 40).forEach((m, i) => {
       const d = document.createElement('div'); d.className = 'note'; d.title = 'click para borrar';
       d.innerHTML = '<div class="m"><span>' + m.when.slice(0, 10) + '</span><b>✕</b></div><div class="t" style="white-space:normal">' + esc(m.text) + '</div>';
@@ -318,10 +318,10 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       box.appendChild(d);
     });
   }
-  $('add-memo').onclick = () => { const t = prompt('Qué tiene que recordar Cayena (una frase):'); if (t && t.trim()) { S.memos.unshift({ when: new Date().toISOString(), text: t.trim() }); save(); renderMemos(); toast('Anotado'); } };
+  $('add-memo').onclick = () => { const t = prompt('Qué tiene que recordar Luis (una frase):'); if (t && t.trim()) { S.memos.unshift({ when: new Date().toISOString(), text: t.trim() }); save(); renderMemos(); toast('Anotado'); } };
 
   // ── wiring ──
-  document.querySelectorAll('.switch button').forEach(b => b.onclick = () => { document.querySelectorAll('.switch button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.level = b.dataset.lvl; refreshMeta(); toast('Nivel ' + S.level + (S.level === 'AUTO' ? ' · Cayena elige' : S.level === 'N1' ? ' · Flash' : S.level === 'N2' ? ' · Pro' : ' · Deep')); });
+  document.querySelectorAll('.switch button').forEach(b => b.onclick = () => { document.querySelectorAll('.switch button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.level = b.dataset.lvl; refreshMeta(); toast('Nivel ' + S.level + (S.level === 'AUTO' ? ' · Luis elige' : S.level === 'N1' ? ' · Flash' : S.level === 'N2' ? ' · Pro' : ' · Deep')); });
   $('rec').onclick = () => S.recording ? stopRec(true) : startRec();
   $('stop').onclick = () => { if (S.recording) stopRec(true); else if ('speechSynthesis' in window) { speechSynthesis.cancel(); oled('READY', '00:00'); setLed(''); } };
   $('play').onclick = () => { if (S.lastAnswer) speak(S.lastAnswer); else toast('Nada que reproducir todavía.'); };
@@ -329,11 +329,11 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   $('send-typed').onclick = sendTyped; $('typed').addEventListener('keydown', e => { if (e.key === 'Enter') sendTyped(); });
   $('copy').onclick = async () => { if (!S.lastAnswer) return; try { await navigator.clipboard.writeText(S.lastAnswer); toast('Copiado'); } catch (_) { toast('No pude copiar'); } };
   $('redo').onclick = () => { const t = ($('live').textContent || '').trim(); if (t) run(t, 'N3'); };
-  $('mute').onclick = () => { S.voice = !S.voice; $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off'); try { localStorage.setItem('cayena_voice', S.voice ? 'on' : 'off'); } catch (_) {} if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); };
+  $('mute').onclick = () => { S.voice = !S.voice; $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off'); try { localStorage.setItem('luis_voice', S.voice ? 'on' : 'off'); } catch (_) {} if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); };
   $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off');
   $('export').onclick = () => {
     if (!S.notes.length) return toast('Nada que exportar');
-    const md = '# EFICIENCIA — log de Cayena (dictáfono)\n\n| Fecha | Tarea | Nivel | Score |\n|---|---|---|---|\n' + S.notes.map(n => '| ' + n.when.slice(0, 10) + ' | ' + n.ask.replace(/\|/g, '/').slice(0, 80) + ' | ' + n.level + ' | ' + (n.eff == null ? '—' : n.eff) + ' |').join('\n') + '\n\n---\n\n' + S.notes.map(n => '## ' + n.when.slice(0, 16).replace('T', ' ') + ' · ' + n.level + (n.eff == null ? '' : ' · EFF ' + n.eff) + '\n\n**Isi:** ' + n.ask + '\n\n**Cayena:**\n\n' + n.answer + '\n').join('\n');
+    const md = '# EFICIENCIA — log de Luis (dictáfono)\n\n| Fecha | Tarea | Nivel | Score |\n|---|---|---|---|\n' + S.notes.map(n => '| ' + n.when.slice(0, 10) + ' | ' + n.ask.replace(/\|/g, '/').slice(0, 80) + ' | ' + n.level + ' | ' + (n.eff == null ? '—' : n.eff) + ' |').join('\n') + '\n\n---\n\n' + S.notes.map(n => '## ' + n.when.slice(0, 16).replace('T', ' ') + ' · ' + n.level + (n.eff == null ? '' : ' · EFF ' + n.eff) + '\n\n**Isi:** ' + n.ask + '\n\n**Luis:**\n\n' + n.answer + '\n').join('\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = 'EFICIENCIA-' + new Date().toISOString().slice(0, 10) + '.md'; a.click(); URL.revokeObjectURL(a.href);
   };
   $('clear').onclick = () => { if (!S.notes.length) return; if (confirm('¿Borrar todas las notas de este dispositivo?')) { S.notes = []; save(); renderNotes(); refreshMeta(); toast('Memoria borrada'); } };

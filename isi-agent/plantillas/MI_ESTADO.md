@@ -1,6 +1,6 @@
 # MI ESTADO — Isi
 
-> Fuente de verdad de Cayena. Se actualiza con cada acción.
+> Fuente de verdad de Luis. Se actualiza con cada acción.
 
 ## Hoy
 - Fecha: 
@@ -12,7 +12,7 @@
 ## Próxima sesión
 - Fecha/hora: 
 - Brief: (ver `ISI/BRIEF_FOTOS.md`)
-- Plan de sesión: (Cayena lo genera y lo pega aquí)
+- Plan de sesión: (Luis lo genera y lo pega aquí)
 
 ## Ideas en cola
 - 

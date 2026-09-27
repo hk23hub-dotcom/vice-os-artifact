@@ -1,4 +1,4 @@
-# EFICIENCIA — log de Cayena
+# EFICIENCIA — log de Luis
 
 > Una línea por tarea. Score 0–100 (Velocidad 25 · Precisión 25 · Completitud 25 · Autonomía 25). <80 no se entrega.
 
