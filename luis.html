@@ -141,7 +141,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
         <h3>Nota de voz <span id="live-meta" class="mono"></span></h3>
         <div id="live"></div>
         <div class="fallback">
-          <input id="typed" placeholder="…o escribila acá y Enter" autocomplete="off">
+          <input id="typed" placeholder="…o escribila acá (o dictá con el 🎤 del teclado) y Enter" autocomplete="off" enterkeyhint="send">
           <button class="chip hot" id="send-typed">EJECUTAR</button>
         </div>
       </div>
@@ -231,20 +231,39 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) fin += t + ' '; else int += t; }
       if (fin) S.transcript += fin; S.interim = int; renderLive();
     };
-    r.onerror = (e) => { if (e.error === 'not-allowed') { toast('Sin permiso de micrófono: escribí la nota abajo.'); stopRec(false); } };
-    r.onend = () => { if (S.recording) { try { r.start(); } catch (_) {} } };
+    r.onerror = (e) => { if (FATAL.includes(e.error)) dictationDown(e.error); };
+    r.onend = () => {
+      if (!S.recording) return;
+      // Chrome corta el dictado cada tanto: se reanuda. Si se corta en loop (típico en app instalada en iPhone), se pasa a texto.
+      const now = Date.now(); S.restarts = (S.restarts || []).filter(t => now - t < 4000); S.restarts.push(now);
+      if (S.restarts.length > 3) return dictationDown('loop');
+      try { r.start(); } catch (_) { dictationDown('start'); }
+    };
     return r;
+  }
+  const FATAL = ['not-allowed', 'service-not-allowed', 'audio-capture', 'network', 'language-not-supported'];
+  // Si el dictado del navegador falla, nada se pierde: lo captado pasa al cuadro de texto y se sigue por ahí.
+  function textMode(why) {
+    toast(why + ' Tocá el cuadro de texto y usá el 🎤 del teclado, o escribí.');
+    const box = $('typed'); box.focus();
+  }
+  function dictationDown(reason) {
+    S.srDown = true;
+    const kept = (S.transcript + ' ' + (S.interim || '')).trim();
+    stopRec(false);
+    if (kept) $('typed').value = kept;
+    textMode(reason === 'not-allowed' || reason === 'service-not-allowed' ? 'Sin permiso de micrófono.' : 'El dictado se cortó.');
   }
   function renderLive() { $('live').innerHTML = esc(S.transcript) + (S.interim ? '<span class="int">' + esc(S.interim) + '</span>' : ''); }
   const esc = (s) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
   function startRec() {
     if (S.recording || S.busy) return;
-    if (!SR) { toast('Este navegador no dicta. Escribí la nota abajo (Chrome/Safari sí dictan).'); $('typed').focus(); return; }
+    if (!SR || S.srDown) { textMode(!SR ? 'Este navegador no dicta.' : 'El dictado no anda acá.'); return; }
     S.recording = true; S.transcript = ''; S.interim = ''; renderLive();
     S.t0 = Date.now(); oled('REC', '00:00'); setLed('on'); $('rec').classList.add('live'); $('live-meta').textContent = '● grabando';
     S.timer = setInterval(() => { const s = Math.floor((Date.now() - S.t0) / 1000); $('o-big').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60); }, 250);
-    micOn(); rec = makeRec(); try { rec.start(); } catch (_) {}
+    S.restarts = []; micOn(); rec = makeRec(); try { rec.start(); } catch (_) { dictationDown('start'); }
   }
   function stopRec(send = true) {
     if (!S.recording) return;
