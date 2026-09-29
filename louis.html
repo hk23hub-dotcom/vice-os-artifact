@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0a0608">
-<title>Luis · Dictáfono de Isi</title>
-<meta name="description" content="Luis: el super agente de Isi en forma de grabador de voz. Apretás REC, dictás, Luis ejecuta.">
+<title>Louis · Dictáfono de Isi</title>
+<meta name="description" content="Louis: el super agente de Isi en forma de grabador de voz. Apretás REC, dictás, Louis ejecuta.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Luis">
-<link rel="manifest" href="/luis-manifest.webmanifest">
-<link rel="icon" href="/luis-icon-192.png">
-<link rel="apple-touch-icon" href="/luis-icon-180.png">
+<meta name="apple-mobile-web-app-title" content="Louis">
+<link rel="manifest" href="/louis-manifest.webmanifest">
+<link rel="icon" href="/louis-icon-192.png">
+<link rel="apple-touch-icon" href="/louis-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -75,7 +75,7 @@ header h1 span{color:var(--chilli)}
 .card h3 b{color:var(--chilli)}
 #live{min-height:64px;font-size:17px;line-height:1.45;white-space:pre-wrap;word-break:break-word}
 #live .int{color:var(--mute)}
-#live:empty::before{content:"Apretá REC (o mantené la barra espaciadora) y hablá. Soltá y Luis ejecuta.";color:var(--mute);font-size:14px}
+#live:empty::before{content:"Apretá REC (o mantené la barra espaciadora) y hablá. Soltá y Louis ejecuta.";color:var(--mute);font-size:14px}
 #answer{white-space:pre-wrap;line-height:1.55;font-size:15px;word-break:break-word;min-height:40px}
 #answer:empty::before{content:"—";color:var(--mute)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -89,6 +89,13 @@ header h1 span{color:var(--chilli)}
 .mic .chip{margin-left:auto}
 .mic-help{font-size:13px;line-height:1.55;color:var(--ink);background:#1a0d10;border:1px solid #3a1a20;border-radius:10px;padding:10px 12px;margin-bottom:12px}
 .mic-help b{color:var(--oledink)}
+.mic .chip + .chip{margin-left:0}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,42,31,.7)}50%{box-shadow:0 0 0 14px rgba(255,42,31,0)}}
+.rec.pulse{animation:pulse 1s ease-in-out 4}
+@media (prefers-reduced-motion:reduce){.rec.pulse{animation:none;outline:2px solid var(--chilli)}}
+#atento[aria-pressed="true"]{color:var(--ok);border-color:#1f5a26;box-shadow:0 0 10px rgba(125,255,138,.18)}
+.atento-hint{font-size:11px;line-height:1.55;color:var(--mute);margin:-4px 0 12px}
+.atento-hint b{color:var(--ok);font-weight:700}
 .fallback{display:flex;gap:8px;margin-top:12px}
 .fallback input{flex:1;background:#0a0708;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font:inherit;font-size:14px}
 .fallback input:focus{outline:none;border-color:#5a1a16}
@@ -109,7 +116,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   <header>
     <div>
       <p class="eyebrow">Chilli Toes · agente de Isi</p>
-      <h1>LUIS <span>●</span> DICTÁFONO</h1>
+      <h1>LOUIS <span>●</span> DICTÁFONO</h1>
     </div>
     <div class="eyebrow" id="hdr-eff">EFF — · sin notas</div>
   </header>
@@ -138,7 +145,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
           <button class="btn" id="stop">■ STOP</button>
           <button class="btn" id="play">▶ VOZ</button>
         </div>
-        <div class="brand">Luis · CT</div>
+        <div class="brand">Louis · CT</div>
       </div>
     </div>
 
@@ -146,7 +153,8 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     <div class="tape">
       <div class="card">
         <h3>Nota de voz <span id="live-meta" class="mono"></span></h3>
-        <div class="mic" id="mic-row"><span class="mic-dot" id="mic-dot"></span><span id="mic-state">Micrófono sin activar</span><button class="chip hot" id="mic-on">Activar micrófono</button></div>
+        <div class="mic" id="mic-row"><span class="mic-dot" id="mic-dot"></span><span id="mic-state">Micrófono sin activar</span><button class="chip hot" id="mic-on">Activar micrófono</button><button class="chip" id="atento" aria-pressed="false">Modo atento: off</button></div>
+        <p class="atento-hint mono" id="atento-hint" hidden>Escuchando. Decí <b>“Louis, atento”</b> y dictá. Cuando te callás 4 segundos, o decís <b>“listo”</b>, Louis ejecuta.</p>
         <div class="mic-help" id="mic-help" hidden></div>
         <div id="live"></div>
         <div class="fallback">
@@ -156,7 +164,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       </div>
 
       <div class="card">
-        <h3>Luis <b id="ans-lvl"></b></h3>
+        <h3>Louis <b id="ans-lvl"></b></h3>
         <div id="answer"></div>
         <div class="row" style="margin-top:12px">
           <button class="chip" id="copy">copiar</button>
@@ -178,7 +186,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   </div>
 
   <footer>
-    N1 Flash · respuesta directa &nbsp;|&nbsp; N2 Pro · entregable listo &nbsp;|&nbsp; N3 Deep · plan → entrega → verificación &nbsp;|&nbsp; AUTO · Luis elige<br>
+    N1 Flash · respuesta directa &nbsp;|&nbsp; N2 Pro · entregable listo &nbsp;|&nbsp; N3 Deep · plan → entrega → verificación &nbsp;|&nbsp; AUTO · Louis elige<br>
     EFF = auto-auditoría por nota (velocidad · precisión · completitud · autonomía; pedir algo ya dicho = autonomía 0). Menos de 80 no se entrega.<br>Filtra el ruido de fondo de la grabación y ejecuta solo el pedido. Decisiones y memoria solo en este dispositivo.<br>
     Reglas duras: anonimato total · nunca explícito · Isi veta · cuentas, publicar y cobrar son de HK23.
   </footer>
@@ -189,12 +197,12 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 (() => {
   const $ = (id) => document.getElementById(id);
   const RUN_TOKEN = 'hk23-run-9x';
-  const KEY = 'luis_notes'; const MKEY = 'luis_memos';
+  const KEY = 'louis_notes'; const MKEY = 'louis_memos';
   const S = { level: 'AUTO', recording: false, busy: false, transcript: '', interim: '', t0: 0, timer: null, notes: [], memos: [], voice: true, lastAnswer: '' };
 
   // ── memory ──
   try { S.notes = JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (_) { S.notes = []; }
-  try { S.voice = localStorage.getItem('luis_voice') !== 'off'; } catch (_) {}
+  try { S.voice = localStorage.getItem('louis_voice') !== 'off'; } catch (_) {}
   try { S.memos = JSON.parse(localStorage.getItem(MKEY) || '[]'); } catch (_) { S.memos = []; }
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S.notes.slice(0, 200))); localStorage.setItem(MKEY, JSON.stringify(S.memos.slice(0, 80))); } catch (_) {} };
 
@@ -238,10 +246,10 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   const installed = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   function micHelpHTML() {
     if (isIOS) return installed
-      ? 'El iPhone bloqueó el micrófono para Luis. Abrí <b>Ajustes → Safari → Micrófono</b> y elegí <b>Permitir</b>. Volvé a Luis y tocá <b>Activar micrófono</b>.'
+      ? 'El iPhone bloqueó el micrófono para Louis. Abrí <b>Ajustes → Safari → Micrófono</b> y elegí <b>Permitir</b>. Volvé a Louis y tocá <b>Activar micrófono</b>.'
       : 'Safari bloqueó el micrófono. Tocá <b>aA</b> en la barra de dirección → <b>Configuración del sitio web</b> → <b>Micrófono</b> → <b>Permitir</b>. Si no aparece: <b>Ajustes → Safari → Micrófono → Permitir</b>. Después tocá <b>Activar micrófono</b>.';
     if (isAndroid) return installed
-      ? 'Android bloqueó el micrófono para Luis. Mantené apretado el ícono de Luis → <b>Información de la app</b> → <b>Permisos</b> → <b>Micrófono</b> → <b>Permitir</b>. Volvé y tocá <b>Activar micrófono</b>.'
+      ? 'Android bloqueó el micrófono para Louis. Mantené apretado el ícono de Louis → <b>Información de la app</b> → <b>Permisos</b> → <b>Micrófono</b> → <b>Permitir</b>. Volvé y tocá <b>Activar micrófono</b>.'
       : 'Chrome bloqueó el micrófono. Tocá el <b>candado</b> al lado de la dirección → <b>Permisos</b> → <b>Micrófono</b> → <b>Permitir</b>. Después tocá <b>Activar micrófono</b>.';
     return 'El navegador bloqueó el micrófono. Hacé clic en el <b>candado</b> de la barra de dirección → <b>Micrófono</b> → <b>Permitir</b>, y tocá <b>Activar micrófono</b>.';
   }
@@ -285,6 +293,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       let fin = '', int = '';
       for (let i = e.resultIndex; i < e.results.length; i++) { const t = e.results[i][0].transcript; if (e.results[i].isFinal) fin += t + ' '; else int += t; }
       if (fin) S.transcript += fin; S.interim = int; renderLive();
+      if (S.handsFree) handsFreeTick();
     };
     r.onerror = (e) => { if (FATAL.includes(e.error)) dictationDown(e.error); };
     r.onend = () => {
@@ -303,6 +312,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     const box = $('typed'); box.focus();
   }
   function dictationDown(reason) {
+    if (S.autoStart && Date.now() - S.autoStart < 2500) { S.autoStart = 0; stopRec(false); $('rec').classList.add('pulse'); setTimeout(() => $('rec').classList.remove('pulse'), 4000); return toast('Tocá ● REC para empezar a grabar.'); }
     if (reason === 'not-allowed') { setMic('denied'); } else S.srDown = true;
     const kept = (S.transcript + ' ' + (S.interim || '')).trim();
     stopRec(false);
@@ -312,25 +322,68 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   function renderLive() { $('live').innerHTML = esc(S.transcript) + (S.interim ? '<span class="int">' + esc(S.interim) + '</span>' : ''); }
   const esc = (s) => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
-  function startRec() {
+  // ── Modo atento: “Louis, atento” arranca a grabar sin tocar nada ──
+  const WAKE = /\b(?:l[ou]{1,2}[ií]s|lewis|luí|luiz)\b[\s,.!¡]*(?:atent[oa]|atención)\b[\s,.:]*/i;
+  const DONE = /[\s,.]*\b(?:listo|eso es todo|gracias)\b[\s,.!]*(?:l[ou]{1,2}[ií]s|lewis)?[\s.!]*$/i;
+  let ear = null, wake = null;
+  function beep() { try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); const o = actx.createOscillator(), g = actx.createGain(); o.frequency.value = 880; g.gain.value = .08; o.connect(g); g.connect(actx.destination); o.start(); o.stop(actx.currentTime + .12); } catch (_) {} }
+  async function keepAwake() { try { if ('wakeLock' in navigator && !wake && document.visibilityState === 'visible') { wake = await navigator.wakeLock.request('screen'); wake.addEventListener('release', () => { wake = null; }); } } catch (_) {} }
+  function setAtento(on, quiet) {
+    S.atento = on; $('atento').setAttribute('aria-pressed', on ? 'true' : 'false'); $('atento').textContent = 'Modo atento: ' + (on ? 'on' : 'off'); $('atento-hint').hidden = !on;
+    try { localStorage.setItem('louis_atento', on ? 'on' : 'off'); } catch (_) {}
+    if (on) { keepAwake(); listen(); if (!quiet) toast('Modo atento: decí “Louis, atento”.'); }
+    else { stopEar(); if (wake) { wake.release().catch(() => {}); wake = null; } if (!quiet) toast('Modo atento apagado.'); }
+  }
+  function stopEar() { if (ear) { const e = ear; ear = null; try { e.onend = null; e.stop(); } catch (_) {} } }
+  function listen() {
+    if (!S.atento || ear || S.recording || S.busy || !SR || S.srDown || document.visibilityState !== 'visible') return;
+    if (MIC.state === 'denied' || MIC.state === 'none') { setAtento(false, true); $('mic-help').hidden = false; return toast('Para el modo atento, primero activá el micrófono.'); }
+    const r = new SR(); r.lang = 'es-AR'; r.continuous = true; r.interimResults = true; ear = r;
+    let heard = '';
+    r.onresult = (e) => {
+      let all = ''; for (let i = 0; i < e.results.length; i++) all += e.results[i][0].transcript + ' ';
+      heard = all; const m = heard.match(WAKE);
+      if (m) { const rest = heard.slice(m.index + m[0].length).trim(); stopEar(); beep(); oled('LISTO', '♪'); startRec({ handsFree: true, seed: rest }); }
+    };
+    r.onerror = (e) => { if (e.error === 'not-allowed') { setMic('denied'); setAtento(false, true); } else if (FATAL.includes(e.error)) { S.srDown = true; setAtento(false, true); textMode('El modo atento no anda en este navegador.'); } };
+    r.onend = () => {
+      if (ear !== r) return; ear = null;
+      const now = Date.now(); S.earRestarts = (S.earRestarts || []).filter(t => now - t < 6000); S.earRestarts.push(now);
+      if (S.earRestarts.length > 5) { setAtento(false, true); return toast('El modo atento se cortó. Tocá “Modo atento” para volver a activarlo.'); }
+      setTimeout(listen, 250);
+    };
+    try { r.start(); } catch (_) { ear = null; }
+  }
+  function handsFreeTick() {
+    clearTimeout(S.quietTimer);
+    const all = (S.transcript + ' ' + (S.interim || '')).trim();
+    if (DONE.test(all) && all.replace(DONE, '').trim()) { S.transcript = all.replace(DONE, '') + ' '; S.interim = ''; renderLive(); return stopRec(true); }
+    S.quietTimer = setTimeout(() => { if (S.recording && S.handsFree) { if ((S.transcript + S.interim).trim()) stopRec(true); else { stopRec(false); resumeAfter(); } } }, 4000);
+  }
+  function resumeAfter() { if (S.atento) setTimeout(listen, 500); }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.atento) { keepAwake(); listen(); } else stopEar(); });
+
+  function startRec(opts) {
     if (S.recording || S.busy) return;
     if (MIC.state === 'denied' || MIC.state === 'none') { $('mic-help').hidden = false; $('mic-row').scrollIntoView({ behavior: 'smooth', block: 'center' }); toast(MIC.state === 'denied' ? 'El micrófono está bloqueado: seguí los pasos de arriba.' : 'No hay micrófono: escribí la nota.'); return; }
     if (!SR || S.srDown) { textMode(!SR ? 'Este navegador no dicta.' : 'El dictado no anda acá.'); return; }
-    S.recording = true; S.transcript = ''; S.interim = ''; renderLive();
+    stopEar(); S.handsFree = !!(opts && opts.handsFree); S.autoStart = (opts && opts.auto) ? Date.now() : 0;
+    S.recording = true; S.transcript = (opts && opts.seed) ? opts.seed + ' ' : ''; S.interim = ''; renderLive();
     S.t0 = Date.now(); oled('REC', '00:00'); setLed('on'); $('rec').classList.add('live'); $('live-meta').textContent = '● grabando';
     S.timer = setInterval(() => { const s = Math.floor((Date.now() - S.t0) / 1000); $('o-big').textContent = pad(Math.floor(s / 60)) + ':' + pad(s % 60); }, 250);
     S.restarts = []; micOn(); rec = makeRec(); try { rec.start(); } catch (_) { dictationDown('start'); }
+    if (S.handsFree) handsFreeTick();
   }
   function stopRec(send = true) {
     if (!S.recording) return;
-    S.recording = false; clearInterval(S.timer); micOff();
+    S.recording = false; clearInterval(S.timer); clearTimeout(S.quietTimer); micOff();
     if (rec) { try { rec.onend = null; rec.stop(); } catch (_) {} }
     $('rec').classList.remove('live'); $('live-meta').textContent = '';
     const text = (S.transcript + ' ' + S.interim).trim(); S.interim = ''; renderLive();
-    if (send && text) run(text); else { oled('READY', '00:00'); setLed(''); }
+    if (send && text) run(text); else { oled('READY', '00:00'); setLed(''); resumeAfter(); }
   }
 
-  // ── The brain: /api/run with the luis persona ──
+  // ── The brain: /api/run with the louis persona ──
   function context() {
     const memos = S.memos.slice(0, 40).map(m => '- ' + m.when.slice(0, 10) + ': ' + m.text).join('\n');
     const last = S.notes.slice(0, 8).map(n => n.when.slice(0, 10) + ' [' + n.level + '] ' + n.ask.slice(0, 160) + ' → ' + n.answer.slice(0, 220).replace(/\n+/g, ' ')).join('\n');
@@ -343,7 +396,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     oled('THINKING', level); setLed('think'); $('rec').disabled = true; $('answer').textContent = ''; $('ans-lvl').textContent = level === 'AUTO' ? '' : level;
     const input = '[NIVEL ' + level + '] ' + text;
     try {
-      const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-run-token': RUN_TOKEN }, body: JSON.stringify({ action: 'agent', agent: 'luis', input, context: context() }) });
+      const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-run-token': RUN_TOKEN }, body: JSON.stringify({ action: 'agent', agent: 'louis', input, context: context() }) });
       const j = await r.json().catch(() => ({}));
       if (!r.ok || !j.ok) throw new Error(j.error || (r.status === 404 ? '/api/run no existe en este despliegue.' : 'falló'));
       let ans = (j.text || '').trim(), eff = null;
@@ -356,9 +409,9 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       $('o-eff').textContent = eff == null ? 'EFF —' : ('EFF ' + eff + ' · ' + grade(eff));
       S.notes.unshift({ when: new Date().toISOString(), level: lvl, ask: text, answer: ans, eff }); save(); renderNotes(); renderMemos(); refreshMeta();
       oled('DONE', eff == null ? '--' : String(eff)); setLed('speak');
-      if (S.voice) speak(ans); else setTimeout(() => { oled('READY', '00:00'); setLed(''); }, 1200);
+      if (S.voice) speak(ans); else setTimeout(() => { oled('READY', '00:00'); setLed(''); resumeAfter(); }, 1200);
     } catch (e) {
-      $('answer').textContent = '⚠️ ' + (e.message || 'falló'); oled('ERROR', '--'); setLed(''); toast('No pude ejecutar: ' + (e.message || 'error'));
+      $('answer').textContent = '⚠️ ' + (e.message || 'falló'); oled('ERROR', '--'); setLed(''); toast('No pude ejecutar: ' + (e.message || 'error')); resumeAfter();
     } finally { S.busy = false; $('rec').disabled = false; }
   }
 
@@ -372,7 +425,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     const clean = text.replace(/[*_#>`|]/g, '').replace(/\s*→\s*/g, ', ').slice(0, 1500);
     const u = new SpeechSynthesisUtterance(clean); const v = pickVoice(); if (v) u.voice = v; u.lang = (v && v.lang) || 'es-AR'; u.rate = 1.05; u.pitch = 1.0;
     u.onstart = () => { oled('SPEAKING', '♪'); setLed('speak'); };
-    u.onend = u.onerror = () => { oled('READY', '00:00'); setLed(''); };
+    u.onend = u.onerror = () => { oled('READY', '00:00'); setLed(''); resumeAfter(); };
     speechSynthesis.speak(u);
   }
 
@@ -391,7 +444,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   function renderMemos() {
     const box = $('memos'); box.innerHTML = '';
-    if (!S.memos.length) { box.innerHTML = '<div class="empty">Nada anotado todavía. Cada decisión, fecha o precio que Isi diga queda acá y Luis no vuelve a preguntarlo.</div>'; return; }
+    if (!S.memos.length) { box.innerHTML = '<div class="empty">Nada anotado todavía. Cada decisión, fecha o precio que Isi diga queda acá y Louis no vuelve a preguntarlo.</div>'; return; }
     S.memos.slice(0, 40).forEach((m, i) => {
       const d = document.createElement('div'); d.className = 'note'; d.title = 'click para borrar';
       d.innerHTML = '<div class="m"><span>' + m.when.slice(0, 10) + '</span><b>✕</b></div><div class="t" style="white-space:normal">' + esc(m.text) + '</div>';
@@ -399,10 +452,10 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       box.appendChild(d);
     });
   }
-  $('add-memo').onclick = () => { const t = prompt('Qué tiene que recordar Luis (una frase):'); if (t && t.trim()) { S.memos.unshift({ when: new Date().toISOString(), text: t.trim() }); save(); renderMemos(); toast('Anotado'); } };
+  $('add-memo').onclick = () => { const t = prompt('Qué tiene que recordar Louis (una frase):'); if (t && t.trim()) { S.memos.unshift({ when: new Date().toISOString(), text: t.trim() }); save(); renderMemos(); toast('Anotado'); } };
 
   // ── wiring ──
-  document.querySelectorAll('.switch button').forEach(b => b.onclick = () => { document.querySelectorAll('.switch button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.level = b.dataset.lvl; refreshMeta(); toast('Nivel ' + S.level + (S.level === 'AUTO' ? ' · Luis elige' : S.level === 'N1' ? ' · Flash' : S.level === 'N2' ? ' · Pro' : ' · Deep')); });
+  document.querySelectorAll('.switch button').forEach(b => b.onclick = () => { document.querySelectorAll('.switch button').forEach(x => x.classList.remove('on')); b.classList.add('on'); S.level = b.dataset.lvl; refreshMeta(); toast('Nivel ' + S.level + (S.level === 'AUTO' ? ' · Louis elige' : S.level === 'N1' ? ' · Flash' : S.level === 'N2' ? ' · Pro' : ' · Deep')); });
   $('rec').onclick = () => S.recording ? stopRec(true) : startRec();
   $('stop').onclick = () => { if (S.recording) stopRec(true); else if ('speechSynthesis' in window) { speechSynthesis.cancel(); oled('READY', '00:00'); setLed(''); } };
   $('play').onclick = () => { if (S.lastAnswer) speak(S.lastAnswer); else toast('Nada que reproducir todavía.'); };
@@ -410,11 +463,11 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   $('send-typed').onclick = sendTyped; $('typed').addEventListener('keydown', e => { if (e.key === 'Enter') sendTyped(); });
   $('copy').onclick = async () => { if (!S.lastAnswer) return; try { await navigator.clipboard.writeText(S.lastAnswer); toast('Copiado'); } catch (_) { toast('No pude copiar'); } };
   $('redo').onclick = () => { const t = ($('live').textContent || '').trim(); if (t) run(t, 'N3'); };
-  $('mute').onclick = () => { S.voice = !S.voice; $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off'); try { localStorage.setItem('luis_voice', S.voice ? 'on' : 'off'); } catch (_) {} if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); };
+  $('mute').onclick = () => { S.voice = !S.voice; $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off'); try { localStorage.setItem('louis_voice', S.voice ? 'on' : 'off'); } catch (_) {} if (!S.voice && 'speechSynthesis' in window) speechSynthesis.cancel(); };
   $('mute').textContent = 'voz: ' + (S.voice ? 'on' : 'off');
   $('export').onclick = () => {
     if (!S.notes.length) return toast('Nada que exportar');
-    const md = '# EFICIENCIA — log de Luis (dictáfono)\n\n| Fecha | Tarea | Nivel | Score |\n|---|---|---|---|\n' + S.notes.map(n => '| ' + n.when.slice(0, 10) + ' | ' + n.ask.replace(/\|/g, '/').slice(0, 80) + ' | ' + n.level + ' | ' + (n.eff == null ? '—' : n.eff) + ' |').join('\n') + '\n\n---\n\n' + S.notes.map(n => '## ' + n.when.slice(0, 16).replace('T', ' ') + ' · ' + n.level + (n.eff == null ? '' : ' · EFF ' + n.eff) + '\n\n**Isi:** ' + n.ask + '\n\n**Luis:**\n\n' + n.answer + '\n').join('\n');
+    const md = '# EFICIENCIA — log de Louis (dictáfono)\n\n| Fecha | Tarea | Nivel | Score |\n|---|---|---|---|\n' + S.notes.map(n => '| ' + n.when.slice(0, 10) + ' | ' + n.ask.replace(/\|/g, '/').slice(0, 80) + ' | ' + n.level + ' | ' + (n.eff == null ? '—' : n.eff) + ' |').join('\n') + '\n\n---\n\n' + S.notes.map(n => '## ' + n.when.slice(0, 16).replace('T', ' ') + ' · ' + n.level + (n.eff == null ? '' : ' · EFF ' + n.eff) + '\n\n**Isi:** ' + n.ask + '\n\n**Louis:**\n\n' + n.answer + '\n').join('\n');
     const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' })); a.download = 'EFICIENCIA-' + new Date().toISOString().slice(0, 10) + '.md'; a.click(); URL.revokeObjectURL(a.href);
   };
   $('clear').onclick = () => { if (!S.notes.length) return; if (confirm('¿Borrar todas las notas de este dispositivo?')) { S.notes = []; save(); renderNotes(); refreshMeta(); toast('Memoria borrada'); } };
@@ -423,11 +476,20 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
   document.addEventListener('keydown', e => { if (e.code === 'Space' && !spaceDown && document.activeElement === document.body) { e.preventDefault(); spaceDown = true; $('rec').classList.add('down'); startRec(); } });
   document.addEventListener('keyup', e => { if (e.code === 'Space' && spaceDown) { e.preventDefault(); spaceDown = false; $('rec').classList.remove('down'); stopRec(true); } });
 
+  $('atento').onclick = async () => { if (S.atento) return setAtento(false); if (MIC.state !== 'granted') await askMic(); if (MIC.state === 'granted' || MIC.state === 'unknown') setAtento(true); };
+
   renderNotes(); renderMemos(); refreshMeta();
+  // Atajos: /louis?rec=1 graba apenas abre · /louis?atento=1 abre escuchando “Louis, atento”
+  const qs = new URLSearchParams(location.search);
+  let pref = 'off'; try { pref = localStorage.getItem('louis_atento') || 'off'; } catch (_) {}
+  setTimeout(() => {
+    if (qs.get('rec') === '1') { startRec({ handsFree: true, auto: true }); if (qs.get('atento') === '1' || pref === 'on') { S.atento = true; setAtento(true, true); stopEar(); } }
+    else if (qs.get('atento') === '1' || pref === 'on') setAtento(true, true);
+  }, 400);
 })();
-  // ── App instalable: service worker con scope /luis ──
+  // ── App instalable: service worker con scope /louis ──
   if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-    window.addEventListener('load', () => { navigator.serviceWorker.register('/luis-sw.js', { scope: '/luis' }).catch(() => {}); });
+    window.addEventListener('load', () => { navigator.serviceWorker.register('/louis-sw.js', { scope: '/louis' }).catch(() => {}); });
   }
 </script>
 </body>
