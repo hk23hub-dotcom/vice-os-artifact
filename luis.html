@@ -82,6 +82,13 @@ header h1 span{color:var(--chilli)}
 .chip{font-family:'Space Mono',monospace;font-size:10px;padding:5px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mute);background:transparent;cursor:pointer}
 .chip:hover{color:var(--ink);border-color:#4a3a40}
 .chip.hot{color:var(--chilli);border-color:#5a1a16}
+.mic{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--mute)}
+.mic-dot{width:8px;height:8px;border-radius:50%;background:var(--mute);flex:none}
+.mic-dot.ok{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+.mic-dot.bad{background:var(--chilli);box-shadow:0 0 8px var(--chilli)}
+.mic .chip{margin-left:auto}
+.mic-help{font-size:13px;line-height:1.55;color:var(--ink);background:#1a0d10;border:1px solid #3a1a20;border-radius:10px;padding:10px 12px;margin-bottom:12px}
+.mic-help b{color:var(--oledink)}
 .fallback{display:flex;gap:8px;margin-top:12px}
 .fallback input{flex:1;background:#0a0708;border:1px solid var(--line);border-radius:10px;padding:10px 12px;color:var(--ink);font:inherit;font-size:14px}
 .fallback input:focus{outline:none;border-color:#5a1a16}
@@ -139,6 +146,8 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     <div class="tape">
       <div class="card">
         <h3>Nota de voz <span id="live-meta" class="mono"></span></h3>
+        <div class="mic" id="mic-row"><span class="mic-dot" id="mic-dot"></span><span id="mic-state">Micrófono sin activar</span><button class="chip hot" id="mic-on">Activar micrófono</button></div>
+        <div class="mic-help" id="mic-help" hidden></div>
         <div id="live"></div>
         <div class="fallback">
           <input id="typed" placeholder="…o escribila acá (o dictá con el 🎤 del teclado) y Enter" autocomplete="off" enterkeyhint="send">
@@ -217,9 +226,55 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
       const data = new Uint8Array(analyser.frequencyBinCount);
       const loop = () => { analyser.getByteFrequencyData(data); bars.forEach((b, i) => { const v = data[Math.min(i * 2, data.length - 1)] / 255; b.style.height = Math.max(3, v * 38) + 'px'; b.classList.toggle('a', v > .08); }); raf = requestAnimationFrame(loop); };
       loop();
-    } catch (_) { /* no mic: VU stays idle, text fallback still works */ }
+      if (MIC.state !== 'granted') setMic('granted');
+    } catch (e) { if (e && (e.name === 'NotAllowedError' || e.name === 'SecurityError')) { setMic('denied'); if (S.recording) stopRec(false); } else if (e && e.name === 'NotFoundError') setMic('none'); }
   }
   function micOff() { cancelAnimationFrame(raf); bars.forEach(b => { b.style.height = '3px'; b.classList.remove('a'); }); if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; } }
+
+  // ── Permiso de micrófono: estado visible, pedido explícito y cómo desbloquearlo ──
+  const MIC = { state: 'unknown' };
+  const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/i.test(navigator.userAgent);
+  const installed = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  function micHelpHTML() {
+    if (isIOS) return installed
+      ? 'El iPhone bloqueó el micrófono para Luis. Abrí <b>Ajustes → Safari → Micrófono</b> y elegí <b>Permitir</b>. Volvé a Luis y tocá <b>Activar micrófono</b>.'
+      : 'Safari bloqueó el micrófono. Tocá <b>aA</b> en la barra de dirección → <b>Configuración del sitio web</b> → <b>Micrófono</b> → <b>Permitir</b>. Si no aparece: <b>Ajustes → Safari → Micrófono → Permitir</b>. Después tocá <b>Activar micrófono</b>.';
+    if (isAndroid) return installed
+      ? 'Android bloqueó el micrófono para Luis. Mantené apretado el ícono de Luis → <b>Información de la app</b> → <b>Permisos</b> → <b>Micrófono</b> → <b>Permitir</b>. Volvé y tocá <b>Activar micrófono</b>.'
+      : 'Chrome bloqueó el micrófono. Tocá el <b>candado</b> al lado de la dirección → <b>Permisos</b> → <b>Micrófono</b> → <b>Permitir</b>. Después tocá <b>Activar micrófono</b>.';
+    return 'El navegador bloqueó el micrófono. Hacé clic en el <b>candado</b> de la barra de dirección → <b>Micrófono</b> → <b>Permitir</b>, y tocá <b>Activar micrófono</b>.';
+  }
+  function setMic(st) {
+    MIC.state = st;
+    const txt = { granted: 'Micrófono activo', denied: 'Micrófono bloqueado', none: 'Sin micrófono en este dispositivo', prompt: 'Micrófono sin activar', unknown: 'Micrófono sin activar' }[st] || 'Micrófono sin activar';
+    $('mic-state').textContent = txt;
+    $('mic-dot').className = 'mic-dot' + (st === 'granted' ? ' ok' : (st === 'denied' || st === 'none') ? ' bad' : '');
+    $('mic-on').hidden = st === 'granted' || st === 'none';
+    $('mic-on').textContent = st === 'denied' ? 'Probar de nuevo' : 'Activar micrófono';
+    const help = $('mic-help');
+    if (st === 'denied') { help.innerHTML = micHelpHTML(); help.hidden = false; }
+    else if (st === 'none') { help.textContent = 'No encontré un micrófono (o la página no se abrió con https). Podés escribir la nota o usar el 🎤 del teclado.'; help.hidden = false; }
+    else help.hidden = true;
+  }
+  async function checkMic() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return setMic('none');
+    try { const p = await navigator.permissions.query({ name: 'microphone' }); setMic(p.state); p.onchange = () => setMic(p.state); }
+    catch (_) { setMic('unknown'); }
+  }
+  async function askMic() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return setMic('none');
+    try {
+      const st = await navigator.mediaDevices.getUserMedia({ audio: true });
+      st.getTracks().forEach(t => t.stop());
+      setMic('granted'); toast('Micrófono activo. Apretá REC y hablá.');
+    } catch (e) {
+      const n = e && e.name;
+      setMic(n === 'NotAllowedError' || n === 'SecurityError' ? 'denied' : 'none');
+    }
+  }
+  $('mic-on').onclick = askMic;
+  checkMic();
 
   // ── Speech recognition ──
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -248,7 +303,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
     const box = $('typed'); box.focus();
   }
   function dictationDown(reason) {
-    S.srDown = true;
+    if (reason === 'not-allowed') { setMic('denied'); } else S.srDown = true;
     const kept = (S.transcript + ' ' + (S.interim || '')).trim();
     stopRec(false);
     if (kept) $('typed').value = kept;
@@ -259,6 +314,7 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   function startRec() {
     if (S.recording || S.busy) return;
+    if (MIC.state === 'denied' || MIC.state === 'none') { $('mic-help').hidden = false; $('mic-row').scrollIntoView({ behavior: 'smooth', block: 'center' }); toast(MIC.state === 'denied' ? 'El micrófono está bloqueado: seguí los pasos de arriba.' : 'No hay micrófono: escribí la nota.'); return; }
     if (!SR || S.srDown) { textMode(!SR ? 'Este navegador no dicta.' : 'El dictado no anda acá.'); return; }
     S.recording = true; S.transcript = ''; S.interim = ''; renderLive();
     S.t0 = Date.now(); oled('REC', '00:00'); setLed('on'); $('rec').classList.add('live'); $('live-meta').textContent = '● grabando';
