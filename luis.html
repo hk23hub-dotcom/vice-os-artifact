@@ -6,7 +6,13 @@
 <meta name="theme-color" content="#0a0608">
 <title>Luis · Dictáfono de Isi</title>
 <meta name="description" content="Luis: el super agente de Isi en forma de grabador de voz. Apretás REC, dictás, Luis ejecuta.">
-<link rel="icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Luis">
+<link rel="manifest" href="/luis-manifest.webmanifest">
+<link rel="icon" href="/luis-icon-192.png">
+<link rel="apple-touch-icon" href="/luis-icon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -19,7 +25,7 @@
 html,body{height:100%}
 body{background:radial-gradient(1200px 700px at 70% -10%,#2a0f14 0%,var(--bg) 55%);color:var(--ink);font-family:'Space Grotesk',system-ui,sans-serif;-webkit-font-smoothing:antialiased;min-height:100%}
 a{color:inherit}
-.wrap{max-width:1040px;margin:0 auto;padding:28px 16px 60px}
+.wrap{max-width:1040px;margin:0 auto;padding:max(28px,calc(env(safe-area-inset-top,0px) + 14px)) max(16px,env(safe-area-inset-right,0px)) max(60px,calc(env(safe-area-inset-bottom,0px) + 30px)) max(16px,env(safe-area-inset-left,0px))}
 header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:10px 16px;margin-bottom:26px;border-bottom:1px solid var(--line);padding-bottom:14px}
 header h1{font-size:22px;font-weight:900;letter-spacing:-.02em}
 header h1 span{color:var(--chilli)}
@@ -344,6 +350,10 @@ footer{margin-top:40px;font-family:'Space Mono',monospace;font-size:10px;color:v
 
   renderNotes(); renderMemos(); refreshMeta();
 })();
+  // ── App instalable: service worker con scope /luis ──
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+    window.addEventListener('load', () => { navigator.serviceWorker.register('/luis-sw.js', { scope: '/luis' }).catch(() => {}); });
+  }
 </script>
 </body>
 </html>

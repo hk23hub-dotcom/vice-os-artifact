@@ -20,6 +20,12 @@ Luis también existe como **grabador de voz**, al estilo del que usa Louis Litt:
 - Sin micrófono o sin permiso: campo de texto abajo, misma ejecución.
 Requiere Chrome o Safari para dictar (Web Speech API). El texto funciona en todos.
 
+**Instalar como app** (ícono en la pantalla de inicio, abre a pantalla completa):
+- iPhone: abrir `/luis` en Safari → Compartir → **Agregar a inicio**.
+- Android: abrir `/luis` en Chrome → menú ⋮ → **Instalar app**.
+
+Las notas y decisiones quedan guardadas en el teléfono. Sin internet la app abre, pero Luis necesita conexión para contestar.
+
 ## Instalar (3 minutos)
 1. Copiar `isi-agent/SKILL.md`.
 2. En claude.ai → **Configuración → Capacidades → Skills → Crear skill** (o en Cowork: proyecto → Skills → agregar). Pegar el contenido tal cual, con el frontmatter.
