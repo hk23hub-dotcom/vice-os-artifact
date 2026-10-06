@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<title>Radar Minero</title>
+<meta name="description" content="Concesiones impagas + áreas libres contiguas, ordenadas por score, costo de entrada y siguiente acción.">
+<style>
+  :root{--bg:#0d0d10;--panel:#17171c;--line:#2a2a33;--tx:#ececf1;--mut:#9a9aa6;--acc:#ff3ec8;--ok:#5ee08a;--warn:#ffc94a;--bad:#ff6b6b;}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f6f6f8;--panel:#fff;--line:#dcdce3;--tx:#18181d;--mut:#62626e;--acc:#c4119a;--ok:#16884a;--warn:#a86d00;--bad:#c62828;}}
+  :root[data-theme="light"]{--bg:#f6f6f8;--panel:#fff;--line:#dcdce3;--tx:#18181d;--mut:#62626e;--acc:#c4119a;--ok:#16884a;--warn:#a86d00;--bad:#c62828;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+  header{padding:18px 16px 8px;max-width:1200px;margin:auto}
+  h1{margin:0;font:600 24px Georgia,serif;color:var(--acc)}
+  header p{margin:4px 0 0;color:var(--mut)}
+  main{max-width:1200px;margin:auto;padding:8px 16px 40px;display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+  @media(min-width:960px){main{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.full{grid-column:1/-1}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+  .card h2{margin:0 0 10px;font-size:13px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mut)}
+  .params{display:flex;flex-wrap:wrap;gap:10px}
+  label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut)}
+  input,select,textarea{background:var(--bg);color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:7px 8px;font:inherit;min-width:0}
+  .params input{width:120px}
+  button{background:var(--acc);color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:600;cursor:pointer}
+  button.ghost{background:transparent;color:var(--tx);border:1px solid var(--line)}
+  .tbl{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{color:var(--mut);font-weight:500;font-size:12px}
+  tr.sel td{background:color-mix(in srgb,var(--acc) 12%,transparent)}
+  tbody tr{cursor:pointer}
+  .tier{display:inline-block;min-width:22px;text-align:center;border-radius:6px;padding:1px 6px;font-weight:700;color:#fff}
+  .tA{background:var(--ok)}.tB{background:var(--warn)}.tC{background:var(--bad)}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  pre{background:#000;color:#eee;border-radius:8px;padding:10px;overflow-x:auto;font-size:13px;margin:6px 0}
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:13px}
+  .kv span:nth-child(odd){color:var(--mut)}
+  .grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .next{color:var(--acc);font-weight:600}
+  .muted{color:var(--mut);font-size:12px}
+  ul.check{padding-left:18px;margin:6px 0}
+  svg{width:100%;height:auto;background:var(--bg);border-radius:8px}
+  a{color:var(--acc)}
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<header>
+  <h1>Radar Minero</h1>
+  <p>Concesiones impagas + áreas libres contiguas → score, costo de entrada, siguiente acción.</p>
+</header>
+<main>
+  <section class="card full">
+    <h2>Parámetros</h2>
+    <div class="params">
+      <label>UTM (CLP)<input id="pUtm" type="number" step="1"></label>
+      <label>CLP por USD<input id="pUsd" type="number" step="1"></label>
+      <label>Tasa explotación (UTM/ha)<input id="pTx" type="number" step="0.01"></label>
+      <label>Tasa exploración (UTM/ha)<input id="pTe" type="number" step="0.001"></label>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Oportunidades (ordenadas por score)</h2>
+    <div class="tbl"><table>
+      <thead><tr><th>Nombre</th><th>Tipo</th><th class="num">ha</th><th class="num">Patente/año</th><th class="num">Entrada</th><th>Score</th><th>Etapa</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table></div>
+    <div class="row">
+      <button id="bNew">+ Agregar</button>
+      <button class="ghost" id="bExp">Exportar CSV</button>
+      <label class="ghost" style="flex-direction:row;align-items:center;gap:6px;cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:6px 10px;color:var(--tx)">Importar CSV<input id="fImp" type="file" accept=".csv,text/csv" hidden></label>
+    </div>
+    <p class="muted" style="overflow-wrap:anywhere">CSV: nombre;tipo;rol;ha;swE;swN;neE;neN;estadoPatente;aniosAdeudados;competidorKm;contiguaImpaga;etapa;notas</p>
+  </section>
+
+  <section class="card" id="detail"></section>
+
+  <section class="card full">
+    <h2>Mapa UTM 19S</h2>
+    <svg id="map" viewBox="0 0 800 360" role="img" aria-label="Mapa de polígonos"></svg>
+    <p class="muted">Solo se dibujan oportunidades con esquinas SW/NE. Contigüidad con concesiones impagas se detecta automáticamente.</p>
+  </section>
+</main>
+
+<script src="minas-utils.js"></script>
+<script>
+(function(){
+  'use strict';
+  var M = window.MinasUtils;
+  var KEY = 'radar-minas-v1';
+  var ETAPAS = ['detectada','verificar_tgr','verificar_catastro','pedimento','contacto_titular','oferta','asegurada','descartada'];
+  var ETAPA_TXT = {detectada:'Detectada',verificar_tgr:'Verificar TGR',verificar_catastro:'Verificar catastro',pedimento:'Pedimento',contacto_titular:'Contacto titular',oferta:'Oferta a minera',asegurada:'Asegurada',descartada:'Descartada'};
+  var NEXT = {
+    detectada:'Confirmar estado de patente en tgr.cl por rol',
+    verificar_tgr:'Pedir certificado de deuda TGR por rol',
+    verificar_catastro:'Cargar polígono en Catastro Sernageomin + revisar Boletín Oficial de Minería',
+    pedimento:'Presentar pedimento en Juzgado de Letras y calendarizar plazos',
+    contacto_titular:'Enviar carta de oferta de cesión al titular',
+    oferta:'Enviar ficha del paquete a mineras junior/medianas',
+    asegurada:'Pagar patente antes del 31 de marzo',
+    descartada:'—'
+  };
+
+  // Sin datos de ejemplo: este sitio es público. Las oportunidades se cargan por CSV
+  // y viven solo en este navegador (localStorage).
+  var SEED = { params:{utm:71721, usd:950, tx:0.4, te:0.06}, ops:[] };
+
+  var state = load();
+  var sel = state.ops[0] && state.ops[0].id;
+
+  function load(){
+    try{ var s = JSON.parse(localStorage.getItem(KEY)); if(s && s.ops) return s; }catch(e){}
+    return JSON.parse(JSON.stringify(SEED));
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+  var $ = function(id){ return document.getElementById(id); };
+  var fmt = function(n){ return n == null || isNaN(n) ? '—' : Math.round(n).toLocaleString('es-CL'); };
+  var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); };
+
+  function tasas(){ return {explotacion:+state.params.tx, exploracion:+state.params.te}; }
+  function hasRect(o){ return [o.swE,o.swN,o.neE,o.neN].every(function(v){ return v !== '' && v != null && !isNaN(v); }); }
+  function rectOf(o){ try{ return hasRect(o) ? M.rect(+o.swE,+o.swN,+o.neE,+o.neN) : null; }catch(e){ return null; } }
+
+  function enrich(o){
+    var r = rectOf(o), ha = r ? r.ha : +o.ha || 0;
+    var P = state.params, T = tasas();
+    var tipoPat = o.tipo === 'area_libre' ? 'exploracion' : 'explotacion';
+    var pat = M.patenteAnual(ha, tipoPat, +P.utm, +P.usd, T);
+    var entrada = o.tipo === 'concesion' && o.estadoPatente !== 'al_dia'
+      ? M.deudaImpaga(ha, +o.aniosAdeudados || 1, +P.utm, +P.usd, T) : pat;
+    var autoContigua = r && state.ops.some(function(x){
+      if (x === o || x.tipo !== 'concesion' || x.estadoPatente !== 'impaga') return false;
+      var rx = rectOf(x); return rx && M.sonContiguos(r, rx);
+    });
+    var sc = M.score({tipo:o.tipo, estadoPatente:o.estadoPatente, contiguaImpaga:o.contiguaImpaga || autoContigua,
+      ha:ha, competidorKm:o.competidorKm === '' || o.competidorKm == null ? null : +o.competidorKm});
+    return {o:o, r:r, ha:ha, pat:pat, entrada:entrada, sc:sc, tier:M.tier(sc.total)};
+  }
+
+  function render(){
+    ['pUtm','pUsd','pTx','pTe'].forEach(function(id,i){ $(id).value = state.params[['utm','usd','tx','te'][i]]; });
+    var list = state.ops.map(enrich).sort(function(a,b){ return b.sc.total - a.sc.total; });
+    $('rows').innerHTML = list.map(function(e){
+      return '<tr data-id="'+esc(e.o.id)+'" class="'+(e.o.id===sel?'sel':'')+'">'+
+        '<td>'+esc(e.o.nombre)+'</td><td>'+(e.o.tipo==='area_libre'?'Área libre':'Concesión')+'</td>'+
+        '<td class="num">'+fmt(e.ha)+'</td><td class="num">US$ '+fmt(e.pat.usd)+'</td>'+
+        '<td class="num">US$ '+fmt(e.entrada.usd)+'</td>'+
+        '<td><span class="tier t'+e.tier+'">'+e.tier+'</span> '+e.sc.total+'</td>'+
+        '<td>'+ETAPA_TXT[e.o.etapa]+'</td></tr>';
+    }).join('');
+    renderDetail(list.filter(function(e){ return e.o.id === sel; })[0]);
+    renderMap(list);
+  }
+
+  function opt(vals, cur, txt){ return vals.map(function(v){ return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+(txt?txt[v]:v)+'</option>'; }).join(''); }
+
+  function renderDetail(e){
+    var d = $('detail');
+    if (!e){ d.innerHTML = '<h2>Detalle</h2><p class="muted">Selecciona una oportunidad.</p>'; return; }
+    var o = e.o, h = '<h2>Detalle</h2>';
+    h += '<p class="next">→ '+esc(NEXT[o.etapa])+'</p>';
+    h += '<div class="kv"><span>Patente/año</span><span>'+e.pat.utm+' UTM · $'+fmt(e.pat.clp)+' · US$ '+fmt(e.pat.usd)+'</span>'+
+         '<span>Costo de entrada</span><span>'+e.entrada.utm+' UTM · US$ '+fmt(e.entrada.usd)+'</span>'+
+         '<span>Score</span><span>'+Object.keys(e.sc.componentes).map(function(k){ return k+' '+e.sc.componentes[k]; }).join(' · ')+'</span></div>';
+    if (e.r){
+      var txt = M.esquinas(e.r).map(function(c){ return c[0]+' E '+c[1]+' N '+c[2]; }).join('\n');
+      h += '<pre id="utmTxt">'+txt+'</pre><button class="ghost" data-copy="utmTxt">Copiar UTM</button>';
+      var v = M.validarPedimento(e.r);
+      if (o.tipo === 'area_libre'){
+        if (v.ok) h += '<p class="muted">Pedimento válido: '+e.r.anchoM+' × '+e.r.altoM+' m.</p>';
+        else {
+          var p = M.ajustarPedimento(e.r);
+          h += '<p class="muted">Pedimento: '+esc(v.errores.join(', '))+(p ? '. Ajuste sugerido '+p.anchoM+' × '+p.altoM+' m ('+p.ha+' ha).' : '')+'</p>';
+        }
+      }
+      var pt = M.pertenencias(e.r);
+      if (pt) h += '<p class="muted">Manifestación: '+pt.n+' pertenencias de '+pt.dimM[0]+' × '+pt.dimM[1]+' m ('+pt.haCada+' ha).</p>';
+    }
+    h += '<div class="grid2" style="margin-top:10px">'+
+      '<label>Nombre<input data-f="nombre" value="'+esc(o.nombre)+'"></label>'+
+      '<label>Tipo<select data-f="tipo">'+opt(['area_libre','concesion'],o.tipo,{area_libre:'Área libre',concesion:'Concesión'})+'</select></label>'+
+      '<label>Rol<input data-f="rol" value="'+esc(o.rol)+'"></label>'+
+      '<label>ha (si no hay esquinas)<input data-f="ha" type="number" value="'+esc(o.ha)+'"></label>'+
+      '<label>SW E<input data-f="swE" type="number" value="'+esc(o.swE)+'"></label>'+
+      '<label>SW N<input data-f="swN" type="number" value="'+esc(o.swN)+'"></label>'+
+      '<label>NE E<input data-f="neE" type="number" value="'+esc(o.neE)+'"></label>'+
+      '<label>NE N<input data-f="neN" type="number" value="'+esc(o.neN)+'"></label>'+
+      '<label>Patente<select data-f="estadoPatente">'+opt(['por_verificar','impaga','al_dia','n/a'],o.estadoPatente)+'</select></label>'+
+      '<label>Años adeudados<input data-f="aniosAdeudados" type="number" min="0" value="'+esc(o.aniosAdeudados)+'"></label>'+
+      '<label>Competidor (km)<input data-f="competidorKm" type="number" step="0.01" value="'+esc(o.competidorKm)+'"></label>'+
+      '<label>Etapa<select data-f="etapa">'+opt(ETAPAS,o.etapa,ETAPA_TXT)+'</select></label>'+
+      '<label style="flex-direction:row;align-items:center;gap:6px"><input data-f="contiguaImpaga" type="checkbox"'+(o.contiguaImpaga?' checked':'')+'> Contigua a impaga</label>'+
+      '</div><label style="margin-top:8px">Notas<textarea data-f="notas" rows="3">'+esc(o.notas)+'</textarea></label>';
+    h += '<p class="muted">Verificar en <a href="https://www.tgr.cl" target="_blank" rel="noopener">tgr.cl</a> (patente/deuda por rol) y <a href="https://www.sernageomin.cl" target="_blank" rel="noopener">Sernageomin</a> (catastro minero).</p>';
+    h += '<div class="row"><button class="ghost" id="bDel">Eliminar</button></div>';
+    d.innerHTML = h;
+  }
+
+  function renderMap(list){
+    var rs = list.filter(function(e){ return e.r; });
+    var svg = $('map');
+    if (!rs.length){ svg.innerHTML = '<text x="400" y="180" text-anchor="middle" fill="currentColor" opacity=".5">Sin polígonos</text>'; return; }
+    var minE=Infinity,minN=Infinity,maxE=-Infinity,maxN=-Infinity;
+    rs.forEach(function(e){ minE=Math.min(minE,e.r.swE); minN=Math.min(minN,e.r.swN); maxE=Math.max(maxE,e.r.neE); maxN=Math.max(maxN,e.r.neN); });
+    var pad = Math.max(maxE-minE, maxN-minN) * 0.15 + 200;
+    minE-=pad; minN-=pad; maxE+=pad; maxN+=pad;
+    var s = Math.min(800/(maxE-minE), 360/(maxN-minN));
+    var ox = (800-(maxE-minE)*s)/2, oy = (360-(maxN-minN)*s)/2;
+    var X = function(e){ return ox+(e-minE)*s; }, Y = function(n){ return 360-oy-(n-minN)*s; };
+    var col = {A:'var(--ok)',B:'var(--warn)',C:'var(--bad)'};
+    svg.innerHTML = rs.map(function(e){
+      var x=X(e.r.swE), y=Y(e.r.neN), w=e.r.anchoM*s, h=e.r.altoM*s;
+      return '<g data-id="'+esc(e.o.id)+'" style="cursor:pointer"><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+col[e.tier]+'" fill-opacity="'+(e.o.id===sel?.45:.2)+'" stroke="'+col[e.tier]+'" stroke-width="2" stroke-dasharray="'+(e.o.tipo==='area_libre'?'6 4':'0')+'"/>'+
+        '<text x="'+(x+6)+'" y="'+(y+18)+'" font-size="13" fill="var(--tx)">'+esc(e.o.nombre)+'</text></g>';
+    }).join('');
+  }
+
+  // Events
+  $('rows').addEventListener('click', function(ev){ var tr = ev.target.closest('tr'); if (tr){ sel = tr.dataset.id; render(); } });
+  $('map').addEventListener('click', function(ev){ var g = ev.target.closest('g'); if (g){ sel = g.dataset.id; render(); } });
+  ['pUtm','pUsd','pTx','pTe'].forEach(function(id,i){
+    $(id).addEventListener('change', function(){ state.params[['utm','usd','tx','te'][i]] = +this.value; save(); render(); });
+  });
+  $('detail').addEventListener('change', function(ev){
+    var f = ev.target.dataset.f; if (!f) return;
+    var o = state.ops.filter(function(x){ return x.id === sel; })[0]; if (!o) return;
+    o[f] = ev.target.type === 'checkbox' ? ev.target.checked : ev.target.type === 'number' ? (ev.target.value === '' ? '' : +ev.target.value) : ev.target.value;
+    save(); render();
+  });
+  $('detail').addEventListener('click', function(ev){
+    if (ev.target.id === 'bDel'){
+      if (!confirm('¿Eliminar esta oportunidad?')) return;
+      state.ops = state.ops.filter(function(x){ return x.id !== sel; });
+      sel = state.ops[0] && state.ops[0].id; save(); render();
+    }
+    var c = ev.target.dataset.copy;
+    if (c && navigator.clipboard){ navigator.clipboard.writeText($(c).textContent); ev.target.textContent = 'Copiado'; }
+  });
+  $('bNew').addEventListener('click', function(){
+    var o = {id:'o'+Date.now(), nombre:'Nueva oportunidad', tipo:'area_libre', rol:'', ha:0, swE:'',swN:'',neE:'',neN:'',
+      estadoPatente:'n/a', aniosAdeudados:0, competidorKm:'', contiguaImpaga:false, etapa:'detectada', notas:''};
+    state.ops.push(o); sel = o.id; save(); render();
+  });
+  var COLS = ['nombre','tipo','rol','ha','swE','swN','neE','neN','estadoPatente','aniosAdeudados','competidorKm','contiguaImpaga','etapa','notas'];
+  $('bExp').addEventListener('click', function(){
+    var csv = [COLS.join(';')].concat(state.ops.map(function(o){
+      return COLS.map(function(k){ return String(o[k] == null ? '' : o[k]).replace(/[;\n]/g,' '); }).join(';');
+    })).join('\n');
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+    a.download = 'radar-minero.csv'; a.click();
+  });
+  $('fImp').addEventListener('change', function(){
+    var f = this.files[0]; if (!f) return;
+    f.text().then(function(t){
+      M.parseCSV(t).forEach(function(r, i){
+        var o = {id:'i'+Date.now()+i};
+        COLS.forEach(function(k){ o[k] = r[k] == null ? '' : r[k]; });
+        ['ha','swE','swN','neE','neN','aniosAdeudados','competidorKm'].forEach(function(k){ if (o[k] !== '') o[k] = +String(o[k]).replace(',','.'); });
+        o.contiguaImpaga = /^(1|true|si|sí)$/i.test(o.contiguaImpaga);
+        if (ETAPAS.indexOf(o.etapa) === -1) o.etapa = 'detectada';
+        if (o.tipo !== 'concesion') o.tipo = 'area_libre';
+        if (!o.estadoPatente) o.estadoPatente = o.tipo === 'concesion' ? 'por_verificar' : 'n/a';
+        state.ops.push(o);
+      });
+      save(); render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
