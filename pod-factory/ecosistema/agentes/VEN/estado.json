@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-10-06",
+  "code": "VEN",
+  "nombre": "Vendedor",
+  "estado": "espera",
+  "titular": "Sin cola de venta hoy",
+  "detalle": "9 lead(s) conocidos. Deja un export de LeadHunter en sales/leads-inbox/ para armar cola.",
+  "n": {
+    "cola": 0,
+    "leads": 9
+  }
+}

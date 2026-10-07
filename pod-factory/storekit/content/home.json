@@ -1,0 +1,119 @@
+{
+  "_doc": "Copy de la home. Vive en las secciones del tema (templates/index.json), no en una página; el aplicador la exporta lista para pegar en el editor de temas. IDIOMA: el inglés es el principal — la tienda cobra en USD y despacha a 43 destinos.",
+  "hero": {
+    "_nota": "Una sola promesa y un solo botón. El qué se dice en la primera línea, no en la tercera.",
+    "en": {
+      "headline": "Art prints, made one at a time.",
+      "subhead": "Museum-grade matte paper, no glare. Printed when you order and shipped worldwide in a protective tube.",
+      "cta_primary": "Browse the catalog",
+      "cta_secondary": "New this week"
+    },
+    "es": {
+      "headline": "Láminas impresas de a una.",
+      "subhead": "Papel mate de museo, sin brillo. Se imprime cuando la pides y viaja en tubo protector a todo el mundo.",
+      "cta_primary": "Ver el catálogo",
+      "cta_secondary": "Lo nuevo de la semana"
+    },
+    "imagen": {
+      "_nota": "NO la obra a sangre completa. Una lámina colgada en una pared real: marco simple, pared clara, algo de mueble abajo para dar escala. El visitante tiene que poder imaginarla en su casa.",
+      "fuente": "Printify genera estos mockups de ambiente por producto. Bajar uno de los posters ya publicados y usarlo como imagen del hero.",
+      "encuadre": "Horizontal, la lámina a la izquierda o al centro, con aire. El texto va sobre la zona lisa de la pared, no sobre la obra."
+    }
+  },
+  "value_blocks": [
+    {
+      "key": "data",
+      "es": {
+        "title": "Los datos son el arte",
+        "body": "Sesiones, mensajes, días activos, rachas. El motor los convierte en una grilla determinista: los mismos números devuelven siempre la misma imagen. Por eso cada pieza lleva serial."
+      },
+      "en": {
+        "title": "The data is the art",
+        "body": "Sessions, messages, active days, streaks. The engine turns them into a deterministic grid: the same numbers always return the same image. That is why every piece carries a serial."
+      }
+    },
+    {
+      "key": "ondemand",
+      "es": {
+        "title": "Se imprime cuando la pides",
+        "body": "Nada se produce antes de venderse. Menos desperdicio, sin stock muerto, y el catálogo puede crecer sin bodega."
+      },
+      "en": {
+        "title": "Printed when you order it",
+        "body": "Nothing is produced before it sells. Less waste, no dead stock, and a catalog that can grow without a warehouse."
+      }
+    },
+    {
+      "key": "editions",
+      "es": {
+        "title": "Ediciones numeradas",
+        "body": "Los posters salen en ediciones de 100 con serial visible en la pieza. Cuando una edición cierra, no vuelve."
+      },
+      "en": {
+        "title": "Numbered editions",
+        "body": "Posters ship in editions of 100 with the serial printed on the piece. When an edition closes, it does not come back."
+      }
+    }
+  ],
+  "sections": {
+    "featured_collection": {
+      "es": {
+        "title": "PROOF OF WORK",
+        "body": "Season One: cinco stickers y los posters numerados. El sticker es la puerta de entrada; el poster es la pieza."
+      },
+      "en": {
+        "title": "PROOF OF WORK",
+        "body": "Season One: five stickers and the numbered posters. The sticker is the way in; the poster is the piece."
+      }
+    },
+    "second_collection": {
+      "es": {
+        "title": "IDLE CYCLES",
+        "body": "Lo que la máquina imagina cuando no está trabajando. Prints generativos para colgar, sin estadísticas y sin explicación."
+      },
+      "en": {
+        "title": "IDLE CYCLES",
+        "body": "What the machine imagines when it is not working. Generative prints to hang, no stats, no explanation needed."
+      }
+    },
+    "about_teaser": {
+      "es": {
+        "title": "De dónde sale esto",
+        "body": "HK23 STUDIO es el brazo impreso de HK23. Empezó con un dashboard de estadísticas de trabajo y terminó en un poster A2.",
+        "cta": "La historia completa"
+      },
+      "en": {
+        "title": "Where this comes from",
+        "body": "HK23 STUDIO is the printed arm of HK23. It started as a work-stats dashboard and ended up as an A2 poster.",
+        "cta": "Read the full story"
+      }
+    },
+    "shipping_strip": {
+      "es": {
+        "title": "Envío internacional",
+        "body": "Despachamos a casi todo el mundo desde el centro de producción más cercano al destino. Plazos y costos exactos se calculan en el checkout."
+      },
+      "en": {
+        "title": "Worldwide shipping",
+        "body": "We ship almost everywhere, from the production center closest to you. Exact times and costs are calculated at checkout."
+      }
+    },
+    "newsletter": {
+      "es": {
+        "title": "Avisos de edición",
+        "body": "Un correo cuando sale una edición nueva o cuando una está por cerrar. Nada más.",
+        "cta": "Suscribirme"
+      },
+      "en": {
+        "title": "Edition alerts",
+        "body": "One email when a new edition drops or when one is about to close. Nothing else.",
+        "cta": "Subscribe"
+      }
+    }
+  },
+  "_idioma": {
+    "principal": "en",
+    "motivo": "La tienda cobra en USD y despacha a 43 destinos. El español queda como segundo idioma.",
+    "pendiente": "Activar inglés como idioma por defecto en Shopify: Configuración → Idiomas."
+  }
+}

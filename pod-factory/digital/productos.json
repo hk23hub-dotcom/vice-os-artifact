@@ -1,0 +1,272 @@
+{
+  "tienda": "HK23 STUDIO · fcqevq-jr.myshopify.com",
+  "moneda": "USD",
+  "preparado": "2026-10-07",
+  "estado": "listos para cargar — faltan los dos permisos del dueño",
+  "productos": [
+    {
+      "sku": "dig-leadhunter",
+      "tipo": "agente",
+      "precio_usd": 49,
+      "precio_ancla_usd": 97,
+      "titulo": "LeadHunter — find your buyers, stop guessing",
+      "resumen": "A self-contained agent that profiles your ideal prospects, tells you where to find them, and writes the first message.",
+      "descripcion": [
+        "LeadHunter is one file. You open it in your browser, it runs on your own Claude key, and nothing is sent to us.",
+        "It does not hand you a scraped list of strangers. It gives you the exact profile of who to look for, the real sources where they are, the signals that confirm a fit, and the opening message written and ready.",
+        "Works for any trade: services, products, local or export."
+      ],
+      "incluye": [
+        "leadhunter-agent-v3.html — the agent, self-contained",
+        "Quick-start guide (PDF)"
+      ],
+      "archivos": [
+        "/Users/hk23neo/LeadHunter/leadhunter-agent-v3.html",
+        "/Users/hk23neo/LeadHunter/LeadHunter-Guia-de-inicio.pdf"
+      ],
+      "nota_precio": "Venía en US$97 en Hotmart con cero ventas. A 49 el primer comprador cuesta menos; el ancla queda visible.",
+      "peso_mb": "0.1 + 0.0"
+    },
+    {
+      "sku": "dig-tres-verdades",
+      "tipo": "libro",
+      "precio_usd": 12,
+      "titulo": "The Three Truths — Complete Edition",
+      "resumen": "The four parts in one volume. PDF and EPUB.",
+      "descripcion": [
+        "The complete story in a single file, plus Part One in EPUB for e-readers.",
+        "Instant download. Yours to keep, on every device you own."
+      ],
+      "incluye": [
+        "The_Three_Truths_COMPLETE.pdf",
+        "The_Three_Truths_Part_One.epub"
+      ],
+      "archivos": [
+        "/Users/hk23neo/STORY BY HK23/The_Three_Truths_COMPLETE.pdf",
+        "/Users/hk23neo/three-truths/The_Three_Truths_Part_One.epub"
+      ],
+      "peso_mb": "3.1 + 0.1"
+    },
+    {
+      "sku": "dig-print-ready",
+      "tipo": "arte",
+      "precio_usd": 39,
+      "titulo": "Print-Ready Art Pack — 48 high-resolution pieces",
+      "resumen": "The 48 pieces that hold up in print. 2048px and up, ready for your own printer.",
+      "descripcion": [
+        "Forty-eight illustrations at 2048 pixels or more on the short side — the ones with enough resolution to print large without falling apart.",
+        "Instant download. No shipping, no waiting, no customs.",
+        "Personal and commercial use on printed or digital derivative work. Reselling the files as they are is not permitted."
+      ],
+      "incluye": [
+        "48 JPG files at native resolution",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/print-ready-completo.zip"
+      ],
+      "nota_precio": "Un poster impreso sale US$14 más US$13,39 de envío y llega en 13–35 días. Esto llega al instante y no cuesta logística.",
+      "peso_mb": "58.4"
+    },
+    {
+      "sku": "dig-creatures",
+      "tipo": "arte",
+      "precio_usd": 24,
+      "titulo": "CREATURES — 37 illustrations",
+      "resumen": "Beasts, companions and things that look back at you.",
+      "descripcion": [
+        "Beasts, companions and things that look back at you.",
+        "37 pieces from the CREATURES world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "37 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/creatures.zip"
+      ],
+      "peso_mb": "16.7"
+    },
+    {
+      "sku": "dig-third-eye",
+      "tipo": "arte",
+      "precio_usd": 24,
+      "titulo": "THIRD EYE — 34 illustrations",
+      "resumen": "Psychedelic and visionary pieces. Look longer than you planned to.",
+      "descripcion": [
+        "Psychedelic and visionary pieces. Look longer than you planned to.",
+        "34 pieces from the THIRD EYE world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "34 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/third-eye.zip"
+      ],
+      "peso_mb": "23.1"
+    },
+    {
+      "sku": "dig-neon-drive",
+      "tipo": "arte",
+      "precio_usd": 24,
+      "titulo": "NEON DRIVE — 30 illustrations",
+      "resumen": "Synthwave sunsets, palm lines and chrome horizons.",
+      "descripcion": [
+        "Synthwave sunsets, palm lines and chrome horizons.",
+        "30 pieces from the NEON DRIVE world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "30 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/neon-drive.zip"
+      ],
+      "peso_mb": "12.1"
+    },
+    {
+      "sku": "dig-hard-edge",
+      "tipo": "arte",
+      "precio_usd": 24,
+      "titulo": "HARD EDGE — 26 illustrations",
+      "resumen": "Cubist, abstract and minimal. Shape first, story later.",
+      "descripcion": [
+        "Cubist, abstract and minimal. Shape first, story later.",
+        "26 pieces from the HARD EDGE world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "26 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/hard-edge.zip"
+      ],
+      "peso_mb": "19.6"
+    },
+    {
+      "sku": "dig-circuit-city",
+      "tipo": "arte",
+      "precio_usd": 19,
+      "titulo": "CIRCUIT CITY — 21 illustrations",
+      "resumen": "Cyberpunk streets, circuits and machines with opinions.",
+      "descripcion": [
+        "Cyberpunk streets, circuits and machines with opinions.",
+        "21 pieces from the CIRCUIT CITY world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "21 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/circuit-city.zip"
+      ],
+      "peso_mb": "9.1"
+    },
+    {
+      "sku": "dig-sacred-grid",
+      "tipo": "arte",
+      "precio_usd": 19,
+      "titulo": "SACRED GRID — 19 illustrations",
+      "resumen": "Mandalas, totems and geometry drawn like a ritual.",
+      "descripcion": [
+        "Mandalas, totems and geometry drawn like a ritual.",
+        "19 pieces from the SACRED GRID world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "19 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/sacred-grid.zip"
+      ],
+      "peso_mb": "8.2"
+    },
+    {
+      "sku": "dig-field-and-turf",
+      "tipo": "arte",
+      "precio_usd": 19,
+      "titulo": "FIELD & TURF — 17 illustrations",
+      "resumen": "Golf, rugby and the quiet hours before the first whistle.",
+      "descripcion": [
+        "Golf, rugby and the quiet hours before the first whistle.",
+        "17 pieces from the FIELD & TURF world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "17 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/field-and-turf.zip"
+      ],
+      "peso_mb": "8.3"
+    },
+    {
+      "sku": "dig-wild-bloom",
+      "tipo": "arte",
+      "precio_usd": 19,
+      "titulo": "WILD BLOOM — 13 illustrations",
+      "resumen": "Folk botanicals, jungle and gardens that refuse to stay in the vase.",
+      "descripcion": [
+        "Folk botanicals, jungle and gardens that refuse to stay in the vase.",
+        "13 pieces from the WILD BLOOM world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "13 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/wild-bloom.zip"
+      ],
+      "peso_mb": "13.5"
+    },
+    {
+      "sku": "dig-open-studio",
+      "tipo": "arte",
+      "precio_usd": 9,
+      "titulo": "OPEN STUDIO — 4 illustrations",
+      "resumen": "Pieces that do not fit a box. Landscapes, portraits and one-offs.",
+      "descripcion": [
+        "Pieces that do not fit a box. Landscapes, portraits and one-offs.",
+        "4 pieces from the OPEN STUDIO world, at native resolution.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "4 JPG files",
+        "Index with piece, size and style"
+      ],
+      "archivos": [
+        "digital/paquetes/open-studio.zip"
+      ],
+      "peso_mb": "1.3",
+      "nota_precio": "Son 4 piezas. A 19 quedaba mal al lado de CREATURES con 37 al mismo precio."
+    },
+    {
+      "sku": "dig-catalogo",
+      "tipo": "arte",
+      "precio_usd": 99,
+      "titulo": "The Complete Catalog — 201 illustrations",
+      "resumen": "Every piece, every world. The whole studio in one download.",
+      "descripcion": [
+        "All 201 illustrations across nine worlds: Creatures, Third Eye, Neon Drive, Hard Edge, Circuit City, Sacred Grid, Field & Turf, Wild Bloom and Open Studio.",
+        "Instant download. Personal and commercial use on derivative work."
+      ],
+      "incluye": [
+        "201 JPG files",
+        "Index by world"
+      ],
+      "archivos": [
+        "digital/paquetes/catalogo-completo.zip"
+      ],
+      "peso_mb": "111.7"
+    }
+  ]
+}

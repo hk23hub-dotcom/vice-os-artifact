@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-10-06",
+  "code": "CEN",
+  "nombre": "Central",
+  "estado": "ok",
+  "titular": "Consolidando el parte",
+  "detalle": "Leyó a los siete. 0 producido(s) hoy, 16 productos alcanzables, 0 mensaje(s) en cola.",
+  "n": {
+    "agentes": 8,
+    "aprobaciones": 0
+  }
+}

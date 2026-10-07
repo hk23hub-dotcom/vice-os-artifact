@@ -1,0 +1,146 @@
+{
+  "schema": "hk23",
+  "entities": [
+    {
+      "slug": "pod",
+      "name": "POD",
+      "kind": "galaxy",
+      "level": 1,
+      "state": "live",
+      "color": "#FF5A36",
+      "summary": "Print on demand: cada idea que se vuelve objeto. Aquí viven el concepto, el blueprint y el producto."
+    },
+    {
+      "slug": "proof-of-work",
+      "name": "PROOF OF WORK",
+      "kind": "pod",
+      "level": 2,
+      "parent_slug": "pod",
+      "state": "concept",
+      "color": "#FF5A36",
+      "summary": "Season One. Tu trabajo convertido en objeto: las estadísticas de uso se vuelven el arte, y ninguna pieza se puede copiar porque nadie tiene tus números."
+    },
+    {
+      "slug": "proof-of-work-002",
+      "name": "PROOF OF WORK · Edición 002",
+      "kind": "pod",
+      "level": 3,
+      "parent_slug": "proof-of-work",
+      "state": "concept",
+      "color": "#2F6FD1",
+      "summary": "32M tokens · 44 sesiones · 23 días activos · racha 3d. Serial 0GNZ1P1.",
+      "meta": {
+        "serial": "0GNZ1P1",
+        "edition": "002",
+        "edition_total": "100",
+        "stats": {
+          "tokens": "32M",
+          "sessions": 44,
+          "messages": 39680,
+          "activeDays": 23,
+          "longestStreak": 3
+        },
+        "art": "/Users/hk23neo/vice-collection/poster/out/a2-002-32M.png"
+      }
+    },
+    {
+      "slug": "proof-of-work-003",
+      "name": "PROOF OF WORK · Edición 003",
+      "kind": "pod",
+      "level": 3,
+      "parent_slug": "proof-of-work",
+      "state": "concept",
+      "color": "#2F6FD1",
+      "summary": "42.2M tokens · 109 sesiones · 92 días activos · racha 18d. Serial 1UQDHCL.",
+      "meta": {
+        "serial": "1UQDHCL",
+        "edition": "003",
+        "edition_total": "100",
+        "stats": {
+          "tokens": "42.2M",
+          "sessions": 109,
+          "messages": 46987,
+          "activeDays": 92,
+          "longestStreak": 18
+        },
+        "art": "/Users/hk23neo/vice-collection/poster/out/a2-003-2026-09-10.png"
+      }
+    }
+  ],
+  "listings": [
+    {
+      "entity_slug": "proof-of-work-002",
+      "price": 45,
+      "currency": "USD",
+      "status": "draft",
+      "source": "printify",
+      "note": "Poster A2 numerado /100 — se activa cuando exista URL real"
+    },
+    {
+      "entity_slug": "proof-of-work-003",
+      "price": 45,
+      "currency": "USD",
+      "status": "draft",
+      "source": "printify",
+      "note": "Poster A2 numerado /100 — se activa cuando exista URL real"
+    },
+    {
+      "entity_slug": "proof-of-work-002",
+      "price": 19,
+      "currency": "USD",
+      "status": "future",
+      "source": "blueprint",
+      "note": "Blueprint: los datos, el motor generativo y el proceso de esta edición"
+    },
+    {
+      "entity_slug": "proof-of-work-003",
+      "price": 19,
+      "currency": "USD",
+      "status": "future",
+      "source": "blueprint",
+      "note": "Blueprint: los datos, el motor generativo y el proceso de esta edición"
+    },
+    {
+      "entity_slug": "proof-of-work",
+      "price": 6,
+      "currency": "USD",
+      "status": "draft",
+      "source": "printify",
+      "note": "Sticker capsule — 5 diseños"
+    },
+    {
+      "entity_slug": "proof-of-work",
+      "price": 29,
+      "currency": "USD",
+      "status": "future",
+      "source": "blueprint",
+      "note": "Guía: cómo convertir tus propios datos en una colección"
+    }
+  ],
+  "relationships": [
+    {
+      "from_slug": "proof-of-work",
+      "to_slug": "pod",
+      "type": "belongs-to",
+      "strength": 1
+    },
+    {
+      "from_slug": "proof-of-work-002",
+      "to_slug": "proof-of-work",
+      "type": "pod-link",
+      "strength": 1
+    },
+    {
+      "from_slug": "proof-of-work-003",
+      "to_slug": "proof-of-work",
+      "type": "pod-link",
+      "strength": 1
+    },
+    {
+      "from_slug": "proof-of-work-003",
+      "to_slug": "proof-of-work-002",
+      "type": "continues",
+      "strength": 1
+    }
+  ]
+}

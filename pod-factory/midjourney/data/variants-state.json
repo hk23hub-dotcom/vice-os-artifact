@@ -1,0 +1,92 @@
+{
+  "6ab543f15e2dad6f0a0258f4": {
+    "sku": "mjx-0038",
+    "synced": true,
+    "enabled": 9,
+    "synced_at": "2026-09-27T11:34:31.566Z"
+  },
+  "6ab544977892aa2f3f01e592": {
+    "sku": "mjx-0115",
+    "synced": true,
+    "enabled": 9,
+    "synced_at": "2026-09-27T11:34:32.805Z"
+  },
+  "6ab545102ee15022d40cd221": {
+    "sku": "mjx-0006",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:34.913Z",
+    "synced_at": "2026-09-27T11:34:35.558Z"
+  },
+  "6ab8e8c30ec1eb9d2c08387b": {
+    "sku": "mjx-0008",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:37.653Z",
+    "synced_at": "2026-09-27T11:34:38.325Z"
+  },
+  "6ab8e98200c79df9a307af89": {
+    "sku": "mjx-0009",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:40.324Z",
+    "synced_at": "2026-09-27T11:34:41.002Z"
+  },
+  "6ab8e9d2580577e1990ba6db": {
+    "sku": "mjx-0012",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:42.753Z",
+    "synced_at": "2026-09-27T11:34:43.461Z"
+  },
+  "6ab53d78b5ef3d8afd033579": {
+    "sku": "pow-stk-invader-coral",
+    "synced": true,
+    "enabled": 16,
+    "synced_at": "2026-09-27T11:34:44.659Z"
+  },
+  "6ab53d7c85e7395b5f06d846": {
+    "sku": "pow-stk-starburst",
+    "synced": true,
+    "enabled": 16,
+    "synced_at": "2026-09-27T11:34:45.742Z"
+  },
+  "6ab53d8085e7395b5f06d849": {
+    "sku": "pow-stk-invader-blue",
+    "synced": true,
+    "enabled": 16,
+    "synced_at": "2026-09-27T11:34:46.855Z"
+  },
+  "6ab53d84870f4133580bb865": {
+    "sku": "pow-stk-invader-bone",
+    "synced": true,
+    "enabled": 16,
+    "synced_at": "2026-09-27T11:34:47.993Z"
+  },
+  "6ab53d89a40713da0b084ea9": {
+    "sku": "pow-stk-grid",
+    "synced": true,
+    "enabled": 16,
+    "synced_at": "2026-09-27T11:34:49.187Z"
+  },
+  "6ab53d8edefb1af2250c03f9": {
+    "sku": "pow-poster-002",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:51.042Z",
+    "synced_at": "2026-09-27T11:34:51.806Z"
+  },
+  "6ab53d94ed6a626bda04014f": {
+    "sku": "pow-poster-003",
+    "synced": true,
+    "enabled": 3,
+    "fixed_at": "2026-09-27T11:34:53.956Z",
+    "synced_at": "2026-09-27T11:34:54.953Z"
+  },
+  "6ab908d476c4b6e5020750ad": {
+    "sku": "mjx-0039",
+    "synced": true,
+    "enabled": 3,
+    "synced_at": "2026-09-27T12:16:09.032Z"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-10-06",
+  "code": "CAJ",
+  "nombre": "Caja",
+  "estado": "espera",
+  "titular": "Sin ingresos registrados",
+  "detalle": "Falta conectar la fuente de órdenes para contar ingresos reales.",
+  "n": {
+    "ingresos": 0,
+    "credenciales": 2
+  }
+}

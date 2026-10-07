@@ -1,0 +1,185 @@
+<title>Portada HK23 STUDIO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#EDEAE4; --surface:#FFFFFF; --surface-2:#F5F2EC;
+    --ink:#14120F; --ink-2:#4B443B; --ink-3:#8A8175;
+    --line:#DAD4C9; --line-strong:#BDB5A6;
+    --malo:#A8392C; --bueno:#2F6E4A;
+    --shadow:0 1px 2px rgba(20,18,15,.06), 0 14px 32px -20px rgba(20,18,15,.3);
+    --ui:'Archivo', system-ui, sans-serif; --mono:'IBM Plex Mono', ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --ground:#111010; --surface:#1A1917; --surface-2:#22201D;
+    --ink:#EFEBE4; --ink-2:#BAB2A6; --ink-3:#877F73;
+    --line:#2C2A26; --line-strong:#423E37;
+    --malo:#E07A6B; --bueno:#63BC8C;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 34px -20px rgba(0,0,0,.85);
+    color-scheme:dark;
+  }}
+  :root[data-theme="dark"]{
+    --ground:#111010; --surface:#1A1917; --surface-2:#22201D;
+    --ink:#EFEBE4; --ink-2:#BAB2A6; --ink-3:#877F73;
+    --line:#2C2A26; --line-strong:#423E37;
+    --malo:#E07A6B; --bueno:#63BC8C;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 16px 34px -20px rgba(0,0,0,.85);
+    color-scheme:dark;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--ui); font-size:15px; line-height:1.55; margin:0; padding-inline:16px; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px; margin:0 auto; padding-block:30px 64px}
+  h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.02em; text-wrap:balance}
+  p{margin:0}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.15em; text-transform:uppercase; color:var(--ink-3)}
+  header{padding-bottom:18px; border-bottom:2px solid var(--line-strong)}
+  header h1{font-size:clamp(27px,4.4vw,40px); font-weight:700; letter-spacing:-.035em; margin-top:6px}
+  header p{color:var(--ink-2); max-width:56ch; margin-top:9px; font-size:14.5px}
+
+  .paso{margin-top:34px}
+  .paso .lbl{display:flex; align-items:baseline; gap:11px; flex-wrap:wrap; margin-bottom:11px}
+  .paso h2{font-size:19px}
+  .paso .n{font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase; padding:3px 7px; border:1px solid var(--line-strong); color:var(--ink-3)}
+  .paso .n.malo{border-color:var(--malo); color:var(--malo)}
+  .paso .n.bueno{border-color:var(--bueno); color:var(--bueno)}
+  .paso .nota{font-size:13.5px; color:var(--ink-2); max-width:70ch; margin-bottom:12px; line-height:1.55}
+
+  /* --- maqueta de tienda --- */
+  .tienda{border:1px solid var(--line-strong); box-shadow:var(--shadow); overflow:hidden; background:#0E0D0C}
+  .navbar{display:flex; align-items:center; gap:16px; padding:11px 18px; background:#0A0A0A; color:#EDE9E2; font-size:12.5px}
+  .navbar .marca{font-weight:700; letter-spacing:.02em}
+  .navbar nav{display:flex; gap:14px; color:#A49C92; font-size:12px}
+  .navbar .der{margin-left:auto; color:#A49C92; font-family:var(--mono); font-size:11px}
+
+  /* hero viejo: la obra a sangre, texto encima */
+  .hero-viejo{position:relative; height:258px; display:grid; place-items:center; text-align:center; padding:16px; overflow:hidden}
+  .hero-viejo .art{position:absolute; inset:0;
+    background:
+      radial-gradient(38% 52% at 50% 46%, #C9CFD6 0%, #6E7A87 38%, transparent 72%),
+      radial-gradient(60% 70% at 18% 28%, #E0562B 0%, transparent 58%),
+      radial-gradient(56% 66% at 84% 24%, #2E7FA8 0%, transparent 56%),
+      radial-gradient(70% 80% at 50% 96%, #7E1F2A 0%, transparent 62%),
+      #14090C}
+  .hero-viejo .art::after{content:""; position:absolute; inset:0; background:rgba(0,0,0,.34)}
+  .hero-viejo .z{position:relative; display:flex; flex-direction:column; align-items:center; gap:13px; max-width:660px}
+  .hero-viejo .bt{background:#FF5722; color:#150703; font-size:12.5px; font-weight:600; padding:10px 18px}
+  .hero-viejo .t1{color:#fff; font-size:clamp(19px,2.9vw,28px); font-weight:700; letter-spacing:-.02em; line-height:1.15}
+  .hero-viejo .t2{color:#fff; font-size:clamp(15px,2.2vw,21px); font-weight:700; letter-spacing:-.015em; line-height:1.25}
+
+  /* hero nuevo: la lámina colgada, texto sobre pared lisa */
+  .hero-nuevo{position:relative; height:258px; display:grid; grid-template-columns:1.05fr .95fr; align-items:center; overflow:hidden; background:#C9C2B6}
+  @media (max-width:640px){.hero-nuevo{grid-template-columns:1fr; height:auto}}
+  .pieza{position:relative; height:100%; display:grid; place-items:center;
+    background:linear-gradient(176deg,#D6D0C4 0%,#C3BCAF 62%,#A79E8F 100%)}
+  .pieza::after{content:""; position:absolute; left:0; right:0; bottom:0; height:34%;
+    background:linear-gradient(180deg,transparent,rgba(90,80,66,.22))}
+  .marco{position:relative; width:126px; padding:9px; background:#F7F4EE; box-shadow:0 18px 30px -14px rgba(60,50,38,.6), 0 2px 5px rgba(60,50,38,.25)}
+  .marco .lam{aspect-ratio:2/3; background:
+      radial-gradient(52% 42% at 50% 34%, #F0A35C 0%, transparent 62%),
+      radial-gradient(60% 50% at 24% 76%, #2E6E86 0%, transparent 60%),
+      linear-gradient(168deg,#1D2430,#39303A 58%,#5B3A33)}
+  .mueble{position:absolute; left:0; right:0; bottom:0; height:16%; background:linear-gradient(180deg,#8C7A62,#6B5B48)}
+  .copy{padding:26px 30px; display:flex; flex-direction:column; gap:12px; align-items:flex-start; background:#DCD6CA}
+  .copy .h{font-size:clamp(21px,3vw,30px); font-weight:700; letter-spacing:-.03em; line-height:1.06; color:#17150F}
+  .copy .s{font-size:13.5px; color:#4A4437; line-height:1.5; max-width:38ch}
+  .copy .btns{display:flex; gap:9px; flex-wrap:wrap; margin-top:3px}
+  .copy .b1{background:#17150F; color:#F4F1E9; font-size:12.5px; font-weight:600; padding:11px 19px}
+  .copy .b2{border:1px solid #17150F; color:#17150F; font-size:12.5px; font-weight:600; padding:11px 19px}
+  .copy .env{font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase; color:#6B6355; margin-top:2px}
+
+  .falla{margin-top:12px; display:flex; flex-direction:column; gap:7px}
+  .falla div{display:grid; grid-template-columns:20px 1fr; gap:9px; font-size:13.5px; color:var(--ink-2); line-height:1.5}
+  .falla b{color:var(--ink); font-weight:600}
+  .falla .x{color:var(--malo); font-family:var(--mono); font-size:13px}
+  .falla .v{color:var(--bueno); font-family:var(--mono); font-size:13px}
+
+  .pegar{margin-top:34px; border:1px solid var(--line-strong); background:var(--surface)}
+  .pegar .hd{background:var(--ink); color:var(--ground); padding:10px 15px; font-family:var(--mono); font-size:10.5px; letter-spacing:.13em; text-transform:uppercase}
+  .pegar .bd{padding:15px; display:flex; flex-direction:column; gap:13px}
+  .campo{display:flex; flex-direction:column; gap:4px}
+  .campo .k{font-family:var(--mono); font-size:10px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-3)}
+  .campo .v{font-family:var(--mono); font-size:13px; background:var(--surface-2); border:1px solid var(--line); padding:9px 11px; color:var(--ink); line-height:1.5; overflow-x:auto}
+  .rule{margin-top:30px; padding:17px 19px; border:1px solid var(--line-strong); background:var(--surface-2)}
+  .rule h2{font-size:16px; margin-bottom:7px}
+  .rule p{font-size:13.5px; color:var(--ink-2); max-width:72ch}
+  .rule p + p{margin-top:8px}
+  footer{margin-top:28px; padding-top:15px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-3)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">HK23 Studio · fcqevq-jr.myshopify.com</div>
+    <h1>Portada HK23 Studio</h1>
+    <p>La primera pantalla de la tienda, como está hoy y como debería quedar. Cobra en dólares y despacha a 43 países, así que la llegada tiene que hablar inglés y decir qué se vende en la primera línea.</p>
+  </header>
+
+  <section class="paso">
+    <div class="lbl"><span class="n malo">Hoy</span><h2>Lo que ve alguien que llega</h2></div>
+    <div class="tienda">
+      <div class="navbar"><span class="marca">HK23 STUDIO</span><nav><span>Inicio</span><span>Catálogo</span><span>Contacto</span></nav><span class="der">USD</span></div>
+      <div class="hero-viejo">
+        <div class="art"></div>
+        <div class="z">
+          <span class="bt">Ver IDLE CYCLES</span>
+          <div class="t1">Tu trabajo, hecho objeto.</div>
+          <div class="t2">Arte impreso que nace de datos reales de actividad.<br>Ninguna pieza se repite, porque nadie tiene tus números.</div>
+          <span class="bt">Ver PROOF OF WORK</span>
+        </div>
+      </div>
+    </div>
+    <div class="falla">
+      <div><span class="x">✕</span><span><b>Está en español</b> en una tienda que cobra en USD y despacha a 43 destinos.</span></div>
+      <div><span class="x">✕</span><span><b>No dice qué vende.</b> "Tu trabajo, hecho objeto" puede ser software, un libro o una consultoría. La palabra <i>lámina</i> no aparece.</span></div>
+      <div><span class="x">✕</span><span><b>La obra va a sangre completa</b> y el texto pelea contra ella. Se lee mal y no deja imaginar la pieza en una pared.</span></div>
+      <div><span class="x">✕</span><span><b>Dos botones partiendo el mensaje</b>, uno arriba y otro abajo del titular. El ojo no sabe dónde ir.</span></div>
+      <div><span class="x">✕</span><span><b>Habla de PROOF OF WORK e IDLE CYCLES</b>, que son 16 productos. El catálogo ya tiene 201 piezas en nueve colecciones.</span></div>
+    </div>
+  </section>
+
+  <section class="paso">
+    <div class="lbl"><span class="n bueno">Propuesta</span><h2>Lo que debería ver</h2></div>
+    <p class="nota">La lámina colgada, no la obra a sangre. Marco simple, pared clara, un mueble abajo para dar escala. El texto va sobre la zona lisa de la pared, donde se lee.</p>
+    <div class="tienda">
+      <div class="navbar"><span class="marca">HK23 STUDIO</span><nav><span>Shop</span><span>Collections</span><span>About</span></nav><span class="der">USD · Ships worldwide</span></div>
+      <div class="hero-nuevo">
+        <div class="pieza">
+          <div class="marco"><div class="lam"></div></div>
+          <div class="mueble"></div>
+        </div>
+        <div class="copy">
+          <div class="h">Art prints, made one at a time.</div>
+          <div class="s">Museum-grade matte paper, no glare. Printed when you order and shipped worldwide in a protective tube.</div>
+          <div class="btns"><span class="b1">Browse the catalog</span><span class="b2">New this week</span></div>
+          <div class="env">201 pieces · 9 collections · 43 countries</div>
+        </div>
+      </div>
+    </div>
+    <div class="falla">
+      <div><span class="v">✓</span><span><b>Inglés primero.</b> El español ya está escrito y queda como segundo idioma.</span></div>
+      <div><span class="v">✓</span><span><b>Dice "art prints" en la primera línea.</b> Nadie tiene que adivinar.</span></div>
+      <div><span class="v">✓</span><span><b>Se ve la lámina colgada</b>, con escala. Eso es lo que hace que alguien la imagine en su casa.</span></div>
+      <div><span class="v">✓</span><span><b>Un botón manda</b> y el otro acompaña.</span></div>
+      <div><span class="v">✓</span><span><b>Responde lo que frena la compra</b> —papel, envío, de dónde a dónde— antes de que lo pregunten.</span></div>
+    </div>
+  </section>
+
+  <section class="pegar">
+    <div class="hd">Para pegar en el editor de temas de Shopify</div>
+    <div class="bd">
+      <div class="campo"><span class="k">Heading</span><span class="v">Art prints, made one at a time.</span></div>
+      <div class="campo"><span class="k">Subheading</span><span class="v">Museum-grade matte paper, no glare. Printed when you order and shipped worldwide in a protective tube.</span></div>
+      <div class="campo"><span class="k">Botón principal</span><span class="v">Browse the catalog  →  /collections/all</span></div>
+      <div class="campo"><span class="k">Botón secundario</span><span class="v">New this week  →  /collections/all?sort_by=created-descending</span></div>
+      <div class="campo"><span class="k">Imagen</span><span class="v">Un mockup de ambiente de Printify: la lámina colgada en una pared. Printify los genera por producto — se baja de cualquiera de los 16 ya publicados.</span></div>
+    </div>
+  </section>
+
+  <div class="rule">
+    <h2>Lo que falta para dejarlo aplicado</h2>
+    <p>Esto se pega a mano en <b>Online Store → Themes → Customize</b>, en la sección del hero. Son cinco campos y no necesita ningún token.</p>
+    <p>Para que se aplique solo —y para que Caja pueda leer las órdenes reales en vez de reportar $0— hace falta el <b>token de Admin API</b> de la tienda. Ese es el mismo que pide el laboratorio desde ayer.</p>
+  </div>
+
+  <footer>Maqueta de la portada · el texto nuevo ya quedó guardado en storekit/content/home.json</footer>
+</div>

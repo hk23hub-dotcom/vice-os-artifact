@@ -1,0 +1,587 @@
+{
+  "fecha": "2026-09-24",
+  "generado": "2026-09-24T15:48:52.882Z",
+  "enviado": false,
+  "aviso": "Cola propuesta. Nada fue enviado. El agente vendedor no envía correo.",
+  "tope": 15,
+  "candidatos": 0,
+  "productos_con_url": 10,
+  "productos_totales": 10,
+  "notas": [],
+  "mensajes": [
+    {
+      "lead_id": "em:andrea@decosur.cl",
+      "email": "andrea@decosur.cl",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "tienda de decoración, compran por catálogo",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-poster-002",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 002",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 6.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "lámina para muro"
+            ]
+          }
+        ],
+        "razon": "Deco Sur es del rubro retail/deco y Proof of Work Edicion 002 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 002 para Deco Sur",
+        "cuerpo": "Andrea, te escribo derecho por lo que tengo anotado de Deco Sur: tienda de decoración, compran por catálogo.\n\nTengo una pieza del catálogo que calza: Proof of Work Edicion 002 (lámina). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 82
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 002 para Deco Sur",
+        "cuerpo": "Andrea, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Edicion 002 sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 30
+      },
+      "lead": {
+        "id": "em:andrea@decosur.cl",
+        "nombre": "Andrea Soto",
+        "empresa": "Deco Sur",
+        "rubro": "Retail decoración, muebles",
+        "email": "andrea@decosur.cl",
+        "ciudad": "Concepción",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-003",
+          "score": 6.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+          "razon": "Deco Sur es del rubro retail/deco y Proof of Work Edicion 003 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:camila@cafebruma.cl",
+      "email": "camila@cafebruma.cl",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "local nuevo en Cerro Alegre, paredes vacías, estética retro",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-poster-003",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 003",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 6.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "lámina para muro"
+            ]
+          }
+        ],
+        "razon": "Café Bruma es del rubro gastronomía y Proof of Work Edicion 003 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 003 para Café Bruma",
+        "cuerpo": "Camila, te escribo derecho por lo que tengo anotado de Café Bruma: local nuevo en Cerro Alegre, paredes vacías, estética retro.\n\nTengo una pieza del catálogo que calza: Proof of Work Edicion 003 (lámina). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 85
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 003 para Café Bruma",
+        "cuerpo": "Camila, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Edicion 003 sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 30
+      },
+      "lead": {
+        "id": "em:camila@cafebruma.cl",
+        "nombre": "Camila Fuentealba",
+        "empresa": "Café Bruma",
+        "rubro": "Cafetería",
+        "email": "camila@cafebruma.cl",
+        "ciudad": "Valparaíso",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-002",
+          "score": 6.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+          "razon": "Café Bruma es del rubro gastronomía y Proof of Work Edicion 002 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:ipena@nodocowork.cl",
+      "email": "ipena@nodocowork.cl",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "3 pisos, 40 puestos",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-poster-002",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 002",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 6.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "lámina para muro"
+            ]
+          }
+        ],
+        "razon": "Nodo Coworking es del rubro oficinas y Proof of Work Edicion 002 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 002 para Nodo Coworking",
+        "cuerpo": "Ignacio, te escribo derecho por lo que tengo anotado de Nodo Coworking: 3 pisos, 40 puestos.\n\nTengo una pieza del catálogo que calza: Proof of Work Edicion 002 (lámina). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 80
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 002 para Nodo Coworking",
+        "cuerpo": "Ignacio, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Edicion 002 sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 30
+      },
+      "lead": {
+        "id": "em:ipena@nodocowork.cl",
+        "nombre": "Ignacio Peña",
+        "empresa": "Nodo Coworking",
+        "rubro": "Coworking / oficinas",
+        "email": "ipena@nodocowork.cl",
+        "ciudad": "Providencia",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-003",
+          "score": 6.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+          "razon": "Nodo Coworking es del rubro oficinas y Proof of Work Edicion 003 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:james@greensidemedia.co.uk",
+      "email": "james@greensidemedia.co.uk",
+      "idioma": "en",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "runs a golf podcast",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-stk-grid",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-activity-grid-sticker",
+        "kind": "sticker",
+        "subject": "Proof of Work Activity Grid Sticker",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 9,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "sticker"
+            ]
+          },
+          {
+            "campo": "subject",
+            "hits": [
+              "sticker"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "sticker para equipo/merch"
+            ]
+          }
+        ],
+        "razon": "Greenside Media es del rubro golf y Proof of Work Activity Grid Sticker comparte \"sticker\", \"sticker para equipo/merch\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Activity Grid Sticker for Greenside Media",
+        "cuerpo": "James, going straight to the point, based on what I have on Greenside Media: runs a golf podcast.\n\nOne piece from our catalog fits: Proof of Work Activity Grid Sticker (sticker). It is printed on demand and shipped by the supplier, so there is no minimum and no stock to finance: you can order a single one to test it.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-activity-grid-sticker\n\nIf it makes sense, reply and I will send sizes and volume pricing. If it is not for you, say so and I will drop it.\n\nHK23",
+        "palabras": 88
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Activity Grid Sticker for Greenside Media",
+        "cuerpo": "James, bringing this up once and then leaving it.\n\nProof of Work Activity Grid Sticker is still available: https://fcqevq-jr.myshopify.com/products/proof-of-work-activity-grid-sticker\n\nA \"no\" works too and I will take you off the list.\n\nHK23",
+        "palabras": 32
+      },
+      "lead": {
+        "id": "em:james@greensidemedia.co.uk",
+        "nombre": "James O'Connor",
+        "empresa": "Greenside Media",
+        "rubro": "Golf media, podcast",
+        "email": "james@greensidemedia.co.uk",
+        "ciudad": "London",
+        "pais": "United Kingdom"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-stk-invader-blue",
+          "score": 9,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-blue",
+          "razon": "Greenside Media es del rubro golf y Proof of Work Invader Sticker Blue comparte \"sticker\", \"sticker para equipo/merch\" con lo que anotó LeadHunter."
+        },
+        {
+          "sku": "pow-stk-invader-bone",
+          "score": 9,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-bone",
+          "razon": "Greenside Media es del rubro golf y Proof of Work Invader Sticker Bone comparte \"sticker\", \"sticker para equipo/merch\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:martin@bitwiselabs.io",
+      "email": "martin@bitwiselabs.io",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "equipo de 22 devs, oficina nueva en Ñuñoa",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-stk-invader-blue",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-blue",
+        "kind": "sticker",
+        "subject": "Proof of Work Invader Sticker Blue",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 24,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "proof"
+            ]
+          },
+          {
+            "campo": "keywords",
+            "hits": [
+              "work"
+            ]
+          },
+          {
+            "campo": "keywords",
+            "hits": [
+              "invader"
+            ]
+          },
+          {
+            "campo": "keywords",
+            "hits": [
+              "sticker"
+            ]
+          },
+          {
+            "campo": "subject",
+            "hits": [
+              "proof",
+              "work",
+              "invader",
+              "sticker"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "sticker para equipo/merch"
+            ]
+          }
+        ],
+        "razon": "Bitwise Labs es del rubro oficinas y Proof of Work Invader Sticker Blue comparte \"proof\", \"work\", \"invader\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Invader Sticker Blue para Bitwise Labs",
+        "cuerpo": "Martín, te escribo derecho por lo que tengo anotado de Bitwise Labs: equipo de 22 devs, oficina nueva en Ñuñoa.\n\nTengo una pieza del catálogo que calza: Proof of Work Invader Sticker Blue (sticker). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-blue\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 85
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Invader Sticker Blue para Bitwise Labs",
+        "cuerpo": "Martín, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Invader Sticker Blue sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-blue\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 31
+      },
+      "lead": {
+        "id": "em:martin@bitwiselabs.io",
+        "nombre": "Martín Osorio",
+        "empresa": "Bitwise Labs",
+        "rubro": "Software / startup",
+        "email": "martin@bitwiselabs.io",
+        "ciudad": "Santiago",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-stk-invader-bone",
+          "score": 24,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-bone",
+          "razon": "Bitwise Labs es del rubro oficinas y Proof of Work Invader Sticker Bone comparte \"proof\", \"work\", \"invader\" con lo que anotó LeadHunter."
+        },
+        {
+          "sku": "pow-stk-invader-coral",
+          "score": 24,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-coral",
+          "razon": "Bitwise Labs es del rubro oficinas y Proof of Work Invader Sticker Coral comparte \"proof\", \"work\", \"invader\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:rehlers@golflasrocas.cl",
+      "email": "rehlers@golflasrocas.cl",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "club con casa club recién remodelada",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-poster-003",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 003",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 6.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "lámina para muro"
+            ]
+          }
+        ],
+        "razon": "Club de Golf Las Rocas es del rubro golf y Proof of Work Edicion 003 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 003 para Club de Golf Las Rocas",
+        "cuerpo": "Rodrigo, te escribo derecho por lo que tengo anotado de Club de Golf Las Rocas: club con casa club recién remodelada.\n\nTengo una pieza del catálogo que calza: Proof of Work Edicion 003 (lámina). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 85
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 003 para Club de Golf Las Rocas",
+        "cuerpo": "Rodrigo, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Edicion 003 sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 30
+      },
+      "lead": {
+        "id": "em:rehlers@golflasrocas.cl",
+        "nombre": "Rodrigo Ehlers",
+        "empresa": "Club de Golf Las Rocas",
+        "rubro": "Club deportivo / golf",
+        "email": "rehlers@golflasrocas.cl",
+        "ciudad": "Santo Domingo",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-002",
+          "score": 6.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+          "razon": "Club de Golf Las Rocas es del rubro golf y Proof of Work Edicion 002 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:sarah@fairwayandco.com",
+      "email": "sarah@fairwayandco.com",
+      "idioma": "en",
+      "listo": true,
+      "aviso": [],
+      "ancla": {
+        "texto": "pro shop chain, 4 locations, sources wall art from small studios",
+        "tipo": "notas"
+      },
+      "match": {
+        "sku": "pow-poster-002",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 002",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 6.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          },
+          {
+            "campo": "formato",
+            "hits": [
+              "lámina para muro"
+            ]
+          }
+        ],
+        "razon": "Fairway & Co. es del rubro golf y Proof of Work Edicion 002 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 002 for Fairway & Co.",
+        "cuerpo": "Sarah, going straight to the point, based on what I have on Fairway & Co.: pro shop chain, 4 locations, sources wall art from small studios.\n\nOne piece from our catalog fits: Proof of Work Edicion 002 (print). It is printed on demand and shipped by the supplier, so there is no minimum and no stock to finance: you can order a single one to test it.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nIf it makes sense, reply and I will send sizes and volume pricing. If it is not for you, say so and I will drop it.\n\nHK23",
+        "palabras": 95
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 002 for Fairway & Co.",
+        "cuerpo": "Sarah, bringing this up once and then leaving it.\n\nProof of Work Edicion 002 is still available: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nA \"no\" works too and I will take you off the list.\n\nHK23",
+        "palabras": 31
+      },
+      "lead": {
+        "id": "em:sarah@fairwayandco.com",
+        "nombre": "Sarah Whitfield",
+        "empresa": "Fairway & Co.",
+        "rubro": "Golf retail",
+        "email": "sarah@fairwayandco.com",
+        "ciudad": "Austin",
+        "pais": "United States"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-003",
+          "score": 6.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+          "razon": "Fairway & Co. es del rubro golf y Proof of Work Edicion 003 comparte \"poster\", \"lámina para muro\" con lo que anotó LeadHunter."
+        }
+      ]
+    },
+    {
+      "lead_id": "em:tkrebs@krebsyasociados.cl",
+      "email": "tkrebs@krebsyasociados.cl",
+      "idioma": "es",
+      "listo": true,
+      "aviso": [
+        "match débil (score 2.5): revisar antes de enviar"
+      ],
+      "ancla": {
+        "texto": "estudio jurídico en Santiago",
+        "tipo": "rubro+ciudad"
+      },
+      "match": {
+        "sku": "pow-poster-002",
+        "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1",
+        "kind": "poster",
+        "subject": "Proof of Work Edicion 002",
+        "style": "",
+        "theme": "",
+        "palette": "",
+        "meta_source": "derivado del handle/sku",
+        "score": 2.5,
+        "senales": [
+          {
+            "campo": "keywords",
+            "hits": [
+              "poster"
+            ]
+          }
+        ],
+        "razon": "Krebs & Asociados es del rubro oficinas y Proof of Work Edicion 002 comparte \"poster\" con su rubro."
+      },
+      "mensaje": {
+        "asunto": "Proof of Work Edicion 002 para Krebs & Asociados",
+        "cuerpo": "Tomás, te escribo derecho por lo que tengo anotado de Krebs & Asociados: estudio jurídico en Santiago.\n\nTengo una pieza del catálogo que calza: Proof of Work Edicion 002 (lámina). Se imprime por encargo y la despacha el proveedor, así que no hay mínimo ni stock que financiar: se puede pedir una sola para probar.\n\nhttps://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nSi te hace sentido, respóndeme y te paso las medidas y el precio por volumen. Si no es para ustedes, dímelo y no insisto.\n\nHK23",
+        "palabras": 81
+      },
+      "followup": {
+        "enviar_el": "2026-09-28",
+        "asunto": "Re: Proof of Work Edicion 002 para Krebs & Asociados",
+        "cuerpo": "Tomás, subo esto una vez y lo dejo hasta ahí.\n\nProof of Work Edicion 002 sigue disponible: https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1\n\nUn \"no\" también me sirve y te saco de la lista.\n\nHK23",
+        "palabras": 30
+      },
+      "lead": {
+        "id": "em:tkrebs@krebsyasociados.cl",
+        "nombre": "Tomás Krebs",
+        "empresa": "Krebs & Asociados",
+        "rubro": "Estudio jurídico",
+        "email": "tkrebs@krebsyasociados.cl",
+        "ciudad": "Santiago",
+        "pais": "Chile"
+      },
+      "alternativas": [
+        {
+          "sku": "pow-poster-003",
+          "score": 2.5,
+          "url": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl",
+          "razon": "Krebs & Asociados es del rubro oficinas y Proof of Work Edicion 003 comparte \"poster\" con su rubro."
+        }
+      ]
+    }
+  ],
+  "saltados": [
+    {
+      "lead": {
+        "id": "dm:hotelpuntabrava.cl",
+        "nombre": "Valentina Ríos",
+        "empresa": "Hotel Punta Brava",
+        "rubro": "Hotelería"
+      },
+      "aviso": [
+        "sin email: LeadHunter no trajo correo"
+      ]
+    }
+  ]
+}

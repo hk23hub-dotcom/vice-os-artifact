@@ -1,0 +1,290 @@
+{
+  "fecha": "2026-10-06",
+  "tiendaCerrada": false,
+  "catalogo": 201,
+  "publicados": 16,
+  "conURL": 16,
+  "hoyPub": 0,
+  "sinCurar": 0,
+  "cola": 0,
+  "leads": 9,
+  "ingresos": 0,
+  "aprobaciones": [
+    {
+      "t": "Publicar la ola de mañana (3 piezas)",
+      "d": "Quedan 185 piezas de catálogo sin producir. La ola rota por colección.",
+      "r": "node daily.mjs --live",
+      "peso": 6
+    },
+    {
+      "t": "Destrabar: supabase service key",
+      "d": "Hay piezas detenidas esperando estas credenciales.",
+      "r": "data/ledger.json",
+      "peso": 4
+    }
+  ],
+  "tareaHumana": {
+    "t": "Nada. Hoy no te necesita.",
+    "d": "La fábrica corre sola."
+  },
+  "credenciales": [
+    {
+      "id": "printifyToken",
+      "label": "Token de Printify",
+      "requerida": true,
+      "donde": "https://printify.com/app/account/api",
+      "porque": "Sin esto la fábrica no puede crear ni publicar productos.",
+      "presente": true,
+      "largo": 1024,
+      "archivo": "~/vice-os-artifact/vice-seller/config.local.json"
+    },
+    {
+      "id": "printifyShopId",
+      "label": "ID de tienda en Printify",
+      "requerida": true,
+      "donde": "https://printify.com/app/store",
+      "porque": "Identifica a qué tienda van los productos.",
+      "presente": true,
+      "largo": 8,
+      "archivo": "~/vice-os-artifact/vice-seller/config.local.json"
+    },
+    {
+      "id": "shopifyAdminToken",
+      "label": "Token de Admin API de Shopify",
+      "requerida": false,
+      "donde": "https://admin.shopify.com/store/fcqevq-jr/settings/apps/development",
+      "porque": "Deja que storekit aplique diseño y políticas solo, y que Caja lea las órdenes reales.",
+      "presente": false,
+      "largo": 0,
+      "archivo": "~/vice-os-artifact/pod-factory/storekit/config.local.json"
+    },
+    {
+      "id": "supabaseServiceKey",
+      "label": "Service key de Supabase",
+      "requerida": false,
+      "donde": "Panel de Supabase → Project settings → API",
+      "porque": "Solo sirve para escribir al universo VICE OS. La tienda no la necesita.",
+      "presente": false,
+      "largo": 0,
+      "archivo": "~/vice-os-artifact/vice-seller/config.local.json"
+    }
+  ],
+  "tiendaUrl": "https://fcqevq-jr.myshopify.com",
+  "adminUrl": "https://admin.shopify.com/store/fcqevq-jr",
+  "dominio": "fcqevq-jr.myshopify.com",
+  "agentes": [
+    {
+      "code": "CEN",
+      "nombre": "Central",
+      "rol": "Dirección",
+      "sala": "direccion",
+      "color": "#3f6fd8",
+      "jefe": "El dueño",
+      "recibe": "Los siete",
+      "entrega": "El dueño",
+      "limite": "No ejecuta nada por su cuenta. Arma el parte y espera.",
+      "fuentes": [
+        "ecosistema/agentes/*/estado.json"
+      ],
+      "estado": "ok",
+      "titular": "Consolidando el parte",
+      "detalle": "Leyó a los siete. 0 producido(s) hoy, 16 productos alcanzables, 0 mensaje(s) en cola.",
+      "n": {
+        "agentes": 8,
+        "aprobaciones": 0
+      }
+    },
+    {
+      "code": "INT",
+      "nombre": "Portero",
+      "rol": "Entrada de colecciones",
+      "sala": "recepcion",
+      "color": "#8a95a3",
+      "jefe": "Central",
+      "recibe": "inbox/ (zips, carpetas, exports)",
+      "entrega": "Curador",
+      "limite": "No cura. Solo ingresa, descarta repetidos y mejora resolución.",
+      "fuentes": [
+        "inbox",
+        "library/library.json"
+      ],
+      "estado": "espera",
+      "titular": "Inbox vacío",
+      "detalle": "Sin colecciones nuevas. Deja .zip o carpetas en inbox/ y las ingresa solo.",
+      "n": {
+        "inbox": 0
+      }
+    },
+    {
+      "code": "CUR",
+      "nombre": "Curador",
+      "rol": "Curaduría",
+      "sala": "curaduria",
+      "color": "#8b6bd6",
+      "jefe": "Central",
+      "recibe": "Portero",
+      "entrega": "Catálogo",
+      "limite": "No publica. Lo que no cura, no entra al catálogo.",
+      "fuentes": [
+        "library/library.json"
+      ],
+      "estado": "espera",
+      "titular": "Nada pendiente de curar",
+      "detalle": "Todo lo ingresado ya pasó por curaduría.",
+      "n": {
+        "sinCurar": 0
+      }
+    },
+    {
+      "code": "CAT",
+      "nombre": "Catálogo",
+      "rol": "Archivo y metadata",
+      "sala": "catalogo",
+      "color": "#c0982f",
+      "jefe": "Central",
+      "recibe": "Curador",
+      "entrega": "Producción",
+      "limite": "No inventa metadata. Sin dimensiones o sin caption, la pieza no es publicable.",
+      "fuentes": [
+        "midjourney/data/catalog.json"
+      ],
+      "estado": "ok",
+      "titular": "201 piezas publicables en catálogo",
+      "detalle": "Con metadata y dimensiones verificadas. 14 duplicados descartados.",
+      "n": {
+        "catalogo": 201
+      }
+    },
+    {
+      "code": "PRO",
+      "nombre": "Producción",
+      "rol": "Línea de producción",
+      "sala": "produccion",
+      "color": "#d0503c",
+      "jefe": "Central",
+      "recibe": "Catálogo",
+      "entrega": "Tienda",
+      "limite": "Solo habilita formatos que calzan con el arte. Nada de franjas blancas.",
+      "fuentes": [
+        "data/printify-ledger.json",
+        "midjourney/data/mj-ledger.json"
+      ],
+      "estado": "espera",
+      "titular": "Sin producción hoy",
+      "detalle": "16 productos creados en total entre los dos ledgers (Printify + ola MidJourney).",
+      "n": {
+        "hoy": 0,
+        "total": 16
+      }
+    },
+    {
+      "code": "TDA",
+      "nombre": "Tienda",
+      "rol": "Vitrina",
+      "sala": "tienda",
+      "color": "#25a08f",
+      "jefe": "Central",
+      "recibe": "Producción",
+      "entrega": "Vendedor",
+      "limite": "Nada se da por publicado sin URL real devuelta por Shopify.",
+      "fuentes": [
+        "data/printify-ledger.json",
+        "reports"
+      ],
+      "estado": "ok",
+      "titular": "16 productos con URL real",
+      "detalle": "Vitrina abierta. Los productos son alcanzables.",
+      "n": {
+        "conURL": 16,
+        "cerrada": 0
+      }
+    },
+    {
+      "code": "VEN",
+      "nombre": "Vendedor",
+      "rol": "Ventas",
+      "sala": "ventas",
+      "color": "#d98a2b",
+      "jefe": "Central",
+      "recibe": "Tienda · leads de LeadHunter",
+      "entrega": "Central",
+      "limite": "NUNCA envía. Deja la cola escrita y para ahí.",
+      "fuentes": [
+        "sales/out",
+        "sales/data/leads.json"
+      ],
+      "estado": "espera",
+      "titular": "Sin cola de venta hoy",
+      "detalle": "9 lead(s) conocidos. Deja un export de LeadHunter en sales/leads-inbox/ para armar cola.",
+      "n": {
+        "cola": 0,
+        "leads": 9
+      }
+    },
+    {
+      "code": "CAJ",
+      "nombre": "Caja",
+      "rol": "Administración",
+      "sala": "caja",
+      "color": "#46a76c",
+      "jefe": "Central",
+      "recibe": "Tienda",
+      "entrega": "Central",
+      "limite": "No mueve plata. Reporta lo que entró y lo que falta para poder cobrar.",
+      "fuentes": [
+        "data/ledger.json"
+      ],
+      "estado": "espera",
+      "titular": "Sin ingresos registrados",
+      "detalle": "Falta conectar la fuente de órdenes para contar ingresos reales.",
+      "n": {
+        "ingresos": 0,
+        "credenciales": 2
+      }
+    },
+    {
+      "code": "LAB",
+      "nombre": "Laboratorio",
+      "rol": "Ideas",
+      "sala": "laboratorio",
+      "color": "#b06bd6",
+      "jefe": "Central",
+      "recibe": "El estado real de toda la fábrica",
+      "entrega": "Factibilidad",
+      "limite": "No propone nada que no nombre el archivo o el comando que toca. Sin eso no es idea, es deseo.",
+      "fuentes": [
+        "ecosistema/mundo/datos.json",
+        "ecosistema/partes"
+      ]
+    },
+    {
+      "code": "FAC",
+      "nombre": "Factibilidad",
+      "rol": "Filtro",
+      "sala": "laboratorio",
+      "color": "#6bb0d6",
+      "jefe": "Central",
+      "recibe": "Laboratorio",
+      "entrega": "Producción",
+      "limite": "Descarta sin culpa. Lo que no se puede implementar hoy, no pasa.",
+      "fuentes": [
+        "ecosistema/ideas/ideas.json"
+      ]
+    },
+    {
+      "code": "TRA",
+      "nombre": "Difusión",
+      "rol": "Tráfico",
+      "sala": "ventas",
+      "color": "#e05c8a",
+      "jefe": "Central",
+      "recibe": "Tienda · productos con URL real",
+      "entrega": "Vendedor",
+      "limite": "No publica nada. Deja las piezas escritas con la URL real y espera el OK.",
+      "fuentes": [
+        "midjourney/data/mj-ledger.json",
+        "ecosistema/trafico"
+      ]
+    }
+  ]
+}

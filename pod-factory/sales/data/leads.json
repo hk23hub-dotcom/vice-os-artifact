@@ -1,0 +1,241 @@
+{
+  "generado": "2026-10-06T12:15:21.646Z",
+  "leads": {
+    "em:rehlers@golflasrocas.cl": {
+      "id": "em:rehlers@golflasrocas.cl",
+      "nombre": "Rodrigo Ehlers",
+      "empresa": "Club de Golf Las Rocas",
+      "rubro": "Club deportivo / golf",
+      "email": "rehlers@golflasrocas.cl",
+      "ciudad": "Santo Domingo",
+      "pais": "Chile",
+      "sitio": "https://golflasrocas.cl",
+      "dominio": "golflasrocas.cl",
+      "notas": "Club con casa club recién remodelada; buscan decorar el hall y el pro shop, 264 socios",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.637Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-003",
+          "asunto": "Proof of Work Edicion 003 para Club de Golf Las Rocas"
+        }
+      ]
+    },
+    "em:camila@cafebruma.cl": {
+      "id": "em:camila@cafebruma.cl",
+      "nombre": "Camila Fuentealba",
+      "empresa": "Café Bruma",
+      "rubro": "Cafetería",
+      "email": "camila@cafebruma.cl",
+      "ciudad": "Valparaíso",
+      "pais": "Chile",
+      "sitio": "cafebruma.cl",
+      "dominio": "cafebruma.cl",
+      "notas": "Local nuevo en Cerro Alegre, paredes vacías, estética retro; preguntó por láminas en Instagram | Duplicado a propósito: mismo email en mayúsculas, debe fusionarse",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-003",
+          "asunto": "Proof of Work Edicion 003 para Café Bruma"
+        }
+      ]
+    },
+    "em:ipena@nodocowork.cl": {
+      "id": "em:ipena@nodocowork.cl",
+      "nombre": "Ignacio Peña",
+      "empresa": "Nodo Coworking",
+      "rubro": "Coworking / oficinas",
+      "email": "ipena@nodocowork.cl",
+      "ciudad": "Providencia",
+      "pais": "Chile",
+      "sitio": "https://nodocowork.cl",
+      "dominio": "nodocowork.cl",
+      "notas": "3 pisos, 40 puestos; quieren identidad visual en salas de reunión",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-002",
+          "asunto": "Proof of Work Edicion 002 para Nodo Coworking"
+        }
+      ]
+    },
+    "em:sarah@fairwayandco.com": {
+      "id": "em:sarah@fairwayandco.com",
+      "nombre": "Sarah Whitfield",
+      "empresa": "Fairway & Co.",
+      "rubro": "Golf retail",
+      "email": "sarah@fairwayandco.com",
+      "ciudad": "Austin",
+      "pais": "United States",
+      "sitio": "fairwayandco.com",
+      "dominio": "fairwayandco.com",
+      "notas": "Pro shop chain, 4 locations, sources wall art from small studios",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-002",
+          "asunto": "Proof of Work Edicion 002 for Fairway & Co."
+        }
+      ]
+    },
+    "em:martin@bitwiselabs.io": {
+      "id": "em:martin@bitwiselabs.io",
+      "nombre": "Martín Osorio",
+      "empresa": "Bitwise Labs",
+      "rubro": "Software / startup",
+      "email": "martin@bitwiselabs.io",
+      "ciudad": "Santiago",
+      "pais": "Chile",
+      "sitio": "bitwiselabs.io",
+      "dominio": "bitwiselabs.io",
+      "notas": "Equipo de 22 devs, oficina nueva en Ñuñoa; cultura geek, mencionaron querer stickers para los notebooks del equipo",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-stk-invader-blue",
+          "asunto": "Proof of Work Invader Sticker Blue para Bitwise Labs"
+        }
+      ]
+    },
+    "dm:hotelpuntabrava.cl": {
+      "id": "dm:hotelpuntabrava.cl",
+      "nombre": "Valentina Ríos",
+      "empresa": "Hotel Punta Brava",
+      "rubro": "Hotelería",
+      "email": "",
+      "ciudad": "Algarrobo",
+      "pais": "Chile",
+      "sitio": "hotelpuntabrava.cl",
+      "dominio": "hotelpuntabrava.cl",
+      "notas": "14 habitaciones frente al mar; renuevan decoración en marzo",
+      "extra": {},
+      "estado": "nuevo",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": []
+    },
+    "em:tkrebs@krebsyasociados.cl": {
+      "id": "em:tkrebs@krebsyasociados.cl",
+      "nombre": "Tomás Krebs",
+      "empresa": "Krebs & Asociados",
+      "rubro": "Estudio jurídico",
+      "email": "tkrebs@krebsyasociados.cl",
+      "ciudad": "Santiago",
+      "pais": "Chile",
+      "sitio": "",
+      "dominio": "krebsyasociados.cl",
+      "notas": "",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-002",
+          "asunto": "Proof of Work Edicion 002 para Krebs & Asociados"
+        }
+      ]
+    },
+    "em:james@greensidemedia.co.uk": {
+      "id": "em:james@greensidemedia.co.uk",
+      "nombre": "James O'Connor",
+      "empresa": "Greenside Media",
+      "rubro": "Golf media, podcast",
+      "email": "james@greensidemedia.co.uk",
+      "ciudad": "London",
+      "pais": "United Kingdom",
+      "sitio": "greensidemedia.co.uk",
+      "dominio": "greensidemedia.co.uk",
+      "notas": "Runs a golf podcast; sells merch to listeners, open to affiliate deals",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-stk-grid",
+          "asunto": "Proof of Work Activity Grid Sticker for Greenside Media"
+        }
+      ]
+    },
+    "em:andrea@decosur.cl": {
+      "id": "em:andrea@decosur.cl",
+      "nombre": "Andrea Soto",
+      "empresa": "Deco Sur",
+      "rubro": "Retail decoración, muebles",
+      "email": "andrea@decosur.cl",
+      "ciudad": "Concepción",
+      "pais": "Chile",
+      "sitio": "https://www.decosur.cl",
+      "dominio": "decosur.cl",
+      "notas": "Tienda de decoración, compran por catálogo; piden margen mayorista",
+      "extra": {},
+      "estado": "encolado",
+      "primera_vez": "2026-09-24T15:40:29.025Z",
+      "ultima_vez": "2026-10-06T12:15:21.638Z",
+      "fuentes": [
+        "ejemplo-leads.csv"
+      ],
+      "historial": [
+        {
+          "fecha": "2026-09-24",
+          "evento": "encolado",
+          "sku": "pow-poster-002",
+          "asunto": "Proof of Work Edicion 002 para Deco Sur"
+        }
+      ]
+    }
+  }
+}

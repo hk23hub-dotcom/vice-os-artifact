@@ -1,0 +1,530 @@
+<title>Fábrica HK23</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#E6E3DC; --surface:#FFFFFF; --surface-2:#F3F0E9; --surface-3:#E9E5DC;
+    --ink:#15120F; --ink-2:#463E35; --ink-muted:#786C5E;
+    --line:#D6CFC2; --line-strong:#B9AF9D;
+    --accent:#9A4A22; --accent-soft:#F0E0D5;
+    --alarm:#B3261E; --alarm-soft:#F7E3E1; --ok:#2E7D4F;
+    --shadow:0 1px 2px rgba(21,18,15,.07), 0 12px 28px -18px rgba(21,18,15,.35);
+    --display:'Archivo', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#100E0C; --surface:#1A1714; --surface-2:#211D19; --surface-3:#2A251F;
+      --ink:#EFEAE2; --ink-2:#BDB3A6; --ink-muted:#8B8174;
+      --line:#2F2922; --line-strong:#443C32;
+      --accent:#E29A63; --accent-soft:#2D2018;
+      --alarm:#E4786B; --alarm-soft:#331A17; --ok:#5FBB88;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -18px rgba(0,0,0,.85);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#100E0C; --surface:#1A1714; --surface-2:#211D19; --surface-3:#2A251F;
+    --ink:#EFEAE2; --ink-2:#BDB3A6; --ink-muted:#8B8174;
+    --line:#2F2922; --line-strong:#443C32;
+    --accent:#E29A63; --accent-soft:#2D2018;
+    --alarm:#E4786B; --alarm-soft:#331A17; --ok:#5FBB88;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -18px rgba(0,0,0,.85);
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--display); font-size:15px; line-height:1.55; margin:0; padding-inline:16px; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px; margin:0 auto; padding-block:26px 56px}
+  h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.015em; text-wrap:balance}
+  p{margin:0}
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-muted)}
+  button{font-family:inherit; cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+  header{display:flex; flex-wrap:wrap; gap:14px 28px; align-items:flex-end; justify-content:space-between; padding-bottom:15px; border-bottom:2px solid var(--line-strong)}
+  header h1{font-size:clamp(27px,4.3vw,39px); font-weight:700; letter-spacing:-.035em; line-height:1.04; margin-top:5px}
+  header .sub{color:var(--ink-2); max-width:56ch; margin-top:8px; font-size:14.5px}
+  .tag{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; padding:5px 9px; border:1px solid var(--alarm); color:var(--alarm); background:var(--alarm-soft)}
+  .tag.ok{border-color:var(--ok); color:var(--ok); background:none}
+  a.tag{text-decoration:none; transition:background .15s}
+  a.tag:hover{background:var(--surface-2)}
+  a.tag::after{content:"\2197"; font-size:10px; opacity:.6}
+  .enlaces{display:flex; flex-wrap:wrap; gap:7px; margin-top:14px}
+  .enlaces a{font-family:var(--mono); font-size:10.5px; letter-spacing:.09em; text-transform:uppercase;
+    border:1px solid var(--line-strong); padding:6px 10px; color:var(--ink-2); text-decoration:none; transition:background .15s, color .15s}
+  .enlaces a:hover{background:var(--surface-2); color:var(--ink); border-color:var(--ink-muted)}
+
+  .alarma{margin-top:14px; border:2px solid var(--alarm); background:var(--alarm-soft); padding:13px 15px; display:flex; gap:12px; align-items:flex-start}
+  .alarma .ic{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--alarm); flex:none; padding-top:2px}
+  .alarma b{display:block; font-size:15.5px; margin-bottom:3px}
+  .alarma p{font-size:13.5px; color:var(--ink-2)}
+
+  .layout{margin-top:12px; display:grid; grid-template-columns:1fr 322px; gap:12px; align-items:start}
+  @media (max-width:1000px){.layout{grid-template-columns:1fr}}
+  .scroller{overflow-x:auto; border:1px solid var(--line-strong); background:#1d2027; box-shadow:var(--shadow)}
+  .stage{position:relative; min-width:480px}
+  .stage canvas{display:block; width:100%; height:auto; aspect-ratio:480/278; image-rendering:pixelated; cursor:crosshair}
+  .rlabel{position:absolute; transform:translate(-50%,0); font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:rgba(255,255,255,.6); pointer-events:none; white-space:nowrap; text-shadow:0 1px 0 rgba(0,0,0,.7)}
+  @media (max-width:620px){.rlabel{font-size:7.5px; letter-spacing:.06em}}
+  .tip{position:absolute; transform:translate(-50%,-100%); background:var(--surface); border:1px solid var(--ink); padding:8px 10px; width:224px; pointer-events:none; box-shadow:0 6px 18px rgba(0,0,0,.35); z-index:5; display:none}
+  .tip.on{display:block}
+  .tip .n{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px}
+  .tip .n i{width:9px; height:9px; display:block; flex:none}
+  .tip .r{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted); margin-top:2px}
+  .tip .row{margin-top:7px; font-size:12px; line-height:1.45; color:var(--ink-2)}
+  .tip .row b{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-muted); font-weight:500}
+  .tip .row em{font-style:normal; color:var(--ink); font-weight:600}
+  .tip .bloq{color:var(--alarm); font-weight:600}
+
+  .panel{display:flex; flex-direction:column; gap:10px}
+  .card{background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow)}
+  .parte .hd{background:var(--ink); color:var(--ground); padding:9px 13px; font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; display:flex; justify-content:space-between; gap:8px}
+  .parte .bd{padding:11px 13px; display:flex; flex-direction:column; gap:12px}
+  .ask{display:grid; grid-template-columns:18px 1fr; gap:0 9px}
+  .ask .n{font-family:var(--mono); font-size:11px; color:var(--ink-muted); padding-top:2px}
+  .ask h4{margin:0; font-size:13.5px; font-weight:600; line-height:1.35}
+  .ask p{font-size:12px; color:var(--ink-2); margin-top:3px; line-height:1.45}
+  .ask code{font-family:var(--mono); font-size:10.5px; background:var(--surface-2); border:1px solid var(--line); padding:1px 5px; display:inline-block; margin-top:4px}
+  .humana{border-top:1px solid var(--line); padding:11px 13px; background:var(--alarm-soft)}
+  .humana .lb{font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--alarm); font-weight:500}
+  .humana h4{margin:3px 0 3px; font-size:14px}
+  .humana p{font-size:12.5px; color:var(--ink-2); line-height:1.5}
+  .nums{padding:11px 13px}
+  .nums h3{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-muted); font-weight:500; margin-bottom:8px}
+  .nums dl{margin:0; display:grid; grid-template-columns:1fr auto; gap:5px 10px; font-size:12.5px}
+  .nums dt{color:var(--ink-2)}
+  .nums dd{margin:0; font-family:var(--mono); font-weight:600; text-align:right}
+  .nums dd.bad{color:var(--alarm)}
+  .nums dd.good{color:var(--ok)}
+
+  .fichas{margin-top:20px; display:grid; grid-template-columns:repeat(4,1fr); gap:8px}
+  @media (max-width:860px){.fichas{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:440px){.fichas{grid-template-columns:1fr}}
+  .ficha{background:var(--surface); border:1px solid var(--line); padding:10px 11px; display:flex; flex-direction:column; gap:5px; cursor:pointer; text-align:left}
+  .ficha[data-estado="bloqueado"]{border-color:var(--alarm)}
+  .ficha .t{display:flex; align-items:center; gap:7px}
+  .ficha .t i{width:9px; height:9px; flex:none}
+  .ficha .nm{font-weight:600; font-size:13.5px}
+  .ficha .rl{font-family:var(--mono); font-size:9px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-muted)}
+  .ficha .st{font-size:12px; color:var(--ink-2); line-height:1.4}
+  .ficha .jf{font-family:var(--mono); font-size:10px; color:var(--ink-muted); margin-top:auto}
+
+  .rule{margin-top:22px; padding:17px 19px; border:1px solid var(--line-strong); background:var(--surface-2)}
+  .rule h2{font-size:16px; margin-bottom:6px}
+  .rule p{font-size:13.5px; color:var(--ink-2); max-width:72ch}
+  .rule p + p{margin-top:8px}
+  footer{margin-top:24px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow" id="eyebrow">Turno en curso</div>
+      <h1>Fábrica HK23</h1>
+      <p class="sub">La fábrica print-on-demand, por dentro y con los números de hoy. Ocho agentes con su puesto, su memoria y su límite. Pasá el mouse por encima de cualquiera para ver qué está haciendo ahora mismo y a quién le responde.</p>
+    </div>
+    <a class="tag" id="estadoTienda" href="#" target="_blank" rel="noopener">Tienda cerrada</a>
+  </header>
+
+  <div class="alarma" id="alarma">
+    <div class="ic">Alto</div>
+    <div><b id="alarmaT"></b><p id="alarmaD"></p></div>
+  </div>
+
+  <div class="layout">
+    <div class="scroller">
+      <div class="stage" id="stage">
+        <canvas id="c" width="480" height="278" aria-label="Planta de la fábrica en pixel art con los agentes trabajando"></canvas>
+        <div class="tip" id="tip"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="card parte">
+        <div class="hd"><span>Parte del día</span><span id="fecha"></span></div>
+        <div class="bd" id="asks"></div>
+        <div class="humana" id="humana"></div>
+      </div>
+      <div class="card nums">
+        <h3>Números duros</h3>
+        <dl id="nums"></dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="fichas" id="fichas"></div>
+
+  <div class="rule">
+    <h2>Cómo funciona esto</h2>
+    <p>Cada agente tiene una carpeta con tres archivos: su <b>perfil</b> (quién es, a quién responde, qué no hace nunca), su <b>memoria</b> (lo que aprendió, crece sola y no se borra) y su <b>estado</b> del día. De madrugada corre la fábrica, cada uno escribe lo suyo, y Central arma un parte con tres aprobaciones y una sola tarea humana.</p>
+    <p>Ninguno publica, cobra ni escribe a un cliente por su cuenta. Lo aprobado sale por una sola puerta.</p>
+  </div>
+
+  <footer id="pie"></footer>
+</div>
+
+<script>
+var DATOS = {"fecha":"2026-10-06","tiendaCerrada":false,"catalogo":201,"publicados":16,"conURL":16,"hoyPub":0,"sinCurar":0,"cola":0,"leads":9,"ingresos":0,"aprobaciones":[{"t":"Publicar la ola de mañana (3 piezas)","d":"Quedan 185 piezas de catálogo sin producir. La ola rota por colección.","r":"node daily.mjs --live","peso":6},{"t":"Destrabar: supabase service key","d":"Hay piezas detenidas esperando estas credenciales.","r":"data/ledger.json","peso":4}],"tareaHumana":{"t":"Nada. Hoy no te necesita.","d":"La fábrica corre sola."},"credenciales":[{"id":"printifyToken","label":"Token de Printify","requerida":true,"donde":"https://printify.com/app/account/api","porque":"Sin esto la fábrica no puede crear ni publicar productos.","presente":true,"largo":1024,"archivo":"~/vice-os-artifact/vice-seller/config.local.json"},{"id":"printifyShopId","label":"ID de tienda en Printify","requerida":true,"donde":"https://printify.com/app/store","porque":"Identifica a qué tienda van los productos.","presente":true,"largo":8,"archivo":"~/vice-os-artifact/vice-seller/config.local.json"},{"id":"shopifyAdminToken","label":"Token de Admin API de Shopify","requerida":false,"donde":"https://admin.shopify.com/store/fcqevq-jr/settings/apps/development","porque":"Deja que storekit aplique diseño y políticas solo, y que Caja lea las órdenes reales.","presente":false,"largo":0,"archivo":"~/vice-os-artifact/pod-factory/storekit/config.local.json"},{"id":"supabaseServiceKey","label":"Service key de Supabase","requerida":false,"donde":"Panel de Supabase → Project settings → API","porque":"Solo sirve para escribir al universo VICE OS. La tienda no la necesita.","presente":false,"largo":0,"archivo":"~/vice-os-artifact/vice-seller/config.local.json"}],"tiendaUrl":"https://fcqevq-jr.myshopify.com","adminUrl":"https://admin.shopify.com/store/fcqevq-jr","dominio":"fcqevq-jr.myshopify.com","agentes":[{"code":"CEN","nombre":"Central","rol":"Dirección","sala":"direccion","color":"#3f6fd8","jefe":"El dueño","recibe":"Los siete","entrega":"El dueño","limite":"No ejecuta nada por su cuenta. Arma el parte y espera.","fuentes":["ecosistema/agentes/*/estado.json"],"estado":"ok","titular":"Consolidando el parte","detalle":"Leyó a los siete. 0 producido(s) hoy, 16 productos alcanzables, 0 mensaje(s) en cola.","n":{"agentes":8,"aprobaciones":0}},{"code":"INT","nombre":"Portero","rol":"Entrada de colecciones","sala":"recepcion","color":"#8a95a3","jefe":"Central","recibe":"inbox/ (zips, carpetas, exports)","entrega":"Curador","limite":"No cura. Solo ingresa, descarta repetidos y mejora resolución.","fuentes":["inbox","library/library.json"],"estado":"espera","titular":"Inbox vacío","detalle":"Sin colecciones nuevas. Deja .zip o carpetas en inbox/ y las ingresa solo.","n":{"inbox":0}},{"code":"CUR","nombre":"Curador","rol":"Curaduría","sala":"curaduria","color":"#8b6bd6","jefe":"Central","recibe":"Portero","entrega":"Catálogo","limite":"No publica. Lo que no cura, no entra al catálogo.","fuentes":["library/library.json"],"estado":"espera","titular":"Nada pendiente de curar","detalle":"Todo lo ingresado ya pasó por curaduría.","n":{"sinCurar":0}},{"code":"CAT","nombre":"Catálogo","rol":"Archivo y metadata","sala":"catalogo","color":"#c0982f","jefe":"Central","recibe":"Curador","entrega":"Producción","limite":"No inventa metadata. Sin dimensiones o sin caption, la pieza no es publicable.","fuentes":["midjourney/data/catalog.json"],"estado":"ok","titular":"201 piezas publicables en catálogo","detalle":"Con metadata y dimensiones verificadas. 14 duplicados descartados.","n":{"catalogo":201}},{"code":"PRO","nombre":"Producción","rol":"Línea de producción","sala":"produccion","color":"#d0503c","jefe":"Central","recibe":"Catálogo","entrega":"Tienda","limite":"Solo habilita formatos que calzan con el arte. Nada de franjas blancas.","fuentes":["data/printify-ledger.json","midjourney/data/mj-ledger.json"],"estado":"espera","titular":"Sin producción hoy","detalle":"16 productos creados en total entre los dos ledgers (Printify + ola MidJourney).","n":{"hoy":0,"total":16}},{"code":"TDA","nombre":"Tienda","rol":"Vitrina","sala":"tienda","color":"#25a08f","jefe":"Central","recibe":"Producción","entrega":"Vendedor","limite":"Nada se da por publicado sin URL real devuelta por Shopify.","fuentes":["data/printify-ledger.json","reports"],"estado":"ok","titular":"16 productos con URL real","detalle":"Vitrina abierta. Los productos son alcanzables.","n":{"conURL":16,"cerrada":0}},{"code":"VEN","nombre":"Vendedor","rol":"Ventas","sala":"ventas","color":"#d98a2b","jefe":"Central","recibe":"Tienda · leads de LeadHunter","entrega":"Central","limite":"NUNCA envía. Deja la cola escrita y para ahí.","fuentes":["sales/out","sales/data/leads.json"],"estado":"espera","titular":"Sin cola de venta hoy","detalle":"9 lead(s) conocidos. Deja un export de LeadHunter en sales/leads-inbox/ para armar cola.","n":{"cola":0,"leads":9}},{"code":"CAJ","nombre":"Caja","rol":"Administración","sala":"caja","color":"#46a76c","jefe":"Central","recibe":"Tienda","entrega":"Central","limite":"No mueve plata. Reporta lo que entró y lo que falta para poder cobrar.","fuentes":["data/ledger.json"],"estado":"espera","titular":"Sin ingresos registrados","detalle":"Falta conectar la fuente de órdenes para contar ingresos reales.","n":{"ingresos":0,"credenciales":2}},{"code":"LAB","nombre":"Laboratorio","rol":"Ideas","sala":"laboratorio","color":"#b06bd6","jefe":"Central","recibe":"El estado real de toda la fábrica","entrega":"Factibilidad","limite":"No propone nada que no nombre el archivo o el comando que toca. Sin eso no es idea, es deseo.","fuentes":["ecosistema/mundo/datos.json","ecosistema/partes"]},{"code":"FAC","nombre":"Factibilidad","rol":"Filtro","sala":"laboratorio","color":"#6bb0d6","jefe":"Central","recibe":"Laboratorio","entrega":"Producción","limite":"Descarta sin culpa. Lo que no se puede implementar hoy, no pasa.","fuentes":["ecosistema/ideas/ideas.json"]},{"code":"TRA","nombre":"Difusión","rol":"Tráfico","sala":"ventas","color":"#e05c8a","jefe":"Central","recibe":"Tienda · productos con URL real","entrega":"Vendedor","limite":"No publica nada. Deja las piezas escritas con la URL real y espera el OK.","fuentes":["midjourney/data/mj-ledger.json","ecosistema/trafico"]}],"inboxLleno":false};
+(function(){
+  var D = DATOS, WW = 480, WH = 278;
+  var CERRADA = !!D.tiendaCerrada;
+
+  var C = {
+    piso:'#8f9098', pisoB:'#86878f', hormigon:'#9ea0a8',
+    wall:'#3b4150', wallHi:'#4c5365', calle:'#4a4d55', vereda:'#7d818b',
+    sala:'#c9c3b4', salaB:'#c0b9a9', deposito:'#b5ada0',
+    mesa:'#b2793f', mesaB:'#8c5c2e', pata:'#6f4a24',
+    mon:'#23272f', scr:'#7fd6e6', scr2:'#57a9bc', key:'#9aa3ad',
+    caja:'#c08a4e', cajaB:'#9d6d3a', cinta:'#3a3f4b', cintaB:'#2c303a',
+    metal:'#8d939e', metal2:'#6f7681',
+    poster:'#efe7d6', rojo:'#b3261e', verde:'#2e7d4f', oro:'#d8a63c',
+    skin:'#e9b48c', skin2:'#d49a72', pants:'#39404f', shoe:'#20242c',
+    papel:'#f3eee2', negro:'#14161c', blanco:'#ffffff'
+  };
+
+  var ROOMS = {
+    recepcion:{n:'Recepción · inbox', x:6,  y:18,  w:90,  h:100, side:'top'},
+    curaduria:{n:'Curaduría',         x:98, y:18,  w:92,  h:100, side:'top'},
+    catalogo: {n:'Catálogo',          x:192,y:18,  w:92,  h:100, side:'top'},
+    laboratorio:{n:'Laboratorio',     x:286,y:18,  w:96,  h:100, side:'top'},
+    direccion:{n:'Dirección',         x:384,y:18,  w:90,  h:100, side:'top'},
+    produccion:{n:'Producción',       x:6,  y:152, w:164, h:110, side:'bot'},
+    tienda:   {n:'Tienda',            x:172,y:152, w:146, h:110, side:'bot'},
+    ventas:   {n:'Ventas',            x:320,y:152, w:86,  h:110, side:'bot'},
+    caja:     {n:'Caja',              x:408,y:152, w:66,  h:110, side:'bot'}
+  };
+  var CINTA_Y = 135;
+  var PUERTA = {x:245, y:262};
+
+  var PUESTOS = {
+    recepcion:{x:51,y:80}, curaduria:{x:144,y:80}, catalogo:{x:238,y:80},
+    laboratorio:{x:334,y:80}, direccion:{x:429,y:80},
+    produccion:{x:70,y:222}, tienda:{x:200,y:210}, ventas:{x:363,y:222}, caja:{x:441,y:222}
+  };
+
+  function px(x,y,w,h,col){ ctx.fillStyle=col; ctx.fillRect(x|0,y|0,w|0,h|0); }
+  var cv=document.getElementById('c'), ctx=cv.getContext('2d'); ctx.imageSmoothingEnabled=false;
+  var stage=document.getElementById('stage'), tip=document.getElementById('tip');
+  var hovered=null, selected=null, tick=0;
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ------- agentes ------- */
+  var porSala = {};
+  D.agentes.forEach(function(a){ (porSala[a.sala] = porSala[a.sala] || []).push(a.code); });
+  var AG = D.agentes.map(function(a,i){
+    var base = PUESTOS[a.sala] || {x:240,y:200};
+    var hermanos = porSala[a.sala] || [a.code];
+    var k = hermanos.indexOf(a.code);
+    var p = { x: base.x + (k - (hermanos.length - 1) / 2) * 26, y: base.y };
+    return { code:a.code, nombre:a.nombre, rol:a.rol, sala:a.sala, c:a.color, jefe:a.jefe,
+             limite:a.limite, titular:a.titular||'—', detalle:a.detalle||'', estado:a.estado||'espera',
+             x:p.x, y:p.y, home:p, path:[], dwell:60+i*20, dir:'down', walk:0, moving:false, carry:0, fase:0 };
+  });
+  var byCode={}; AG.forEach(function(a){ byCode[a.code]=a; });
+
+  function door(id){ var r=ROOMS[id]; return r.side==='top' ? {x:r.x+r.w/2,y:r.y+r.h+8} : {x:r.x+r.w/2,y:r.y-8}; }
+  function ruta(a, destSala, pt){
+    var to = pt || PUESTOS[destSala];
+    if(a.sala === destSala) return [to];
+    var d1=door(a.sala), d2=door(destSala);
+    return [d1,{x:d1.x,y:CINTA_Y},{x:d2.x,y:CINTA_Y},d2,to];
+  }
+  // rondas: lo que hace cada uno en bucle. Refleja el estado real.
+  var RONDAS = {
+    INT:[['recepcion',null,180]],
+    CUR:[['curaduria',null,160],['catalogo',null,120]],
+    CAT:[['catalogo',null,150],['produccion',null,130,1]],
+    PRO:[['produccion',null,140],['tienda',null,140,1]],
+    TDA:[['tienda',null,120],['tienda',{x:PUERTA.x,y:250},160]],
+    VEN:[['ventas',null,110],['ventas',{x:345,y:200},110]],
+    CAJ:[['caja',null,240]],
+    CEN:[['direccion',null,200],['tienda',{x:PUERTA.x+14,y:248},170]],
+    LAB:[['laboratorio',null,150],['direccion',null,120,1],['laboratorio',null,140]],
+    FAC:[['laboratorio',null,160],['produccion',null,150,1],['laboratorio',null,130]]
+  };
+
+  function paso(){
+    AG.forEach(function(a){
+      if(a.path.length){
+        var p=a.path[0], dx=p.x-a.x, dy=p.y-a.y, d=Math.hypot(dx,dy), sp = reduce?30:0.62;
+        if(Math.abs(dx)>Math.abs(dy)) a.dir = dx>0?'right':'left'; else a.dir = dy>0?'down':'up';
+        if(d<=sp){ a.x=p.x; a.y=p.y; a.path.shift(); if(!a.path.length){ a.moving=false; a.dir='down'; } }
+        else { a.x+=dx/d*sp; a.y+=dy/d*sp; a.moving=true; a.walk++; }
+        return;
+      }
+      if(a.dwell-- > 0) return;
+      var r = RONDAS[a.code] || [[a.sala,null,200]];
+      a.fase = (a.fase+1) % r.length;
+      var f = r[a.fase];
+      a.carry = f[3] ? 1 : 0;
+      a.path = ruta(a, f[0], f[1]);
+      a.sala = f[0];
+      a.dwell = f[2];
+    });
+  }
+
+  /* ------- clientes en la calle ------- */
+  var CLIENTES = [
+    {x:40,  y:270, v:0.35, fase:'pasa', t:0, col:'#6a7f9c'},
+    {x:300, y:271, v:-0.3, fase:'pasa', t:0, col:'#8a6a9c'},
+    {x:430, y:270, v:-0.26,fase:'pasa', t:0, col:'#9c7a6a'}
+  ];
+  function pasoClientes(){
+    CLIENTES.forEach(function(c){
+      if(c.fase==='pasa'){
+        c.x += c.v;
+        if(c.x < 8) c.x = 472; if(c.x > 472) c.x = 8;
+        if(Math.abs(c.x - PUERTA.x) < 2 && Math.random() < 0.9){ c.fase='sube'; }
+      } else if(c.fase==='sube'){
+        c.y -= 0.34; if(c.y <= 266){ c.fase='prueba'; c.t = 120; }
+      } else if(c.fase==='prueba'){
+        if(--c.t <= 0) c.fase = CERRADA ? 'vuelve' : 'entra';
+      } else if(c.fase==='vuelve'){
+        c.y += 0.34; if(c.y >= 270){ c.fase='pasa'; c.x += c.v > 0 ? 10 : -10; }
+      } else if(c.fase==='entra'){
+        c.y -= 0.5; if(c.y < 250){ c.x = c.v>0 ? 8 : 472; c.y = 270; c.fase='pasa'; }
+      }
+    });
+  }
+
+  /* ------- dibujo ------- */
+  function fondo(){
+    px(0,0,WW,WH,C.hormigon);
+    px(0,0,WW,18,C.wall); px(0,16,WW,2,C.wallHi);
+    for(var wx=18; wx<WW-16; wx+=58){ px(wx,4,26,9,'#93c7d6'); px(wx,4,26,1,'#cfe6ee'); px(wx+12,4,2,9,C.wall); }
+    // pasillo + cinta transportadora
+    px(0,CINTA_Y-17,WW,34,C.piso);
+    for(var x=0;x<WW;x+=16) for(var y=CINTA_Y-17;y<CINTA_Y+17;y+=8) if(((x/16|0)+(y/8|0))%2===0) px(x,y,16,8,C.pisoB);
+    px(0,CINTA_Y-6,WW,12,C.cinta); px(0,CINTA_Y+5,WW,2,C.cintaB);
+    var off = (tick*0.6)%10;
+    for(var b=-10;b<WW;b+=10) px(b+off, CINTA_Y-6, 2, 11, C.cintaB);
+    for(var k=0;k<5;k++){
+      var cx = ((tick*0.5) + k*96) % (WW+40) - 20;
+      px(cx, CINTA_Y-13, 11, 9, C.caja); px(cx, CINTA_Y-13, 11, 2, C.cajaB); px(cx+4, CINTA_Y-13, 3, 9, C.cajaB);
+    }
+    // calle
+    px(0,262,WW,4,C.vereda); px(0,266,WW,12,C.calle);
+    for(var s=6;s<WW;s+=22) px(s,271,10,1,'#6c707a');
+  }
+  function sala(id){
+    var r=ROOMS[id];
+    px(r.x,r.y,r.w,r.h, id==='produccion'||id==='recepcion' ? C.deposito : C.sala);
+    for(var y=r.y;y<r.y+r.h;y+=6) px(r.x,y+5,r.w,1,C.salaB);
+    px(r.x-2,r.y-2,r.w+4,2,C.wall); px(r.x-2,r.y+r.h,r.w+4,2,C.wall);
+    px(r.x-2,r.y-2,2,r.h+4,C.wall); px(r.x+r.w,r.y-2,2,r.h+4,C.wall);
+    var d=door(id), dy = r.side==='top' ? r.y+r.h : r.y-2;
+    px(d.x-9, dy, 18, 2, C.piso);
+  }
+  function mesa(x,y,w){ w=w||26; px(x-w/2,y-7,w,9,C.mesa); px(x-w/2,y+2,w,2,C.mesaB); px(x-w/2+1,y+4,2,4,C.pata); px(x+w/2-3,y+4,2,4,C.pata); }
+  function monitor(x,y,on){
+    px(x-5,y-14,10,8,C.mon); px(x-4,y-13,8,6,on?C.scr:C.scr2);
+    if(on){ px(x-3,y-12,(tick/7|0)%5+1,1,'#e8fbff'); px(x-3,y-10,(tick/5|0)%6+1,1,'#cdeef6'); }
+    px(x-1,y-6,2,2,C.mon); px(x-5,y-3,10,2,C.key);
+  }
+  function pila(x,y,n,alto){ for(var i=0;i<n;i++){ var yy=y-i*(alto||5); px(x,yy,13,alto||5,C.caja); px(x,yy,13,1,C.cajaB); } }
+  function estante(x,y,w,h,lleno){
+    px(x,y,w,h,C.metal2);
+    for(var sy=y+4; sy<y+h; sy+=8){ px(x+1,sy,w-2,1,C.metal);
+      if(lleno) for(var sx=x+2; sx<x+w-4; sx+=6) px(sx,sy-6,5,6, ((sx+sy)%14===0)?C.oro:C.poster); }
+  }
+  function props(){
+    // recepción · inbox
+    mesa(58,80); monitor(58,80, D.sinCurar>0);
+    px(26,44,26,18,C.metal2); px(28,46,22,14, D.inboxLleno ? C.caja : '#6b7078');
+    if(!D.inboxLleno){ px(32,51,14,1,'#8d939e'); px(32,55,10,1,'#8d939e'); }
+    px(84,96,16,14,C.metal2);
+    // curaduría
+    mesa(144,80,30); monitor(138,80,true); monitor(152,80,true);
+    px(106,34,40,18,C.papel);
+    for(var i=0;i<5;i++) px(109+i*7,37,5,12,[C.rojo,'#3f6fd8',C.verde,C.oro,'#8b6bd6'][i]);
+    // catálogo
+    mesa(238,80); monitor(238,80,true); estante(196,34,14,40,true); estante(272,34,14,40,true);
+    // laboratorio — pizarra de ideas, papeles y lámpara
+    mesa(322,80,22); mesa(348,80,22); monitor(322,80,true); monitor(348,80,(tick/35|0)%2===0);
+    px(292,30,56,22,'#f4f1e6'); px(292,30,56,1,'#c9c2b0');
+    for(var q=0;q<7;q++){
+      var on=(Math.floor(tick/28)+q)%4!==0;
+      px(295+q*7,34,5,5, on?['#b06bd6','#6bb0d6','#d98a2b','#46a76c'][q%4]:'#ddd8c8');
+    }
+    px(295,42,48,1,'#c9c2b0'); px(295,46,34,1,'#c9c2b0');
+    px(366,60,4,10,'#5b6270'); px(364,56,8,4,C.oro);
+    px(300,104,18,8,C.papel); px(302,106,14,1,'#b9b2a0');
+    // dirección
+    mesa(429,80); monitor(429,80,true); px(441,74,5,7,C.mon); px(442,75,3,4,C.scr);
+    px(390,30,30,16,C.papel); px(392,33,26,1,'#b9b2a0'); px(392,37,18,1,'#b9b2a0'); px(392,41,22,1,'#b9b2a0');
+    // producción
+    mesa(70,222); monitor(70,222,true);
+    px(16,186,54,16,C.metal2); px(18,188,50,12,C.metal);
+    for(var q=0;q<4;q++) px(22+q*12, 190, 8, 8, (Math.floor(tick/20)+q)%4===0 ? C.oro : C.poster);
+    pila(104,240,3); pila(122,240,4); pila(140,240,2);
+    px(150,196,16,26,C.metal2);
+    // tienda
+    estante(180,168,14,40,true); estante(300,168,14,40,true);
+    px(206,170,46,30,C.poster); px(208,172,42,26,'#c8b9a0');
+    for(var p=0;p<3;p++) px(212+p*14,176,10,18,[C.rojo,'#3f6fd8',C.oro][p]);
+    mesa(200,210,24); monitor(200,210,!CERRADA);
+    px(262,222,30,18,C.mesa); px(262,222,30,2,C.mesaB);
+    // puerta a la calle
+    px(PUERTA.x-14, 254, 28, 8, C.metal2);
+    px(PUERTA.x-12, 256, 24, 6, CERRADA ? '#4a4d55' : '#93c7d6');
+    if(CERRADA){
+      px(PUERTA.x-4, 255, 8, 7, C.metal);       // candado
+      px(PUERTA.x-2, 252, 4, 3, C.metal2);
+      px(PUERTA.x-1, 257, 2, 3, C.negro);
+      var blink = (tick/30|0)%2===0;
+      px(PUERTA.x-20, 243, 40, 9, blink ? C.rojo : '#7c1d17');
+      px(PUERTA.x-17, 246, 3, 3, C.blanco); px(PUERTA.x-12, 246, 3, 3, C.blanco);
+      px(PUERTA.x-7, 246, 3, 3, C.blanco);  px(PUERTA.x-2, 246, 3, 3, C.blanco);
+      px(PUERTA.x+3, 246, 3, 3, C.blanco);  px(PUERTA.x+8, 246, 3, 3, C.blanco);
+      px(PUERTA.x+13, 246, 3, 3, C.blanco);
+    } else {
+      px(PUERTA.x-20, 243, 40, 9, C.verde);
+    }
+    // ventas
+    mesa(363,222); monitor(363,222, D.cola>0);
+    px(332,190,22,16,C.papel); px(334,193,18,1,'#b9b2a0'); px(334,197,12,1,'#b9b2a0');
+    // caja
+    mesa(441,222,22); px(434,206,16,10,C.metal2); px(436,208,12,6, D.ingresos>0 ? C.verde : '#5e636c');
+    px(452,238,14,12,C.metal2);
+  }
+  function persona(x,y,col,dir,moving,walk,carry,ring){
+    var f = moving ? ((walk/7|0)%2) : 0;
+    x=Math.round(x); y=Math.round(y);
+    px(x-3,y+5,7,2,'rgba(0,0,0,0.25)');
+    px(x-2,y+1,2,4+(f?0:1),C.pants); px(x+1,y+1,2,4+(f?1:0),C.pants);
+    px(x-2,y+5+(f?0:1),2,1,C.shoe); px(x+1,y+5+(f?1:0),2,1,C.shoe);
+    px(x-3,y-4,7,6,col); px(x-4,y-3,1,4,col); px(x+4,y-3,1,4,col);
+    if(carry){ px(x+3,y-1,5,5,C.caja); px(x+3,y-1,5,1,C.cajaB); }
+    px(x-3,y-10,7,6,C.skin); px(x+3,y-9,1,4,C.skin2);
+    px(x-3,y-11,7,3,'#33251a');
+    if(dir==='down'){ px(x-2,y-7,1,1,C.negro); px(x+1,y-7,1,1,C.negro); }
+    else if(dir==='left'){ px(x-2,y-7,1,1,C.negro); }
+    else if(dir==='right'){ px(x+1,y-7,1,1,C.negro); }
+    else { px(x-3,y-10,7,5,'#33251a'); }
+    if(ring){ px(x-1,y-16,2,2,col); px(x-2,y-15,4,1,col); }
+  }
+  function alerta(a){
+    if(a.estado!=='bloqueado') return;
+    if((tick/25|0)%2) return;
+    px(a.x-1, a.y-19, 2, 5, C.rojo); px(a.x-1, a.y-13, 2, 2, C.rojo);
+  }
+
+  function frame(){
+    tick++;
+    paso(); pasoClientes();
+    fondo();
+    Object.keys(ROOMS).forEach(sala);
+    props();
+    CLIENTES.forEach(function(c){
+      persona(c.x, c.y, c.col, c.fase==='sube'?'up':(c.fase==='vuelve'?'down':(c.v>0?'right':'left')), c.fase!=='prueba', tick, 0, false);
+      if(c.fase==='prueba' && CERRADA && (tick/18|0)%2===0){
+        px(c.x+4, c.y-16, 2, 4, C.rojo); px(c.x+4, c.y-11, 2, 2, C.rojo);
+      }
+    });
+    AG.slice().sort(function(p,q){return p.y-q.y;}).forEach(function(a){
+      persona(a.x,a.y,a.c,a.dir,a.moving,a.walk,a.carry, hovered===a.code||selected===a.code);
+      alerta(a);
+    });
+    if(hovered && byCode[hovered]) verTip(byCode[hovered]);
+    requestAnimationFrame(frame);
+  }
+
+  function verTip(a){
+    tip.innerHTML =
+      '<div class="n"><i style="background:'+a.c+'"></i>'+a.nombre+'</div>'+
+      '<div class="r">'+a.rol+'</div>'+
+      '<div class="row"><b>Ahora mismo</b><em class="'+(a.estado==='bloqueado'?'bloq':'')+'">'+a.titular+'</em><br>'+a.detalle+'</div>'+
+      '<div class="row"><b>Le responde a</b>'+a.jefe+'</div>'+
+      '<div class="row"><b>Lo que no hace nunca</b>'+a.limite+'</div>';
+    tip.style.left = (a.x/WW*100)+'%';
+    tip.style.top  = ((a.y-18)/WH*100)+'%';
+    tip.classList.add('on');
+  }
+  function pick(ev){
+    var r=cv.getBoundingClientRect();
+    var cx=(ev.clientX-r.left)*(WW/r.width), cy=(ev.clientY-r.top)*(WH/r.height);
+    var best=null, bd=9;
+    AG.forEach(function(a){ var d=Math.hypot(a.x-cx,(a.y-4)-cy); if(d<bd){bd=d;best=a.code;} });
+    return best;
+  }
+  cv.addEventListener('mousemove',function(e){ hovered=pick(e); cv.style.cursor=hovered?'pointer':'crosshair'; if(!hovered) tip.classList.remove('on'); });
+  cv.addEventListener('mouseleave',function(){ hovered=null; tip.classList.remove('on'); });
+  cv.addEventListener('click',function(e){ var p=pick(e); if(p){ selected=p; hovered=p; } });
+
+  /* ------- HTML alrededor ------- */
+  Object.keys(ROOMS).forEach(function(id){
+    var r=ROOMS[id], el=document.createElement('div');
+    el.className='rlabel'; el.textContent=r.n;
+    el.style.left=((r.x+r.w/2)/WW*100)+'%'; el.style.top=((r.y+3)/WH*100)+'%';
+    stage.appendChild(el);
+  });
+  document.getElementById('fecha').textContent = D.fecha;
+  document.getElementById('eyebrow').textContent = 'Turno del ' + D.fecha + ' · ocho agentes';
+  var et = document.getElementById('estadoTienda');
+  et.textContent = CERRADA ? 'Tienda cerrada' : 'Tienda abierta';
+  if(!CERRADA) et.classList.add('ok');
+  if(D.tiendaUrl) et.href = D.tiendaUrl; else et.removeAttribute('href');
+  et.title = D.tiendaUrl ? 'Abrir la tienda como la ve un cliente' : 'Sin URL conocida';
+
+  // fila de enlaces: a dónde se entra desde acá
+  if(D.tiendaUrl || D.adminUrl){
+    var e = document.createElement('div');
+    e.className = 'enlaces';
+    var links = [];
+    if(D.tiendaUrl) links.push(['Ver la tienda', D.tiendaUrl]);
+    if(D.adminUrl){
+      links.push(['Admin', D.adminUrl]);
+      links.push(['Productos', D.adminUrl + '/products']);
+      links.push(['Pedidos', D.adminUrl + '/orders']);
+      links.push(['Pagos', D.adminUrl + '/settings/payments']);
+      links.push(['Envíos', D.adminUrl + '/settings/shipping']);
+    }
+    e.innerHTML = links.map(function(l){
+      return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + l[0] + ' ↗</a>';
+    }).join('');
+    var ancla = document.querySelector('header');
+    if(ancla) ancla.insertAdjacentElement('afterend', e);
+  }
+
+  var al = document.getElementById('alarma');
+  if(D.tareaHumana){
+    document.getElementById('alarmaT').textContent = D.tareaHumana.t;
+    document.getElementById('alarmaD').textContent = D.tareaHumana.d;
+  } else al.style.display='none';
+
+  document.getElementById('asks').innerHTML = (D.aprobaciones||[]).map(function(x,i){
+    return '<div class="ask"><div class="n">0'+(i+1)+'</div><div><h4>'+x.t+'</h4><p>'+x.d+'</p><code>'+x.r+'</code></div></div>';
+  }).join('') || '<p style="font-size:13px;color:var(--ink-muted)">Nada que aprobar hoy.</p>';
+
+  document.getElementById('humana').innerHTML =
+    '<div class="lb">Tu única tarea humana</div><h4>'+D.tareaHumana.t+'</h4><p>'+D.tareaHumana.d+'</p>';
+
+  var N = [
+    ['Catálogo publicable', D.catalogo, ''],
+    ['Productos con URL real', D.conURL, 'good'],
+    ['Producidos hoy', D.hoyPub, D.hoyPub>0?'good':''],
+    ['Esperando curaduría', D.sinCurar, ''],
+    ['Cola de venta', D.cola, ''],
+    ['Leads conocidos', D.leads, ''],
+    ['Tienda', CERRADA?'cerrada':'abierta', CERRADA?'bad':'good'],
+    ['Ingresos registrados', '$'+D.ingresos, D.ingresos>0?'good':'bad']
+  ];
+  document.getElementById('nums').innerHTML = N.map(function(r){
+    return '<dt>'+r[0]+'</dt><dd class="'+r[2]+'">'+r[1]+'</dd>';
+  }).join('');
+
+  document.getElementById('fichas').innerHTML = AG.map(function(a){
+    return '<button class="ficha" data-code="'+a.code+'" data-estado="'+a.estado+'">'+
+      '<div class="t"><i style="background:'+a.c+'"></i><span class="nm">'+a.nombre+'</span></div>'+
+      '<div class="rl">'+a.rol+'</div><div class="st">'+a.titular+'</div>'+
+      '<div class="jf">responde a '+a.jefe+'</div></button>';
+  }).join('');
+  document.getElementById('fichas').addEventListener('click', function(e){
+    var b = e.target.closest ? e.target.closest('[data-code]') : null;
+    if(b){ selected = b.dataset.code; hovered = selected; }
+  });
+  document.getElementById('pie').textContent =
+    'Generado por ecosistema/mundo.mjs con los datos reales de ' + D.fecha + ' · POD FACTORY';
+
+  requestAnimationFrame(frame);
+})();
+</script>

@@ -1,0 +1,38 @@
+{
+  "_doc": "Menús de la tienda. El aplicador resuelve cada item a su recurso real (colección o página) y usa HTTP con ruta relativa solo cuando no hay recurso que resolver. Si un recurso no existe todavía, el item se omite y se avisa.",
+  "menus": [
+    {
+      "handle": "main-menu",
+      "title": "Main menu",
+      "items": [
+        {
+          "title": { "es": "PROOF OF WORK", "en": "PROOF OF WORK" },
+          "type": "COLLECTION",
+          "resource_handle": "proof-of-work",
+          "items": [
+            { "title": { "es": "Stickers", "en": "Stickers" }, "type": "COLLECTION", "resource_handle": "proof-of-work-stickers" },
+            { "title": { "es": "Posters numerados", "en": "Numbered posters" }, "type": "COLLECTION", "resource_handle": "proof-of-work-posters" }
+          ]
+        },
+        { "title": { "es": "IDLE CYCLES", "en": "IDLE CYCLES" }, "type": "COLLECTION", "resource_handle": "idle-cycles" },
+        { "title": { "es": "Todo", "en": "Shop all" }, "type": "COLLECTION", "resource_handle": "todo" },
+        { "title": { "es": "Historia", "en": "Story" }, "type": "PAGE", "resource_handle": "about" },
+        { "title": { "es": "FAQ", "en": "FAQ" }, "type": "PAGE", "resource_handle": "faq" },
+        { "title": { "es": "Contacto", "en": "Contact" }, "type": "PAGE", "resource_handle": "contact" }
+      ]
+    },
+    {
+      "handle": "footer",
+      "title": "Footer menu",
+      "items": [
+        { "title": { "es": "Historia", "en": "Story" }, "type": "PAGE", "resource_handle": "about" },
+        { "title": { "es": "Preguntas frecuentes", "en": "FAQ" }, "type": "PAGE", "resource_handle": "faq" },
+        { "title": { "es": "Contacto", "en": "Contact" }, "type": "PAGE", "resource_handle": "contact" },
+        { "title": { "es": "Envíos", "en": "Shipping" }, "type": "HTTP", "url": "/policies/shipping-policy" },
+        { "title": { "es": "Devoluciones", "en": "Returns" }, "type": "HTTP", "url": "/policies/refund-policy" },
+        { "title": { "es": "Privacidad", "en": "Privacy" }, "type": "HTTP", "url": "/policies/privacy-policy" },
+        { "title": { "es": "Términos", "en": "Terms" }, "type": "HTTP", "url": "/policies/terms-of-service" }
+      ]
+    }
+  ]
+}

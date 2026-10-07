@@ -1,0 +1,539 @@
+<title>Oficina Continua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#E9ECF0; --surface:#FFFFFF; --surface-2:#F4F6F8; --surface-3:#EDF0F4;
+    --ink:#11161D; --ink-2:#414B57; --ink-muted:#6B7684;
+    --line:#D7DCE3; --line-strong:#BCC4CE;
+    --accent:#1B4A9C; --accent-soft:#E3EAF7;
+    --working:#9A6310; --working-soft:#F7EBD6;
+    --done:#256B45; --done-soft:#DEEEE4;
+    --risk:#9E2B22; --risk-soft:#F7E2DF;
+    --shadow:0 1px 2px rgba(17,22,29,.06), 0 8px 20px -12px rgba(17,22,29,.18);
+    --display:'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#0D1016; --surface:#151A21; --surface-2:#1B212A; --surface-3:#222933;
+      --ink:#E7EBF0; --ink-2:#B4BDC9; --ink-muted:#8A94A2;
+      --line:#2A323D; --line-strong:#3A4552;
+      --accent:#7AA5EC; --accent-soft:#1B2740;
+      --working:#DDA94A; --working-soft:#33291331;
+      --done:#5FBB88; --done-soft:#13301F;
+      --risk:#E37A6E; --risk-soft:#331916;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 24px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#0D1016; --surface:#151A21; --surface-2:#1B212A; --surface-3:#222933;
+    --ink:#E7EBF0; --ink-2:#B4BDC9; --ink-muted:#8A94A2;
+    --line:#2A323D; --line-strong:#3A4552;
+    --accent:#7AA5EC; --accent-soft:#1B2740;
+    --working:#DDA94A; --working-soft:#332913;
+    --done:#5FBB88; --done-soft:#13301F;
+    --risk:#E37A6E; --risk-soft:#331916;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 24px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--ground); color:var(--ink);
+    font-family:var(--display); font-size:15px; line-height:1.55;
+    margin:0; padding-inline:16px; padding-block:0;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1080px; margin:0 auto; padding-block:32px 72px;}
+  h1,h2,h3{text-wrap:balance; margin:0; font-weight:600; letter-spacing:-.01em;}
+  p{margin:0}
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums;}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; font-weight:500;
+    letter-spacing:.14em; text-transform:uppercase; color:var(--ink-muted);
+  }
+  button{font-family:inherit; font-size:inherit; cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:3px}
+
+  /* ---------- header ---------- */
+  .masthead{display:flex; flex-wrap:wrap; gap:20px 32px; align-items:flex-end; justify-content:space-between; padding-bottom:20px; border-bottom:2px solid var(--line-strong);}
+  .masthead h1{font-size:clamp(30px,5.2vw,46px); font-weight:700; letter-spacing:-.025em; line-height:1.05;}
+  .masthead .sub{color:var(--ink-2); max-width:46ch; margin-top:10px; font-size:15px;}
+  .demo-tag{
+    display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px;
+    letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted);
+    border:1px solid var(--line-strong); padding:5px 9px; border-radius:2px;
+  }
+  .demo-tag::before{content:""; width:6px; height:6px; background:var(--working); border-radius:50%;}
+
+  /* ---------- clock bar ---------- */
+  .console{
+    margin-top:22px; background:var(--surface); border:1px solid var(--line);
+    box-shadow:var(--shadow); border-radius:4px; overflow:hidden;
+  }
+  .console-top{display:flex; flex-wrap:wrap; align-items:center; gap:16px; padding:16px 18px; border-bottom:1px solid var(--line);}
+  .clock{font-family:var(--mono); font-size:34px; font-weight:600; letter-spacing:-.02em; line-height:1;}
+  .clock-meta{display:flex; flex-direction:column; gap:2px; margin-right:auto}
+  .clock-meta .d{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted)}
+  .phase{font-size:13px; color:var(--ink-2)}
+  .btn{
+    border:1px solid var(--line-strong); background:var(--surface-2); color:var(--ink);
+    padding:9px 16px; border-radius:3px; font-weight:500; font-size:14px;
+    display:inline-flex; align-items:center; gap:8px; transition:background .15s, border-color .15s;
+  }
+  .btn:hover{background:var(--surface-3); border-color:var(--ink-muted)}
+  .btn-primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  :root[data-theme="dark"] .btn-primary, :root:not([data-theme="light"]) .btn-primary{color:#0D1016}
+  @media (prefers-color-scheme: light){:root:not([data-theme="dark"]) .btn-primary{color:#fff}}
+  .btn-primary:hover{filter:brightness(1.08); background:var(--accent); border-color:var(--accent)}
+  .scrub{padding:14px 18px; display:flex; align-items:center; gap:14px; background:var(--surface-2)}
+  .scrub input[type=range]{flex:1; accent-color:var(--accent); min-width:120px}
+  .scrub span{font-family:var(--mono); font-size:11px; color:var(--ink-muted)}
+
+  /* ---------- desks ---------- */
+  .section{margin-top:44px}
+  .section-head{display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; margin-bottom:14px}
+  .section-head h2{font-size:20px}
+  .section-head .note{font-size:13.5px; color:var(--ink-muted); max-width:52ch}
+  .desks{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+  @media (max-width:860px){.desks{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:420px){.desks{grid-template-columns:1fr}}
+  .desk{
+    background:var(--surface); border:1px solid var(--line); border-radius:3px;
+    padding:13px 14px 14px; display:flex; flex-direction:column; gap:7px; min-height:118px;
+    transition:border-color .2s, background .2s;
+  }
+  .desk[data-state="trabajando"]{border-color:var(--working); background:var(--working-soft)}
+  .desk-top{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .desk-code{font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; color:var(--ink-muted)}
+  .dot{width:7px; height:7px; border-radius:50%; background:var(--line-strong); flex:none}
+  .desk[data-state="trabajando"] .dot{background:var(--working); box-shadow:0 0 0 3px var(--working-soft)}
+  .desk[data-state="listo"] .dot{background:var(--done)}
+  .desk-name{font-weight:600; font-size:15px; letter-spacing:-.01em}
+  .desk-out{font-size:12.5px; color:var(--ink-2); line-height:1.4; margin-top:auto}
+  .desk-state{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted)}
+  .desk[data-state="trabajando"] .desk-state{color:var(--working)}
+  .desk[data-state="listo"] .desk-state{color:var(--done)}
+
+  /* ---------- log ---------- */
+  .log{display:flex; flex-direction:column; gap:0; border-top:1px solid var(--line)}
+  .entry{display:grid; grid-template-columns:62px 1fr; gap:0 16px; padding:16px 0; border-bottom:1px solid var(--line)}
+  @media (max-width:560px){.entry{grid-template-columns:1fr; gap:8px}}
+  .entry-time{font-family:var(--mono); font-size:13px; font-weight:500; color:var(--ink-muted); padding-top:2px}
+  .entry-head{display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-bottom:8px}
+  .chip{
+    font-family:var(--mono); font-size:10.5px; font-weight:500; letter-spacing:.1em;
+    padding:3px 7px; border-radius:2px; background:var(--surface-3); color:var(--ink-2); border:1px solid var(--line);
+  }
+  .chip[data-tone="central"]{background:var(--accent-soft); color:var(--accent); border-color:transparent}
+  .chip[data-tone="risk"]{background:var(--risk-soft); color:var(--risk); border-color:transparent}
+  .chip[data-tone="human"]{background:var(--done-soft); color:var(--done); border-color:transparent}
+  .entry-title{font-weight:600; font-size:15.5px; letter-spacing:-.01em}
+  .out{
+    background:var(--surface); border:1px solid var(--line); border-radius:3px;
+    padding:13px 15px; font-size:13.5px; color:var(--ink-2); line-height:1.6;
+  }
+  .out strong{color:var(--ink); font-weight:600}
+  .out ul{margin:8px 0 0; padding-left:18px; display:flex; flex-direction:column; gap:5px}
+  .out li::marker{color:var(--ink-muted)}
+  .out .quote{
+    font-family:var(--mono); font-size:12.5px; line-height:1.65; white-space:pre-wrap;
+    background:var(--surface-2); border:1px solid var(--line); border-radius:3px; padding:11px 13px; margin-top:9px; color:var(--ink);
+    overflow-x:auto;
+  }
+  .kv{display:flex; flex-wrap:wrap; gap:6px 18px; margin-top:9px; font-family:var(--mono); font-size:12px; color:var(--ink-muted)}
+  .kv b{color:var(--ink); font-weight:600}
+
+  /* ---------- parte ---------- */
+  .parte{border:2px solid var(--ink); border-radius:4px; background:var(--surface); overflow:hidden; box-shadow:var(--shadow)}
+  .parte-band{
+    background:var(--ink); color:var(--ground); padding:11px 16px;
+    display:flex; flex-wrap:wrap; gap:6px 14px; align-items:baseline;
+    font-family:var(--mono); font-size:11.5px; letter-spacing:.11em; text-transform:uppercase;
+  }
+  .parte-band .t{font-weight:600}
+  .parte-band .r{margin-left:auto; opacity:.7}
+  .parte-body{padding:6px 16px 16px}
+  .ask{display:grid; grid-template-columns:22px 1fr; gap:0 12px; padding:16px 0; border-bottom:1px solid var(--line)}
+  .ask:last-of-type{border-bottom:0}
+  .ask-n{font-family:var(--mono); font-size:12px; color:var(--ink-muted); padding-top:3px}
+  .ask h3{font-size:15.5px; margin-bottom:5px}
+  .ask .why{font-size:13.5px; color:var(--ink-2)}
+  .ask .detail{font-family:var(--mono); font-size:12px; color:var(--ink-muted); margin-top:7px}
+  .acts{display:flex; flex-wrap:wrap; gap:8px; margin-top:11px; align-items:center}
+  .acts .btn{padding:7px 14px; font-size:13.5px}
+  .verdict{font-family:var(--mono); font-size:12px; letter-spacing:.06em; display:none}
+  .verdict.on{display:inline}
+  .verdict[data-v="si"]{color:var(--done)}
+  .verdict[data-v="no"]{color:var(--risk)}
+  .human{
+    margin-top:2px; padding:14px 16px; background:var(--done-soft); border-top:1px solid var(--line);
+    display:flex; gap:12px; align-items:flex-start;
+  }
+  .human .tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--done); padding-top:3px; flex:none}
+  .human p{font-size:13.5px; color:var(--ink-2)}
+  .human b{color:var(--ink)}
+
+  /* ---------- whatsapp ---------- */
+  .phone{max-width:420px; border:1px solid var(--line); border-radius:4px; background:var(--surface-2); padding:14px; display:flex; flex-direction:column; gap:9px}
+  .bub{max-width:88%; padding:9px 12px; border-radius:10px; font-size:13.5px; line-height:1.5}
+  .bub.them{background:var(--surface); border:1px solid var(--line); align-self:flex-start; border-bottom-left-radius:3px}
+  .bub.her{background:var(--accent-soft); color:var(--ink); align-self:flex-end; border-bottom-right-radius:3px}
+  .bub .t{font-family:var(--mono); font-size:10px; color:var(--ink-muted); display:block; margin-top:5px}
+
+  /* ---------- table ---------- */
+  .tablewrap{overflow-x:auto; border:1px solid var(--line); border-radius:3px; background:var(--surface)}
+  table{border-collapse:collapse; width:100%; min-width:720px; font-size:13.5px}
+  th,td{text-align:left; padding:11px 14px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-family:var(--mono); font-size:10.5px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-muted); background:var(--surface-2); font-weight:500}
+  tr:last-child td{border-bottom:0}
+  td.name{font-weight:600; white-space:nowrap}
+  td.name span{display:block; font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; color:var(--ink-muted); font-weight:400}
+  td.limit{color:var(--ink-muted)}
+
+  .rule{margin-top:44px; padding:20px 22px; border:1px solid var(--line-strong); border-radius:3px; background:var(--surface-2)}
+  .rule h2{font-size:17px; margin-bottom:8px}
+  .rule p{font-size:14px; color:var(--ink-2); max-width:70ch}
+  .rule p + p{margin-top:9px}
+  footer{margin-top:40px; padding-top:18px; border-top:1px solid var(--line); font-size:12.5px; color:var(--ink-muted)}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">Demostración · un día de operación</div>
+      <h1>Oficina Continua</h1>
+      <p class="sub">Ocho agentes con un turno fijo. Corren de madrugada, dejan el trabajo hecho, y a las 07:30 te llega un parte con tres cosas que aprobar. Nada sale hacia afuera sin que vos digas que sí.</p>
+    </div>
+    <div class="demo-tag">Datos de ejemplo</div>
+  </header>
+
+  <div class="console">
+    <div class="console-top">
+      <div class="clock-meta">
+        <div class="clock mono" id="clock">20:00</div>
+        <div class="d" id="phase">Jornada cerrada · 14 entregas</div>
+      </div>
+      <button class="btn btn-primary" id="play">▶ Reproducir el día</button>
+    </div>
+    <div class="scrub">
+      <span>06:00</span>
+      <input type="range" id="scrub" min="360" max="1200" step="5" value="1200" aria-label="Hora del día">
+      <span>20:00</span>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Los ocho puestos</h2>
+      <p class="note">Ocho, no veinte. Si un área no tiene trabajo todos los días, no es un área.</p>
+    </div>
+    <div class="desks" id="desks"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Bitácora del día</h2>
+      <p class="note">Lo que cada agente dejó sobre la mesa, con la hora en que lo dejó.</p>
+    </div>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>El parte de las 07:30</h2>
+      <p class="note">Esto es lo único que ella ve. Probá: aprobá o rechazá.</p>
+    </div>
+    <div class="parte">
+      <div class="parte-band">
+        <span class="t">Parte del día</span>
+        <span>Martes 18</span>
+        <span class="r">Central</span>
+      </div>
+      <div class="parte-body">
+
+        <div class="ask">
+          <div class="ask-n">01</div>
+          <div>
+            <h3>Publicar 4 piezas de Café Rituales</h3>
+            <p class="why">Reel del tueste, carrusel de origen y dos historias. Escritas por Estudio con la voz aprobada en marzo.</p>
+            <p class="detail">Salen 12:00 · 15:30 · 18:00 · 19:30 — Instagram y TikTok</p>
+            <div class="acts">
+              <button class="btn" data-ask="1" data-v="si">Aprobar</button>
+              <button class="btn" data-ask="1" data-v="no">Rechazar</button>
+              <span class="verdict mono" data-for="1"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ask">
+          <div class="ask-n">02</div>
+          <div>
+            <h3>Enviar propuesta a Bodega Lomas — $680.000/mes</h3>
+            <p class="why">Pidieron precio el viernes. Cierre la escribió con los tres casos que más se le parecen y el precio que Caja considera sano para la carga.</p>
+            <p class="detail">Va por correo, con la propuesta en PDF y el cobro por Mercado Pago listo</p>
+            <div class="acts">
+              <button class="btn" data-ask="2" data-v="si">Aprobar</button>
+              <button class="btn" data-ask="2" data-v="no">Rechazar</button>
+              <span class="verdict mono" data-for="2"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ask">
+          <div class="ask-n">03</div>
+          <div>
+            <h3>Enviar 8 mensajes de captación</h3>
+            <p class="why">De los 12 prospectos de hoy, ocho tienen un motivo concreto para escribirles. Los otros cuatro quedan para cuando publiquen algo.</p>
+            <p class="detail">Instagram DM, uno cada 18 minutos para no gatillar el bloqueo</p>
+            <div class="acts">
+              <button class="btn" data-ask="3" data-v="si">Aprobar</button>
+              <button class="btn" data-ask="3" data-v="no">Rechazar</button>
+              <span class="verdict mono" data-for="3"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="human">
+        <div class="tag">Para vos</div>
+        <p><b>Llamar a Dental Norte.</b> Once días sin contacto, no aprueba piezas desde el 5 y pagó tarde el mes pasado. Posventa dice que un mensaje no alcanza — esto es una llamada, y la tenés que hacer vos.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Los dos minutos de ella</h2>
+      <p class="note">Cuatro áreas dependen de datos que no están en ninguna API. En vez de pedirle que los cargue, el sistema pregunta.</p>
+    </div>
+    <div class="phone">
+      <div class="bub them">Buenos días. Tres cosas y te dejo tranquila.<br>1 · ¿Dental Norte contestó algo fuera de Instagram?<br>2 · ¿Bodega Lomas pagó los $420.000?<br>3 · ¿Algo de ayer que no quieras que repita?<span class="t">Central · 08:00</span></div>
+      <div class="bub her">1 no nada. 2 sí pagó ayer en la tarde. 3 el reel de la máquina no va más, no le gustó al cliente<span class="t">08:04</span></div>
+      <div class="bub them">Anotado. Caja cierra la factura de Lomas, Posventa sube a Dental Norte a llamada de hoy y Archivo marca "máquinas en primer plano" como formato descartado para Rituales.<span class="t">Central · 08:04</span></div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Qué pega hace cada uno</h2>
+      <p class="note">La columna de la derecha es la que hace que esto sea vendible: cada agente tiene un límite escrito.</p>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr><th>Agente</th><th>De dónde saca</th><th>Qué deja hecho</th><th>Qué no hace</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="name">Central<span>CEN · 07:30</span></td><td>El trabajo de los otros siete</td><td>El parte: 3 aprobaciones y 1 tarea humana, nunca más</td><td class="limit">No ejecuta nada por su cuenta</td></tr>
+          <tr><td class="name">Captación<span>CAP · 06:05</span></td><td>Búsqueda propia por rubro y zona</td><td>Prospectos calificados con el motivo para escribirles</td><td class="limit">No manda el primer mensaje</td></tr>
+          <tr><td class="name">Cierre<span>CIE · 07:15</span></td><td>Prospectos + lo que ella pega de respuestas</td><td>Mensajes, propuestas y precios listos para salir</td><td class="limit">No promete plazos ni descuentos</td></tr>
+          <tr><td class="name">Estudio<span>EST · 06:20</span></td><td>Archivo: voz, historial, lo que funcionó</td><td>La semana completa de cada marca, con guiones</td><td class="limit">No inventa datos del cliente</td></tr>
+          <tr><td class="name">Vitrina<span>VIT · 06:35</span></td><td>Piezas de Estudio + rendimiento de ayer</td><td>Todo en cola con hora, y el registro de lo que salió</td><td class="limit">No publica sin el sí del parte</td></tr>
+          <tr><td class="name">Posventa<span>POS · 06:50</span></td><td>Días sin contacto, aprobaciones pendientes, pagos</td><td>Quién se está enfriando y qué hacer con cada uno</td><td class="limit">No escribe a clientes sin aprobación</td></tr>
+          <tr><td class="name">Caja<span>CAJ · 07:00</span></td><td>Facturas, cobros y lo que ella confirma</td><td>Qué entró, qué falta cobrar, qué cobranza mandar</td><td class="limit">No mueve plata ni cobra solo</td></tr>
+          <tr><td class="name">Archivo<span>ARC · 06:00</span></td><td>Onboarding y cada corrección que ella hace</td><td>La memoria que usan todos los demás</td><td class="limit">No olvida una corrección</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="rule">
+    <h2>La regla que lo hace vendible</h2>
+    <p>Nadie compra un robot que postea solo en la marca de su cliente. Por eso el sistema propone y la dueña dispone: los agentes trabajan de madrugada, dejan todo escrito y esperan. Lo aprobado sale por una sola puerta y queda registrado con hora.</p>
+    <p>Si ella no contesta el parte, la oficina igual corre con lo último que sabe y Central lo marca como “trabajando a ciegas” hasta que vuelva.</p>
+  </div>
+
+  <footer>Demostración con datos ficticios · marcas, montos y resultados son de ejemplo</footer>
+</div>
+
+<script>
+(function(){
+  var EV = [
+    {m:360, code:"ARC", agent:"Archivo", tone:"", title:"Contexto del día cargado",
+     html:'Tres marcas activas, 47 piezas históricas, tono y palabras prohibidas por marca. Alimenta a Estudio y a Cierre antes de que arranquen.'+
+          '<div class="kv"><span>Café Rituales · <b>cercano, sin signos de exclamación</b></span><span>Dental Norte · <b>formal, nunca “sonrisa perfecta”</b></span></div>'},
+
+    {m:365, code:"CAP", agent:"Captación", tone:"", title:"12 prospectos calificados, 31 descartados",
+     html:'No son nombres sueltos: cada uno viene con el motivo por el que hoy necesita a una publicista.'+
+          '<ul><li><strong>Clínica estética, Providencia</strong> — 1.200 seguidores, publica una vez al mes, pauta activa. Paga por avisos pero no tiene quién le lleve la cuenta.</li>'+
+          '<li><strong>Cafetería de especialidad, Ñuñoa</strong> — abrió hace seis semanas, la cuenta está sin foto de perfil.</li>'+
+          '<li><strong>Estudio de arquitectura, Vitacura</strong> — obra premiada en agosto y ni una publicación sobre eso.</li></ul>'},
+
+    {m:380, code:"EST", agent:"Estudio", tone:"", title:"Semana de Café Rituales lista — 5 piezas",
+     html:'Guion del reel que abre la semana, escrito con la voz que ella aprobó en marzo:'+
+          '<div class="quote">0–2s  «Llevamos tres años tostando el mismo grano.\nRecién este mes entendimos por qué nos salía amargo.»\n2–7s  Mano girando el tambor, sin música.\n7–14s Texto: 18 minutos. Ni uno más.\n14s   «Si te gusta amargo, no nos compres.»</div>'+
+          '<div class="kv"><span>Formatos: <b>1 reel · 1 carrusel · 3 historias</b></span><span>Pendiente: <b>foto del tueste</b></span></div>'},
+
+    {m:395, code:"VIT", agent:"Vitrina", tone:"", title:"4 piezas en cola · lectura de ayer",
+     html:'Ayer salieron tres. El carrusel de Dental Norte hizo <strong>2,4 veces</strong> el alcance habitual de la cuenta; el reel de Rituales se quedó en 400 y no pasó de ahí.'+
+          '<ul><li>Lo que funcionó: pregunta directa en la primera lámina.</li><li>Lo que no: música sobre voz en off — tercera vez que pasa, Archivo ya lo tiene anotado.</li></ul>'},
+
+    {m:410, code:"POS", agent:"Posventa", tone:"risk", title:"Riesgo: Dental Norte se está enfriando",
+     html:'Once días sin contacto. No aprueba piezas desde el 5. El mes pasado pagó nueve días tarde. Los tres juntos, en esta cartera, terminaron en baja dos de tres veces.'+
+          '<div class="kv"><span>Recomendación: <b>llamada, no mensaje</b></span><span>Ventana: <b>hoy</b></span></div>'},
+
+    {m:420, code:"CAJ", agent:"Caja", tone:"", title:"$1.240.000 por cobrar",
+     html:'<ul><li><strong>Bodega Lomas · $420.000</strong> — vencida hace 9 días. Cobranza escrita y lista.</li>'+
+          '<li><strong>Dental Norte · $380.000</strong> — vencida hace 3 días. Caja sugiere no cobrar hoy: Posventa tiene una llamada delicada primero.</li>'+
+          '<li><strong>Café Rituales · $440.000</strong> — vence el 24, al día.</li></ul>'+
+          '<div class="kv"><span>Cobro por <b>Mercado Pago</b></span><span>Mes en curso: <b>$1.860.000 facturado</b></span></div>'},
+
+    {m:435, code:"CIE", agent:"Cierre", tone:"", title:"3 mensajes y 1 propuesta escritos",
+     html:'La propuesta a Bodega Lomas, en el precio que Caja considera sano para la carga real:'+
+          '<div class="quote">Hola Matías:\nTe dejo la propuesta como quedamos el viernes.\n\nLo que te preocupa no es el contenido — es que el local se\nllena jueves y viernes y el resto de la semana está muerto.\nEl plan ataca eso: martes y miércoles con oferta propia.\n\n$680.000 al mes. Sin permanencia.</div>'},
+
+    {m:450, code:"CEN", agent:"Central", tone:"central", title:"Parte del día emitido",
+     html:'Tres aprobaciones y una tarea humana. Central dejó fuera seis cosas que podía resolver sola y las ejecutó sin preguntar.'+
+          '<div class="kv"><span>Decisiones tomadas sola: <b>6</b></span><span>Al teléfono de ella: <b>4</b></span></div>'},
+
+    {m:480, code:"CEN", agent:"Central", tone:"human", title:"Check-in de dos minutos",
+     html:'Tres preguntas por WhatsApp. Las cuatro áreas que no tienen API esperan esta respuesta.'},
+
+    {m:484, code:"ARC", agent:"Archivo", tone:"", title:"Corrección incorporada",
+     html:'“Máquinas en primer plano” queda marcado como formato descartado para Café Rituales. Estudio no lo vuelve a proponer.'+
+          '<div class="kv"><span>Correcciones acumuladas: <b>23</b></span></div>'},
+
+    {m:552, code:"CEN", agent:"Central", tone:"human", title:"Parte resuelto en 40 segundos",
+     html:'Dos aprobadas desde el semáforo de Pedro de Valdivia. La de captación quedó rechazada: ella quiere leer los ocho mensajes antes.'},
+
+    {m:553, code:"CEN", agent:"Central", tone:"central", title:"Ejecución",
+     html:'Sale lo aprobado y solo lo aprobado. Queda registrado con hora y con enlace.'+
+          '<ul><li>Vitrina: 4 piezas agendadas.</li><li>Cierre: propuesta enviada a Bodega Lomas.</li><li>Captación: 8 mensajes en espera de lectura.</li></ul>'},
+
+    {m:760, code:"CIE", agent:"Cierre", tone:"", title:"Respondió la clínica de Providencia",
+     html:'Preguntó precio a los 40 minutos del mensaje. Cierre ya tiene la respuesta escrita y queda para el parte de mañana — no contesta solo.'+
+          '<div class="quote">«Depende de si querés que lleve la cuenta o solo\nque ordene lo que ya estás pagando en avisos.\nSon dos números distintos. ¿Cuál te sirve ver?»</div>'},
+
+    {m:960, code:"VIT", agent:"Vitrina", tone:"", title:"Las 4 piezas salieron",
+     html:'Cada una con su enlace registrado. Nada se da por publicado sin enlace real.'+
+          '<div class="kv"><span>12:00 reel · <b>publicado</b></span><span>15:30 carrusel · <b>publicado</b></span><span>18:00 y 19:30 historias · <b>publicadas</b></span></div>'},
+
+    {m:1200, code:"CEN", agent:"Central", tone:"central", title:"Cierre de jornada",
+     html:'<ul><li>Entró: <strong>$420.000</strong> cobrados a Bodega Lomas.</li>'+
+          '<li>En juego: <strong>$680.000/mes</strong> propuestos, más una clínica preguntando precio.</li>'+
+          '<li>Trabado: la llamada a Dental Norte no se hizo. Vuelve mañana arriba de todo.</li>'+
+          '<li>Horas de ella hoy: <strong>2 minutos de check-in + 40 segundos de parte</strong>.</li></ul>'}
+  ];
+
+  var DESKS = [
+    {code:"CEN", name:"Central"}, {code:"CAP", name:"Captación"},
+    {code:"CIE", name:"Cierre"},  {code:"EST", name:"Estudio"},
+    {code:"VIT", name:"Vitrina"}, {code:"POS", name:"Posventa"},
+    {code:"CAJ", name:"Caja"},    {code:"ARC", name:"Archivo"}
+  ];
+
+  function hhmm(m){
+    var h = Math.floor(m/60), mm = m%60;
+    return (h<10?"0":"")+h+":"+(mm<10?"0":"")+mm;
+  }
+
+  var logEl = document.getElementById('log');
+  var desksEl = document.getElementById('desks');
+  var clockEl = document.getElementById('clock');
+  var phaseEl = document.getElementById('phase');
+  var scrub = document.getElementById('scrub');
+  var playBtn = document.getElementById('play');
+
+  EV.forEach(function(e, i){
+    var d = document.createElement('div');
+    d.className = 'entry';
+    d.dataset.m = e.m;
+    d.innerHTML =
+      '<div class="entry-time">'+hhmm(e.m)+'</div>'+
+      '<div><div class="entry-head">'+
+        '<span class="chip" data-tone="'+e.tone+'">'+e.code+'</span>'+
+        '<span class="entry-title">'+e.title+'</span>'+
+      '</div><div class="out">'+e.html+'</div></div>';
+    logEl.appendChild(d);
+  });
+
+  DESKS.forEach(function(d){
+    var el = document.createElement('div');
+    el.className = 'desk';
+    el.dataset.code = d.code;
+    el.innerHTML =
+      '<div class="desk-top"><span class="desk-code">'+d.code+'</span><span class="dot"></span></div>'+
+      '<div class="desk-name">'+d.name+'</div>'+
+      '<div class="desk-out"></div>'+
+      '<div class="desk-state">en espera</div>';
+    desksEl.appendChild(el);
+  });
+
+  function phaseFor(now, count){
+    if(now < 450) return 'Turno de madrugada · '+count+' entregas';
+    if(now < 480) return 'Parte emitido · esperando a la dueña';
+    if(now < 553) return 'Check-in · cuatro áreas esperando datos';
+    if(now < 1200) return 'Ejecutando lo aprobado · '+count+' entregas';
+    return 'Jornada cerrada · '+count+' entregas';
+  }
+
+  function render(now){
+    var count = 0;
+    document.querySelectorAll('.entry').forEach(function(el){
+      var vis = Number(el.dataset.m) <= now;
+      el.hidden = !vis;
+      if(vis) count++;
+    });
+    DESKS.forEach(function(d){
+      var mine = EV.filter(function(e){ return e.code === d.code; });
+      var past = mine.filter(function(e){ return e.m <= now; });
+      var el = desksEl.querySelector('[data-code="'+d.code+'"]');
+      var out = el.querySelector('.desk-out');
+      var st  = el.querySelector('.desk-state');
+      if(!past.length){
+        el.dataset.state = 'espera';
+        var next = mine[0];
+        out.textContent = next ? 'Arranca '+hhmm(next.m) : '';
+        st.textContent = 'en espera';
+      } else {
+        var last = past[past.length-1];
+        out.textContent = last.title;
+        if(now - last.m <= 10){ el.dataset.state = 'trabajando'; st.textContent = 'entregando'; }
+        else { el.dataset.state = 'listo'; st.textContent = 'entregado '+hhmm(last.m); }
+      }
+    });
+    clockEl.textContent = hhmm(now);
+    phaseEl.textContent = phaseFor(now, count);
+  }
+
+  var timer = null;
+  function stop(){ if(timer){ clearInterval(timer); timer = null; } playBtn.textContent = '▶ Reproducir el día'; }
+  function play(){
+    stop();
+    var now = 360;
+    scrub.value = now; render(now);
+    playBtn.textContent = '❚❚ Pausar';
+    timer = setInterval(function(){
+      now += 4;
+      if(now >= 1200){ now = 1200; stop(); }
+      scrub.value = now; render(now);
+    }, 38);
+  }
+
+  playBtn.addEventListener('click', function(){
+    if(timer) { stop(); return; }
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce){ scrub.value = 1200; render(1200); return; }
+    play();
+  });
+  scrub.addEventListener('input', function(){ stop(); render(Number(scrub.value)); });
+
+  document.querySelectorAll('[data-ask]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var id = b.dataset.ask, v = b.dataset.v;
+      var out = document.querySelector('.verdict[data-for="'+id+'"]');
+      out.dataset.v = v;
+      out.textContent = v === 'si'
+        ? '→ aprobado · entra a la ejecución de las 09:13'
+        : '→ rechazado · Central lo reescribe para mañana';
+      out.classList.add('on');
+    });
+  });
+
+  render(1200);
+})();
+</script>

@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-10-06",
+  "code": "PRO",
+  "nombre": "Producción",
+  "estado": "espera",
+  "titular": "Sin producción hoy",
+  "detalle": "16 productos creados en total entre los dos ledgers (Printify + ola MidJourney).",
+  "n": {
+    "hoy": 0,
+    "total": 16
+  }
+}

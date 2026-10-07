@@ -1,0 +1,32 @@
+{
+  "_doc": "Datos de tienda. Todo lo que diga [COMPLETAR: ...] lo llena el dueño; el aplicador no inventa nada.",
+  "store_name": "HK23 STUDIO",
+  "store_domain": "fcqevq-jr.myshopify.com",
+  "tagline": {
+    "es": "Tu trabajo, hecho objeto.",
+    "en": "Your work, made object."
+  },
+  "announcement": {
+    "es": "Impresión bajo demanda · Envío internacional · Cada pieza se produce cuando la pides",
+    "en": "Print on demand · Worldwide shipping · Every piece is made when you order it"
+  },
+  "contact_email": "hk23hub@gmail.com",
+  "support_reply_window": "[COMPLETAR: plazo real de respuesta, ej. 48 horas hábiles]",
+  "legal": {
+    "legal_name": "[COMPLETAR: nombre legal / razón social]",
+    "tax_id": "[COMPLETAR: RUT o identificación tributaria]",
+    "address": "[COMPLETAR: dirección comercial completa]",
+    "country": "Chile",
+    "jurisdiction": "[COMPLETAR: jurisdicción aplicable, ej. tribunales de Santiago, Chile]"
+  },
+  "social": {
+    "instagram": "[COMPLETAR: URL de Instagram o dejar vacío]",
+    "x": "[COMPLETAR: URL de X o dejar vacío]",
+    "gumroad": "https://hk23hub.gumroad.com"
+  },
+  "fulfillment": {
+    "provider": "Printify",
+    "model": "print-on-demand",
+    "note": "Los productos se imprimen y despachan desde los centros de producción del proveedor (EE.UU., Reino Unido, UE o Asia según destino y producto). HK23 STUDIO no mantiene stock."
+  }
+}

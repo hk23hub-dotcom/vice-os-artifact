@@ -1,0 +1,72 @@
+{
+  "pow-stk-invader-coral": {
+    "product_id": "6ab537e53841d1ee470da935",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T14:47:09.685Z"
+  },
+  "pow-stk-starburst": {
+    "product_id": "6ab537f23841d1ee470da940",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T14:47:19.155Z"
+  },
+  "pow-stk-invader-blue": {
+    "product_id": "6ab537f8fb7d6c4cb40d953d",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T14:47:23.970Z"
+  },
+  "pow-stk-invader-bone": {
+    "product_id": "6ab537fdfb7d6c4cb40d953f",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T14:47:29.457Z"
+  },
+  "pow-stk-grid": {
+    "product_id": "6ab538038fdc72b7b60f4374",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T14:47:35.659Z"
+  },
+  "pow-poster-002": {
+    "product_id": "6ab5380a6bf83bc542093d08",
+    "kind": "poster",
+    "variants": 46,
+    "price_usd": [
+      8.93,
+      60.84
+    ],
+    "created": "2026-09-24T14:47:42.322Z"
+  },
+  "pow-poster-003": {
+    "product_id": "6ab5381185e7395b5f06d6ee",
+    "kind": "poster",
+    "variants": 46,
+    "price_usd": [
+      8.93,
+      60.84
+    ],
+    "created": "2026-09-24T14:47:48.003Z"
+  }
+}

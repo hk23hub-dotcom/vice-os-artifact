@@ -1,0 +1,10 @@
+- 2026-09-27 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-09-28 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-09-29 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-09-30 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-01 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-02 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-03 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-04 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-05 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.
+- 2026-10-06 · Sin cola. 9 leads conocidos, insuficientes para armar ronda.

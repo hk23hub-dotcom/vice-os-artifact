@@ -1,0 +1,1 @@
+- 2026-09-27 · La tienda seguía con contraseña. Producir más no sirve de nada mientras esto no se abra.

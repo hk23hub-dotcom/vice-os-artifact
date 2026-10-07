@@ -1,0 +1,25 @@
+{
+  "fecha": "2026-09-29",
+  "generado": "2026-09-29T12:15:17.313Z",
+  "enviado": false,
+  "aviso": "Cola propuesta. Nada fue enviado. El agente vendedor no envía correo.",
+  "tope": 15,
+  "candidatos": 0,
+  "productos_con_url": 16,
+  "productos_totales": 16,
+  "notas": [],
+  "mensajes": [],
+  "saltados": [
+    {
+      "lead": {
+        "id": "dm:hotelpuntabrava.cl",
+        "nombre": "Valentina Ríos",
+        "empresa": "Hotel Punta Brava",
+        "rubro": "Hotelería"
+      },
+      "aviso": [
+        "sin email: LeadHunter no trajo correo"
+      ]
+    }
+  ]
+}

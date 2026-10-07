@@ -1,0 +1,15 @@
+# credenciales — nunca al repositorio
+config.local.json
+**/config.local.json
+.env
+.env.*
+
+# generados: se reconstruyen con `node digital/armar.mjs --zip`
+digital/paquetes/
+
+# material de prueba del intake, pesado y prescindible
+_pruebas-intake/
+
+# estado y bitácoras de cada corrida
+ecosistema/estado-tienda.txt
+ecosistema/logs/

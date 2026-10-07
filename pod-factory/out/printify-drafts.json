@@ -1,0 +1,168 @@
+{
+  "store": "Hk23 STUDIO (Shopify clipvice-ai-store) · fallback Printify Pop-Up",
+  "status": "draft",
+  "blocked_by": "falta printifyToken + printifyShopId en vice-seller/config.local.json",
+  "products": [
+    {
+      "kind": "sticker",
+      "sku": "pow-stk-invader-coral",
+      "title": "PROOF OF WORK — Invader Sticker (Coral)",
+      "art": "/Users/hk23neo/vice-collection/assets/print/stickers/invader-coral.png",
+      "markup": 2.4,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "PROOF OF WORK by HK23. Vinilo die-cut resistente al agua. Tu trabajo, hecho objeto. Parte de la cápsula Season One."
+    },
+    {
+      "kind": "sticker",
+      "sku": "pow-stk-starburst",
+      "title": "PROOF OF WORK — Starburst Sticker (Black)",
+      "art": "/Users/hk23neo/vice-collection/assets/print/stickers/starburst-black.png",
+      "markup": 2.4,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "PROOF OF WORK by HK23. Vinilo die-cut resistente al agua. Tu trabajo, hecho objeto. Parte de la cápsula Season One."
+    },
+    {
+      "kind": "sticker",
+      "sku": "pow-stk-invader-blue",
+      "title": "PROOF OF WORK — Invader Sticker (Blue)",
+      "art": "/Users/hk23neo/vice-collection/assets/print/stickers/invader-blue.png",
+      "markup": 2.4,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "PROOF OF WORK by HK23. Vinilo die-cut resistente al agua. Tu trabajo, hecho objeto. Parte de la cápsula Season One."
+    },
+    {
+      "kind": "sticker",
+      "sku": "pow-stk-invader-bone",
+      "title": "PROOF OF WORK — Invader Sticker (Bone)",
+      "art": "/Users/hk23neo/vice-collection/assets/print/stickers/invader-bone.png",
+      "markup": 2.4,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "PROOF OF WORK by HK23. Vinilo die-cut resistente al agua. Tu trabajo, hecho objeto. Parte de la cápsula Season One."
+    },
+    {
+      "kind": "sticker",
+      "sku": "pow-stk-grid",
+      "title": "PROOF OF WORK — Activity Grid Sticker",
+      "art": "/Users/hk23neo/vice-collection/assets/print/stickers/grid-bar.png",
+      "markup": 2.4,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "PROOF OF WORK by HK23. Vinilo die-cut resistente al agua. Tu trabajo, hecho objeto. Parte de la cápsula Season One."
+    },
+    {
+      "kind": "poster",
+      "sku": "pow-poster-002",
+      "title": "PROOF OF WORK — Edición 002 · 32M tokens (Serial 0GNZ1P1)",
+      "art": "/Users/hk23neo/vice-collection/poster/out/a2-002-32M.png",
+      "markup": 1.8,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "Poster generativo de la serie PROOF OF WORK. La grilla, la densidad y los picos naranjos salen de datos reales de actividad: 32M tokens, 44 sesiones, 23 días activos y una racha máxima de 3 días. Los mismos números generan siempre la misma imagen, y por eso el serial 0GNZ1P1 identifica esta pieza. Edición 002 de 100."
+    },
+    {
+      "kind": "poster",
+      "sku": "pow-poster-003",
+      "title": "PROOF OF WORK — Edición 003 · 42.2M tokens (Serial 1UQDHCL)",
+      "art": "/Users/hk23neo/vice-collection/poster/out/a2-003-2026-09-10.png",
+      "markup": 1.8,
+      "tags": [
+        "proof of work",
+        "data art",
+        "generative art",
+        "pixel art",
+        "dev gift",
+        "coding art",
+        "stats poster",
+        "minimal poster",
+        "hk23",
+        "activity grid",
+        "terminal aesthetic",
+        "tech decor",
+        "numbered edition"
+      ],
+      "description": "Poster generativo de la serie PROOF OF WORK. La grilla, la densidad y los picos naranjos salen de datos reales de actividad: 42.2M tokens, 109 sesiones, 92 días activos y una racha máxima de 18 días. Los mismos números generan siempre la misma imagen, y por eso el serial 1UQDHCL identifica esta pieza. Edición 003 de 100."
+    }
+  ]
+}

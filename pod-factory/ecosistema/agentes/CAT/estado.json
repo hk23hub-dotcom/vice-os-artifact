@@ -1,0 +1,11 @@
+{
+  "fecha": "2026-10-06",
+  "code": "CAT",
+  "nombre": "Catálogo",
+  "estado": "ok",
+  "titular": "201 piezas publicables en catálogo",
+  "detalle": "Con metadata y dimensiones verificadas. 14 duplicados descartados.",
+  "n": {
+    "catalogo": 201
+  }
+}

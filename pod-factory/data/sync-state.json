@@ -1,0 +1,32 @@
+{
+  "6ab543f15e2dad6f0a0258f4": {
+    "sku": "mjx-0038",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:22.350Z"
+  },
+  "6ab544977892aa2f3f01e592": {
+    "sku": "mjx-0115",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:24.447Z"
+  },
+  "6ab545102ee15022d40cd221": {
+    "sku": "mjx-0006",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:26.413Z"
+  },
+  "6ab8e8c30ec1eb9d2c08387b": {
+    "sku": "mjx-0008",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:28.526Z"
+  },
+  "6ab8e98200c79df9a307af89": {
+    "sku": "mjx-0009",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:30.524Z"
+  },
+  "6ab8e9d2580577e1990ba6db": {
+    "sku": "mjx-0012",
+    "pending_publish": false,
+    "synced_at": "2026-09-27T11:41:32.501Z"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "fecha": "2026-10-06",
+  "code": "TDA",
+  "nombre": "Tienda",
+  "estado": "ok",
+  "titular": "16 productos con URL real",
+  "detalle": "Vitrina abierta. Los productos son alcanzables.",
+  "n": {
+    "conURL": 16,
+    "cerrada": 0
+  }
+}

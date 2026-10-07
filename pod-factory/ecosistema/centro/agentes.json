@@ -1,0 +1,937 @@
+{
+  "fuente": "https://claude.ai/artifact/4i9pCjF6rTmuyM2F6CBJJ1",
+  "extraido": "2026-09-28",
+  "agentes": [
+    {
+      "nombre": "ObjeciónMaestro",
+      "mundo": "Ventas",
+      "tipo": "hace",
+      "que_hace": "La respuesta exacta a la objeción que te frenó la venta.",
+      "para": "vendedor"
+    },
+    {
+      "nombre": "PropuestaForge",
+      "mundo": "Ventas",
+      "tipo": "hace",
+      "que_hace": "La propuesta comercial escrita y lista para enviar.",
+      "para": "freelance, agencia"
+    },
+    {
+      "nombre": "CierreSocio",
+      "mundo": "Ventas",
+      "tipo": "acom",
+      "que_hace": "Te acompaña la semana de cierre y te pregunta por cada trato abierto.",
+      "para": "vendedor"
+    },
+    {
+      "nombre": "ÁnguloNuevo",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "El ángulo de venta que nadie está usando en tu rubro.",
+      "para": "marketero"
+    },
+    {
+      "nombre": "PromesaForge",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "La promesa central de tu oferta en una sola línea.",
+      "para": "fundador"
+    },
+    {
+      "nombre": "OfertaDoctor",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "Por qué tu oferta no convierte y qué cambiarle.",
+      "para": "emprendedor"
+    },
+    {
+      "nombre": "EmbudoMapa",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "Tu embudo dibujado con las piezas que ya tienes.",
+      "para": "marketero"
+    },
+    {
+      "nombre": "PrecioPsique",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "Cómo presentar tu precio para que pese menos.",
+      "para": "vendedor"
+    },
+    {
+      "nombre": "TestIdea",
+      "mundo": "Marketing",
+      "tipo": "hace",
+      "que_hace": "Cómo probar tu idea esta semana sin gastar plata.",
+      "para": "emprendedor"
+    },
+    {
+      "nombre": "LanzaPlan",
+      "mundo": "Marketing",
+      "tipo": "acom",
+      "que_hace": "Te lleva los catorce días del lanzamiento, uno por uno.",
+      "para": "fundador"
+    },
+    {
+      "nombre": "ManifiestoForge",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "El manifiesto de tu marca: en qué cree y contra qué está.",
+      "para": "fundador"
+    },
+    {
+      "nombre": "VozMarca",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "Cómo habla tu marca, con ejemplos de lo que sí y lo que no.",
+      "para": "marca"
+    },
+    {
+      "nombre": "PaletaAlma",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "Paleta y tipografía según lo que tu marca quiere hacer sentir.",
+      "para": "diseñador"
+    },
+    {
+      "nombre": "TaglineSmith",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "La frase que va debajo de tu nombre.",
+      "para": "marca"
+    },
+    {
+      "nombre": "HistoriaOrigen",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "Tu historia de origen contada de manera que venda.",
+      "para": "fundador"
+    },
+    {
+      "nombre": "BioPerfecta",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "La bio de tu perfil que convierte en vez de describir.",
+      "para": "creador"
+    },
+    {
+      "nombre": "MarcaAuditor",
+      "mundo": "Marca",
+      "tipo": "hace",
+      "que_hace": "Qué está diciendo tu marca sin darse cuenta.",
+      "para": "marca"
+    },
+    {
+      "nombre": "CaptionForge",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "El caption con su llamada a la acción, en tu voz.",
+      "para": "creador"
+    },
+    {
+      "nombre": "GuionReel",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "El guion del reel, plano por plano, con el texto en pantalla.",
+      "para": "creador"
+    },
+    {
+      "nombre": "CarruselArmado",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "El carrusel entero, lámina por lámina.",
+      "para": "creador"
+    },
+    {
+      "nombre": "DMCloser",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "El mensaje directo que no parece venta.",
+      "para": "vendedor"
+    },
+    {
+      "nombre": "ComentarioNinja",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "Respuestas a los comentarios sin sonar robot.",
+      "para": "community manager"
+    },
+    {
+      "nombre": "AnalíticaLectora",
+      "mundo": "Redes",
+      "tipo": "hace",
+      "que_hace": "Qué te están diciendo los números que le pegues, y qué hacer con eso.",
+      "para": "creador"
+    },
+    {
+      "nombre": "CalendarioVivo",
+      "mundo": "Redes",
+      "tipo": "acom",
+      "que_hace": "Qué publicar cada día de tu semana, contigo al lado.",
+      "para": "creador"
+    },
+    {
+      "nombre": "IdeaPozo",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "Treinta ideas de contenido a partir de una sola tuya.",
+      "para": "creador"
+    },
+    {
+      "nombre": "TituloForge",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "El título que hace que abran.",
+      "para": "creador"
+    },
+    {
+      "nombre": "GuionLargo",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "El video largo estructurado de principio a fin.",
+      "para": "youtuber"
+    },
+    {
+      "nombre": "NewsletterSmith",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "La edición de tu newsletter, escrita.",
+      "para": "autor"
+    },
+    {
+      "nombre": "RepurposeMáquina",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "Un contenido convertido en diez para otras plataformas.",
+      "para": "creador"
+    },
+    {
+      "nombre": "BlogueroFantasma",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "El artículo largo con tu voz, no con voz de robot.",
+      "para": "marca"
+    },
+    {
+      "nombre": "PodcastPreguntas",
+      "mundo": "Contenido",
+      "tipo": "hace",
+      "que_hace": "Las preguntas que hacen que una entrevista valga.",
+      "para": "podcaster"
+    },
+    {
+      "nombre": "MiedoDesarmador",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "Desarma el miedo que te tiene detenido, pieza por pieza.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "VozInterna",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "Reescribe cómo te hablas cuando te equivocas.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "DecisiónClara",
+      "mundo": "Mindset",
+      "tipo": "hace",
+      "que_hace": "La decisión que estás evitando, puesta en claro.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "LímiteGuardián",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "Te ayuda a decir que no y a sostenerlo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "ImpostorCura",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "Para cuando sientes que no mereces estar donde estás.",
+      "para": "profesional"
+    },
+    {
+      "nombre": "ComparaciónStop",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "Para el momento en que te comparas y te hundes.",
+      "para": "creador"
+    },
+    {
+      "nombre": "FracasoLector",
+      "mundo": "Mindset",
+      "tipo": "hace",
+      "que_hace": "Qué te enseñó de verdad eso que salió mal.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "DisciplinaSocio",
+      "mundo": "Mindset",
+      "tipo": "acom",
+      "que_hace": "El socio que te pregunta si lo hiciste.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MeditaDiaria",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "Una meditación distinta cada vez, hecha para cómo llegaste hoy.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "RespiraGuía",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "La respiración que corresponde a lo que estás sintiendo ahora.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AnsiedadAncla",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "Te trae de vuelta cuando se te dispara el pecho.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "SueñoProfundo",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "Te baja a dormir cuando la cabeza no para.",
+      "para": "quien duerme mal"
+    },
+    {
+      "nombre": "CuerpoEscaneo",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "El recorrido por el cuerpo, guiado y sin apuro.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MeditaCorta",
+      "mundo": "Meditación",
+      "tipo": "hace",
+      "que_hace": "Tres minutos entre una reunión y la otra.",
+      "para": "oficinista"
+    },
+    {
+      "nombre": "MañanaRitual",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "El ritual con el que abres el día.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "NocheCierre",
+      "mundo": "Meditación",
+      "tipo": "acom",
+      "que_hace": "El cierre del día antes de que apagues la luz.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MantraForge",
+      "mundo": "Meditación",
+      "tipo": "hace",
+      "que_hace": "Tu mantra, según lo que estás atravesando.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "IntenciónClara",
+      "mundo": "Manifestación",
+      "tipo": "hace",
+      "que_hace": "Tu intención escrita en presente y sin peros.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "GuionFuturo",
+      "mundo": "Manifestación",
+      "tipo": "hace",
+      "que_hace": "El guion de tu vida dentro de un año, en detalle.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "GratitudDiaria",
+      "mundo": "Manifestación",
+      "tipo": "acom",
+      "que_hace": "Tres cosas por las que agradecer hoy, sin repetir las de siempre.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "VisiónTablero",
+      "mundo": "Manifestación",
+      "tipo": "hace",
+      "que_hace": "Tu tablero de visión descrito pieza por pieza para armarlo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "CartaYoFuturo",
+      "mundo": "Manifestación",
+      "tipo": "hace",
+      "que_hace": "La carta de tu yo de cinco años más.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "CreenciaCambio",
+      "mundo": "Manifestación",
+      "tipo": "acom",
+      "que_hace": "Encuentra la creencia que te frena y la trabaja contigo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "LunaCiclo",
+      "mundo": "Manifestación",
+      "tipo": "acom",
+      "que_hace": "Un ritual de soltar y sembrar según la fase de la luna que le digas.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "Método369",
+      "mundo": "Manifestación",
+      "tipo": "acom",
+      "que_hace": "Te lleva el 369 para que no lo abandones al tercer día.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "HertzGuía",
+      "mundo": "Frecuencias",
+      "tipo": "hace",
+      "que_hace": "Qué tipo de sonido acompaña lo que necesitas hoy, y cómo usarlo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "SonidoSueño",
+      "mundo": "Frecuencias",
+      "tipo": "acom",
+      "que_hace": "El paisaje sonoro para dormir, descrito para que lo armes.",
+      "para": "quien duerme mal"
+    },
+    {
+      "nombre": "FocoOnda",
+      "mundo": "Frecuencias",
+      "tipo": "acom",
+      "que_hace": "La sesión de sonido para trabajar sin distraerte.",
+      "para": "quien estudia o trabaja"
+    },
+    {
+      "nombre": "BinauralPlan",
+      "mundo": "Frecuencias",
+      "tipo": "hace",
+      "que_hace": "La sesión binaural armada para tu objetivo y tu tiempo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "ChakraTono",
+      "mundo": "Frecuencias",
+      "tipo": "hace",
+      "que_hace": "El tono y la práctica según el centro que estás trabajando.",
+      "para": "practicante"
+    },
+    {
+      "nombre": "RuidoCura",
+      "mundo": "Frecuencias",
+      "tipo": "hace",
+      "que_hace": "Qué ruido te sirve: blanco, rosa o marrón, y para qué.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaDiaria",
+      "mundo": "Afirmaciones",
+      "tipo": "acom",
+      "que_hace": "La afirmación de hoy, escrita para ti.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaEspejo",
+      "mundo": "Afirmaciones",
+      "tipo": "hace",
+      "que_hace": "Las que se dicen mirándose, sin vergüenza ajena.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaDinero",
+      "mundo": "Afirmaciones",
+      "tipo": "acom",
+      "que_hace": "Para la relación con la plata, sin culpa.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaCuerpo",
+      "mundo": "Afirmaciones",
+      "tipo": "acom",
+      "que_hace": "Para reconciliarte con el cuerpo que tienes.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaNiño",
+      "mundo": "Afirmaciones",
+      "tipo": "acom",
+      "que_hace": "Para el que fuiste y todavía anda por ahí.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AfirmaVoz",
+      "mundo": "Afirmaciones",
+      "tipo": "hace",
+      "que_hace": "Tus afirmaciones escritas para que las grabes con tu voz.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "HábitoSocio",
+      "mundo": "Hábitos",
+      "tipo": "acom",
+      "que_hace": "Instala un hábito contigo, paso a paso.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "RutinaReal",
+      "mundo": "Hábitos",
+      "tipo": "hace",
+      "que_hace": "La rutina que cabe en tu día de verdad, no en el ideal.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MañanaDiseño",
+      "mundo": "Hábitos",
+      "tipo": "hace",
+      "que_hace": "Cómo debería verse tu mañana según lo que persigues.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "ProcrastinaCorte",
+      "mundo": "Hábitos",
+      "tipo": "acom",
+      "que_hace": "Te saca del bloqueo en el momento exacto en que caes.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "EnergíaMapa",
+      "mundo": "Hábitos",
+      "tipo": "hace",
+      "que_hace": "A qué hora rindes y qué deberías poner ahí.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "PantallaLímite",
+      "mundo": "Hábitos",
+      "tipo": "acom",
+      "que_hace": "Te ayuda a recuperar las horas que se te van en el teléfono.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "DomingoReset",
+      "mundo": "Hábitos",
+      "tipo": "acom",
+      "que_hace": "El cierre de semana que deja ordenada la siguiente.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MetaTrozos",
+      "mundo": "Hábitos",
+      "tipo": "hace",
+      "que_hace": "Tu meta grande partida en pedazos de una semana.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "EntrenaAjustado",
+      "mundo": "Cuerpo",
+      "tipo": "hace",
+      "que_hace": "Rutina con el tiempo y el equipo que realmente tienes.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "ComidaSimple",
+      "mundo": "Cuerpo",
+      "tipo": "hace",
+      "que_hace": "Qué cocinar con lo que hay ahora en tu casa.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "DolorMapa",
+      "mundo": "Cuerpo",
+      "tipo": "hace",
+      "que_hace": "Estiramientos suaves para la tensión de estar sentado todo el día.",
+      "para": "oficinista"
+    },
+    {
+      "nombre": "PosturaGuardián",
+      "mundo": "Cuerpo",
+      "tipo": "acom",
+      "que_hace": "Repasa contigo tu postura y tu puesto de trabajo.",
+      "para": "oficinista"
+    },
+    {
+      "nombre": "DescansoReal",
+      "mundo": "Cuerpo",
+      "tipo": "hace",
+      "que_hace": "Cómo descansar de verdad en el tiempo libre que tienes.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AguaRecuerdo",
+      "mundo": "Cuerpo",
+      "tipo": "acom",
+      "que_hace": "Arma contigo el plan para tomar más agua sin que sea una lata.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "GastoEspía",
+      "mundo": "Dinero",
+      "tipo": "hace",
+      "que_hace": "Encuentra las fugas en los gastos que le pegues.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "DeudaOrden",
+      "mundo": "Dinero",
+      "tipo": "hace",
+      "que_hace": "El orden para pagar tus deudas y por qué ese.",
+      "para": "quien tiene deudas"
+    },
+    {
+      "nombre": "PrecioPropio",
+      "mundo": "Dinero",
+      "tipo": "hace",
+      "que_hace": "Cómo calcular cuánto deberías cobrar por lo que haces.",
+      "para": "freelance"
+    },
+    {
+      "nombre": "ImpuestoLuz",
+      "mundo": "Dinero",
+      "tipo": "hace",
+      "que_hace": "Qué preguntarle a tu contador para no dejar beneficios en la mesa.",
+      "para": "independiente"
+    },
+    {
+      "nombre": "InversiónPrimera",
+      "mundo": "Dinero",
+      "tipo": "hace",
+      "que_hace": "Los conceptos que hay que entender antes de invertir el primer peso.",
+      "para": "principiante"
+    },
+    {
+      "nombre": "AhorroJuego",
+      "mundo": "Dinero",
+      "tipo": "acom",
+      "que_hace": "Te hace ahorrar como si fuera un juego, no un castigo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "PlataMiedo",
+      "mundo": "Dinero",
+      "tipo": "acom",
+      "que_hace": "Trabaja tu relación emocional con el dinero.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "CVForge",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "Tu CV reescrito para esa vacante en particular.",
+      "para": "postulante"
+    },
+    {
+      "nombre": "EntrevistaEnsayo",
+      "mundo": "Trabajo",
+      "tipo": "acom",
+      "que_hace": "Te entrevista una y otra vez hasta que salga natural.",
+      "para": "postulante"
+    },
+    {
+      "nombre": "SueldoArgumento",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "El argumento para pedir el aumento, con lo que tú aportas.",
+      "para": "trabajador"
+    },
+    {
+      "nombre": "LinkedInVivo",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "Tu perfil reescrito para que te encuentren.",
+      "para": "profesional"
+    },
+    {
+      "nombre": "PortafolioArmado",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "Tu portafolio ordenado para que se entienda en treinta segundos.",
+      "para": "creativo"
+    },
+    {
+      "nombre": "JefeTraductor",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "Cómo decirle a tu jefe eso que llevas meses sin decir.",
+      "para": "trabajador"
+    },
+    {
+      "nombre": "RenunciaCarta",
+      "mundo": "Trabajo",
+      "tipo": "hace",
+      "que_hace": "La carta que no quema puentes.",
+      "para": "trabajador"
+    },
+    {
+      "nombre": "ResumenFiel",
+      "mundo": "Estudio",
+      "tipo": "hace",
+      "que_hace": "El resumen del texto que le pegues, hecho para estudiar.",
+      "para": "estudiante"
+    },
+    {
+      "nombre": "PruebaSimulacro",
+      "mundo": "Estudio",
+      "tipo": "acom",
+      "que_hace": "Te toma la prueba antes de la prueba, hasta que pases.",
+      "para": "estudiante"
+    },
+    {
+      "nombre": "RamoPlan",
+      "mundo": "Estudio",
+      "tipo": "hace",
+      "que_hace": "Cómo estudiar el ramo según cómo se evalúa.",
+      "para": "universitario"
+    },
+    {
+      "nombre": "ExplicaSimple",
+      "mundo": "Estudio",
+      "tipo": "hace",
+      "que_hace": "El tema difícil explicado justo a tu nivel.",
+      "para": "estudiante"
+    },
+    {
+      "nombre": "CitaLimpia",
+      "mundo": "Estudio",
+      "tipo": "hace",
+      "que_hace": "Tus fuentes ordenadas en la norma que te pidieron. No inventa ninguna.",
+      "para": "estudiante"
+    },
+    {
+      "nombre": "MenuSemana",
+      "mundo": "Casa",
+      "tipo": "hace",
+      "que_hace": "El menú de la semana con lo que ya tienes.",
+      "para": "familia"
+    },
+    {
+      "nombre": "RegaloJusto",
+      "mundo": "Casa",
+      "tipo": "hace",
+      "que_hace": "El regalo según la persona, la ocasión y tu presupuesto.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "ReparaPrecio",
+      "mundo": "Casa",
+      "tipo": "hace",
+      "que_hace": "Qué especialista necesitas y qué preguntar para que no te cobren de más.",
+      "para": "dueño de casa"
+    },
+    {
+      "nombre": "CasaOrden",
+      "mundo": "Casa",
+      "tipo": "acom",
+      "que_hace": "Una zona por día hasta que la casa vuelva a respirar.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "MudanzaGuía",
+      "mundo": "Casa",
+      "tipo": "acom",
+      "que_hace": "Te lleva la mudanza sin que se te olvide nada.",
+      "para": "quien se cambia"
+    },
+    {
+      "nombre": "MascotaCuida",
+      "mundo": "Casa",
+      "tipo": "acom",
+      "que_hace": "Ordena contigo la rutina de cuidado de tu mascota.",
+      "para": "dueño de mascota"
+    },
+    {
+      "nombre": "ConversaciónDifícil",
+      "mundo": "Relaciones",
+      "tipo": "hace",
+      "que_hace": "Cómo abrir esa conversación que llevas meses evitando.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "LímiteFamilia",
+      "mundo": "Relaciones",
+      "tipo": "hace",
+      "que_hace": "Cómo poner el límite sin romper la mesa del domingo.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "PerdónCarta",
+      "mundo": "Relaciones",
+      "tipo": "hace",
+      "que_hace": "La carta que quizás no envíes, pero que hay que escribir.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "CitaIdea",
+      "mundo": "Relaciones",
+      "tipo": "hace",
+      "que_hace": "Qué hacer en la cita, según cómo son los dos.",
+      "para": "pareja"
+    },
+    {
+      "nombre": "DueloCompaña",
+      "mundo": "Relaciones",
+      "tipo": "acom",
+      "que_hace": "Te acompaña la pérdida sin apurarte ni darte lecciones.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AmistadRiego",
+      "mundo": "Relaciones",
+      "tipo": "acom",
+      "que_hace": "Te ayuda a retomar con quien hace mucho que no ves.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "IdeaChispa",
+      "mundo": "Creatividad",
+      "tipo": "hace",
+      "que_hace": "La idea que te falta, sacada de lo que ya tienes hecho.",
+      "para": "creativo"
+    },
+    {
+      "nombre": "BloqueoRompe",
+      "mundo": "Creatividad",
+      "tipo": "acom",
+      "que_hace": "Te saca del bloqueo con ejercicios, no con frases bonitas.",
+      "para": "artista"
+    },
+    {
+      "nombre": "NombreCosas",
+      "mundo": "Creatividad",
+      "tipo": "hace",
+      "que_hace": "Nombres para lo que estás creando, con el porqué de cada uno.",
+      "para": "creativo"
+    },
+    {
+      "nombre": "MoodForge",
+      "mundo": "Creatividad",
+      "tipo": "hace",
+      "que_hace": "El mood board descrito para que lo armes.",
+      "para": "diseñador"
+    },
+    {
+      "nombre": "CríticoHonesto",
+      "mundo": "Creatividad",
+      "tipo": "hace",
+      "que_hace": "La crítica que tus amigos no te van a dar.",
+      "para": "creativo"
+    },
+    {
+      "nombre": "ProyectoTermina",
+      "mundo": "Creatividad",
+      "tipo": "acom",
+      "que_hace": "Te lleva a terminar lo que empezaste.",
+      "para": "creativo"
+    },
+    {
+      "nombre": "IdeaValida",
+      "mundo": "Negocio",
+      "tipo": "hace",
+      "que_hace": "Cómo comprobar esta semana si tu idea tiene comprador.",
+      "para": "emprendedor"
+    },
+    {
+      "nombre": "ModeloSimple",
+      "mundo": "Negocio",
+      "tipo": "hace",
+      "que_hace": "Tu modelo de negocio explicado en una página.",
+      "para": "fundador"
+    },
+    {
+      "nombre": "SocioContrato",
+      "mundo": "Negocio",
+      "tipo": "hace",
+      "que_hace": "Qué conversar y acordar con tu socio ahora, antes de que duela.",
+      "para": "socios"
+    },
+    {
+      "nombre": "TrámiteRuta",
+      "mundo": "Negocio",
+      "tipo": "hace",
+      "que_hace": "Los trámites para partir, en orden, y dónde confirmar cada uno.",
+      "para": "emprendedor"
+    },
+    {
+      "nombre": "PrimerCliente",
+      "mundo": "Negocio",
+      "tipo": "acom",
+      "que_hace": "Te lleva de la mano hasta conseguir el primero.",
+      "para": "emprendedor"
+    },
+    {
+      "nombre": "CriptoBoomer",
+      "mundo": "Cripto",
+      "tipo": "hace",
+      "que_hace": "Todo explicado sin jerga, paso a paso, para el que no cacha.",
+      "para": "principiante"
+    },
+    {
+      "nombre": "DisciplinaTrader",
+      "mundo": "Cripto",
+      "tipo": "acom",
+      "que_hace": "Te frena cuando vas a operar por rabia o por ansiedad.",
+      "para": "trader"
+    },
+    {
+      "nombre": "LeonidaGuion",
+      "mundo": "GTA 6",
+      "tipo": "hace",
+      "que_hace": "El guion de tu video sobre el juego a partir de lo que tú le cuentes. No inventa filtraciones.",
+      "para": "creador gamer"
+    },
+    {
+      "nombre": "TeoríaTaller",
+      "mundo": "GTA 6",
+      "tipo": "hace",
+      "que_hace": "Ordena tu teoría: qué la sostiene, qué la bota y cómo presentarla.",
+      "para": "fan"
+    },
+    {
+      "nombre": "ViceClip",
+      "mundo": "GTA 6",
+      "tipo": "hace",
+      "que_hace": "Títulos y descripciones para tus clips, en el tono de la comunidad.",
+      "para": "creador gamer"
+    },
+    {
+      "nombre": "AgenteJusto",
+      "mundo": "Meta",
+      "tipo": "hace",
+      "que_hace": "Qué agente te conviene crear para el problema que tienes.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "PromptExacto",
+      "mundo": "Meta",
+      "tipo": "hace",
+      "que_hace": "El prompt para lo que necesitas, no uno genérico.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "AutomatizaMapa",
+      "mundo": "Meta",
+      "tipo": "hace",
+      "que_hace": "Qué de tu semana se puede automatizar, ordenado por horas ganadas.",
+      "para": "cualquiera"
+    },
+    {
+      "nombre": "EquipoArma",
+      "mundo": "Meta",
+      "tipo": "hace",
+      "que_hace": "El organigrama de agentes que tu negocio necesita.",
+      "para": "fundador"
+    }
+  ]
+}

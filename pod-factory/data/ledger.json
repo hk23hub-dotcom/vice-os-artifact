@@ -1,0 +1,50 @@
+{
+  "proof-of-work": {
+    "slug": "proof-of-work",
+    "updated": "2026-09-24T14:46:49.557Z",
+    "steps": {
+      "curated": true,
+      "produced": false,
+      "published_universe": false,
+      "written": true,
+      "qa": true,
+      "live": false
+    },
+    "blocked_by": [
+      "printify token",
+      "supabase service key"
+    ]
+  },
+  "proof-of-work-002": {
+    "slug": "proof-of-work-002",
+    "updated": "2026-09-24T14:46:49.557Z",
+    "steps": {
+      "curated": true,
+      "produced": false,
+      "published_universe": false,
+      "written": true,
+      "qa": true,
+      "live": false
+    },
+    "blocked_by": [
+      "printify token",
+      "supabase service key"
+    ]
+  },
+  "proof-of-work-003": {
+    "slug": "proof-of-work-003",
+    "updated": "2026-09-24T14:46:49.557Z",
+    "steps": {
+      "curated": true,
+      "produced": false,
+      "published_universe": false,
+      "written": true,
+      "qa": true,
+      "live": false
+    },
+    "blocked_by": [
+      "printify token",
+      "supabase service key"
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "_doc": "SEO por página y colección. En colecciones se aplica con el campo seo nativo; en páginas se aplica con los metafields global.title_tag y global.description_tag, que es como Shopify guarda el SEO de páginas. Meta description: 140-160 caracteres.",
+  "home": {
+    "es": {
+      "title": "HK23 STUDIO — arte impreso hecho de datos de trabajo",
+      "description": "Posters numerados y stickers generados desde datos reales de actividad. Impresión bajo demanda y envío internacional. Tu trabajo, hecho objeto."
+    },
+    "en": {
+      "title": "HK23 STUDIO — printed art made from work data",
+      "description": "Numbered posters and stickers generated from real activity data. Print on demand, worldwide shipping. Your work, made object."
+    }
+  },
+  "pages": {
+    "about": {
+      "es": {
+        "title": "La historia — HK23 STUDIO",
+        "description": "Cómo un dashboard de estadísticas de trabajo terminó convertido en posters numerados. El motor, los datos y por qué cada pieza lleva serial."
+      },
+      "en": {
+        "title": "The story — HK23 STUDIO",
+        "description": "How a work-stats dashboard turned into numbered posters. The engine, the data, and why every piece carries a serial."
+      }
+    },
+    "faq": {
+      "es": {
+        "title": "Preguntas frecuentes — envíos, plazos y devoluciones",
+        "description": "Impresión bajo demanda, plazos de producción y tránsito, envío internacional, aduanas, seguimiento y qué hacer si tu pieza llega dañada."
+      },
+      "en": {
+        "title": "FAQ — shipping, timelines and returns",
+        "description": "Print on demand, production and transit times, worldwide shipping, customs, tracking, and what to do if your piece arrives damaged."
+      }
+    },
+    "contact": {
+      "es": {
+        "title": "Contacto — HK23 STUDIO",
+        "description": "Escríbenos por un pedido, por el estado de un envío o por un encargo a medida generado con tus propios datos. Responde una persona."
+      },
+      "en": {
+        "title": "Contact — HK23 STUDIO",
+        "description": "Write to us about an order, a shipment, or a custom commission generated from your own data. A person answers."
+      }
+    }
+  },
+  "collections": {
+    "proof-of-work": {
+      "es": {
+        "title": "PROOF OF WORK — posters y stickers de datos reales",
+        "description": "Arte generativo hecho con tus estadísticas de trabajo: sesiones, rachas y días activos. Posters numerados /100 con serial y stickers de vinilo."
+      },
+      "en": {
+        "title": "PROOF OF WORK — posters and stickers from real data",
+        "description": "Generative art made from work statistics: sessions, streaks and active days. Numbered posters /100 with serial, plus vinyl stickers."
+      }
+    },
+    "proof-of-work-stickers": {
+      "es": {
+        "title": "Stickers PROOF OF WORK — vinilo resistente al agua",
+        "description": "Cinco diseños die-cut en vinilo resistente al agua: invader coral, azul y hueso, starburst negro y grilla de actividad. Para notebook o botella."
+      },
+      "en": {
+        "title": "PROOF OF WORK stickers — waterproof vinyl",
+        "description": "Five die-cut waterproof vinyl designs: coral, blue and bone invader, black starburst and activity grid. For your laptop or bottle."
+      }
+    },
+    "proof-of-work-posters": {
+      "es": {
+        "title": "Posters numerados PROOF OF WORK — edición de 100",
+        "description": "Posters generativos en ediciones de 100 con serial impreso. Cada pieza congela un snapshot exacto de trabajo y no se reimprime."
+      },
+      "en": {
+        "title": "PROOF OF WORK numbered posters — edition of 100",
+        "description": "Generative posters in editions of 100 with a printed serial. Each piece freezes one exact work snapshot and is never reprinted."
+      }
+    },
+    "idle-cycles": {
+      "es": {
+        "title": "IDLE CYCLES — prints de arte generativo para muro",
+        "description": "Arte generativo curado pieza por pieza, sin datos ni serial. Prints para decorar, impresos bajo demanda y despachados al mundo."
+      },
+      "en": {
+        "title": "IDLE CYCLES — generative art prints for your wall",
+        "description": "Generative art curated piece by piece, with no data and no serial. Prints to decorate, made on demand and shipped worldwide."
+      }
+    },
+    "todo": {
+      "es": {
+        "title": "Catálogo completo — HK23 STUDIO",
+        "description": "Todas las piezas impresas de HK23 STUDIO: PROOF OF WORK e IDLE CYCLES. Impresión bajo demanda con envío internacional."
+      },
+      "en": {
+        "title": "Full catalog — HK23 STUDIO",
+        "description": "Every printed piece from HK23 STUDIO: PROOF OF WORK and IDLE CYCLES. Print on demand with worldwide shipping."
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+[
+  {
+    "slug": "proof-of-work-season-one",
+    "entity_slug": "proof-of-work",
+    "title": "PROOF OF WORK: convertir tu trabajo en un objeto",
+    "html": "<article><h1>PROOF OF WORK: convertir tu trabajo en un objeto</h1>\n<p>Todos los días dejas un rastro de trabajo que nadie ve: sesiones, mensajes, rachas, madrugadas. PROOF OF WORK toma ese rastro y lo convierte en una pieza física.</p>\n<p>La idea es simple. Tus estadísticas de uso alimentan un motor generativo que dibuja una grilla: la densidad viene de tus días activos, la profundidad del azul de tus sesiones y los picos naranjos de tu racha más larga. Nadie más tiene tus números, así que nadie más puede tener tu pieza. Es una huella digital que se puede colgar en la pared.</p>\n<p>Season One son cuatro formatos que nacen de la misma alma: stickers, poster numerado, gorro y polera. El poster es el grial físico; el sticker es la puerta de entrada.</p>\n<p>Cada edición que sale queda registrada como un planeta en el universo HK23, encadenada a la anterior. La colección se lee como una línea de tiempo: no compras una imagen bonita, compras el momento exacto en que tus números eran esos.</p>\n</article>",
+    "status": "draft"
+  },
+  {
+    "slug": "proof-of-work-edicion-002",
+    "entity_slug": "proof-of-work-002",
+    "title": "Edición 002 — 32M tokens",
+    "html": "<article><h1>Edición 002 — 32M tokens</h1>\n<p>Esta pieza se generó con un snapshot real: 32M tokens, 44 sesiones, 39.680 mensajes, 23 días activos y una racha máxima de 3 días.</p>\n<p>El motor convierte esos números en arte de forma determinista. La cantidad de celdas llenas sale de los días activos, el azul profundo de las sesiones y los cuadrados naranjos de la racha. Como el proceso es una función pura de los datos, volver a ingresar estas cifras devuelve exactamente la misma imagen. Por eso el serial 0GNZ1P1 funciona como certificado: identifica estos números y ningunos otros.</p>\n<p>Edición 002 de 100. Impresa en A2 a 300 dpi.</p>\n</article>",
+    "status": "draft"
+  },
+  {
+    "slug": "proof-of-work-edicion-003",
+    "entity_slug": "proof-of-work-003",
+    "title": "Edición 003 — 42.2M tokens",
+    "html": "<article><h1>Edición 003 — 42.2M tokens</h1>\n<p>Esta pieza se generó con un snapshot real: 42.2M tokens, 109 sesiones, 46.987 mensajes, 92 días activos y una racha máxima de 18 días.</p>\n<p>El motor convierte esos números en arte de forma determinista. La cantidad de celdas llenas sale de los días activos, el azul profundo de las sesiones y los cuadrados naranjos de la racha. Como el proceso es una función pura de los datos, volver a ingresar estas cifras devuelve exactamente la misma imagen. Por eso el serial 1UQDHCL funciona como certificado: identifica estos números y ningunos otros.</p>\n<p>Edición 003 de 100. Impresa en A2 a 300 dpi.</p>\n</article>",
+    "status": "draft"
+  }
+]

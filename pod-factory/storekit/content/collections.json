@@ -1,0 +1,105 @@
+{
+  "_doc": "Definición de colecciones. El aplicador crea/actualiza smart collections por tag. Las reglas usan SOLO tags, no product_type, porque el product_type lo escribe Printify y puede cambiar sin aviso.",
+  "_tag_warning": "Hoy los 7 productos publicados llevan los MISMOS 13 tags (incluido 'numbered edition' en los stickers), así que las sub-colecciones no discriminan hasta que se corran los tags del tag_plan. Usa `node apply-store.mjs --audit-tags` para ver la diferencia real y `--fix-tags --live` para aplicarla.",
+
+  "collections": [
+    {
+      "handle": "proof-of-work",
+      "title": "PROOF OF WORK",
+      "sort_order": "BEST_SELLING",
+      "rules": {
+        "disjunctive": false,
+        "conditions": [{ "column": "TAG", "relation": "EQUALS", "condition": "proof of work" }]
+      },
+      "description": {
+        "es": "<p>Tu trabajo, hecho objeto. Cada pieza nace de un snapshot real de actividad: sesiones, mensajes, días activos, rachas. El motor convierte esos números en una grilla de forma determinista, así que los mismos datos devuelven siempre la misma imagen y ninguna otra persona puede tener la tuya.</p><p>Season One: cinco stickers de vinilo y los posters numerados en ediciones de 100, cada uno con su serial impreso.</p>",
+        "en": "<p>Your work, made object. Every piece comes from a real activity snapshot: sessions, messages, active days, streaks. The engine turns those numbers into a grid deterministically, so the same data always returns the same image and nobody else can have yours.</p><p>Season One: five vinyl stickers and the numbered posters in editions of 100, each with its serial printed on it.</p>"
+      }
+    },
+    {
+      "handle": "proof-of-work-stickers",
+      "title": "PROOF OF WORK · Stickers",
+      "sort_order": "BEST_SELLING",
+      "rules": {
+        "disjunctive": false,
+        "conditions": [
+          { "column": "TAG", "relation": "EQUALS", "condition": "proof of work" },
+          { "column": "TAG", "relation": "EQUALS", "condition": "sticker" }
+        ]
+      },
+      "description": {
+        "es": "<p>La puerta de entrada a la colección. Vinilo die-cut resistente al agua, para el notebook, la botella o el casco. Cinco diseños: el invader en coral, azul y hueso, el starburst negro y la grilla de actividad.</p>",
+        "en": "<p>The way into the collection. Die-cut waterproof vinyl for your laptop, your bottle or your helmet. Five designs: the invader in coral, blue and bone, the black starburst, and the activity grid.</p>"
+      }
+    },
+    {
+      "handle": "proof-of-work-posters",
+      "title": "PROOF OF WORK · Posters numerados",
+      "sort_order": "CREATED_DESC",
+      "rules": {
+        "disjunctive": false,
+        "conditions": [
+          { "column": "TAG", "relation": "EQUALS", "condition": "proof of work" },
+          { "column": "TAG", "relation": "EQUALS", "condition": "poster" }
+        ]
+      },
+      "description": {
+        "es": "<p>La pieza grande. Cada poster fija un snapshot exacto de trabajo y lleva su serial impreso: el certificado de qué números lo generaron. Ediciones de 100. Cuando una cierra, no vuelve.</p>",
+        "en": "<p>The big piece. Each poster freezes one exact work snapshot and carries its printed serial: the certificate of which numbers generated it. Editions of 100. When one closes, it does not come back.</p>"
+      }
+    },
+    {
+      "handle": "idle-cycles",
+      "title": "IDLE CYCLES",
+      "sort_order": "CREATED_DESC",
+      "rules": {
+        "disjunctive": false,
+        "conditions": [{ "column": "TAG", "relation": "EQUALS", "condition": "idle cycles" }]
+      },
+      "description": {
+        "es": "<p>Lo que la máquina imagina cuando no está trabajando. Arte generativo curado pieza por pieza: sin estadísticas, sin serial, sin explicación. Prints para colgar y ya.</p><p>Si PROOF OF WORK es el registro del trabajo, IDLE CYCLES es lo que pasa en los ciclos libres.</p>",
+        "en": "<p>What the machine imagines when it is not working. Generative art curated piece by piece: no statistics, no serial, no explanation. Prints to hang, that is all.</p><p>If PROOF OF WORK is the record of the work, IDLE CYCLES is what happens in the free cycles.</p>"
+      }
+    },
+    {
+      "handle": "todo",
+      "title": "Todo el catálogo",
+      "sort_order": "CREATED_DESC",
+      "rules": {
+        "disjunctive": false,
+        "conditions": [{ "column": "TAG", "relation": "EQUALS", "condition": "hk23" }]
+      },
+      "description": {
+        "es": "<p>Todas las piezas impresas de HK23 STUDIO, de las dos colecciones. Todo se imprime bajo demanda y se despacha al mundo.</p>",
+        "en": "<p>Every printed piece from HK23 STUDIO, across both collections. Everything is printed on demand and shipped worldwide.</p>"
+      }
+    }
+  ],
+
+  "naming": {
+    "idle_cycles_rationale": "PROOF OF WORK es lo que produce tu trabajo; IDLE CYCLES es lo que la máquina imagina en los ciclos que sobran. Mismo vocabulario de cómputo, colección opuesta y complementaria, y explica en dos palabras por qué esta serie no lleva datos ni serial."
+  },
+
+  "tag_taxonomy": {
+    "coleccion": ["proof of work", "idle cycles"],
+    "linea": ["sticker", "poster"],
+    "atributo": ["numbered edition", "data art", "generative art", "pixel art", "terminal aesthetic", "activity grid", "minimal poster", "tech decor", "coding art", "dev gift", "stats poster"],
+    "marca": ["hk23"],
+    "regla": "Toda pieza lleva 'hk23' + su tag de colección + su tag de línea. 'numbered edition' SOLO en posters de edición numerada."
+  },
+
+  "tag_plan": [
+    { "handle": "proof-of-work-invader-sticker-coral", "add": ["sticker"], "remove": ["numbered edition"] },
+    { "handle": "proof-of-work-starburst-sticker-black", "add": ["sticker"], "remove": ["numbered edition"] },
+    { "handle": "proof-of-work-invader-sticker-blue", "add": ["sticker"], "remove": ["numbered edition"] },
+    { "handle": "proof-of-work-invader-sticker-bone", "add": ["sticker"], "remove": ["numbered edition"] },
+    { "handle": "proof-of-work-activity-grid-sticker", "add": ["sticker"], "remove": ["numbered edition"] },
+    { "handle": "proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1", "add": ["poster"], "remove": [] },
+    { "handle": "proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl", "add": ["poster"], "remove": [] }
+  ],
+
+  "future": {
+    "_doc": "Cuando entren los prints MidJourney, cada producto debe salir de Printify con estos tags para caer solo en su colección.",
+    "idle_cycles_required_tags": ["hk23", "idle cycles", "poster", "generative art", "wall art"]
+  }
+}

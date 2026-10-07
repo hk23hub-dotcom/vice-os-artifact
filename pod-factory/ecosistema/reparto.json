@@ -1,0 +1,167 @@
+{
+  "fabrica": "POD FACTORY",
+  "tienda": "HK23 STUDIO · fcqevq-jr.myshopify.com",
+  "dueno": "El dueño (humano)",
+  "agentes": [
+    {
+      "code": "CEN",
+      "nombre": "Central",
+      "rol": "Dirección",
+      "sala": "direccion",
+      "color": "#3f6fd8",
+      "jefe": "El dueño",
+      "recibe": "Los siete",
+      "entrega": "El dueño",
+      "limite": "No ejecuta nada por su cuenta. Arma el parte y espera.",
+      "fuentes": [
+        "ecosistema/agentes/*/estado.json"
+      ]
+    },
+    {
+      "code": "INT",
+      "nombre": "Portero",
+      "rol": "Entrada de colecciones",
+      "sala": "recepcion",
+      "color": "#8a95a3",
+      "jefe": "Central",
+      "recibe": "inbox/ (zips, carpetas, exports)",
+      "entrega": "Curador",
+      "limite": "No cura. Solo ingresa, descarta repetidos y mejora resolución.",
+      "fuentes": [
+        "inbox",
+        "library/library.json"
+      ]
+    },
+    {
+      "code": "CUR",
+      "nombre": "Curador",
+      "rol": "Curaduría",
+      "sala": "curaduria",
+      "color": "#8b6bd6",
+      "jefe": "Central",
+      "recibe": "Portero",
+      "entrega": "Catálogo",
+      "limite": "No publica. Lo que no cura, no entra al catálogo.",
+      "fuentes": [
+        "library/library.json"
+      ]
+    },
+    {
+      "code": "CAT",
+      "nombre": "Catálogo",
+      "rol": "Archivo y metadata",
+      "sala": "catalogo",
+      "color": "#c0982f",
+      "jefe": "Central",
+      "recibe": "Curador",
+      "entrega": "Producción",
+      "limite": "No inventa metadata. Sin dimensiones o sin caption, la pieza no es publicable.",
+      "fuentes": [
+        "midjourney/data/catalog.json"
+      ]
+    },
+    {
+      "code": "PRO",
+      "nombre": "Producción",
+      "rol": "Línea de producción",
+      "sala": "produccion",
+      "color": "#d0503c",
+      "jefe": "Central",
+      "recibe": "Catálogo",
+      "entrega": "Tienda",
+      "limite": "Solo habilita formatos que calzan con el arte. Nada de franjas blancas.",
+      "fuentes": [
+        "data/printify-ledger.json",
+        "midjourney/data/mj-ledger.json"
+      ]
+    },
+    {
+      "code": "TDA",
+      "nombre": "Tienda",
+      "rol": "Vitrina",
+      "sala": "tienda",
+      "color": "#25a08f",
+      "jefe": "Central",
+      "recibe": "Producción",
+      "entrega": "Vendedor",
+      "limite": "Nada se da por publicado sin URL real devuelta por Shopify.",
+      "fuentes": [
+        "data/printify-ledger.json",
+        "reports"
+      ]
+    },
+    {
+      "code": "VEN",
+      "nombre": "Vendedor",
+      "rol": "Ventas",
+      "sala": "ventas",
+      "color": "#d98a2b",
+      "jefe": "Central",
+      "recibe": "Tienda · leads de LeadHunter",
+      "entrega": "Central",
+      "limite": "NUNCA envía. Deja la cola escrita y para ahí.",
+      "fuentes": [
+        "sales/out",
+        "sales/data/leads.json"
+      ]
+    },
+    {
+      "code": "CAJ",
+      "nombre": "Caja",
+      "rol": "Administración",
+      "sala": "caja",
+      "color": "#46a76c",
+      "jefe": "Central",
+      "recibe": "Tienda",
+      "entrega": "Central",
+      "limite": "No mueve plata. Reporta lo que entró y lo que falta para poder cobrar.",
+      "fuentes": [
+        "data/ledger.json"
+      ]
+    },
+    {
+      "code": "LAB",
+      "nombre": "Laboratorio",
+      "rol": "Ideas",
+      "sala": "laboratorio",
+      "color": "#b06bd6",
+      "jefe": "Central",
+      "recibe": "El estado real de toda la fábrica",
+      "entrega": "Factibilidad",
+      "limite": "No propone nada que no nombre el archivo o el comando que toca. Sin eso no es idea, es deseo.",
+      "fuentes": [
+        "ecosistema/mundo/datos.json",
+        "ecosistema/partes"
+      ]
+    },
+    {
+      "code": "FAC",
+      "nombre": "Factibilidad",
+      "rol": "Filtro",
+      "sala": "laboratorio",
+      "color": "#6bb0d6",
+      "jefe": "Central",
+      "recibe": "Laboratorio",
+      "entrega": "Producción",
+      "limite": "Descarta sin culpa. Lo que no se puede implementar hoy, no pasa.",
+      "fuentes": [
+        "ecosistema/ideas/ideas.json"
+      ]
+    },
+    {
+      "code": "TRA",
+      "nombre": "Difusión",
+      "rol": "Tráfico",
+      "sala": "ventas",
+      "color": "#e05c8a",
+      "jefe": "Central",
+      "recibe": "Tienda · productos con URL real",
+      "entrega": "Vendedor",
+      "limite": "No publica nada. Deja las piezas escritas con la URL real y espera el OK.",
+      "fuentes": [
+        "midjourney/data/mj-ledger.json",
+        "ecosistema/trafico"
+      ]
+    }
+  ]
+}

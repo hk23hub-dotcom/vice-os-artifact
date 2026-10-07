@@ -1,0 +1,100 @@
+{
+  "pow-stk-invader-coral": {
+    "product_id": "6ab53d78b5ef3d8afd033579",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T15:10:50.663Z",
+    "external": {
+      "id": "11191899390119",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-coral"
+    }
+  },
+  "pow-stk-starburst": {
+    "product_id": "6ab53d7c85e7395b5f06d846",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T15:10:54.998Z",
+    "external": {
+      "id": "11191899685031",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-starburst-sticker-black"
+    }
+  },
+  "pow-stk-invader-blue": {
+    "product_id": "6ab53d8085e7395b5f06d849",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T15:10:58.954Z",
+    "external": {
+      "id": "11191899750567",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-blue"
+    }
+  },
+  "pow-stk-invader-bone": {
+    "product_id": "6ab53d84870f4133580bb865",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T15:11:03.239Z",
+    "external": {
+      "id": "11191899783335",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-invader-sticker-bone"
+    }
+  },
+  "pow-stk-grid": {
+    "product_id": "6ab53d89a40713da0b084ea9",
+    "kind": "sticker",
+    "variants": 16,
+    "price_usd": [
+      2.9,
+      24.14
+    ],
+    "created": "2026-09-24T15:11:07.258Z",
+    "external": {
+      "id": "11191899816103",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-activity-grid-sticker"
+    }
+  },
+  "pow-poster-002": {
+    "product_id": "6ab53d8edefb1af2250c03f9",
+    "kind": "poster",
+    "variants": 46,
+    "price_usd": [
+      8.93,
+      60.84
+    ],
+    "created": "2026-09-24T15:11:13.574Z",
+    "external": {
+      "id": "11191899848871",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-002-32m-tokens-serial-0gnz1p1"
+    }
+  },
+  "pow-poster-003": {
+    "product_id": "6ab53d94ed6a626bda04014f",
+    "kind": "poster",
+    "variants": 46,
+    "price_usd": [
+      8.93,
+      60.84
+    ],
+    "created": "2026-09-24T15:11:19.192Z",
+    "external": {
+      "id": "11191899914407",
+      "handle": "https://fcqevq-jr.myshopify.com/products/proof-of-work-edicion-003-42-2m-tokens-serial-1uqdhcl"
+    }
+  }
+}

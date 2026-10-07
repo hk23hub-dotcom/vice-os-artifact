@@ -1,0 +1,198 @@
+{
+  "theme": "Spotlight",
+  "version_note": "Spec de ajustes, NO un settings_data.json completo. El aplicador descarga el settings_data.json del tema activo y mezcla solo las claves de aquí que existan realmente en ese tema. Documentación en theme/README.md.",
+
+  "palette": {
+    "ink": "#0A0A0B",
+    "bone": "#F5F5F5",
+    "coral": "#FF5A36",
+    "blue_deep": "#2F6FD1",
+    "blue_soft": "#7EA6E0",
+    "hairline": "#26262A"
+  },
+
+  "color_schemes": {
+    "scheme-1": {
+      "_role": "Base oscura. Es el esquema por defecto de la tienda: fondo casi negro, texto hueso, botón coral.",
+      "settings": {
+        "background": "#0A0A0B",
+        "background_gradient": "",
+        "text": "#F5F5F5",
+        "button": "#FF5A36",
+        "button_label": "#0A0A0B",
+        "secondary_button": "#F5F5F5",
+        "secondary_button_label": "#F5F5F5",
+        "shadow": "#000000"
+      }
+    },
+    "scheme-2": {
+      "_role": "Inversa. Para una sección hueso que corte la página sin perder la marca.",
+      "settings": {
+        "background": "#F5F5F5",
+        "background_gradient": "",
+        "text": "#0A0A0B",
+        "button": "#0A0A0B",
+        "button_label": "#F5F5F5",
+        "secondary_button": "#0A0A0B",
+        "secondary_button_label": "#0A0A0B",
+        "shadow": "#0A0A0B"
+      }
+    },
+    "scheme-3": {
+      "_role": "Azul profundo. Para la franja de IDLE CYCLES y bloques de datos.",
+      "settings": {
+        "background": "#11131A",
+        "background_gradient": "",
+        "text": "#7EA6E0",
+        "button": "#2F6FD1",
+        "button_label": "#F5F5F5",
+        "secondary_button": "#7EA6E0",
+        "secondary_button_label": "#7EA6E0",
+        "shadow": "#000000"
+      }
+    },
+    "scheme-4": {
+      "_role": "Coral sólido. Solo para llamados de acción grandes y badges de edición.",
+      "settings": {
+        "background": "#FF5A36",
+        "background_gradient": "",
+        "text": "#0A0A0B",
+        "button": "#0A0A0B",
+        "button_label": "#FF5A36",
+        "secondary_button": "#0A0A0B",
+        "secondary_button_label": "#0A0A0B",
+        "shadow": "#0A0A0B"
+      }
+    },
+    "scheme-5": {
+      "_role": "Oscura sin acento. Para el footer y bloques legales.",
+      "settings": {
+        "background": "#0A0A0B",
+        "background_gradient": "",
+        "text": "#7EA6E0",
+        "button": "#F5F5F5",
+        "button_label": "#0A0A0B",
+        "secondary_button": "#7EA6E0",
+        "secondary_button_label": "#7EA6E0",
+        "shadow": "#000000"
+      }
+    }
+  },
+
+  "legacy_color_settings": {
+    "_doc": "Versiones antiguas de Spotlight guardan los colores planos en vez de color_schemes. Se mezclan solo si existen.",
+    "colors_background_1": "#0A0A0B",
+    "colors_background_2": "#11131A",
+    "colors_text": "#F5F5F5",
+    "colors_accent_1": "#FF5A36",
+    "colors_accent_2": "#2F6FD1",
+    "colors_outline_button_labels": "#F5F5F5",
+    "colors_solid_button_labels": "#0A0A0B"
+  },
+
+  "settings": {
+    "_doc": "Claves planas del tema. Cada una se mezcla solo si ya existe en el settings_data.json del tema activo.",
+
+    "page_width": 1400,
+    "spacing_sections": 0,
+    "spacing_grid_horizontal": 8,
+    "spacing_grid_vertical": 8,
+
+    "buttons_radius": 0,
+    "buttons_border_thickness": 1,
+    "buttons_border_opacity": 100,
+    "buttons_shadow_opacity": 0,
+    "buttons_shadow_horizontal_offset": 0,
+    "buttons_shadow_vertical_offset": 0,
+    "buttons_shadow_blur": 0,
+
+    "inputs_radius": 0,
+    "inputs_border_thickness": 1,
+    "inputs_border_opacity": 55,
+    "inputs_shadow_opacity": 0,
+    "inputs_shadow_horizontal_offset": 0,
+    "inputs_shadow_vertical_offset": 0,
+    "inputs_shadow_blur": 0,
+
+    "card_style": "standard",
+    "card_corner_radius": 0,
+    "card_text_alignment": "left",
+    "card_border_thickness": 1,
+    "card_border_opacity": 20,
+    "card_shadow_opacity": 0,
+    "card_shadow_horizontal_offset": 0,
+    "card_shadow_vertical_offset": 0,
+    "card_shadow_blur": 0,
+
+    "collection_card_style": "standard",
+    "collection_card_corner_radius": 0,
+    "collection_card_border_thickness": 1,
+    "collection_card_border_opacity": 20,
+    "collection_card_shadow_opacity": 0,
+
+    "blog_card_style": "standard",
+    "blog_card_corner_radius": 0,
+    "blog_card_border_thickness": 1,
+    "blog_card_border_opacity": 20,
+    "blog_card_shadow_opacity": 0,
+
+    "media_radius": 0,
+    "media_border_thickness": 0,
+    "media_border_opacity": 10,
+    "media_shadow_opacity": 0,
+
+    "popup_border_thickness": 1,
+    "popup_border_opacity": 20,
+    "popup_corner_radius": 0,
+    "popup_shadow_opacity": 0,
+
+    "drawer_border_thickness": 1,
+    "drawer_border_opacity": 20,
+    "drawer_shadow_opacity": 0,
+
+    "badge_position": "bottom left",
+    "badge_corner_radius": 0,
+    "sale_badge_color_scheme": "scheme-4",
+    "sold_out_badge_color_scheme": "scheme-5",
+
+    "accent_icons": "text",
+    "animations_reveal_on_scroll": true,
+    "animations_hover_elements": "default",
+
+    "show_vendor": false,
+    "currency_code_enabled": true,
+    "cart_type": "drawer",
+    "show_cart_note": false,
+    "predictive_search_enabled": true,
+    "predictive_search_show_vendor": false,
+    "predictive_search_show_price": true,
+
+    "brand_headline": "Tu trabajo, hecho objeto.",
+    "brand_description": "Arte impreso generado desde datos reales de actividad. Impresión bajo demanda, envío internacional."
+  },
+
+  "fonts": {
+    "_doc": "NO se aplican por defecto. Un handle de fuente inválido rompe el render del tema y el Asset API no valida handles, así que el aplicador deja las fuentes como están salvo que le pases --fonts. Antes de usar --fonts, verifica en Tienda online > Temas > Personalizar que la fuente aparezca en el selector.",
+    "apply_by_default": false,
+    "settings": {
+      "type_header_font": "archivo_n4",
+      "type_body_font": "assistant_n4",
+      "heading_scale": 100,
+      "body_scale": 100
+    },
+    "candidates_terminal": {
+      "_doc": "Alternativas más cercanas al look terminal/retro de la marca. Verificar disponibilidad en el selector de fuentes antes de aplicar.",
+      "type_header_font": "space_mono_n4",
+      "type_body_font": "ibm_plex_mono_n4"
+    },
+    "scale_note": "El peso visual terminal en Spotlight se logra con mayúsculas y tracking en los títulos de sección (se escribe el texto en mayúsculas), no subiendo heading_scale."
+  },
+
+  "manual_only": {
+    "_doc": "Ajustes que el aplicador NO toca porque dependen de archivos o de la cuenta.",
+    "favicon": "[COMPLETAR: subir favicon 32x32 del invader coral sobre #0A0A0B en Personalizar > Configuración del tema > Favicon]",
+    "brand_image": "[COMPLETAR: subir logo HK23 STUDIO en hueso sobre transparente]",
+    "social_instagram_link": "[COMPLETAR: URL de Instagram o dejar vacío]",
+    "social_x_link": "[COMPLETAR: URL de X o dejar vacío]"
+  }
+}

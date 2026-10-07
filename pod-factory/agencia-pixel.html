@@ -1,0 +1,638 @@
+<title>Agencia Pixel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --ground:#E8E4DC; --surface:#FFFFFF; --surface-2:#F4F1EB; --surface-3:#EAE5DB;
+    --ink:#171310; --ink-2:#4A4038; --ink-muted:#7A6E62;
+    --line:#D9D2C6; --line-strong:#BCB2A2;
+    --accent:#8A4B2A; --accent-soft:#F0E2D7;
+    --shadow:0 1px 2px rgba(23,19,16,.07), 0 12px 28px -18px rgba(23,19,16,.35);
+    --display:'Archivo', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ground:#12100E; --surface:#1B1815; --surface-2:#221E1A; --surface-3:#2B2620;
+      --ink:#EFE9E1; --ink-2:#BDB2A5; --ink-muted:#8C8074;
+      --line:#302A24; --line-strong:#443C33;
+      --accent:#E0995F; --accent-soft:#2E2119;
+      --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -18px rgba(0,0,0,.85);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#12100E; --surface:#1B1815; --surface-2:#221E1A; --surface-3:#2B2620;
+    --ink:#EFE9E1; --ink-2:#BDB2A5; --ink-muted:#8C8074;
+    --line:#302A24; --line-strong:#443C33;
+    --accent:#E0995F; --accent-soft:#2E2119;
+    --shadow:0 1px 2px rgba(0,0,0,.5), 0 14px 30px -18px rgba(0,0,0,.85);
+  }
+
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); font-family:var(--display); font-size:15px; line-height:1.55; margin:0; padding-inline:16px; -webkit-font-smoothing:antialiased}
+  .wrap{max-width:1200px; margin:0 auto; padding-block:28px 60px}
+  h1,h2,h3{margin:0; font-weight:600; letter-spacing:-.015em; text-wrap:balance}
+  p{margin:0}
+  .mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  .eyebrow{font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-muted)}
+  button{font-family:inherit; cursor:pointer}
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+
+  header{display:flex; flex-wrap:wrap; gap:14px 30px; align-items:flex-end; justify-content:space-between; padding-bottom:16px; border-bottom:2px solid var(--line-strong)}
+  header h1{font-size:clamp(28px,4.4vw,40px); font-weight:700; letter-spacing:-.035em; line-height:1.04; margin-top:5px}
+  header .sub{color:var(--ink-2); max-width:54ch; margin-top:8px; font-size:14.5px}
+  .tag{display:inline-flex; align-items:center; gap:7px; font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted); border:1px solid var(--line-strong); padding:5px 9px}
+  .tag::before{content:""; width:6px; height:6px; background:#5FA85C}
+
+  .bar{margin-top:16px; display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; background:var(--surface); border:1px solid var(--line); padding:11px 14px; box-shadow:var(--shadow)}
+  .clock{font-family:var(--mono); font-size:28px; font-weight:600; letter-spacing:-.02em; line-height:1}
+  .phase{font-size:13px; color:var(--ink-2); margin-right:auto}
+  .phase b{color:var(--ink); font-weight:600}
+  .btn{border:1px solid var(--line-strong); background:var(--surface-2); color:var(--ink); padding:7px 13px; font-weight:500; font-size:13px}
+  .btn:hover{background:var(--surface-3)}
+  .btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--surface)}
+  .speeds{display:flex; gap:3px}
+  .speeds .btn{padding:7px 10px; font-family:var(--mono); font-size:12px}
+
+  .layout{margin-top:12px; display:grid; grid-template-columns:1fr 320px; gap:12px; align-items:start}
+  @media (max-width:980px){.layout{grid-template-columns:1fr}}
+
+  .scroller{overflow-x:auto; border:1px solid var(--line-strong); background:#20242c; box-shadow:var(--shadow)}
+  .stage{position:relative; min-width:480px}
+  .stage canvas{display:block; width:100%; height:auto; aspect-ratio:480/278; image-rendering:pixelated; image-rendering:crisp-edges; cursor:crosshair}
+  .rlabel{position:absolute; transform:translate(-50%,0); font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:rgba(255,255,255,.62); pointer-events:none; white-space:nowrap; text-shadow:0 1px 0 rgba(0,0,0,.6)}
+  @media (max-width:620px){.rlabel{font-size:7.5px; letter-spacing:.08em}}
+
+  .tip{position:absolute; transform:translate(-50%,-100%); background:var(--surface); border:1px solid var(--ink); padding:8px 10px; width:216px; pointer-events:none; box-shadow:0 6px 18px rgba(0,0,0,.35); z-index:5; display:none}
+  .tip.on{display:block}
+  .tip .n{font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:6px}
+  .tip .n i{width:9px; height:9px; display:block; flex:none}
+  .tip .r{font-family:var(--mono); font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-muted); margin-top:2px}
+  .tip .row{margin-top:7px; font-size:12px; line-height:1.45; color:var(--ink-2)}
+  .tip .row b{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.11em; text-transform:uppercase; color:var(--ink-muted); font-weight:500}
+  .tip .row em{font-style:normal; color:var(--ink); font-weight:600}
+
+  .panel{display:flex; flex-direction:column; gap:10px}
+  .card{background:var(--surface); border:1px solid var(--line); box-shadow:var(--shadow)}
+  .dossier{padding:0}
+  .dossier .hd{padding:13px 14px; border-bottom:1px solid var(--line); display:flex; gap:10px; align-items:flex-start}
+  .dossier .hd i{width:13px; height:13px; flex:none; margin-top:4px}
+  .dossier h3{font-size:16.5px}
+  .dossier .role{font-family:var(--mono); font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-muted); margin-top:2px}
+  .dossier .bd{padding:12px 14px; display:flex; flex-direction:column; gap:11px}
+  .fld b{display:block; font-family:var(--mono); font-size:9px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-muted); font-weight:500; margin-bottom:3px}
+  .fld{font-size:13px; color:var(--ink-2); line-height:1.5}
+  .fld .now{color:var(--ink); font-weight:600}
+  .fld .chain{display:flex; flex-wrap:wrap; gap:5px; align-items:center; font-family:var(--mono); font-size:11px}
+  .fld .chain span{border:1px solid var(--line-strong); padding:2px 6px; background:var(--surface-2)}
+  .fld .chain .ar{border:0; padding:0; color:var(--ink-muted); background:none}
+  .sample{font-family:var(--mono); font-size:11.5px; line-height:1.6; white-space:pre-wrap; background:var(--surface-2); border:1px solid var(--line); padding:9px 10px; color:var(--ink); overflow-x:auto}
+  .limit{color:var(--ink-muted); font-size:12.5px}
+
+  .feed{padding:10px 0 2px}
+  .feed h3{font-family:var(--mono); font-size:9.5px; letter-spacing:.13em; text-transform:uppercase; color:var(--ink-muted); font-weight:500; padding:0 14px 8px; border-bottom:1px solid var(--line)}
+  .feed ul{list-style:none; margin:0; padding:0; max-height:220px; overflow-y:auto}
+  .feed li{display:grid; grid-template-columns:40px 1fr; gap:9px; padding:9px 14px; border-bottom:1px solid var(--line); font-size:12px; line-height:1.45}
+  .feed li:last-child{border-bottom:0}
+  .feed .t{font-family:var(--mono); font-size:10.5px; color:var(--ink-muted)}
+
+  .org{margin-top:20px; background:var(--surface); border:1px solid var(--line); padding:16px 16px 18px; box-shadow:var(--shadow)}
+  .org h2{font-size:16px}
+  .org .note{font-size:13px; color:var(--ink-muted); margin-top:4px; margin-bottom:14px}
+  .tree{display:flex; flex-direction:column; align-items:center; gap:0}
+  .node{border:1px solid var(--line-strong); background:var(--surface-2); padding:6px 11px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:7px; cursor:pointer; white-space:nowrap}
+  .node i{width:9px; height:9px; flex:none}
+  .node.human{background:var(--ink); color:var(--ground); border-color:var(--ink); cursor:default}
+  .node[aria-current="true"]{border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent)}
+  .stem{width:1px; height:14px; background:var(--line-strong)}
+  .branches{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; border-top:1px solid var(--line-strong); padding-top:14px; margin-top:0; width:100%}
+  .branch{display:flex; flex-direction:column; align-items:center; gap:7px}
+  .branch .lbl{font-family:var(--mono); font-size:9px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-muted)}
+  .branch .set{display:flex; gap:6px; flex-wrap:wrap; justify-content:center}
+
+  .rule{margin-top:22px; padding:17px 19px; border:1px solid var(--line-strong); background:var(--surface-2)}
+  .rule h2{font-size:16px; margin-bottom:6px}
+  .rule p{font-size:13.5px; color:var(--ink-2); max-width:72ch}
+  footer{margin-top:26px; padding-top:15px; border-top:1px solid var(--line); font-size:12px; color:var(--ink-muted)}
+</style>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Turno en curso · planta abierta</div>
+      <h1>Agencia Pixel</h1>
+      <p class="sub">La agencia entera, sala por sala y escritorio por escritorio. Pasá el mouse por encima de cualquiera para ver qué está haciendo en ese momento y a quién le responde. Tocalo y se abre su ficha completa.</p>
+    </div>
+    <div class="tag">En operación</div>
+  </header>
+
+  <div class="bar">
+    <div class="clock mono" id="clock">06:00</div>
+    <div class="phase" id="phase">Turno de madrugada</div>
+    <button class="btn" id="play" aria-pressed="true">❚❚ Pausar</button>
+    <div class="speeds" role="group" aria-label="Velocidad">
+      <button class="btn" data-sp="10">1×</button>
+      <button class="btn" data-sp="26" aria-pressed="true">3×</button>
+      <button class="btn" data-sp="60">8×</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <div class="scroller">
+      <div class="stage" id="stage">
+        <canvas id="c" width="480" height="278" aria-label="Planta de la agencia en pixel art con los agentes trabajando"></canvas>
+        <div class="tip" id="tip"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="card dossier" id="dossier"></div>
+      <div class="card feed">
+        <h3>Bitácora en vivo</h3>
+        <ul id="feed"></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="org">
+    <h2>A quién le responde cada uno</h2>
+    <p class="note">La estructura es la de una agencia de verdad: la dueña arriba, una dirección que filtra, y tres áreas con su gente. Tocá cualquier casilla.</p>
+    <div class="tree">
+      <div class="node human">La dueña · humana</div>
+      <div class="stem"></div>
+      <button class="node" data-node="CEN"><i style="background:#3f6fd8"></i>Central · Dirección</button>
+      <div class="stem"></div>
+      <div class="branches" id="branches"></div>
+    </div>
+  </div>
+
+  <div class="rule">
+    <h2>Lo que nunca pasa en esta planta</h2>
+    <p>Ninguno publica, cobra ni le escribe a un cliente por su cuenta. Todo sube a Central, Central arma un parte de tres aprobaciones, y la dueña decide desde el teléfono. Recién ahí algo sale por la puerta.</p>
+  </div>
+
+  <footer>Demostración con datos ficticios · el día se repite en ciclo</footer>
+</div>
+
+<script>
+(function(){
+  var WW = 480, WH = 278;
+  var C = {
+    wall:'#3a3f4d', wallHi:'#4a5162', base:'#2b2f3a',
+    woodA:'#a87e56', woodB:'#9c7249', carpetA:'#4d6070', carpetB:'#455767',
+    tileA:'#8f9aa6', tileB:'#86919d', rugA:'#8c5a47', rugB:'#7d5040',
+    deskTop:'#c79a68', deskEdge:'#8a6442', deskLeg:'#6d4e33',
+    monBody:'#23272f', monScr:'#7fd6e6', monScr2:'#5fb9cc', key:'#9aa3ad',
+    chair:'#333846', chair2:'#464d5e', plant:'#4f9155', plant2:'#3e7544', pot:'#a4553a',
+    paper:'#f2ede1', shelf:'#7a5a3c', box:'#b98d5e', glass:'#93c7d6',
+    skin:'#e9b48c', skin2:'#d49a72', pants:'#39404f', shoe:'#20242c',
+    white:'#ffffff', black:'#14161c'
+  };
+
+  var ROOMS = {
+    estudio:    {n:'Estudio creativo',  x:6,  y:14, w:148, h:112, side:'top', floor:'wood'},
+    publi:      {n:'Publicación',       x:154,y:14, w:112, h:112, side:'top', floor:'wood'},
+    reunion:    {n:'Sala de reuniones', x:266,y:14, w:122, h:112, side:'top', floor:'carpet'},
+    direccion:  {n:'Dirección',         x:388,y:14, w:86,  h:112, side:'top', floor:'rug'},
+    prospeccion:{n:'Prospección',       x:6,  y:160,w:118, h:112, side:'bot', floor:'wood'},
+    ventas:     {n:'Ventas',            x:124,y:160,w:114, h:112, side:'bot', floor:'wood'},
+    clientes:   {n:'Atención a clientes',x:238,y:160,w:120,h:112, side:'bot', floor:'carpet'},
+    finanzas:   {n:'Finanzas',          x:358,y:160,w:62,  h:112, side:'bot', floor:'wood'},
+    archivo:    {n:'Archivo',           x:420,y:160,w:54,  h:112, side:'bot', floor:'wood'}
+  };
+  var CORR_Y = 143;
+
+  var DESKS = {
+    estudio:{x:46,y:70}, publi:{x:196,y:70}, direccion:{x:418,y:70},
+    prospeccion:{x:48,y:214}, ventas:{x:166,y:214}, clientes:{x:280,y:214},
+    finanzas:{x:383,y:214}, archivo:{x:444,y:206}
+  };
+  var SEATS = {
+    estudio:{x:46,y:88}, publi:{x:196,y:88}, direccion:{x:418,y:88},
+    prospeccion:{x:48,y:200}, ventas:{x:166,y:200}, clientes:{x:280,y:200},
+    finanzas:{x:383,y:200}, archivo:{x:444,y:192}
+  };
+  var TABLE = {x:327, y:76, w:78, h:36};
+  function meetSeat(i){
+    var cols=[TABLE.x-28,TABLE.x-9,TABLE.x+10,TABLE.x+29];
+    return i<4 ? {x:cols[i], y:TABLE.y-14} : {x:cols[i-4], y:TABLE.y+TABLE.h+8};
+  }
+
+  var AGENTS = [
+    {code:'CEN',name:'Central',role:'Dirección general',home:'direccion',c:'#3f6fd8',hair:'#2b2118',shirt:'#3f6fd8',
+     jefe:'La dueña', recibe:'Los siete', entrega:'La dueña', area:'dir',
+     limite:'No ejecuta nada por su cuenta. Solo propone y libera lo aprobado.',
+     sample:'PARTE · martes 18\n1 · Publicar 4 piezas de Café Rituales\n2 · Propuesta Bodega Lomas $680.000/mes\n3 · 8 mensajes de captación\n→ Para vos: llamar a Dental Norte'},
+    {code:'CAP',name:'Captación',role:'Prospección',home:'prospeccion',c:'#d98a2b',hair:'#6b3a18',shirt:'#d98a2b',
+     jefe:'Central', recibe:'Rubros y zonas definidos en el onboarding', entrega:'Cierre', area:'com',
+     limite:'No manda el primer mensaje. Solo deja la lista y el motivo.',
+     sample:'12 calificados · 31 descartados\n\n· Clínica estética, Providencia\n  1.200 seg · publica 1 vez al mes · pauta activa\n  → paga avisos y no tiene quién lleve la cuenta'},
+    {code:'CIE',name:'Cierre',role:'Ventas',home:'ventas',c:'#d0503c',hair:'#241a12',shirt:'#d0503c',
+     jefe:'Central', recibe:'Captación · Caja', entrega:'Central', area:'com',
+     limite:'No promete plazos ni descuentos. El precio lo fija Caja.',
+     sample:'Hola Matías:\nLo que te preocupa no es el contenido — es que\nel local se llena jueves y viernes y el resto de\nla semana está muerto.\n$680.000 al mes. Sin permanencia.'},
+    {code:'EST',name:'Estudio',role:'Creativo',home:'estudio',c:'#8b6bd6',hair:'#3a2b1c',shirt:'#8b6bd6',
+     jefe:'Central', recibe:'Archivo', entrega:'Vitrina', area:'cre',
+     limite:'No inventa datos del cliente. Si falta un dato, lo pide.',
+     sample:'REEL · Café Rituales\n0-2s  «Llevamos tres años tostando el mismo grano.\n       Recién este mes entendimos por qué salía\n       amargo.»\n7-14s Texto: 18 minutos. Ni uno más.'},
+    {code:'VIT',name:'Vitrina',role:'Publicación',home:'publi',c:'#25a08f',hair:'#4a2f1a',shirt:'#25a08f',
+     jefe:'Central', recibe:'Estudio', entrega:'Central', area:'cre',
+     limite:'No publica sin el sí del parte. Nada se da por publicado sin enlace.',
+     sample:'COLA DE HOY\n12:00 reel · IG + TikTok\n15:30 carrusel · IG\n18:00 y 19:30 historias\n\nAyer: carrusel 2,4× el alcance · reel murió en 400'},
+    {code:'POS',name:'Posventa',role:'Atención a clientes',home:'clientes',c:'#46a76c',hair:'#5c3a1e',shirt:'#46a76c',
+     jefe:'Central', recibe:'Vitrina · Caja · el check-in', entrega:'Central', area:'cue',
+     limite:'No le escribe a un cliente sin aprobación.',
+     sample:'RIESGO · Dental Norte\n11 días sin contacto\nNo aprueba piezas desde el 5\nPagó 9 días tarde el mes pasado\n→ llamada, no mensaje. Hoy.'},
+    {code:'CAJ',name:'Caja',role:'Administración',home:'finanzas',c:'#c0982f',hair:'#2e2118',shirt:'#c0982f',
+     jefe:'Central', recibe:'Facturas y lo que confirma la dueña', entrega:'Cierre · Central', area:'cue',
+     limite:'No mueve plata ni cobra solo. Deja la cobranza escrita.',
+     sample:'POR COBRAR · $1.240.000\nBodega Lomas  $420.000  vencida 9 días\nDental Norte  $380.000  vencida 3 días\nCafé Rituales $440.000  vence el 24\nCobro por Mercado Pago'},
+    {code:'ARC',name:'Archivo',role:'Memoria',home:'archivo',c:'#8a95a3',hair:'#4a4036',shirt:'#8a95a3',
+     jefe:'Central', recibe:'Cada corrección de la dueña', entrega:'Todos', area:'tra',
+     limite:'No olvida una corrección. Nunca la borra sin que se lo pidan.',
+     sample:'VOZ · Café Rituales\ncercano · sin signos de exclamación\nprohibido: «experiencia», «pasión por el café»\ndescartado: máquinas en primer plano (18/09)\n23 correcciones acumuladas'}
+  ];
+
+  var PLAN = {
+    CEN:[[360,'direccion','leyendo la noche','Lee lo que dejaron los siete mientras nadie miraba y ordena por plata en juego.'],
+         [450,'reunion','dirigiendo el parte','Sentada a la cabecera: pide a cada área lo suyo y descarta lo que puede resolver sola.'],
+         [470,'direccion','emitiendo el parte','Escribe las 3 aprobaciones y la única tarea humana del día.'],
+         [480,'direccion','check-in con la dueña','Tres preguntas por WhatsApp. Cuatro áreas esperan esa respuesta.'],
+         [552,'direccion','2 de 3 aprobadas','La dueña aprobó desde el semáforo. Captación quedó rechazada.'],
+         [558,'direccion','liberando ejecución','Abre la única puerta por la que sale algo, y la vuelve a cerrar.'],
+         [830,'direccion','vigilando la cola','Revisa que lo agendado salga a la hora y con enlace.'],
+         [1195,'direccion','cerrando la jornada','Cuenta lo que entró, lo que quedó en juego y lo que se trabó.']],
+    ARC:[[360,'archivo','cargando contexto','Levanta las 3 marcas, 47 piezas y las palabras prohibidas de cada una.'],
+         [374,'estudio','llevando la voz de marca',"Cruza el pasillo con la ficha de voz de Café Rituales en la mano.",1],
+         [390,'archivo','indexando historial','Ordena lo de ayer para que mañana nadie repita un error viejo.'],
+         [450,'reunion','en el parte','Aporta el dato que nadie recuerda: esto ya se probó en marzo.'],
+         [470,'archivo','en su puesto','Vuelve a las estanterías.'],
+         [494,'archivo','anotando una corrección','«Máquinas en primer plano» queda marcado como descartado para Rituales.'],
+         [830,'archivo','ordenando el día','Archiva todo lo que se produjo hoy con su fecha.'],
+         [1195,'archivo','cerrando','Deja el contexto listo para el turno de mañana.']],
+    CAP:[[360,'prospeccion','barriendo rubros','Recorre rubros y zonas buscando cuentas que muestren el dolor.'],
+         [370,'prospeccion','calificando 43 cuentas','Descarta 31. Se queda con las que tienen un motivo concreto hoy.'],
+         [438,'ventas','pasando los 12 prospectos','Le lleva la lista a Cierre con el porqué de cada uno.',1],
+         [450,'reunion','en el parte','Presenta los 12 y por qué 8 se merecen un mensaje.'],
+         [470,'prospeccion','en su puesto','Vuelve a la pizarra de corchos.'],
+         [558,'prospeccion','8 mensajes en espera','La dueña quiere leerlos antes. Quedan en cola.'],
+         [760,'prospeccion','rastreando respuestas','Revisa quién abrió, quién respondió, quién ni miró.'],
+         [1195,'prospeccion','cerrando','Deja la lista de mañana ya calificada.']],
+    EST:[[360,'estudio','leyendo lo de ayer','Mira qué funcionó y qué murió antes de escribir una línea.'],
+         [382,'estudio','escribiendo guiones','Cinco piezas para Café Rituales, con la voz aprobada en marzo.'],
+         [400,'publi','entregando las 5 piezas','Camina a Publicación con los guiones listos.',1],
+         [416,'estudio','en su puesto','Vuelve a la mesa con la pizarra.'],
+         [450,'reunion','en el parte','Muestra el reel del tueste y pide una foto que falta.'],
+         [470,'estudio','ajustando el carrusel','Cambia la primera lámina: pregunta directa, que es lo que funciona.'],
+         [494,'estudio','descarta un formato','Archivo le avisó. No vuelve a proponer máquinas en primer plano.'],
+         [1195,'estudio','cerrando','Deja la semana siguiente empezada.']],
+    VIT:[[360,'publi','leyendo el rendimiento','El carrusel hizo 2,4× el alcance. El reel se quedó en 400.'],
+         [400,'publi','armando la cola','Cuatro piezas con hora: 12:00, 15:30, 18:00 y 19:30.'],
+         [450,'reunion','en el parte','Pide el sí para las cuatro. No se mueve hasta tenerlo.'],
+         [470,'publi','en su puesto','Espera con todo cargado.'],
+         [558,'publi','agendando 4 piezas','Aprobadas. Las agenda en IG y TikTok.'],
+         [960,'publi','publicando','Cada una sale y queda registrada con su enlace real.'],
+         [1195,'publi','cerrando','Deja el reporte de lo que salió hoy.']],
+    POS:[[360,'clientes','revisando la cartera','Días sin contacto, aprobaciones pendientes, atrasos de pago.'],
+         [414,'direccion','avisando un riesgo','Sube a Dirección: Dental Norte lleva 11 días sin contacto.',1],
+         [430,'clientes','en su puesto','Vuelve al sillón de atención.'],
+         [450,'reunion','en el parte','Insiste: esto es una llamada, no un mensaje.'],
+         [470,'clientes','preparando la llamada','Deja escritos los tres puntos que la dueña tiene que tocar.'],
+         [494,'clientes','sube a llamada de hoy','Confirmado en el check-in: no contestaron por ningún lado.'],
+         [1195,'clientes','cerrando','Marca la llamada como pendiente para mañana, arriba de todo.']],
+    CAJ:[[360,'finanzas','revisando cobros','Cruza facturas emitidas contra lo que realmente entró.'],
+         [422,'finanzas','$1.240.000 por cobrar','Dos vencidas. Sugiere no cobrarle hoy a Dental Norte.'],
+         [450,'reunion','en el parte','Pone el precio sano para la propuesta de Lomas: $680.000.'],
+         [470,'finanzas','en su puesto','Vuelve al archivador.'],
+         [494,'finanzas','cerrando factura Lomas','La dueña confirmó el pago en el check-in.'],
+         [558,'finanzas','cobranza lista','Deja escrito el cobro por Mercado Pago, sin enviarlo.'],
+         [1195,'finanzas','cerrando','Cierra el día: entraron $420.000.']],
+    CIE:[[360,'ventas','revisando el embudo','Quién pidió precio, quién no contestó, quién se enfrió.'],
+         [438,'ventas','escribiendo la propuesta','Bodega Lomas: tres casos parecidos y el precio que puso Caja.'],
+         [450,'reunion','en el parte','Pide autorización para enviarla hoy.'],
+         [470,'ventas','en su puesto','Espera el sí.'],
+         [558,'ventas','enviando la propuesta','Aprobada. Sale con el PDF y el cobro por Mercado Pago listo.'],
+         [760,'ventas','respondió la clínica','Preguntó precio a los 40 minutos. La respuesta va al parte de mañana.'],
+         [1195,'ventas','cerrando','Deja el embudo actualizado.']]
+  };
+
+  var FEED = [
+    [360,'ARC','Contexto cargado: 3 marcas, 47 piezas, palabras prohibidas por marca.'],
+    [370,'CAP','12 prospectos calificados, 31 descartados. Cada uno con su motivo.'],
+    [382,'EST','Semana de Café Rituales lista: 1 reel, 1 carrusel, 3 historias.'],
+    [400,'VIT','Ayer el carrusel hizo 2,4× el alcance. El reel murió en 400.'],
+    [414,'POS','Riesgo: Dental Norte lleva 11 días sin contacto. Pide llamada.'],
+    [422,'CAJ','$1.240.000 por cobrar. Dos facturas vencidas.'],
+    [438,'CIE','Propuesta a Bodega Lomas lista: $680.000/mes, sin permanencia.'],
+    [450,'CEN','Reunión de parte. Los ocho en la sala.'],
+    [470,'CEN','Parte emitido: 3 aprobaciones y 1 tarea humana. 6 resueltas sola.'],
+    [480,'CEN','Check-in de 2 minutos por WhatsApp. Tres preguntas.'],
+    [494,'ARC','Corrección incorporada: «máquinas en primer plano», descartado.'],
+    [552,'CEN','Resuelto en 40 segundos: 2 aprobadas, captación rechazada.'],
+    [558,'CEN','Ejecución: sale lo aprobado y solo lo aprobado.'],
+    [760,'CIE','Respondió la clínica de Providencia. Va al parte de mañana.'],
+    [960,'VIT','Las 4 piezas salieron, cada una con su enlace registrado.'],
+    [1195,'CEN','Cierre: entraron $420.000. La llamada a Dental Norte quedó pendiente.']
+  ];
+
+  var byCode = {};
+  AGENTS.forEach(function(a,i){
+    a.seat = i; var s = SEATS[a.home];
+    a.x = s.x; a.y = s.y; a.room = a.home; a.path = []; a.idx = -1;
+    a.act = ''; a.detail = ''; a.last = ''; a.carry = 0; a.dir = 'down'; a.walk = 0; a.moving = false;
+    byCode[a.code] = a;
+  });
+
+  var cv = document.getElementById('c'), ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = false;
+  var stage = document.getElementById('stage'), tip = document.getElementById('tip');
+  var clockEl = document.getElementById('clock'), phaseEl = document.getElementById('phase');
+  var feedEl = document.getElementById('feed'), dossEl = document.getElementById('dossier');
+  var playBtn = document.getElementById('play');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var t = 360, speed = 26, running = true, selected = 'CEN', hovered = null, fedTo = -1, tick = 0;
+
+  function px(x,y,w,h,col){ ctx.fillStyle = col; ctx.fillRect(x|0, y|0, w|0, h|0); }
+  function hhmm(m){ var h=Math.floor(m/60)%24, mm=Math.floor(m)%60; return (h<10?'0':'')+h+':'+(mm<10?'0':'')+mm; }
+
+  function door(id){ var r=ROOMS[id]; return r.side==='top' ? {x:r.x+r.w/2, y:r.y+r.h+7} : {x:r.x+r.w/2, y:r.y-7}; }
+  function target(a,room){ return room==='reunion' ? meetSeat(a.seat) : SEATS[room]; }
+  function route(a,room){
+    var to = target(a,room);
+    if(a.room === room) return [to];
+    var d1 = door(a.room), d2 = door(room);
+    return [d1,{x:d1.x,y:CORR_Y},{x:d2.x,y:CORR_Y},d2,to];
+  }
+
+  /* ---------------- mundo ---------------- */
+  function floorTile(r){
+    var f = r.floor, A, B;
+    if(f==='carpet'){A=C.carpetA;B=C.carpetB;} else if(f==='rug'){A=C.rugA;B=C.rugB;} else {A=C.woodA;B=C.woodB;}
+    px(r.x,r.y,r.w,r.h,A);
+    for(var y=r.y; y<r.y+r.h; y+=4){
+      for(var x=r.x; x<r.x+r.w; x+=(f==='wood'?24:8)){
+        if(f==='wood'){ px(x,y+3,Math.min(23,r.x+r.w-x),1,B); }
+        else if(((x/8|0)+(y/4|0))%2===0){ px(x,y,Math.min(8,r.x+r.w-x),4,B); }
+      }
+    }
+  }
+  function drawWalls(){
+    px(0,0,WW,WH,C.base);
+    px(0,0,WW,14,C.wall); px(0,12,WW,2,C.wallHi);
+    for(var wx=22; wx<WW-20; wx+=54){ px(wx,3,24,7,C.glass); px(wx,3,24,1,'#cfe6ee'); px(wx+11,3,2,7,C.wall); }
+    px(0,CORR_Y-17,WW,34,C.tileA);
+    for(var x=0;x<WW;x+=16) for(var y=CORR_Y-17;y<CORR_Y+17;y+=8){ if(((x/16|0)+(y/8|0))%2===0) px(x,y,16,8,C.tileB); }
+  }
+  function drawRoom(id){
+    var r = ROOMS[id];
+    floorTile(r);
+    px(r.x-2,r.y-2,r.w+4,2,C.wall); px(r.x-2,r.y+r.h,r.w+4,2,C.wall);
+    px(r.x-2,r.y-2,2,r.h+4,C.wall); px(r.x+r.w,r.y-2,2,r.h+4,C.wall);
+    var d = door(id), dy = r.side==='top' ? r.y+r.h : r.y-2;
+    px(d.x-9, dy, 18, 2, r.side==='top' ? C.tileA : C.tileA);
+  }
+  function drawDesk(x,y,wide){
+    var w = wide||26;
+    px(x-w/2, y-7, w, 9, C.deskTop);
+    px(x-w/2, y+2, w, 2, C.deskEdge);
+    px(x-w/2+1, y+4, 2, 4, C.deskLeg); px(x+w/2-3, y+4, 2, 4, C.deskLeg);
+  }
+  function drawMonitor(x,y,on){
+    px(x-5, y-14, 10, 8, C.monBody);
+    px(x-4, y-13, 8, 6, on ? C.monScr : C.monScr2);
+    if(on){ px(x-3, y-12, (tick/7|0)%5+1, 1, '#e8fbff'); px(x-3, y-10, (tick/5|0)%6+1, 1, '#cdeef6'); px(x-3,y-8,3,1,'#cdeef6'); }
+    px(x-1, y-6, 2, 2, C.monBody); px(x-3, y-4, 6, 1, C.monBody);
+    px(x-5, y-3, 10, 2, C.key);
+  }
+  function drawChair(x,y,back){
+    px(x-4, y-2, 8, 5, C.chair);
+    if(back) px(x-4, y-6, 8, 4, C.chair2); else px(x-4, y+3, 8, 3, C.chair2);
+  }
+  function drawPlant(x,y){
+    px(x-3,y-1,6,5,C.pot); px(x-2,y-6,4,5,C.plant); px(x-4,y-4,2,3,C.plant2); px(x+2,y-5,2,4,C.plant2); px(x-1,y-9,2,4,C.plant);
+  }
+  function drawShelf(x,y,w,h){
+    px(x,y,w,h,C.shelf);
+    for(var sy=y+3; sy<y+h; sy+=7){ px(x+1,sy,w-2,1,'#5d4429');
+      for(var sx=x+2; sx<x+w-4; sx+=6) px(sx, sy-5, 5, 5, ((sx+sy)%12===0)?C.box:'#cfa87a'); }
+  }
+  function drawBoard(x,y,w,h){
+    px(x,y,w,h,'#f4f1e6'); px(x,y,w,1,'#c9c2b0'); px(x,y+h-1,w,1,'#c9c2b0');
+    for(var i=0;i<5;i++) px(x+3+((i*7)%(w-8)), y+3+ (i%3)*4, 4+(i%3)*3, 2, ['#d0503c','#3f6fd8','#46a76c','#c0982f','#8b6bd6'][i]);
+  }
+  function drawSofa(x,y){
+    px(x-11,y-4,22,8,'#5a6273'); px(x-11,y-8,22,4,'#6a7385'); px(x-12,y-6,2,9,'#4d5463'); px(x+10,y-6,2,9,'#4d5463');
+  }
+  function drawProps(){
+    // estudio
+    drawBoard(20,30,44,20); drawPlant(140,110); drawDesk(46,70); drawDesk(110,70,24);
+    drawMonitor(40,70,true); drawMonitor(54,70,true); drawMonitor(110,70,(tick/40|0)%2===0);
+    drawChair(110,88,true);
+    px(96,34,40,16,'#f2ede1'); for(var i=0;i<6;i++) px(99+i*6,37,4,10,['#d0503c','#e0a85c','#3f6fd8','#46a76c','#8b6bd6','#c0982f'][i]);
+    // publicación
+    drawDesk(196,70); drawMonitor(196,70,true); drawPlant(255,110);
+    px(168,30,36,22,'#2b303a'); for(var gx=0;gx<5;gx++) for(var gy=0;gy<3;gy++) px(170+gx*7,32+gy*7,5,5, (gx+gy)%3===0 ? '#25a08f' : '#454d5c');
+    // reuniones
+    px(TABLE.x-TABLE.w/2, TABLE.y, TABLE.w, TABLE.h, C.deskTop);
+    px(TABLE.x-TABLE.w/2, TABLE.y+TABLE.h-3, TABLE.w, 3, C.deskEdge);
+    px(TABLE.x-TABLE.w/2+6, TABLE.y+4, 12, 8, C.paper); px(TABLE.x+4, TABLE.y+6, 14, 9, C.paper);
+    px(TABLE.x+24, TABLE.y+5, 7, 5, '#23272f');
+    px(300,28,54,18,'#1b1f27'); px(301,29,52,16, (tick/30|0)%2===0 ? '#3f6fd8':'#35609f');
+    for(var i=0;i<4;i++) px(304, 32+i*4, 20+((tick/20|0)+i)%22, 2, '#cfe0ff');
+    drawPlant(378,112);
+    // dirección
+    drawDesk(418,70); drawMonitor(418,70,true); drawSofa(404,112);
+    px(432,64,5,7,'#23272f'); px(433,65,3,4,'#7fd6e6');
+    px(398,28,32,16,'#f4f1e6'); px(400,31,28,1,'#b9b2a0'); px(400,35,20,1,'#b9b2a0'); px(400,39,24,1,'#b9b2a0');
+    // prospección
+    drawDesk(48,214); drawMonitor(48,214,true); drawBoard(86,170,30,22); drawPlant(112,250);
+    // ventas
+    drawDesk(166,214); drawMonitor(166,214,true);
+    px(186,208,5,7,'#23272f'); px(187,209,3,4,'#d0503c'); drawPlant(228,250);
+    // clientes
+    drawDesk(280,214); drawMonitor(280,214,true); drawSofa(330,196); drawPlant(250,250);
+    px(316,240,26,14,C.deskTop); px(320,243,6,6,'#f2ede1');
+    // finanzas
+    drawDesk(383,214); drawMonitor(383,214,true); drawShelf(404,176,12,26);
+    // archivo
+    drawShelf(424,172,18,34); drawShelf(456,172,16,34); drawDesk(444,206,20); drawMonitor(444,206,(tick/50|0)%2===0);
+    // pasillo: café y dispensador
+    px(210,CORR_Y-12,10,16,'#3a4150'); px(212,CORR_Y-9,6,5,'#23272f'); px(213,CORR_Y-2,4,3,'#9aa3ad');
+    px(250,CORR_Y-12,8,16,'#cfd8dd'); px(251,CORR_Y-11,6,8,C.glass);
+    px(160,CORR_Y-10,14,14,'#4a5162'); px(162,CORR_Y-7,10,5,'#2b303a');
+  }
+
+  /* ---------------- personajes ---------------- */
+  function drawChar(a){
+    var x = Math.round(a.x), y = Math.round(a.y);
+    var f = a.moving ? ((a.walk/7|0)%2) : 0;
+    px(x-3, y+5, 7, 2, 'rgba(0,0,0,0.25)');
+    // piernas
+    px(x-2, y+1, 2, 4+(f?0:1), C.pants);
+    px(x+1, y+1, 2, 4+(f?1:0), C.pants);
+    px(x-2, y+5+(f?0:1), 2, 1, C.shoe); px(x+1, y+5+(f?1:0), 2, 1, C.shoe);
+    // cuerpo
+    px(x-3, y-4, 7, 6, a.shirt);
+    px(x-4, y-3, 1, 4, a.shirt); px(x+4, y-3, 1, 4, a.shirt);
+    if(a.carry){ px(x+3, y-1, 4, 5, C.paper); px(x+4, y, 2, 1, '#b9b2a0'); px(x+4, y+2, 2, 1, '#b9b2a0'); }
+    // cabeza
+    px(x-3, y-10, 7, 6, C.skin); px(x+3, y-9, 1, 4, C.skin2);
+    px(x-3, y-11, 7, 3, a.hair);
+    if(a.dir==='down'){ px(x-2, y-7, 1, 1, C.black); px(x+1, y-7, 1, 1, C.black); }
+    else if(a.dir==='left'){ px(x-2, y-7, 1, 1, C.black); px(x-4,y-11,2,4,a.hair); }
+    else if(a.dir==='right'){ px(x+1, y-7, 1, 1, C.black); px(x+3,y-11,2,4,a.hair); }
+    else { px(x-3, y-10, 7, 5, a.hair); }
+    if(hovered===a.code || selected===a.code){
+      ctx.fillStyle = a.c;
+      px(x-1, y-16, 2, 2, a.c); px(x-2, y-15, 4, 1, a.c);
+    }
+  }
+
+  /* ---------------- simulación ---------------- */
+  function step(){
+    AGENTS.forEach(function(a){
+      var plan = PLAN[a.code], ni = -1;
+      for(var i=0;i<plan.length;i++) if(t >= plan[i][0]) ni = i;
+      if(ni !== a.idx && ni >= 0){
+        a.idx = ni;
+        var s = plan[ni];
+        a.act = s[2]; a.detail = s[3]; a.carry = s[4] ? 1 : 0;
+        a.path = route(a, s[1]); a.room = s[1];
+      }
+      if(a.path.length){
+        var p = a.path[0], dx = p.x-a.x, dy = p.y-a.y, d = Math.hypot(dx,dy);
+        var sp = reduce ? 30 : 0.72;
+        if(Math.abs(dx) > Math.abs(dy)) a.dir = dx>0 ? 'right':'left'; else a.dir = dy>0 ? 'down':'up';
+        if(d <= sp){ a.x=p.x; a.y=p.y; a.path.shift(); if(!a.path.length){ a.moving=false; a.carry=0; a.dir='down'; } }
+        else { a.x += dx/d*sp; a.y += dy/d*sp; a.moving = true; a.walk++; }
+      }
+    });
+  }
+
+  function pushFeed(i){
+    var f = FEED[i], a = byCode[f[1]];
+    if(a) a.last = f[2];
+    var li = document.createElement('li');
+    li.innerHTML = '<span class="t">'+hhmm(f[0])+'</span><span><b style="color:'+(a?a.c:'inherit')+'">'+f[1]+'</b> · '+f[2]+'</span>';
+    feedEl.insertBefore(li, feedEl.firstChild);
+    while(feedEl.children.length > 26) feedEl.removeChild(feedEl.lastChild);
+  }
+  function phaseFor(){
+    if(t < 450) return 'Turno de madrugada · <b>cada uno en su puesto</b>';
+    if(t < 470) return 'Reunión de parte · <b>los ocho en la sala</b>';
+    if(t < 552) return 'El parte está en el teléfono de la dueña';
+    if(t < 960) return 'Ejecutando lo aprobado · <b>y solo lo aprobado</b>';
+    if(t < 1195) return 'Tarde · <b>publicando y registrando</b>';
+    return 'Cierre de jornada';
+  }
+
+  function renderTip(a){
+    tip.innerHTML =
+      '<div class="n"><i style="background:'+a.c+'"></i>'+a.name+'</div>'+
+      '<div class="r">'+a.role+'</div>'+
+      '<div class="row"><b>Ahora mismo</b><em>'+a.act+'</em><br>'+a.detail+'</div>'+
+      '<div class="row"><b>Le responde a</b>'+a.jefe+'</div>';
+    var r = cv.getBoundingClientRect();
+    tip.style.left = (a.x / WW * 100) + '%';
+    tip.style.top  = ((a.y - 18) / WH * 100) + '%';
+    tip.classList.add('on');
+  }
+  var lastDoss = '';
+  function renderDossier(){
+    var a = byCode[selected];
+    var k = a.code+'|'+a.act+'|'+a.last;
+    if(k === lastDoss) return; lastDoss = k;
+    dossEl.innerHTML =
+      '<div class="hd"><i style="background:'+a.c+'"></i><div><h3>'+a.name+'</h3><div class="role">'+a.role+'</div></div></div>'+
+      '<div class="bd">'+
+        '<div class="fld"><b>Ahora mismo</b><span class="now">'+a.act+'</span><br>'+a.detail+'</div>'+
+        '<div class="fld"><b>Línea de reporte</b><div class="chain"><span>'+a.name+'</span><span class="ar">→</span><span>'+a.jefe+'</span>'+
+          (a.jefe==='Central' ? '<span class="ar">→</span><span>La dueña</span>' : '')+'</div></div>'+
+        '<div class="fld"><b>Recibe de · entrega a</b><div class="chain"><span>'+a.recibe+'</span><span class="ar">→</span><span>'+a.entrega+'</span></div></div>'+
+        '<div class="fld"><b>Lo que dejó hoy</b><div class="sample">'+a.sample+'</div></div>'+
+        '<div class="fld"><b>Lo que no hace</b><span class="limit">'+a.limite+'</span></div>'+
+      '</div>';
+    document.querySelectorAll('[data-node]').forEach(function(n){ n.setAttribute('aria-current', n.dataset.node===selected ? 'true':'false'); });
+  }
+
+  function frame(){
+    tick++;
+    if(running){
+      t += speed/60;
+      if(t >= 1200){ t = 360; fedTo = -1; feedEl.innerHTML=''; AGENTS.forEach(function(a){ a.idx=-1; a.last=''; }); }
+      while(fedTo+1 < FEED.length && FEED[fedTo+1][0] <= t){ fedTo++; pushFeed(fedTo); }
+    }
+    step();
+    drawWalls();
+    Object.keys(ROOMS).forEach(drawRoom);
+    drawProps();
+    AGENTS.slice().sort(function(p,q){ return p.y-q.y; }).forEach(drawChar);
+    clockEl.textContent = hhmm(t);
+    phaseEl.innerHTML = phaseFor();
+    renderDossier();
+    if(hovered && byCode[hovered]) renderTip(byCode[hovered]);
+    requestAnimationFrame(frame);
+  }
+
+  function pick(ev){
+    var r = cv.getBoundingClientRect();
+    var cx = (ev.clientX - r.left) * (WW / r.width);
+    var cy = (ev.clientY - r.top)  * (WH / r.height);
+    var best = null, bd = 9;
+    AGENTS.forEach(function(a){ var d = Math.hypot(a.x-cx, (a.y-4)-cy); if(d < bd){ bd = d; best = a.code; } });
+    return best;
+  }
+  cv.addEventListener('mousemove', function(e){
+    hovered = pick(e);
+    cv.style.cursor = hovered ? 'pointer' : 'crosshair';
+    if(!hovered) tip.classList.remove('on');
+  });
+  cv.addEventListener('mouseleave', function(){ hovered = null; tip.classList.remove('on'); });
+  cv.addEventListener('click', function(e){ var p = pick(e); if(p){ selected = p; hovered = p; } });
+
+  playBtn.addEventListener('click', function(){
+    running = !running;
+    playBtn.textContent = running ? '❚❚ Pausar' : '▶ Reanudar';
+    playBtn.setAttribute('aria-pressed', running?'true':'false');
+  });
+  document.querySelectorAll('[data-sp]').forEach(function(b){
+    b.addEventListener('click', function(){
+      speed = Number(b.dataset.sp);
+      document.querySelectorAll('[data-sp]').forEach(function(o){ o.setAttribute('aria-pressed', o===b?'true':'false'); });
+    });
+  });
+
+  // etiquetas de sala (HTML, nítidas)
+  Object.keys(ROOMS).forEach(function(id){
+    var r = ROOMS[id], el = document.createElement('div');
+    el.className = 'rlabel';
+    el.textContent = r.n;
+    el.style.left = ((r.x + r.w/2) / WW * 100) + '%';
+    el.style.top  = ((r.y + 3) / WH * 100) + '%';
+    stage.appendChild(el);
+  });
+
+  // organigrama
+  var GROUPS = [
+    {lbl:'Comercial', codes:['CAP','CIE']},
+    {lbl:'Creativa',  codes:['EST','VIT']},
+    {lbl:'Cuentas',   codes:['POS','CAJ']},
+    {lbl:'Transversal',codes:['ARC']}
+  ];
+  var br = document.getElementById('branches');
+  GROUPS.forEach(function(g){
+    var d = document.createElement('div'); d.className='branch';
+    var s = '<div class="lbl">'+g.lbl+'</div><div class="set">';
+    g.codes.forEach(function(c){ var a = byCode[c];
+      s += '<button class="node" data-node="'+c+'"><i style="background:'+a.c+'"></i>'+a.name+'</button>'; });
+    d.innerHTML = s + '</div>';
+    br.appendChild(d);
+  });
+  document.addEventListener('click', function(e){
+    var n = e.target.closest ? e.target.closest('[data-node]') : null;
+    if(n){ selected = n.dataset.node; }
+  });
+
+  requestAnimationFrame(frame);
+})();
+</script>
