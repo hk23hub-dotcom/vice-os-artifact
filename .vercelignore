@@ -14,3 +14,6 @@ prompts/
 
 # OS junk
 .DS_Store
+
+# El Centro: scripts, pruebas y notas de Shopify (no se sirven)
+centro/

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>El Centro · panel del dueño</title>
+<style>
+:root{--ground:#0A0A0B;--surface:#131316;--line:#2A2A30;--caza:#FF4D1C;--hace:#FFB020;--acom:#56D8EE;--ink:#F1EEEB;--ink-mid:#B5ADA6;--ink-dim:#8A827B;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--body:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+main{width:min(980px,94vw);margin:0 auto;padding:2rem 0 4rem;display:flex;flex-direction:column;gap:1.6rem}
+h1{margin:0;font-size:1.6rem;letter-spacing:.02em}
+h2{margin:0 0 .6rem;font-size:1.05rem;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--hace)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+input{background:#0C0C0E;border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:.85rem;padding:.6rem .7rem;min-width:280px;flex:1}
+button{font-family:var(--mono);font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:.6rem .9rem;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink-mid)}
+button:hover{border-color:var(--hace);color:var(--hace)}
+button.ok{background:var(--acom);border-color:var(--acom);color:#04161A}
+button.hot{background:linear-gradient(100deg,var(--caza),var(--hace));border:0;color:#180B02}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:2px solid var(--hace);outline-offset:2px}
+.msg{font-family:var(--mono);font-size:.75rem;color:var(--ink-mid)}
+.msg.bad{color:var(--caza)}
+.list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+.it{background:var(--ground);padding:.9rem 1rem;display:grid;grid-template-columns:1fr auto;gap:.8rem;align-items:start}
+@media(max-width:640px){.it{grid-template-columns:1fr}}
+.it b{font-size:1.05rem}
+.it p{margin:.25rem 0;color:var(--ink-mid)}
+.it small{font-family:var(--mono);font-size:.68rem;color:var(--ink-dim)}
+.seal{font-family:var(--mono);font-size:.66rem;padding:.15rem .4rem;border:1px solid var(--line);margin-top:.3rem;display:inline-block}
+.seal.ok{color:var(--acom);border-color:rgba(86,216,238,.5)}
+.seal.no{color:var(--caza);border-color:rgba(255,77,28,.5)}
+.empty{padding:1rem;color:var(--ink-dim);font-family:var(--mono);font-size:.75rem;background:var(--ground)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <h1>El Centro · panel del dueño</h1>
+  <section class="row" id="login">
+    <label for="tok" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Clave de administración</label>
+    <input id="tok" type="password" autocomplete="off" placeholder="Clave de administración (CENTRO_ADMIN_TOKEN)">
+    <button class="hot" id="entrar" type="button">Entrar</button>
+    <span class="msg" id="lmsg" aria-live="polite"></span>
+  </section>
+
+  <div id="panel" hidden>
+    <section>
+      <h2>Postulaciones por revisar</h2>
+      <div class="list" id="rev"></div>
+    </section>
+    <section style="margin-top:1.6rem">
+      <h2>Prueba de entrada de tus agentes</h2>
+      <p class="msg">Tus agentes rinden la misma prueba que los postulados. Corre con la IA de El Centro: cinco consultas por agente. Las apps propias no la rinden.</p>
+      <div class="row" style="margin:.6rem 0"><button class="hot" id="casaGo" type="button">Probar los que faltan</button><button id="casaStop" type="button" hidden>Detener</button>
+        <span class="msg" id="casaMsg" aria-live="polite"></span></div>
+      <div class="list" id="casaFallas"></div>
+    </section>
+    <section style="margin-top:1.6rem">
+      <h2>Intentos que no pasaron (últimos 20)</h2>
+      <div class="list" id="nop"></div>
+    </section>
+  </div>
+</main>
+<script>
+(function(){
+"use strict";
+var KEY="centro-admin",tok="";
+try{tok=sessionStorage.getItem(KEY)||"";}catch(e){}
+var $=function(id){return document.getElementById(id);};
+function api(body){
+  return fetch("/api/centro-admin",{method:"POST",headers:{"content-type":"application/json","x-centro-admin":tok},body:JSON.stringify(body)})
+    .then(function(r){return r.json().catch(function(){return{};}).then(function(j){if(!r.ok)throw j;return j;});});
+}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+function empty(box,t){box.textContent="";box.appendChild(el("div","empty",t));}
+var DATA=null;
+function cargar(){
+  return api({accion:"resumen"}).then(function(j){
+    DATA=j;$("login").hidden=true;$("panel").hidden=false;
+    try{sessionStorage.setItem(KEY,tok);}catch(e){}
+    pintar();
+  },function(e){$("lmsg").textContent=(e&&e.error)||"No se pudo entrar.";$("lmsg").className="msg bad";});
+}
+function sello(x){var s=el("span","seal "+(x&&x.aprobado?"ok":"no"));s.textContent=x?(x.aprobado?"✓ Pasó · "+x.puntaje+"/100":"No pasó · "+(x.falla||"")):"Sin prueba";return s;}
+function pintar(){
+  var rev=$("rev");rev.textContent="";
+  if(!DATA.revision.length)empty(rev,"No hay postulaciones esperando.");
+  DATA.revision.forEach(function(p){
+    var it=el("div","it"),l=el("div");
+    l.appendChild(el("b",null,p.nombre));l.appendChild(el("p",null,p.que));
+    l.appendChild(el("small",null,p.mundo+" · "+p.forma+" · por "+(p.por||"anónimo")+" · "+new Date(p.creado).toLocaleString("es-CL")));
+    l.appendChild(document.createElement("br"));l.appendChild(sello(p.examen));
+    if(p.examen&&p.examen.motivo)l.appendChild(el("p",null,"Jurado: "+p.examen.motivo));
+    var r=el("div","row"),ok=el("button","ok","Aprobar"),no=el("button",null,"Rechazar"),re=el("button",null,"Volver a probar");
+    [ok,no,re].forEach(function(b){b.type="button";});
+    function act(a,b){ok.disabled=no.disabled=re.disabled=true;b.textContent="…";
+      return api({accion:a,id:p.id}).then(function(j){
+        if(a==="probar"){ok.disabled=no.disabled=re.disabled=false;re.textContent="Volver a probar";
+          var s=sello(j.examen);l.appendChild(s);if(j.examen.motivo)l.appendChild(el("p",null,"Tu prueba: "+j.examen.motivo));return;}
+        return cargar();
+      },function(e){ok.disabled=no.disabled=re.disabled=false;b.textContent=(e&&e.error)||"Falló";});}
+    ok.addEventListener("click",function(){act("aprobar",ok);});
+    no.addEventListener("click",function(){act("rechazar",no);});
+    re.addEventListener("click",function(){act("probar",re);});
+    r.appendChild(ok);r.appendChild(no);r.appendChild(re);it.appendChild(l);it.appendChild(r);rev.appendChild(it);
+  });
+  var nop=$("nop");nop.textContent="";
+  if(!DATA.no_paso.length)empty(nop,"Nadie ha fallado todavía.");
+  DATA.no_paso.forEach(function(p){
+    var it=el("div","it"),l=el("div");
+    l.appendChild(el("b",null,p.nombre));l.appendChild(el("p",null,p.que));
+    l.appendChild(el("small",null,p.mundo+" · por "+(p.por||"anónimo")+" · falló en "+((p.examen&&p.examen.falla)||"—")));
+    if(p.examen&&p.examen.motivo)l.appendChild(el("p",null,"Jurado: "+p.examen.motivo));
+    it.appendChild(l);nop.appendChild(it);
+  });
+  pintarCasa();
+}
+var EX={};
+function pintarCasa(){
+  EX={};(DATA.examenes||[]).forEach(function(x){EX[x.agente]=x;});
+  var pool=DATA.casa.filter(function(a){return !a.app;}),hechos=pool.filter(function(a){return EX[a.k];}),ok=hechos.filter(function(a){return EX[a.k].aprobado;});
+  if(!corriendo)$("casaMsg").textContent=hechos.length+" de "+pool.length+" probados · "+ok.length+" aprobados";
+  $("casaGo").hidden=corriendo||hechos.length===pool.length;$("casaStop").hidden=!corriendo;
+  var box=$("casaFallas");box.textContent="";
+  pool.forEach(function(a){var x=EX[a.k];if(!x||x.aprobado)return;
+    var it=el("div","it"),l=el("div");l.appendChild(el("b",null,a.n));l.appendChild(el("p",null,x.motivo||"No pasó."));
+    l.appendChild(el("small",null,a.c+" · falló en "+(x.falla||"—")));it.appendChild(l);box.appendChild(it);});
+}
+var corriendo=false,parar=false;
+$("casaGo").addEventListener("click",function(){
+  if(corriendo)return;corriendo=true;parar=false;pintarCasa();
+  var cola=DATA.casa.filter(function(a){return !a.app&&!EX[a.k];}),i=0;
+  (function next(){
+    if(parar||i>=cola.length){corriendo=false;cargar();return;}
+    var a=cola[i];$("casaMsg").textContent="Probando "+a.n+" ("+(i+1)+" de "+cola.length+")…";
+    api({accion:"examinar_casa",k:a.k}).then(function(j){DATA.examenes.push(Object.assign({agente:a.k},j.examen));pintarCasa();i++;next();},
+      function(e){corriendo=false;pintarCasa();$("casaMsg").textContent=(e&&e.error)||"Se cortó.";});
+  })();
+});
+$("casaStop").addEventListener("click",function(){parar=true;});
+$("entrar").addEventListener("click",function(){tok=$("tok").value.trim();if(tok)cargar();});
+$("tok").addEventListener("keydown",function(e){if(e.key==="Enter"){tok=$("tok").value.trim();if(tok)cargar();}});
+if(tok)cargar();
+})();
+</script>
+</body>
+</html>

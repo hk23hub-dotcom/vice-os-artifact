@@ -1,0 +1,35 @@
+import { PGlite } from '@electric-sql/pglite';
+import { readFileSync } from 'node:fs';
+const db = new PGlite();
+const ok = (c, m) => { console.log((c ? 'OK  ' : 'FAIL') + ' ' + m); if (!c) process.exitCode = 1; };
+// roles que existen en Supabase
+await db.exec(`create role anon; create role authenticated; create role service_role;`);
+const sql = readFileSync(process.env.REPO + '/supabase/migrations/0012_el_centro.sql', 'utf8');
+await db.exec(sql);
+ok(true, 'la migración corre completa');
+await db.exec(sql);
+ok(true, 'es idempotente: se puede correr dos veces');
+const p = '11111111-1111-1111-1111-111111111111';
+const c = async (plan, tope, per) => (await db.query(`select public.centro_consumir($1,$2,$3,$4) as r`, [p, plan, tope, per])).rows[0].r;
+const g = []; for (let i = 0; i < 6; i++) g.push(await c('gratis', 5, 0));
+ok(JSON.stringify(g) === '[4,3,2,1,0,-1]', 'gratis: 5 usos y después se corta ' + JSON.stringify(g));
+await db.query(`select public.centro_devolver($1,'gratis')`, [p]);
+ok(await c('gratis', 5, 0) === 0, 'devolver un uso lo deja disponible otra vez');
+ok(await c('pase', 300, 30) === 299, 'el pase tiene su propia cuota, aparte de la gratis');
+await db.query(`update public.centro_cuotas set desde = now() - interval '31 days', usados = 300 where persona=$1 and plan='pase'`, [p]);
+ok(await c('pase', 300, 30) === 299, 'el pase se reinicia a los 30 días');
+await db.query(`update public.centro_cuotas set desde = now() - interval '400 days' where persona=$1 and plan='gratis'`, [p]);
+ok(await c('gratis', 5, 0) === -1, 'la cuota gratis no se reinicia nunca');
+for (let i = 0; i < 3; i++) await db.query(`select public.centro_registrar_uso('c53',$1)`, [p]);
+await db.query(`select public.centro_registrar_uso('c53','22222222-2222-2222-2222-222222222222')`);
+const u = (await db.query(`select usos from public.centro_uso where agente='c53'`)).rows[0].usos;
+const pu = (await db.query(`select count(*)::int n from public.centro_uso_personas where agente='c53'`)).rows[0].n;
+ok(Number(u) === 4 && pu === 2, 'calor: 4 usos, 2 personas únicas (usos=' + u + ', personas=' + pu + ')');
+const rls = (await db.query(`select relname, relrowsecurity from pg_class where relname like 'centro_%' and relkind='r' order by 1`)).rows;
+ok(rls.length === 7 && rls.every(r => r.relrowsecurity), 'las 7 tablas tienen RLS activado');
+const pol = (await db.query(`select count(*)::int n from pg_policies where tablename like 'centro_%'`)).rows[0].n;
+ok(pol === 0, 'sin políticas: el navegador no puede leer ni escribir directo');
+const priv = (await db.query(`select p.proname, has_function_privilege('anon', p.oid, 'execute') anon, has_function_privilege('authenticated', p.oid, 'execute') auth, has_function_privilege('service_role', p.oid, 'execute') srv from pg_proc p where proname like 'centro_%' order by 1`)).rows;
+ok(priv.length === 3 && priv.every(r => !r.anon && !r.auth && r.srv), 'solo el servidor puede llamar las funciones: ' + priv.map(r => r.proname + (r.anon || r.auth ? ' ABIERTA' : ' cerrada')).join(', '));
+let chk = false; try { await db.query(`insert into public.centro_postulaciones (nombre,mundo,forma,que,creador) values ('x','y','otra','z',$1)`, [p]); } catch (e) { chk = /check/i.test(e.message); }
+ok(chk, 'la base rechaza una forma que no existe');
