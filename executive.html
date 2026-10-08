@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="HK23 executive overview: projects, products and AI agents with revenue, cost, 12-month projection and importance score. Optional 3D hologram mode.">
+<script defer src="/_vercel/insights/script.js"></script>
+<style>body{margin:0}</style>
+</head>
+<body>
+<title>HK23 Executive Deck</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control bar → (optional holo stage) → view. Overview mirrors an exec sales deck: hero KPI band, drivers, deviations, evolution chart + ranking. */
+:root{
+  --bg:#EEF2F5; --panel:#FFFFFF; --panel-2:#F6F8FA; --ink:#0D1B26; --muted:#5B6B78; --line:#DCE3E9;
+  --accent:#0B5CAD; --accent-soft:#D6E6F7; --good:#11813F; --bad:#C3264A; --warn:#B9620A; --glow:transparent;
+  --f-display:"Oxanium","Segoe UI",system-ui,sans-serif; --f-body:"Figtree","Segoe UI",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --r:14px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#070D14; --panel:#0E1822; --panel-2:#0B141D; --ink:#E4EEF6; --muted:#8C9DAB; --line:#1E2D3A;
+  --accent:#5BB8F5; --accent-soft:#12304A; --good:#38C774; --bad:#FF5C7E; --warn:#F2A23A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#070D14; --panel:#0E1822; --panel-2:#0B141D; --ink:#E4EEF6; --muted:#8C9DAB; --line:#1E2D3A;
+  --accent:#5BB8F5; --accent-soft:#12304A; --good:#38C774; --bad:#FF5C7E; --warn:#F2A23A; color-scheme:dark}
+.app[data-mode="holo"]{
+  --bg:#02070D; --panel:rgba(10,32,48,.55); --panel-2:rgba(6,22,34,.6); --ink:#D8F6FF; --muted:#7FB3C6; --line:rgba(80,220,255,.22);
+  --accent:#4DE3FF; --accent-soft:rgba(77,227,255,.14); --good:#4DFFA8; --bad:#FF4F8B; --warn:#FFC24D; --glow:rgba(77,227,255,.35); color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.45}
+.app{background:var(--bg);color:var(--ink);min-height:100vh;padding:20px 16px 48px;position:relative;transition:background .4s}
+.app[data-mode="holo"]{background:radial-gradient(1200px 600px at 50% -10%,rgba(40,140,200,.25),transparent 60%),var(--bg)}
+.app[data-mode="holo"]::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;
+  background:repeating-linear-gradient(180deg,rgba(120,240,255,.035) 0 1px,transparent 1px 3px);mix-blend-mode:screen}
+.wrap{max-width:1320px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.num,td.n,.mono{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--f-mono)}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:clamp(26px,4vw,36px);font-weight:700}
+h2{font-size:19px;font-weight:600}
+.sub{color:var(--muted);font-size:14px}
+.label{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top bar */
+.top{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between}
+.top .ttl{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;padding:6px 13px;border-radius:999px;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;white-space:nowrap}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.app[data-mode="holo"] .seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);box-shadow:0 0 12px var(--glow)}
+.holo-btn{border:1px solid var(--accent);background:transparent;color:var(--accent);padding:7px 14px;border-radius:999px;cursor:pointer;font-family:var(--f-display);font-weight:600;letter-spacing:.06em;display:inline-flex;gap:8px;align-items:center}
+.holo-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.app[data-mode="holo"] .holo-btn{background:var(--accent);color:#02070D}
+.app[data-mode="holo"] .holo-btn .dot{background:#02070D}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 14px;cursor:pointer;font-family:var(--f-display);font-weight:600;font-size:15px;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+
+/* cards */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px;min-width:0;transition:transform .25s,box-shadow .25s}
+.app[data-mode="holo"] .card{backdrop-filter:blur(8px);box-shadow:0 0 0 1px rgba(77,227,255,.06) inset,0 0 24px rgba(0,0,0,.4)}
+.app[data-mode="holo"] .tilt{transform-style:preserve-3d;will-change:transform}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.grid{display:grid;gap:18px}
+.g-hero{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1.5fr)}
+.g-2{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}
+@media (max-width:1100px){.g-hero{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.g-hero,.g-2{grid-template-columns:minmax(0,1fr)}}
+.hero{padding:0;overflow:hidden}
+.hero-top{gap:0}
+.kpi{padding:20px;border-right:1px solid var(--line);display:flex;flex-direction:column;gap:6px;min-width:0;cursor:pointer;text-align:left;background:none;border-top:0;border-bottom:0;border-left:0}
+.kpi:last-child{border-right:0}
+.kpi:hover{background:var(--panel-2)}
+.big{font-family:var(--f-display);font-weight:700;font-size:clamp(34px,4.6vw,52px);line-height:1}
+.mid{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.1}
+.app[data-mode="holo"] .big,.app[data-mode="holo"] .mid{text-shadow:0 0 18px var(--glow)}
+.deltas{display:flex;gap:18px;flex-wrap:wrap}
+.deltas div{display:flex;flex-direction:column;font-size:12.5px;color:var(--muted)}
+.deltas b{font-size:17px}
+.up{color:var(--good)} .down{color:var(--bad)} .warn{color:var(--warn)}
+.bar{height:8px;background:var(--panel-2);border-radius:99px;position:relative;overflow:visible;border:1px solid var(--line)}
+.bar i{position:absolute;inset:0 auto 0 0;background:var(--good);border-radius:99px;transition:width .5s}
+.bar s{position:absolute;top:-5px;bottom:-5px;width:2px;background:var(--ink)}
+.spark{width:100%;height:56px;margin-top:auto}
+.levers{background:var(--panel-2);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:0}
+.lever{padding:16px 20px;min-width:0}
+.lever .v{font-family:var(--f-display);font-weight:700;font-size:22px}
+.lever .s{font-size:12.5px;color:var(--muted)}
+@media (max-width:1100px){.levers{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.levers{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.foot{font-size:12.5px;color:var(--muted);padding:12px 20px;border-top:1px solid var(--line)}
+.foot b{color:var(--warn)}
+
+/* drivers */
+.drv{display:grid;grid-template-columns:minmax(0,1fr) 120px 92px;gap:10px;align-items:center;padding:7px 0;cursor:pointer;border-radius:8px}
+.drv:hover{background:var(--panel-2)}
+.drv .nm{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.drv .tr{height:10px;background:transparent;position:relative}
+.drv .tr i{position:absolute;top:0;bottom:0;left:0;border-radius:99px;background:var(--good)}
+.drv .vv{text-align:right;font-weight:700}
+.dev{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;border-left:4px solid var(--warn);padding:14px 18px}
+.dev h3{font-size:15px;color:var(--warn);display:flex;gap:8px;align-items:center}
+.dev .it{display:flex;gap:6px;align-items:baseline;cursor:pointer;border-bottom:1px dashed transparent}
+.dev .it:hover{border-color:var(--muted)}
+
+/* chart */
+.chart-wrap{position:relative;overflow-x:auto}
+svg text{fill:var(--muted);font-family:var(--f-body);font-size:11.5px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin:6px 0 8px}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+.tip{position:absolute;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12.5px;box-shadow:0 6px 20px rgba(0,0,0,.18);white-space:nowrap;z-index:5}
+.subtabs{display:flex;gap:14px;flex-wrap:wrap}
+.subtabs button{border:0;background:none;cursor:pointer;font-weight:600;color:var(--muted);padding:4px 0;border-bottom:2px solid transparent}
+.subtabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+
+/* ranking */
+.rank{display:grid;grid-template-columns:28px minmax(0,1fr) minmax(70px,140px) 58px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.rank:last-child{border-bottom:0}
+.rank:hover .nm{color:var(--accent)}
+.rank .ix{color:var(--muted);font-family:var(--f-mono);font-size:12px}
+.rank .nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rank .meta{font-size:12px;color:var(--muted)}
+.meter{height:8px;border-radius:99px;background:var(--panel-2);overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;background:var(--accent)}
+.score{font-family:var(--f-display);font-weight:700;font-size:20px;text-align:right}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.st-live,.st-active{color:var(--good)} .st-building,.st-pitch,.st-pending,.st-coming{color:var(--accent)}
+.st-paused,.st-review,.st-idle,.st-demo,.st-idea{color:var(--muted)} .st-blocked{color:var(--bad)}
+.tier{font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+.tier.t-Critical{background:var(--bad);color:#fff}
+
+/* agents */
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.agent{display:flex;flex-direction:column;gap:10px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.agent .row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.agent .nm{font-family:var(--f-display);font-weight:700;font-size:17px}
+.agent .rl{color:var(--muted);font-size:13px}
+.agent .ln{font-size:12.5px;color:var(--muted)}
+.agent .ln b{color:var(--ink)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted)}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);background:var(--accent-soft)}
+.hbar{display:grid;grid-template-columns:110px minmax(0,1fr) 30px;gap:10px;align-items:center;font-size:13px;padding:3px 0}
+.hbar .t{height:12px;border-radius:3px;background:var(--accent)}
+.cols2{columns:2 280px;column-gap:28px}
+
+/* dashboard */
+.scen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}
+@media (max-width:900px){.scen{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.scen label{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.scen output{font-family:var(--f-display);font-weight:700;color:var(--ink);font-size:20px}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=number],input[type=search]{background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:6px 8px;font:inherit;width:100%}
+td input[type=number]{width:104px;padding:4px 6px;text-align:right}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;min-width:980px;font-size:13.5px}
+th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+th{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--panel-2);cursor:pointer;user-select:none;position:sticky;top:0}
+th[aria-sort]::after{content:" ▾";color:var(--accent)}
+th[aria-sort="ascending"]::after{content:" ▴"}
+td.n,th.n{text-align:right}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:var(--panel-2)}
+tfoot td{font-weight:700;background:var(--panel-2)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.toolbar input[type=search]{max-width:260px}
+.ghost{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:13px}
+.asm{font-size:10.5px;color:var(--warn);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+
+/* holo stage */
+.stage{position:relative;height:min(62vh,560px);min-height:380px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);
+  background:radial-gradient(ellipse at 50% 60%,rgba(30,120,170,.28),transparent 65%),#02070D}
+.stage canvas{display:block;width:100%;height:100%;cursor:grab;touch-action:none}
+.stage canvas:active{cursor:grabbing}
+.stage .hud{position:absolute;left:16px;top:14px;display:flex;flex-direction:column;gap:6px;pointer-events:none;color:#BFF3FF}
+.stage .hud h2{color:#DFFBFF;text-shadow:0 0 14px rgba(77,227,255,.6)}
+.stage .hud .sub{color:#7FB3C6}
+.stage .lgd{position:absolute;right:16px;bottom:14px;display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:#9ED8E8;pointer-events:none}
+.stage .lgd span{display:inline-flex;gap:6px;align-items:center}
+.stage .lbl{position:absolute;transform:translate(-50%,-140%);font-size:11.5px;font-family:var(--f-display);font-weight:600;color:#DFFBFF;text-shadow:0 0 8px rgba(77,227,255,.8);white-space:nowrap;pointer-events:none;letter-spacing:.04em}
+.stage .lbl.sm{font-size:10px;opacity:.7;font-family:var(--f-body)}
+.stage .fallback{position:absolute;inset:0;display:grid;place-items:center;color:#9ED8E8;text-align:center;padding:20px}
+
+/* drawer */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--panel);border-left:1px solid var(--line);z-index:60;
+  transform:translateX(105%);transition:transform .3s;overflow-y:auto;padding:calc(20px + env(safe-area-inset-top,0px)) 20px calc(28px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:16px;box-shadow:-10px 0 40px rgba(0,0,0,.25)}
+.app[data-mode="holo"] .drawer{background:rgba(4,16,26,.92);backdrop-filter:blur(14px)}
+.drawer.open{transform:none}
+.drawer .x{align-self:flex-end;border:1px solid var(--line);background:var(--panel-2);border-radius:8px;padding:4px 10px;cursor:pointer}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;font-size:13.5px}
+.facts dt{color:var(--muted)} .facts dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.src{font-family:var(--f-mono);font-size:11px;color:var(--muted);font-weight:400}
+.bd{display:grid;grid-template-columns:90px minmax(0,1fr) 36px;gap:8px;align-items:center;font-size:12.5px}
+.bd .t{height:8px;border-radius:99px;background:var(--panel-2);overflow:hidden}
+.bd .t i{display:block;height:100%;background:var(--accent)}
+.lnk{color:var(--accent);font-weight:600;text-decoration:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app" id="app" data-mode="flat">
+<div class="wrap">
+  <div class="top">
+    <div class="ttl">
+      <h1>Executive Overview</h1>
+      <div class="sub" id="period">HK23 portfolio · projects, products & agents · 12-month projection</div>
+    </div>
+    <div class="ctrls">
+      <div class="seg" role="group" aria-label="Currency">
+        <button id="c-usd" aria-pressed="true" data-cur="USD">US$</button>
+        <button id="c-clp" aria-pressed="false" data-cur="CLP">CLP</button>
+      </div>
+      <div class="seg" role="group" aria-label="Scenario">
+        <button id="s-down" data-sc="down" aria-pressed="false">Downside</button>
+        <button id="s-base" data-sc="base" aria-pressed="true">Base</button>
+        <button id="s-up" data-sc="up" aria-pressed="false">Upside</button>
+      </div>
+      <button class="holo-btn" id="holoBtn" aria-pressed="false"><span class="dot"></span><span id="holoTxt">HOLO 3D</span></button>
+    </div>
+  </div>
+
+  <section class="stage" id="stage" hidden aria-label="3D holographic map">
+    <canvas id="holo"></canvas>
+    <div class="hud"><h2>Portfolio hologram</h2><div class="sub">Center = most important · height = projected revenue · satellites = agents. Drag to orbit, scroll to zoom, click a node.</div></div>
+    <div class="lgd"><span><i class="sw" style="background:#4DFFA8"></i>Live</span><span><i class="sw" style="background:#4DE3FF"></i>Building / pitch</span><span><i class="sw" style="background:#FF4F8B"></i>Blocked</span><span><i class="sw" style="background:#6E8C99"></i>Idle / idea</span><span><i class="sw" style="background:#C79BFF"></i>Agent</span></div>
+    <div id="labels"></div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="t-overview" data-view="overview" aria-selected="true">Overview</button>
+    <button role="tab" id="t-agents" data-view="agents" aria-selected="false">Agents</button>
+    <button role="tab" id="t-dashboard" data-view="dashboard" aria-selected="false">Dashboard</button>
+  </nav>
+
+  <!-- OVERVIEW -->
+  <section id="v-overview" class="grid">
+    <div class="card hero tilt">
+      <div class="hero-top g-hero grid" style="gap:0">
+        <button class="kpi" data-open="__rev">
+          <div class="label" id="k1l">Projected MRR · month 12</div>
+          <div class="big num" id="k1"></div>
+          <div class="deltas" id="k1d"></div>
+          <div class="bar" style="margin-top:10px"><i id="k1bar"></i><s id="k1mark"></s></div>
+          <div class="sub" id="k1t" style="font-size:13px"></div>
+        </button>
+        <button class="kpi" data-open="__cost">
+          <div class="label">Cost · month 12</div>
+          <div class="mid num" id="k2"></div>
+          <div class="sub" id="k2d"></div>
+          <svg class="spark" id="sp2" viewBox="0 0 200 56" preserveAspectRatio="none"></svg>
+        </button>
+        <button class="kpi" data-open="__margin">
+          <div class="label">Margin · year 1</div>
+          <div class="mid num" id="k3"></div>
+          <div class="sub" id="k3d"></div>
+          <svg class="spark" id="sp3" viewBox="0 0 200 56" preserveAspectRatio="none"></svg>
+        </button>
+        <div class="kpi" style="cursor:default">
+          <div class="card-h" style="margin:0"><h3 style="font-size:16px">What moves revenue</h3>
+            <div class="seg" role="group" aria-label="Driver period"><button id="mv-m12" data-mv="m12" aria-pressed="true">Month 12</button><button id="mv-y1" data-mv="y1" aria-pressed="false">Year 1</button></div></div>
+          <div id="drivers"></div>
+        </div>
+      </div>
+      <div class="levers" id="levers"></div>
+      <div class="foot">Prices come from the repo (source shown on each item). <b>No sales or cost history exists in the repo</b>, so units per month, fixed costs, fees and growth are editable assumptions. Change them in Dashboard. The Gumroad agent can replace them with live sales.</div>
+    </div>
+
+    <div class="card dev" id="dev"></div>
+
+    <div class="grid g-2">
+      <div class="card tilt">
+        <div class="card-h"><h2>Evolution</h2>
+          <div class="seg" role="group" aria-label="Aggregation"><button id="ag-m" data-ag="month" aria-pressed="true">Monthly</button><button id="ag-c" data-ag="cum" aria-pressed="false">Cumulative</button></div></div>
+        <div class="subtabs" role="tablist" aria-label="Metric">
+          <button id="m-rev" data-m="rev" aria-selected="true">Revenue</button>
+          <button id="m-cost" data-m="cost" aria-selected="false">Cost</button>
+          <button id="m-profit" data-m="profit" aria-selected="false">Profit</button>
+        </div>
+        <p id="evoSum" style="margin:12px 0 0"></p>
+        <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Selected scenario</span><span><i class="sw" style="background:var(--good);height:3px"></i>Upside</span><span><i class="sw" style="background:var(--bad);height:3px"></i>Downside</span><span><i class="sw" style="background:var(--warn);height:3px"></i>MRR target</span></div>
+        <div class="chart-wrap" id="evoWrap"><svg id="evo" viewBox="0 0 720 300" style="width:100%;min-width:520px;height:auto"></svg><div class="tip" id="tip" hidden></div></div>
+      </div>
+      <div class="card tilt">
+        <div class="card-h"><div><h2>Who matters most</h2><div class="sub" id="rankSub">Importance score 0–100</div></div>
+          <div class="seg" role="group" aria-label="Ranking set"><button id="rk-all" data-rk="all" aria-pressed="true">All</button><button id="rk-rev" data-rk="rev" aria-pressed="false">Revenue</button></div></div>
+        <div id="rank"></div>
+        <a href="#dashboard" class="lnk" id="toDash" style="display:inline-block;margin-top:12px">See all items in the table →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- AGENTS -->
+  <section id="v-agents" class="grid" hidden>
+    <div class="card hero tilt">
+      <div class="levers" id="alevers" style="border-top:0"></div>
+      <div class="foot">The agent roster comes from <span class="mono">api/run.js</span>, <span class="mono">vice-seller/</span>, <span class="mono">etsy-agent/</span>, <span class="mono">hk23-brain/</span>, <span class="mono">worlds/viceai.json</span> and <span class="mono">api/_centro.js</span>. "Drives" is the month-12 projected revenue of the products each agent serves.</div>
+    </div>
+    <div class="card dev" id="adev"></div>
+    <div class="card">
+      <div class="card-h"><h2>Agent roster</h2><div class="chips" id="achips"></div></div>
+      <div class="agrid" id="agrid"></div>
+    </div>
+    <div class="grid g-2">
+      <div class="card"><div class="card-h"><div><h2>El Centro catalogue</h2><div class="sub">156 agents by world · only LeadHunter is live; TradeHunter is next</div></div></div><div class="cols2" id="centro"></div></div>
+      <div class="card"><div class="card-h"><h2>Agents by importance</h2></div><div id="arank"></div></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="v-dashboard" class="grid" hidden>
+    <div class="card">
+      <div class="card-h"><h2>Scenario controls</h2><button class="ghost" id="reset">Reset assumptions</button></div>
+      <div class="scen">
+        <label for="growth">Monthly unit growth <output id="o-growth"></output><input type="range" id="growth" min="-10" max="25" step="1"></label>
+        <label for="mult">Volume multiplier <output id="o-mult"></output><input type="range" id="mult" min="0.2" max="3" step="0.1"></label>
+        <label for="target">MRR target (US$) <output id="o-target"></output><input type="range" id="target" min="500" max="30000" step="500"></label>
+        <label for="fx">FX · CLP per US$ <output id="o-fx"></output><input type="range" id="fx" min="800" max="1100" step="5"></label>
+      </div>
+    </div>
+    <div class="card">
+      <div class="toolbar">
+        <h2 style="margin-right:auto">All items</h2>
+        <input type="search" id="q" placeholder="Search name or world" aria-label="Search items">
+        <div class="chips" id="tchips"></div>
+      </div>
+      <div class="tbl-wrap"><table id="tbl"><thead><tr>
+        <th data-k="name">Item</th><th data-k="type">Type</th><th data-k="status">Status</th>
+        <th class="n" data-k="price">Price</th><th class="n" data-k="units">Units/mo <span class="asm">edit</span></th><th class="n" data-k="fixed">Fixed cost/mo <span class="asm">edit</span></th>
+        <th class="n" data-k="m1">MRR M1</th><th class="n" data-k="m12">MRR M12</th><th class="n" data-k="y1">Year 1</th><th class="n" data-k="margin">Margin</th><th class="n" data-k="score">Score</th><th data-k="tier">Importance</th>
+      </tr></thead><tbody id="tbody"></tbody><tfoot id="tfoot"></tfoot></table></div>
+    </div>
+  </section>
+</div>
+
+<aside class="drawer" id="drawer" aria-label="Item details" aria-hidden="true"><button class="x" id="dx">Close ✕</button><div id="dbody" style="display:flex;flex-direction:column;gap:16px"></div></aside>
+</div>
+
+<script>
+(()=>{
+/* ---------- DATA (prices & sources from the repo; units/fixed/fee/start = assumptions) ---------- */
+const ITEMS=[
+ {id:'atlas',name:'ATLAS X',type:'product',world:'Marketplace',status:'live',price:37,cur:'USD',units:8,start:1,fixed:0,fee:.10,prio:5,url:'https://hk23hub.gumroad.com/l/ljkokj',src:'supabase/migrations/0005_atlas_x_product.sql:12',note:'Personal Intelligence OS kit. Flagship, MOVES rank 03.'},
+ {id:'leadhunter',name:'LeadHunter',type:'product',world:'El Centro · Ventas',status:'live',price:97,cur:'USD',units:3,start:1,fixed:0,fee:.10,prio:4,url:'/leadhunter',src:'leadhunter/index.html:181',note:'Prospecting agent sold on Gumroad. The buyer pays about US$0.20 per search in API cost.'},
+ {id:'centro',name:'El Centro · 30-day pass',type:'product',world:'Agent marketplace',status:'live',price:9,cur:'USD',units:25,start:1,fixed:30,fee:.03,prio:4,url:'/centro',src:'centro/shopify/pase-30-dias.md:6',fixedSrc:'centro/shopify/CHECKLIST.md:15 (AI Gateway US$30/mo)',note:'A 156-agent marketplace. The pass gives 300 runs in 30 days; the free tier gives 5.'},
+ {id:'gta6',name:'VICE.HUB GTA6 · PRO',type:'product',world:'GTA 6',status:'live',price:4.99,cur:'USD',units:40,start:1,fixed:0,fee:.10,prio:3,url:'/vice-gta6',src:'vice-gta6.html:748',note:'GTA 6 fan hub with paid intel and a daily research cron.'},
+ {id:'etsy',name:'Etsy art prints · HK23Studio',type:'product',world:'Arte World',status:'live',price:7.40,cur:'USD',units:30,start:1,fixed:0.5,fee:.095,prio:3,url:'https://www.etsy.com/shop/HK23Studio',src:'etsy-listings.json (10 listings, US$6.00–8.50, avg 7.40)',fixedSrc:'vice-seller/README.md:24 (US$0.20 per listing)',note:'MidJourney digital prints. 87 public, 626 still to curate.'},
+ {id:'tourn',name:'Tournament Builder · club deal',type:'product',world:'Golf',status:'pitch',price:200000,cur:'CLP',units:1,start:3,fixed:0,fee:0,prio:4,url:'/tournament-builder-comparison',src:'tournament-builder-comparison.html:67 ($2.4M CLP/yr)',note:'Pitch to the club. The competitor charges $12M CLP plus install.'},
+ {id:'vgh',name:'ViceGolfer House · memberships',type:'venture',world:'Golf',status:'building',price:170000,cur:'CLP',units:6,start:6,fixed:1500000,fee:0,prio:5,url:'/vicegolfer-house-complete',src:'vicegolfer-house-complete.html:522-526 (Basic 170K / Premium 300K CLP)',fixedSrc:'assumption: rent + operations',note:'Private performance house. Simulator, memberships, data sessions and events.'},
+ {id:'vghsim',name:'ViceGolfer House · simulator hours',type:'venture',world:'Golf',status:'building',price:55000,cur:'CLP',units:40,start:6,fixed:0,fee:0,prio:5,url:'/vicegolfer-house-complete',src:'vicegolfer-house-complete.html:522 ($50–60K CLP/hr)',note:'Simulator rental by the hour.'},
+ {id:'bid',name:'Pump Up The Bid · Lote 001',type:'product',world:'Auction',status:'review',price:1000,cur:'USD',units:0,start:1,oneTime:true,fixed:0,fee:0,prio:2,url:'/pump-up-the-bid',src:'pump-up-the-bid/index.html:245',note:'1989 Technotronic cassette. The auction closed 18 Sep and the result is not in the repo. Set units to 1 if it sold.'},
+ {id:'agentos',name:'Agent OS',type:'product',world:'Gumroad',status:'live',price:null,cur:'USD',units:0,start:1,fixed:0,fee:.10,prio:3,url:'https://hk23hub.gumroad.com/l/agentos',src:'vercel.json redirect · no price in repo',note:'Gumroad product reached through /agent, /agentos and /agent-os. No price is set in the repo.'},
+ {id:'template',name:'Universe Template tiers',type:'product',world:'Universe OS',status:'pending',price:null,cur:'USD',units:0,start:1,fixed:0,fee:.10,prio:3,url:'/universe-template',src:'api/tier-unlock.js:8-13 (all PENDING)',note:'Premium, full, template_hk23 and template_genesis tiers. Unlock is pending.'},
+ {id:'vicegolfer',name:'VICEGOLFER app',type:'app',world:'Golf',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:5,url:'https://vicegolfer.vercel.app',src:'command-center.html:204 (MOVES 02)',note:'Golf performance OS. Feeds the House and the club deal.'},
+ {id:'cmd',name:'Command Center',type:'system',world:'CMDS',status:'live',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:5,url:'/command-center',src:'command-center.html:188 (MOVES 01)',note:'Mission control that runs, schedules and holds agent actions.'},
+ {id:'universe',name:'Universe OS',type:'app',world:'Universe',status:'live',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:4,url:'/universe-os',src:'universe-os.html',note:'The main universe app: galaxies, NeuralHub, game modes.'},
+ {id:'cosmos',name:'HK23 Cosmos',type:'app',world:'Multiverse',status:'live',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:2,url:'/cosmos',src:'cosmos.html',note:'Supabase-backed universe map.'},
+ {id:'scale',name:'Motivation Scale (PWA)',type:'app',world:'Mindset',status:'live',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:2,url:'/scale',src:'scale.html',note:'Daily 0–10 check-in with web push reminders and Circle.'},
+ {id:'rugby',name:'RUGBY VICE',type:'app',world:'Performance',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:2,src:'command-center.html',note:'Rugby kick tracker where agents run the play.'},
+ {id:'crypto',name:'CryptoVice + VICE FUTURES',type:'venture',world:'Crypto',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:2,url:'/vice-futures',src:'vice-futures.html:88 (referral only)',note:'DeFi, portfolio and futures assistant. Its only revenue path is a referral link.'},
+ {id:'iglesia',name:'La Iglesia · gold exploration',type:'venture',world:'Mining',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:3,src:'universe-os.html',note:'Chilean gold exploration on 3,676 ha.'},
+ {id:'pow',name:'Proof of Work',type:'product',world:'Art / merch',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:2,src:'command-center.html',note:'Art made from Claude Code stats.'},
+ {id:'nft',name:'NFT collection · 988 on Base',type:'product',world:'Creator',status:'idea',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:1,src:'nft-collection.json (no prices)',note:'Catalogue only. No price set.'},
+ {id:'casa',name:'Casa OS',type:'app',world:'Household',status:'building',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:1,src:'command-center.html',note:'Expense and meter tracker.'},
+ {id:'playa',name:'La Playa',type:'venture',world:'Hospitality',status:'idea',price:null,cur:'USD',units:0,start:1,fixed:0,fee:0,prio:1,src:'universe-os.html',note:'Beach property concept.'},
+];
+const AGENTS=[
+ {id:'sentinela',name:'SENTINELA',role:'Prioritizer',status:'live',links:['cmd'],prio:5,src:'api/run.js:12'},
+ {id:'oraculo',name:'ORÁCULO',role:'Strategist',status:'live',links:['cmd'],prio:4,src:'api/run.js:13'},
+ {id:'vigia',name:'VIGÍA',role:'Analyst',status:'live',links:['cmd'],prio:4,src:'api/run.js:14'},
+ {id:'heyoka',name:'HEYOKA',role:'Writer',status:'live',links:['etsy','atlas'],prio:3,src:'api/run.js:15'},
+ {id:'aduanero',name:'EL ADUANERO',role:'Realms & privacy guard',status:'live',links:['universe'],prio:3,src:'api/run.js:16'},
+ {id:'insider',name:'VICE INSIDER',role:'GTA 6 intel',status:'live',links:['gta6'],prio:3,src:'api/run.js:17'},
+ {id:'guardia',name:'EL GUARDIA',role:'Scam watch',status:'live',links:['crypto'],prio:2,src:'api/run.js:18'},
+ {id:'cguia',name:'Cripto Guía',role:'Crypto teacher',status:'live',links:['crypto'],prio:2,src:'api/run.js:19'},
+ {id:'futures',name:'VICE FUTURES',role:'Futures assistant',status:'live',links:['crypto'],prio:2,src:'api/run.js:20'},
+ {id:'gumroad',name:'Gumroad Agent',role:'Pulls live sales & revenue',status:'live',links:['atlas','leadhunter','agentos'],prio:5,src:'api/gumroad-agent.js'},
+ {id:'lh',name:'LeadHunter',role:'Prospecting (sold product)',status:'live',links:['leadhunter'],prio:4,src:'api/_centro.js'},
+ {id:'gtacron',name:'GTA6 Research cron',role:'Daily research · 13:00 UTC',status:'live',links:['gta6'],prio:2,src:'vercel.json crons'},
+ {id:'aria',name:'ARIA',role:'Brain graph linker (approval-gated)',status:'live',links:['universe','cmd'],prio:3,src:'hk23-brain/aria.mjs'},
+ {id:'content',name:'VICE AI · CONTENT',role:'Content station',status:'active',links:['etsy','gta6'],prio:3,src:'worlds/viceai.json'},
+ {id:'seller',name:'VICE SELLER',role:'Etsy/Printify/Pinterest seller',status:'paused',links:['etsy'],prio:4,src:'vice-seller/config.json',issue:'Paused. Waves of 50, with canvas ×1.6 and poster ×1.8 markups configured.'},
+ {id:'etsyag',name:'HK23 Etsy Agent',role:'Listing publisher',status:'blocked',links:['etsy'],prio:4,src:'etsy-agent/',issue:'Etsy API key is "Pending Personal Approval".'},
+ {id:'trade',name:'TradeHunter',role:'Next El Centro agent',status:'coming',links:['centro'],prio:3,src:'api/_centro.js'},
+ {id:'vgorch',name:'vg-orchestrator',role:'ViceGolfer orchestrator',status:'building',links:['vicegolfer','vgh'],prio:4,src:'command-center.html'},
+ {id:'idle',name:'VICE AI · 7 modules',role:'VAULT, DNA, HK23 LINES, OPS, COACH, CRYPTO, MARKET',status:'idle',links:['universe'],prio:2,src:'worlds/viceai.json',issue:'7 station modules idle.'},
+];
+const CENTRO=[['Redes',10],['Ventas',9],['Meditación',9],['Trabajo',8],['Mindset',8],['Marketing',8],['Marca',8],['Manifestación',8],['Hábitos',8],['Dinero',8],['Contenido',8],['Casa',8],['Negocio',7],['Estudio',7],['Relaciones',6],['Frecuencias',6],['Cuerpo',6],['Creatividad',6],['Afirmaciones',6],['Cripto',5],['Meta',4],['GTA 6',3]];
+const READY={live:25,active:25,pitch:15,review:10,building:12,pending:10,coming:10,paused:8,blocked:6,idle:5,demo:4,idea:3};
+const SC={base:{g:0,m:1},up:{g:3,m:1.3},down:{g:-3,m:.6}};
+const MONTHS=Array.from({length:12},(_,i)=>new Date(2026,9+i,1).toLocaleDateString('en-US',{month:'short',year:'2-digit'}));
+
+/* ---------- STATE ---------- */
+const KEY='hk23-exec-v1';
+const DEF={view:'overview',cur:'USD',sc:'base',mode:'flat',growth:6,mult:1,target:5000,fx:950,edits:{},metric:'rev',ag:'month',mv:'m12',rk:'all',sort:{k:'score',d:-1},tf:'all',af:'all',q:''};
+let S=Object.assign({},DEF);
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)S=Object.assign({},DEF,s,{edits:s.edits||{}})}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const val=(it,k)=>(S.edits[it.id]&&S.edits[it.id][k]!=null)?S.edits[it.id][k]:it[k];
+
+/* ---------- MODEL ---------- */
+const usd=(it,v)=>it.cur==='CLP'?v/S.fx:v;
+function project(it,sc){
+  const p=SC[sc],g=(S.growth+p.g)/100,u0=val(it,'units')*S.mult*p.m,st=it.start,fx=val(it,'fixed');
+  const rev=[],cost=[],units=[];
+  for(let m=1;m<=12;m++){
+    let u=0;
+    if(it.oneTime)u=m===st?val(it,'units'):0;
+    else if(m>=st)u=u0*Math.pow(1+g,m-st);
+    const r=it.price?usd(it,it.price*u):0;
+    units.push(u);rev.push(r);cost.push((m>=st&&!it.oneTime?usd(it,fx):0)+r*it.fee);
+  }
+  return {rev,cost,units};
+}
+let M={};
+function compute(){
+  const P={};let maxY=0;
+  ITEMS.forEach(it=>{const b=project(it,S.sc);P[it.id]={b,up:project(it,'up'),down:project(it,'down')};const y=sum(b.rev);if(y>maxY)maxY=y});
+  ITEMS.forEach(it=>{
+    const b=P[it.id].b,y=sum(b.rev),c=sum(b.cost);
+    const rv=maxY>0?35*Math.log10(1+y)/Math.log10(1+maxY):0,rd=READY[it.status]||0,stg=it.prio*5,mg=y>0?15*clamp((y-c)/y,0,1):0;
+    const score=Math.round(rv+rd+stg+mg);
+    Object.assign(P[it.id],{y,c,m1:b.rev[0],m12:b.rev[11],margin:y>0?(y-c)/y:null,score,parts:{Revenue:[rv,35],Readiness:[rd,25],Strategic:[stg,25],Margin:[mg,15]},tier:tier(score)});
+  });
+  const tot=k=>Array.from({length:12},(_,i)=>ITEMS.reduce((a,it)=>a+P[it.id][k].rev[i],0));
+  const totc=k=>Array.from({length:12},(_,i)=>ITEMS.reduce((a,it)=>a+P[it.id][k].cost[i],0));
+  M={P,rev:{b:tot('b'),up:tot('up'),down:tot('down')},cost:{b:totc('b'),up:totc('up'),down:totc('down')}};
+  M.profit={b:M.rev.b.map((v,i)=>v-M.cost.b[i]),up:M.rev.up.map((v,i)=>v-M.cost.up[i]),down:M.rev.down.map((v,i)=>v-M.cost.down[i])};
+  AGENTS.forEach(a=>{const drive=a.links.reduce((s,l)=>s+(P[l]?P[l].m12:0),0);const maxD=1+Math.max(...ITEMS.map(i=>P[i.id].m12));
+    a.drive=drive;a.score=Math.round(35*Math.log10(1+drive)/Math.log10(maxD)+(READY[a.status]||0)+a.prio*5+(a.status==='blocked'?0:a.status==='paused'?5:15) - (a.status==='idle'?10:0));a.score=clamp(a.score,0,100);a.tier=tier(a.score)});
+}
+const sum=a=>a.reduce((x,y)=>x+y,0),clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const tier=s=>s>=70?'Critical':s>=50?'High':s>=30?'Medium':'Low';
+
+/* ---------- FORMAT ---------- */
+function money(vUSD,compact=true){
+  if(S.cur==='CLP'){const v=vUSD*S.fx;const a=Math.abs(v);
+    if(compact&&a>=1e6)return (v<0?'−':'')+'$'+(a/1e6).toLocaleString('es-CL',{maximumFractionDigits:1})+' MM';
+    return (v<0?'−':'')+'$'+Math.round(a).toLocaleString('es-CL');}
+  const a=Math.abs(vUSD),sg=vUSD<0?'−':'';
+  if(compact&&a>=1e6)return sg+'US$'+(a/1e6).toFixed(2)+'M';
+  if(compact&&a>=1e4)return sg+'US$'+(a/1e3).toFixed(1)+'K';
+  return sg+'US$'+a.toLocaleString('en-US',{maximumFractionDigits:a<100?2:0});
+}
+const pct=(v,d=1)=>(v>=0?'+':'−')+Math.abs(v*100).toFixed(d)+'%';
+const priceTxt=it=>it.price==null?'—':it.cur==='CLP'?'$'+it.price.toLocaleString('es-CL')+' CLP':'US$'+it.price.toLocaleString('en-US',{minimumFractionDigits:it.price%1?2:0});
+const pill=s=>`<span class="pill st-${s}">${s}</span>`;
+const tierEl=t=>`<span class="tier t-${t}">${t}</span>`;
+
+/* ---------- RENDER ---------- */
+function render(){
+  compute();
+  $('app').dataset.mode=S.mode;
+  ['overview','agents','dashboard'].forEach(v=>{$('v-'+v).hidden=S.view!==v;$('t-'+v).setAttribute('aria-selected',S.view===v)});
+  document.querySelectorAll('[data-cur]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cur===S.cur));
+  document.querySelectorAll('[data-sc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sc===S.sc));
+  $('holoBtn').setAttribute('aria-pressed',S.mode==='holo');$('holoTxt').textContent=S.mode==='holo'?'HOLO ON':'HOLO 3D';
+  $('stage').hidden=S.mode!=='holo';
+  $('period').textContent=`HK23 portfolio · ${ITEMS.length} items · ${AGENTS.length} agent units + 156 in El Centro · ${MONTHS[0]} → ${MONTHS[11]} · ${S.sc} scenario · ${S.cur}`;
+  if(S.view==='overview')renderOverview();
+  if(S.view==='agents')renderAgents();
+  if(S.view==='dashboard')renderDash();
+  if(S.mode==='holo')holo.update();
+  save();
+}
+
+function renderOverview(){
+  const r=M.rev.b,c=M.cost.b,m12=r[11],m1=r[0],y=sum(r),yc=sum(c);
+  $('k1').textContent=money(m12);
+  const tgtPct=m12/S.target;
+  $('k1d').innerHTML=`<div>vs month 1<b class="${m12>=m1?'up':'down'}">${m1?pct(m12/m1-1,0):'—'}</b></div><div>vs upside<b class="down">${pct(m12/M.rev.up[11]-1,0)}</b></div><div>vs target<b class="${tgtPct>=1?'up':'down'}">${pct(tgtPct-1,0)}</b></div>`;
+  $('k1bar').style.width=Math.min(100,tgtPct*100/1.25)+'%';$('k1bar').style.background=tgtPct>=1?'var(--good)':'var(--warn)';
+  $('k1mark').style.left=(100/1.25)+'%';
+  $('k1t').innerHTML=`${(tgtPct*100).toFixed(0)}% of the ${money(S.target)} MRR target · year 1 total <b>${money(y)}</b>`;
+  $('k2').textContent=money(c[11]);
+  $('k2d').innerHTML=`${(c[11]/Math.max(1,m12)*100).toFixed(0)}% of revenue · year 1 ${money(yc)}`;
+  $('k3').textContent=y?((y-yc)/y*100).toFixed(1)+'%':'—';
+  $('k3d').innerHTML=`Profit year 1 <b class="${y-yc>=0?'up':'down'}">${money(y-yc)}</b>`;
+  spark($('sp2'),c,'var(--bad)');spark($('sp3'),M.profit.b,'var(--accent)');
+  // drivers
+  document.querySelectorAll('[data-mv]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mv===S.mv));
+  const dk=S.mv==='m12'?'m12':'y';
+  const ds=ITEMS.map(it=>({it,v:M.P[it.id][dk]})).filter(d=>d.v>0).sort((a,b)=>b.v-a.v);
+  const dmax=ds[0]?ds[0].v:1,dtot=sum(ds.map(d=>d.v));
+  $('drivers').innerHTML=`<div class="sub" style="margin:4px 0 6px">${ds.length} revenue lines · total <b style="color:var(--good)">${money(dtot)}</b></div>`+
+    ds.slice(0,6).map(d=>`<div class="drv" data-open="${d.it.id}" role="button" tabindex="0"><span class="nm">${esc(d.it.name)}</span><span class="tr"><i style="width:${d.v/dmax*100}%"></i></span><span class="vv up num">${money(d.v)}</span></div>`).join('');
+  // levers
+  const live=ITEMS.filter(i=>i.status==='live').length,priced=ITEMS.filter(i=>i.price!=null).length,unpriced=ITEMS.filter(i=>i.price==null&&i.type!=='system').length;
+  const aLive=AGENTS.filter(a=>a.status==='live'||a.status==='active').length,aBlk=AGENTS.filter(a=>a.status==='blocked'||a.status==='paused').length;
+  const pipe=ITEMS.filter(i=>i.status!=='live').reduce((s,i)=>s+M.P[i.id].m12,0);
+  const avg=Math.round(sum(ITEMS.map(i=>M.P[i.id].score))/ITEMS.length);
+  $('levers').innerHTML=[
+    ['Live items',live,`of ${ITEMS.length} in portfolio`],
+    ['Priced products',priced,`${unpriced} without a price`],
+    ['Agents running',aLive,`of ${AGENTS.length} agent units`],
+    ['Agents stuck',aBlk,'paused or blocked',aBlk?'down':''],
+    ['Pipeline MRR',money(pipe),'not live yet · month 12'],
+    ['Avg score',avg,'importance 0–100'],
+  ].map(([l,v,s,c])=>`<div class="lever"><div class="label">${l}</div><div class="v num ${c||''}">${v}</div><div class="s">${s}</div></div>`).join('');
+  // deviations
+  const devs=[];
+  AGENTS.filter(a=>a.status==='blocked'||a.status==='paused').forEach(a=>devs.push([a.id,`<b>${esc(a.name)}</b> ${a.status}`,`<span class="down">−${money(a.drive)} at risk</span>`]));
+  ITEMS.filter(i=>i.price==null&&i.status==='live'&&i.type==='product').forEach(i=>devs.push([i.id,`<b>${esc(i.name)}</b> is live with no price`,`<span class="warn">US$0 captured</span>`]));
+  ITEMS.filter(i=>i.status==='pending'||i.status==='review').forEach(i=>devs.push([i.id,`<b>${esc(i.name)}</b> ${i.status}`,'']));
+  ITEMS.filter(i=>M.P[i.id].margin!=null&&M.P[i.id].margin<0).forEach(i=>devs.push([i.id,`<b>${esc(i.name)}</b> loses money in year 1`,`<span class="down">${money(M.P[i.id].y-M.P[i.id].c)}</span>`]));
+  if(m12<S.target)devs.unshift(['__rev',`<b>MRR</b> at ${(tgtPct*100).toFixed(0)}% of target`,`<span class="down">−${money(S.target-m12)}</span>`]);
+  $('dev').innerHTML=`<h3>⚠ Deviations to watch</h3>`+devs.map(d=>`<span class="it" data-open="${d[0]}" role="button" tabindex="0">${d[1]} ${d[2]}</span>`).join('');
+  renderEvo();
+  // ranking
+  document.querySelectorAll('[data-rk]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.rk===S.rk));
+  const list=ITEMS.filter(i=>S.rk==='all'||M.P[i.id].y>0).sort((a,b)=>M.P[b.id].score-M.P[a.id].score).slice(0,8);
+  $('rankSub').textContent=S.rk==='all'?'Importance score 0–100 · revenue 35 · readiness 25 · strategic 25 · margin 15':'Only items that make revenue';
+  $('rank').innerHTML=list.map((it,i)=>{const p=M.P[it.id];return `<div class="rank" data-open="${it.id}" role="button" tabindex="0"><span class="ix">${String(i+1).padStart(2,'0')}</span><div style="min-width:0"><div class="nm">${esc(it.name)}</div><div class="meta">${esc(it.world)} · ${pill(it.status)} ${p.m12?'· '+money(p.m12)+'/mo':''}</div></div><div class="meter"><i style="width:${p.score}%"></i></div><div class="score num">${p.score}</div></div>`}).join('');
+}
+
+function spark(svg,data,color){
+  const w=200,h=56,mn=Math.min(0,...data),mx=Math.max(...data,1),x=i=>i/(data.length-1)*w,y=v=>h-4-(v-mn)/(mx-mn)*(h-10);
+  const d=data.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join(' ');
+  svg.innerHTML=`<path d="${d} L${w} ${h} L0 ${h}Z" fill="${color}" opacity=".12"/><path d="${d}" fill="none" stroke="${color}" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${x(data.length-1)}" cy="${y(data[data.length-1])}" r="3" fill="${color}"/>`;
+}
+
+function renderEvo(){
+  document.querySelectorAll('[data-m]').forEach(b=>b.setAttribute('aria-selected',b.dataset.m===S.metric));
+  document.querySelectorAll('[data-ag]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.ag===S.ag));
+  const set=M[S.metric],cum=a=>{let s=0;return a.map(v=>s+=v)};
+  const f=S.ag==='cum'?cum:a=>a;
+  const b=f(set.b),up=f(set.up),dn=f(set.down);
+  const W=720,H=300,L=64,R=12,T=16,B=34,iw=W-L-R,ih=H-T-B;
+  const showT=S.metric==='rev'&&S.ag==='month';
+  const all=[...b,...up,...dn,...(showT?[S.target]:[]),0];
+  let mn=Math.min(...all),mx=Math.max(...all);if(mx===mn)mx=mn+1;
+  const ticks=niceTicks(mn,mx,5);mn=ticks[0];mx=ticks[ticks.length-1];
+  const y=v=>T+ih-(v-mn)/(mx-mn)*ih,bw=iw/12,x=i=>L+bw*i+bw/2;
+  let s='';
+  ticks.forEach(t=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(t)}" y2="${y(t)}" stroke="var(--line)" stroke-dasharray="${t===0?'':'3 4'}"/><text x="${L-8}" y="${y(t)+4}" text-anchor="end">${money(t)}</text>`});
+  b.forEach((v,i)=>{const y0=y(Math.max(0,v)),y1=y(Math.min(0,v));s+=`<rect x="${x(i)-bw*.32}" y="${y0}" width="${bw*.64}" height="${Math.max(1,y1-y0)}" rx="3" fill="${v<0?'var(--bad)':'var(--accent)'}" opacity="${i===11?1:.82}"/>`;
+    s+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle">${MONTHS[i]}</text>`});
+  const line=(a,c,dash)=>`<path d="${a.map((v,i)=>(i?'L':'M')+x(i)+' '+y(v)).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="${dash}"/>`;
+  s+=line(up,'var(--good)','6 4')+line(dn,'var(--bad)','2 4');
+  if(showT)s+=`<line x1="${L}" x2="${W-R}" y1="${y(S.target)}" y2="${y(S.target)}" stroke="var(--warn)" stroke-width="1.5" stroke-dasharray="8 5"/><text x="${W-R}" y="${y(S.target)-6}" text-anchor="end" style="fill:var(--warn)">target ${money(S.target)}</text>`;
+  for(let i=0;i<12;i++)s+=`<rect class="hit" data-i="${i}" x="${L+bw*i}" y="${T}" width="${bw}" height="${ih}" fill="transparent"/>`;
+  $('evo').innerHTML=s;
+  const best=b.indexOf(Math.max(...b)),over=showT?b.filter(v=>v>=S.target).length:null;
+  const nm={rev:'Revenue',cost:'Cost',profit:'Profit'}[S.metric];
+  $('evoSum').innerHTML=(over!=null?`<b>${over} of 12</b> months reach the MRR target · `:'')+`highest: <b>${MONTHS[best]}</b> ${money(b[best])} · ${nm.toLowerCase()} year 1 <b>${money(S.ag==='cum'?b[11]:sum(b))}</b>`;
+  const tip=$('tip');
+  $('evo').querySelectorAll('.hit').forEach(h=>{
+    h.addEventListener('mousemove',e=>{const i=+h.dataset.i,wr=$('evoWrap').getBoundingClientRect();tip.hidden=false;
+      tip.innerHTML=`<b>${MONTHS[i]}</b> · ${nm}<br>${S.sc}: <b>${money(b[i],false)}</b><br><span class="up">upside ${money(up[i])}</span> · <span class="down">downside ${money(dn[i])}</span>`;
+      tip.style.left=Math.min(e.clientX-wr.left+12,wr.width-200)+'px';tip.style.top=(e.clientY-wr.top-10)+'px'});
+    h.addEventListener('mouseleave',()=>tip.hidden=true)});
+}
+function niceTicks(mn,mx,n){const st=Math.pow(10,Math.floor(Math.log10((mx-mn)/n)));const e=(mx-mn)/n/st;const step=st*(e>5?10:e>2?5:e>1?2:1);const a=[];for(let v=Math.floor(mn/step)*step;v<=mx+step*.999;v+=step)a.push(+v.toFixed(6));return a}
+
+function renderAgents(){
+  const live=AGENTS.filter(a=>a.status==='live'||a.status==='active'),stuck=AGENTS.filter(a=>['blocked','paused'].includes(a.status)),bld=AGENTS.filter(a=>['building','coming'].includes(a.status));
+  const drive=sum(ITEMS.filter(i=>AGENTS.some(a=>a.links.includes(i.id))).map(i=>M.P[i.id].m12));
+  $('alevers').innerHTML=[
+    ['Agent units',AGENTS.length,'in the core roster'],['Running',live.length,'live or active','up'],['Stuck',stuck.length,'paused or blocked',stuck.length?'down':''],
+    ['In build',bld.length,'building or coming'],['El Centro catalogue',156,'1 live · 1 coming'],['Drives MRR',money(drive),'month 12, linked products'],
+  ].map(([l,v,s,c])=>`<div class="lever"><div class="label">${l}</div><div class="v num ${c||''}">${v}</div><div class="s">${s}</div></div>`).join('');
+  $('adev').innerHTML=`<h3>⚠ Agent blockers</h3>`+AGENTS.filter(a=>a.issue).map(a=>`<span class="it" data-open="a:${a.id}" role="button" tabindex="0"><b>${esc(a.name)}</b> ${esc(a.issue)}</span>`).join('')+`<span class="it">AI budget <b>US$30/mo</b> (El Centro gateway)</span>`;
+  const fs=['all','live','active','paused','blocked','building','coming','idle'];
+  $('achips').innerHTML=fs.filter(f=>f==='all'||AGENTS.some(a=>a.status===f)).map(f=>`<button class="chip" data-af="${f}" aria-pressed="${S.af===f}">${f==='all'?'All':f} ${f==='all'?AGENTS.length:AGENTS.filter(a=>a.status===f).length}</button>`).join('');
+  $('agrid').innerHTML=AGENTS.filter(a=>S.af==='all'||a.status===S.af).sort((a,b)=>b.score-a.score).map(a=>`<button class="card agent tilt" data-open="a:${a.id}">
+    <div class="row"><span class="nm">${esc(a.name)}</span>${pill(a.status)}</div>
+    <div class="rl">${esc(a.role)}</div>
+    <div class="ln">Serves <b>${a.links.map(l=>esc(ITEMS.find(i=>i.id===l).name)).join(', ')}</b></div>
+    <div class="row"><span class="ln">Drives <b class="${a.drive?'up':''}">${a.drive?money(a.drive)+'/mo':'—'}</b></span><span>${tierEl(a.tier)} <b class="num" style="font-family:var(--f-display);font-size:18px;margin-left:4px">${a.score}</b></span></div>
+    <div class="meter"><i style="width:${a.score}%"></i></div></button>`).join('');
+  const cm=Math.max(...CENTRO.map(c=>c[1]));
+  $('centro').innerHTML=CENTRO.map(([w,n])=>`<div class="hbar"><span>${w}</span><span class="t" style="width:${n/cm*100}%;${w==='Ventas'?'background:var(--good)':''}"></span><span class="num">${n}</span></div>`).join('');
+  $('arank').innerHTML=[...AGENTS].sort((a,b)=>b.score-a.score).slice(0,8).map((a,i)=>`<div class="rank" data-open="a:${a.id}" role="button" tabindex="0"><span class="ix">${String(i+1).padStart(2,'0')}</span><div style="min-width:0"><div class="nm">${esc(a.name)}</div><div class="meta">${esc(a.role)} · ${pill(a.status)}</div></div><div class="meter"><i style="width:${a.score}%"></i></div><div class="score num">${a.score}</div></div>`).join('');
+}
+
+function renderDash(){
+  [['growth',v=>(v>=0?'+':'')+v+'%/mo'],['mult',v=>'×'+(+v).toFixed(1)],['target',v=>'US$'+(+v).toLocaleString('en-US')],['fx',v=>'$'+v]].forEach(([k,f])=>{const el=$(k);if(document.activeElement!==el)el.value=S[k];$('o-'+k).textContent=f(S[k])});
+  const types=['all','product','venture','app','system'];
+  $('tchips').innerHTML=types.map(t=>`<button class="chip" data-tf="${t}" aria-pressed="${S.tf===t}">${t==='all'?'All':t}</button>`).join('');
+  const q=S.q.toLowerCase();
+  const rows=ITEMS.filter(i=>(S.tf==='all'||i.type===S.tf)&&(!q||(i.name+' '+i.world).toLowerCase().includes(q))).map(it=>{const p=M.P[it.id];return{it,name:it.name,type:it.type,status:it.status,price:it.price==null?-1:usd(it,it.price),units:val(it,'units'),fixed:usd(it,val(it,'fixed')),m1:p.m1,m12:p.m12,y1:p.y,margin:p.margin==null?-9:p.margin,score:p.score,tier:p.score}});
+  const {k,d}=S.sort;rows.sort((a,b)=>(typeof a[k]==='string'?a[k].localeCompare(b[k]):a[k]-b[k])*d);
+  document.querySelectorAll('#tbl th').forEach(th=>{th.dataset.k===k?th.setAttribute('aria-sort',d>0?'ascending':'descending'):th.removeAttribute('aria-sort')});
+  $('tbody').innerHTML=rows.map(r=>{const it=r.it,p=M.P[it.id];return `<tr data-open="${it.id}">
+    <td><b>${esc(it.name)}</b><div class="sub" style="font-size:12px">${esc(it.world)}</div></td><td>${it.type}</td><td>${pill(it.status)}</td>
+    <td class="n">${priceTxt(it)}</td>
+    <td class="n"><input type="number" min="0" step="1" id="u-${it.id}" data-edit="units" data-id="${it.id}" value="${+val(it,'units').toFixed(2)}" ${it.price==null?'disabled':''} aria-label="Units per month for ${esc(it.name)}"></td>
+    <td class="n"><input type="number" min="0" step="any" id="f-${it.id}" data-edit="fixed" data-id="${it.id}" value="${val(it,'fixed')}" aria-label="Fixed cost per month for ${esc(it.name)} in ${it.cur}"> <span class="sub" style="font-size:11px">${it.cur}</span></td>
+    <td class="n">${money(p.m1)}</td><td class="n"><b>${money(p.m12)}</b></td><td class="n">${money(p.y)}</td>
+    <td class="n ${p.margin==null?'':p.margin>=0?'up':'down'}">${p.margin==null?'—':(p.margin*100).toFixed(0)+'%'}</td>
+    <td class="n"><b>${p.score}</b></td><td>${tierEl(p.tier)}</td></tr>`}).join('');
+  const T=k=>sum(rows.map(r=>r[k]));
+  $('tfoot').innerHTML=`<tr><td colspan="6">Total · ${rows.length} items</td><td class="n">${money(T('m1'))}</td><td class="n">${money(T('m12'))}</td><td class="n">${money(T('y1'))}</td><td colspan="3"></td></tr>`;
+}
+
+/* ---------- DRAWER ---------- */
+function openItem(key){
+  let html='';
+  if(key&&key.startsWith('__')){S.view='dashboard';render();return}
+  if(key&&key.startsWith('a:')){
+    const a=AGENTS.find(x=>x.id===key.slice(2));if(!a)return;
+    html=`<div class="label">Agent</div><h2 style="font-size:26px">${esc(a.name)}</h2><div>${pill(a.status)} ${tierEl(a.tier)}</div><p class="sub">${esc(a.role)}${a.issue?'<br><b class="warn">'+esc(a.issue)+'</b>':''}</p>
+    <dl class="facts"><dt>Importance</dt><dd>${a.score}/100</dd><dt>Drives</dt><dd>${money(a.drive)}/mo at month 12</dd><dt>Source</dt><dd class="src">${esc(a.src)}</dd></dl>
+    <div class="label">Products it serves</div>${a.links.map(l=>{const it=ITEMS.find(i=>i.id===l);return `<div class="drv" data-open="${l}" role="button" tabindex="0"><span class="nm">${esc(it.name)}</span>${pill(it.status)}<span class="vv num">${money(M.P[l].m12)}</span></div>`}).join('')}`;
+  }else{
+    const it=ITEMS.find(x=>x.id===key);if(!it)return;const p=M.P[it.id];
+    const ags=AGENTS.filter(a=>a.links.includes(it.id));
+    html=`<div class="label">${esc(it.type)} · ${esc(it.world)}</div><h2 style="font-size:26px">${esc(it.name)}</h2><div>${pill(it.status)} ${tierEl(p.tier)}</div><p class="sub">${esc(it.note||'')}</p>
+    <dl class="facts">
+      <dt>Price</dt><dd>${priceTxt(it)}${it.oneTime?' · one-time':''}<br><span class="src">${esc(it.src)}</span></dd>
+      <dt>Units/mo</dt><dd>${+val(it,'units').toFixed(2)} <span class="asm">assumption</span> · starts ${MONTHS[it.start-1]}</dd>
+      <dt>Fixed cost</dt><dd>${it.cur==='CLP'?'$'+(+val(it,'fixed')).toLocaleString('es-CL')+' CLP':'US$'+val(it,'fixed')}/mo ${it.fixedSrc?'<br><span class="src">'+esc(it.fixedSrc)+'</span>':'<span class="asm">assumption</span>'}</dd>
+      <dt>Platform fee</dt><dd>${(it.fee*100).toFixed(1)}% <span class="asm">assumption</span></dd>
+      <dt>MRR M1 → M12</dt><dd>${money(p.m1)} → <b class="up">${money(p.m12)}</b></dd>
+      <dt>Year 1</dt><dd>${money(p.y)} revenue · ${money(p.c)} cost · ${p.margin==null?'—':(p.margin*100).toFixed(0)+'% margin'}</dd>
+      ${it.url?`<dt>Link</dt><dd><a class="lnk" href="${esc(it.url.startsWith('/')?'https://hk23universe.vercel.app'+it.url:it.url)}" target="_blank" rel="noopener">${esc(it.url)}</a></dd>`:''}
+    </dl>
+    <div class="label">Score ${p.score}/100</div>${Object.entries(p.parts).map(([k,[v,m]])=>`<div class="bd"><span>${k}</span><span class="t"><i style="width:${v/m*100}%"></i></span><span class="num">${v.toFixed(0)}/${m}</span></div>`).join('')}
+    <div class="label">Projection · 3 scenarios</div><svg id="dsp" viewBox="0 0 400 120" style="width:100%;height:auto"></svg>
+    ${ags.length?'<div class="label">Agents on it</div>'+ags.map(a=>`<div class="drv" data-open="a:${a.id}" role="button" tabindex="0"><span class="nm">${esc(a.name)}</span>${pill(a.status)}<span class="vv num">${a.score}</span></div>`).join(''):''}`;
+  }
+  $('dbody').innerHTML=html;$('drawer').classList.add('open');$('drawer').setAttribute('aria-hidden','false');
+  const ds=$('dsp');if(ds){const P=M.P[key];const all=[...P.up.rev,...P.down.rev,...P.b.rev,1];const mx=Math.max(...all);const x=i=>10+i*(380/11),y=v=>110-v/mx*95;
+    const ln=(a,c,d)=>`<path d="${a.map((v,i)=>(i?'L':'M')+x(i)+' '+y(v)).join(' ')}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="${d}"/>`;
+    ds.innerHTML=`<line x1="10" x2="390" y1="110" y2="110" stroke="var(--line)"/>`+ln(P.up.rev,'var(--good)','6 4')+ln(P.down.rev,'var(--bad)','2 4')+ln(P.b.rev,'var(--accent)','')+`<text x="390" y="${y(P.b.rev[11])-6}" text-anchor="end">${money(P.b.rev[11])}</text><text x="10" y="10">${MONTHS[0]} → ${MONTHS[11]}</text>`}
+  holo.focus(key);
+}
+const closeD=()=>{$('drawer').classList.remove('open');$('drawer').setAttribute('aria-hidden','true');holo.focus(null)};
+
+/* ---------- EVENTS ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-view],[data-cur],[data-sc],[data-mv],[data-ag],[data-m],[data-rk],[data-af],[data-tf],[data-open],th[data-k]');
+  if(!t||e.target.closest('input'))return;
+  if(t.dataset.view){S.view=t.dataset.view;location.hash=S.view;render()}
+  else if(t.dataset.cur){S.cur=t.dataset.cur;render()}
+  else if(t.dataset.sc){S.sc=t.dataset.sc;render()}
+  else if(t.dataset.mv){S.mv=t.dataset.mv;render()}
+  else if(t.dataset.ag){S.ag=t.dataset.ag;render()}
+  else if(t.dataset.m){S.metric=t.dataset.m;render()}
+  else if(t.dataset.rk){S.rk=t.dataset.rk;render()}
+  else if(t.dataset.af){S.af=t.dataset.af;render()}
+  else if(t.dataset.tf){S.tf=t.dataset.tf;render()}
+  else if(t.dataset.k){S.sort={k:t.dataset.k,d:S.sort.k===t.dataset.k?-S.sort.d:-1};render()}
+  else if(t.dataset.open)openItem(t.dataset.open);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeD();if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button][data-open]')){e.preventDefault();openItem(e.target.dataset.open)}});
+$('dx').onclick=closeD;
+$('toDash').onclick=e=>{e.preventDefault();S.view='dashboard';location.hash='dashboard';render()};
+['growth','mult','target','fx'].forEach(k=>$(k).addEventListener('input',e=>{S[k]=+e.target.value;render()}));
+$('q').addEventListener('input',e=>{S.q=e.target.value;render();const q=$('q');q.focus()});
+$('q').value=S.q;
+document.addEventListener('change',e=>{const el=e.target;if(!el.dataset.edit)return;const v=Math.max(0,+el.value||0);(S.edits[el.dataset.id]=S.edits[el.dataset.id]||{})[el.dataset.edit]=v;render()});
+$('reset').onclick=()=>{S.edits={};Object.assign(S,{growth:DEF.growth,mult:DEF.mult,target:DEF.target,fx:DEF.fx});render()};
+$('holoBtn').onclick=()=>{S.mode=S.mode==='holo'?'flat':'holo';render();if(S.mode==='holo')holo.start();else holo.stop()};
+const h=location.hash.slice(1);if(['overview','agents','dashboard'].includes(h))S.view=h;
+// card tilt in holo mode
+document.addEventListener('pointermove',e=>{if(S.mode!=='holo'||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  document.querySelectorAll('.tilt').forEach(c=>{const r=c.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom){c.style.transform='';return}
+    const px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;c.style.transform=`perspective(1200px) rotateX(${-py*4}deg) rotateY(${px*5}deg)`;c.style.boxShadow=`${-px*20}px ${-py*20}px 40px rgba(77,227,255,.12)`})});
+
+/* ---------- HOLO 3D ---------- */
+const holo=(()=>{
+  let THREE,renderer,scene,cam,raf=null,nodes=[],group,loaded=false,loading=false,yaw=.6,pitch=.45,dist=34,drag=null,focusId=null,hover=null;
+  const COL={live:0x4DFFA8,active:0x4DFFA8,building:0x4DE3FF,pitch:0x4DE3FF,pending:0x4DE3FF,coming:0x4DE3FF,blocked:0xFF4F8B,paused:0xFFC24D,review:0xFFC24D,idle:0x6E8C99,idea:0x6E8C99,demo:0x6E8C99};
+  const canvas=$('holo'),labels=$('labels'),stage=$('stage');
+  function load(cb){if(loaded)return cb();if(loading)return;loading=true;const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    s.onload=()=>{loaded=true;THREE=window.THREE;cb()};s.onerror=()=>{stage.insertAdjacentHTML('beforeend','<div class="fallback">The 3D engine could not load. The hologram needs three.js from cdnjs.</div>')};document.head.appendChild(s)}
+  function build(){
+    renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(2,devicePixelRatio));
+    scene=new THREE.Scene();scene.fog=new THREE.FogExp2(0x02070D,.018);
+    cam=new THREE.PerspectiveCamera(50,1,.1,500);
+    group=new THREE.Group();scene.add(group);
+    // tier rings + floor grid
+    [6,11,16,21].forEach((r,i)=>{const g=new THREE.RingGeometry(r-.03,r+.03,128);const m=new THREE.MeshBasicMaterial({color:0x4DE3FF,transparent:true,opacity:.35-i*.06,side:THREE.DoubleSide});const ring=new THREE.Mesh(g,m);ring.rotation.x=-Math.PI/2;group.add(ring)});
+    const grid=new THREE.PolarGridHelper(24,24,8,96,0x0E4A63,0x0A3247);grid.material.transparent=true;grid.material.opacity=.5;group.add(grid);
+    // core
+    const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.4,1),new THREE.MeshBasicMaterial({color:0x4DE3FF,wireframe:true,transparent:true,opacity:.7}));core.userData.spin=1;group.add(core);
+    const coreGlow=sprite(0x4DE3FF,9,.5);group.add(coreGlow);
+    // particles
+    const pg=new THREE.BufferGeometry(),pts=[];for(let i=0;i<900;i++){const r=4+Math.random()*30,a=Math.random()*6.283;pts.push(Math.cos(a)*r,(Math.random()-.3)*18,Math.sin(a)*r)}
+    pg.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));group.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x7FE9FF,size:.08,transparent:true,opacity:.6})));
+    canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,yaw,pitch,moved:0};canvas.setPointerCapture(e.pointerId)});
+    canvas.addEventListener('pointermove',e=>{if(drag){const dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.moved=Math.abs(dx)+Math.abs(dy);yaw=drag.yaw-dx*.006;pitch=clamp(drag.pitch+dy*.004,.05,1.35)}else pick(e,false)});
+    canvas.addEventListener('pointerup',e=>{if(drag&&drag.moved<5)pick(e,true);drag=null});
+    canvas.addEventListener('wheel',e=>{e.preventDefault();dist=clamp(dist+e.deltaY*.02,14,60)},{passive:false});
+    window.addEventListener('resize',size);
+  }
+  function sprite(color,scale,op){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');const g=x.createRadialGradient(32,32,0,32,32,32);g.addColorStop(0,'rgba(255,255,255,1)');g.addColorStop(.25,'rgba(255,255,255,.5)');g.addColorStop(1,'rgba(255,255,255,0)');x.fillStyle=g;x.fillRect(0,0,64,64);
+    const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),color,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false}));s.scale.set(scale,scale,1);return s}
+  function update(){
+    if(!scene)return;
+    nodes.forEach(n=>{group.remove(n.obj);n.lbl.remove()});nodes=[];
+    const maxM=Math.max(1,...ITEMS.map(i=>M.P[i.id].m12));
+    const ranked=[...ITEMS].sort((a,b)=>M.P[b.id].score-M.P[a.id].score);
+    ranked.forEach((it,k)=>{
+      const p=M.P[it.id];
+      const ang=k*2.39996,rad=4.5+k/(ranked.length-1)*18,h=p.m12>0?1+Math.log10(1+p.m12)/Math.log10(1+maxM)*9:0.3;
+      const o=new THREE.Group();o.position.set(Math.cos(ang)*rad,0,Math.sin(ang)*rad);
+      const col=COL[it.status]||0x4DE3FF,sz=.45+p.score/100*.9;
+      const beam=new THREE.Mesh(new THREE.CylinderGeometry(.04,.04,h,6),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.55}));beam.position.y=h/2;o.add(beam);
+      const base=new THREE.Mesh(new THREE.RingGeometry(sz*.8,sz,32),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.6,side:THREE.DoubleSide}));base.rotation.x=-Math.PI/2;o.add(base);
+      const body=new THREE.Mesh(new THREE.IcosahedronGeometry(sz,0),new THREE.MeshBasicMaterial({color:col,wireframe:true}));body.position.y=h;body.userData={id:it.id,spin:.6+Math.random()};o.add(body);
+      const glow=sprite(col,sz*5,.55);glow.position.y=h;o.add(glow);
+      group.add(o);
+      const lbl=document.createElement('div');lbl.className='lbl'+(p.score<45?' sm':'');lbl.textContent=it.name.split(' ·')[0]+(p.m12?'  '+money(p.m12):'');labels.appendChild(lbl);
+      nodes.push({id:it.id,obj:o,body,glow,lbl,top:h,col});
+      // agent satellites
+      AGENTS.filter(a=>a.links[0]===it.id).forEach((a,j,arr)=>{
+        const ac=a.status==='blocked'?0xFF4F8B:a.status==='paused'?0xFFC24D:0xC79BFF;
+        const sat=new THREE.Mesh(new THREE.OctahedronGeometry(.28,0),new THREE.MeshBasicMaterial({color:ac,wireframe:true}));
+        sat.userData={id:'a:'+a.id,orbit:{r:sz+1.3,a:j/arr.length*Math.PI*2,y:h,s:.6+j*.15}};o.add(sat);
+        const sg=sprite(ac,1.4,.6);sat.add(sg);
+        const al=document.createElement('div');al.className='lbl sm';al.textContent=a.name;labels.appendChild(al);
+        nodes.push({id:'a:'+a.id,obj:sat,body:sat,lbl:al,sat:true,parent:o});
+      });
+    });
+    size();
+  }
+  function size(){if(!renderer)return;const w=stage.clientWidth,h=stage.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+  const ray=()=>new THREE.Raycaster();
+  function pick(e,click){const r=canvas.getBoundingClientRect(),v=new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);const rc=ray();rc.setFromCamera(v,cam);rc.params.Points={threshold:0};
+    const hit=rc.intersectObjects(nodes.map(n=>n.body),false)[0];hover=hit?hit.object.userData.id:null;canvas.style.cursor=hover?'pointer':'';if(click&&hover)openItem(hover)}
+  const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function loop(t){
+    raf=requestAnimationFrame(loop);const s=t/1000;
+    if(!drag&&!reduce()&&!focusId)yaw+=.0012;
+    let tx=0,ty=2,tz=0;const fn=focusId&&nodes.find(n=>n.id===focusId);
+    if(fn){const wp=new THREE.Vector3();fn.body.getWorldPosition(wp);tx=wp.x;ty=wp.y;tz=wp.z}
+    const asp=cam.aspect<1?1.7:1,d=(fn?Math.min(dist,20):dist)*asp,fp=fn?(fn.sat?fn.parent:fn.obj):null;
+    cam.position.set(tx+Math.cos(yaw)*Math.cos(pitch)*d,ty+Math.sin(pitch)*d,tz+Math.sin(yaw)*Math.cos(pitch)*d);cam.lookAt(tx,ty,tz);
+    group.children.forEach(c=>{if(c.userData.spin)c.rotation.y=s*.3});
+    const w=stage.clientWidth,h=stage.clientHeight,v=new THREE.Vector3();
+    nodes.forEach(n=>{
+      if(n.sat){const o=n.obj.userData.orbit;const a=o.a+(reduce()?0:s*o.s);n.obj.position.set(Math.cos(a)*o.r,o.y+Math.sin(a*2)*.4,Math.sin(a)*o.r);n.obj.rotation.y=s}
+      else{n.body.rotation.y=s*n.body.userData.spin;n.body.rotation.x=s*.3;const on=n.id===focusId||n.id===hover;n.glow.material.opacity=on?.95:.5+Math.sin(s*2+n.top)*.1}
+      n.body.getWorldPosition(v);v.project(cam);
+      n.vis=v.z<1&&v.x>-1.1&&v.x<1.1&&v.y>-1.1&&v.y<1.1&&!(n.sat&&!(n.parent===fp||n.id===hover));
+      n.sx=(v.x+1)/2*w;n.sy=(1-v.y)/2*h;
+    });
+    // greedy label declutter: focused/hovered first, then by importance
+    const placed=[],pri=n=>(n.id===focusId||n.id===hover?1e4:0)+(n.sat?(n.parent===fp?500:0):(M.P[n.id]?M.P[n.id].score:0));
+    nodes.filter(n=>n.vis).sort((a,b)=>pri(b)-pri(a)).forEach(n=>{
+      const bw=n.lbl.textContent.length*6.6,bx=n.sx-bw/2,by=n.sy-30;
+      const hit=placed.some(r=>bx<r[0]+r[2]&&bx+bw>r[0]&&by<r[1]+16&&by+16>r[1]);
+      if(hit){n.lbl.hidden=true;return}
+      placed.push([bx,by,bw]);n.lbl.hidden=false;n.lbl.style.left=n.sx+'px';n.lbl.style.top=n.sy+'px';n.lbl.style.opacity=(n.id===focusId||n.id===hover)?1:'';
+    });
+    nodes.filter(n=>!n.vis).forEach(n=>n.lbl.hidden=true);
+    renderer.render(scene,cam);
+  }
+  return{
+    start(){load(()=>{if(!renderer)build();update();if(!raf)raf=requestAnimationFrame(loop)})},
+    stop(){if(raf)cancelAnimationFrame(raf);raf=null},
+    update(){if(renderer)update()},
+    focus(id){focusId=id&&nodes.some(n=>n.id===id)?id:null}
+  };
+})();
+
+render();
+if(S.mode==='holo')holo.start();
+})();
+</script>
+
+</body>
+</html>
