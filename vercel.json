@@ -49,6 +49,11 @@
       "permanent": false
     },
     {
+      "source": "/locales",
+      "destination": "/leadhunter/locales",
+      "permanent": false
+    },
+    {
       "source": "/designer",
       "destination": "/agent-designer",
       "permanent": false
