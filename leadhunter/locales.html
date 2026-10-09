@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LeadHunter Locales</title>
+<meta name="description" content="Marca un local en el mapa satelital o sube una foto: el agente averigua de quién es, cómo se negocia y te deja la estrategia y los mensajes listos.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+  :root{
+    --bg:#080a08; --bg-2:#0d110d; --panel:#10150f; --line:#1e2a1c; --line-hi:#2c3f28;
+    --ink:#e8f0e4; --ink-dim:#8fa389; --ink-faint:#5a6b55;
+    --acid:#a3e635; --acid-dim:#7fb32a; --acid-glow:rgba(163,230,53,.14);
+    --amber:#fbbf24; --red:#f87171; --radius:14px;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono","JetBrains Mono",Menlo,Consolas,monospace;
+    --sans:"Helvetica Neue",Helvetica,"Segoe UI",Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.5}
+  button,input,select,textarea{font:inherit;color:inherit}
+  a{color:var(--acid)}
+  .top{position:sticky;top:0;z-index:1100;display:flex;align-items:center;gap:12px;padding:12px 16px;background:rgba(8,10,8,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .logo{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em}
+  .logo i{width:22px;height:22px;border:1.5px solid var(--acid);border-radius:50%;display:grid;place-items:center}
+  .logo i::after{content:"";width:5px;height:5px;background:var(--acid);border-radius:50%;box-shadow:0 0 8px var(--acid)}
+  .logo em{font-style:normal;color:var(--acid)}
+  .chip{font-family:var(--mono);font-size:11px;letter-spacing:.08em;border:1px solid var(--line-hi);border-radius:99px;padding:4px 10px;color:var(--ink-dim);white-space:nowrap}
+  .sp{flex:1}
+  .btn{background:var(--panel);border:1px solid var(--line-hi);border-radius:10px;padding:8px 14px;cursor:pointer;font-size:14px;white-space:nowrap}
+  .btn:hover{border-color:var(--acid-dim)}
+  .btn.sm{padding:4px 10px;font-size:12.5px;border-radius:8px}
+  .btn.cta{background:var(--acid);color:#0c1203;border-color:var(--acid);font-weight:800;padding:13px 18px;width:100%;font-size:15.5px}
+  .btn.cta:disabled{opacity:.5;cursor:wait}
+  .btn.ghost{background:transparent}
+  .btn.danger{color:var(--red)}
+  .wrap{max-width:1360px;margin:0 auto;padding:16px}
+  .grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:16px;align-items:start}
+  @media(max-width:980px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+  .panel+.panel{margin-top:16px}
+  h2{font-size:15px;letter-spacing:-.01em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+  .kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--acid)}
+  .tabs{display:flex;gap:6px;margin-bottom:12px}
+  .tab{flex:1;background:transparent;border:1px solid var(--line);border-radius:10px;padding:9px;cursor:pointer;color:var(--ink-dim)}
+  .tab[aria-selected="true"]{border-color:var(--acid-dim);color:var(--ink);background:var(--acid-glow)}
+  .buscar{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+  .buscar input{flex:1;min-width:160px}
+  input[type=text],input[type=password],input[type=email],input[type=tel],input[type=date],select,textarea{background:var(--panel);border:1px solid var(--line-hi);border-radius:10px;padding:9px 11px;outline:none;width:100%}
+  input:focus,select:focus,textarea:focus{border-color:var(--acid-dim)}
+  textarea{resize:vertical;min-height:70px}
+  #mapa{height:62vh;min-height:360px;border-radius:12px;border:1px solid var(--line);background:#0b0f0b}
+  @media(max-width:980px){#mapa{height:52vh}}
+  .hint{font-size:12.5px;color:var(--ink-faint);margin-top:8px}
+  .resultados{list-style:none;border:1px solid var(--line-hi);border-radius:10px;margin-bottom:8px;overflow:hidden}
+  .resultados li button{width:100%;text-align:left;background:var(--panel);border:0;border-bottom:1px solid var(--line);padding:8px 11px;cursor:pointer;font-size:13.5px}
+  .resultados li:last-child button{border-bottom:0}
+  .lista{list-style:none;display:grid;gap:6px;margin-top:10px}
+  .lista li{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13.5px}
+  .num{flex-shrink:0;width:24px;height:24px;border-radius:50%;background:var(--acid);color:#0c1203;font:700 12px var(--mono);display:grid;place-items:center}
+  .lista .dir{flex:1;min-width:140px;color:var(--ink-dim)}
+  .pin{width:28px;height:28px;border-radius:50%;background:var(--acid);color:#0c1203;font:700 13px var(--mono);display:grid;place-items:center;border:2px solid #0c1203;box-shadow:0 0 0 2px var(--acid),0 4px 14px rgba(0,0,0,.6)}
+  .drop{display:grid;place-items:center;text-align:center;gap:6px;min-height:170px;border:1.5px dashed var(--line-hi);border-radius:12px;padding:20px;cursor:pointer;color:var(--ink-dim)}
+  .drop.over{border-color:var(--acid);background:var(--acid-glow)}
+  .drop b{color:var(--ink)}
+  .thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:10px}
+  .thumb{position:relative;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+  .thumb img{display:block;width:100%;aspect-ratio:1;object-fit:cover}
+  .thumb span{display:block;font-size:11px;padding:4px 6px;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .thumb button{position:absolute;top:4px;right:4px;width:24px;height:24px;border-radius:50%;border:0;background:rgba(0,0,0,.7);color:#fff;cursor:pointer}
+  .fila{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+  label.campo{display:grid;gap:4px;font-size:12px;color:var(--ink-dim)}
+  .sel{font-family:var(--mono);font-size:12px;color:var(--ink-dim);margin:10px 0}
+  .aviso{margin-top:10px;font-size:13.5px;border-left:3px solid var(--amber);background:rgba(251,191,36,.08);padding:8px 10px;border-radius:0 8px 8px 0}
+  .aviso.err{border-color:var(--red);background:rgba(248,113,113,.08)}
+  .res-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+  .res-head h2{margin:0;flex:1}
+  .costo{font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
+  .actividad{list-style:none;font-family:var(--mono);font-size:12px;color:var(--ink-dim);display:grid;gap:3px;max-height:150px;overflow:auto;margin-bottom:10px}
+  .actividad li::before{content:"› ";color:var(--acid)}
+  pre.vivo{white-space:pre-wrap;word-break:break-word;font-family:var(--sans);font-size:14px;line-height:1.6;max-height:60vh;overflow:auto}
+  .sec{border:1px solid var(--line);border-radius:12px;margin-top:10px;background:var(--panel)}
+  .sec-h{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+  .sec-h b{flex:1;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--acid)}
+  .sec pre{white-space:pre-wrap;word-break:break-word;font-family:var(--sans);font-size:14px;line-height:1.6;padding:10px 12px}
+  .badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;border-radius:99px;padding:2px 8px;border:1px solid var(--line-hi);white-space:nowrap}
+  .b-atacar{color:#0c1203;background:var(--acid);border-color:var(--acid)}
+  .b-cola{color:var(--amber);border-color:rgba(251,191,36,.5)}
+  .b-descartar{color:var(--ink-faint)}
+  .fuentes{padding-left:20px;font-size:13px;display:grid;gap:4px;margin-top:8px}
+  .fuentes a{word-break:break-all}
+  details summary{cursor:pointer;font-size:13px;color:var(--ink-dim);margin-top:12px}
+  .seguir{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px;align-items:end}
+  .respuesta{border-left:3px solid var(--acid-dim);padding:6px 0 6px 12px;margin-top:12px}
+  .respuesta .q{font-size:12.5px;color:var(--ink-dim);margin-bottom:6px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:400}
+  td select,td input{padding:5px 7px;font-size:12.5px}
+  .tabla-wrap{overflow-x:auto}
+  .tabla-wrap table{min-width:760px}
+  @media(max-width:700px){
+    .tabla-wrap table{min-width:0}
+    .tabla-wrap thead{display:none}
+    .tabla-wrap tr{display:grid;grid-template-columns:1fr 1fr;gap:6px 10px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .tabla-wrap td{border:0;padding:0}
+    .tabla-wrap td:nth-child(2),.tabla-wrap td:nth-child(3),.tabla-wrap td:nth-child(5){grid-column:1 / -1}
+    #cartera .res-head h2{flex-basis:100%}
+  }
+  .sub{color:var(--ink-dim);font-size:12.5px}
+  .acciones{display:flex;gap:4px;flex-wrap:wrap}
+  dialog{margin:auto;background:var(--bg-2);color:var(--ink);border:1px solid var(--line-hi);border-radius:16px;padding:0;width:min(640px,calc(100vw - 32px));max-height:calc(100vh - 32px)}
+  dialog::backdrop{background:rgba(0,0,0,.7)}
+  dialog form{padding:18px;display:grid;gap:10px;overflow:auto}
+  dialog h3{font-size:16px}
+  dialog .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media(max-width:560px){dialog .grid2,.fila{grid-template-columns:1fr}}
+  .nota{font-size:12.5px;color:var(--ink-faint)}
+  .check{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-dim)}
+  footer{padding:24px 16px 40px;text-align:center;font-size:11.5px;color:var(--ink-faint);line-height:1.8}
+  .vacio{color:var(--ink-faint);font-size:13.5px;padding:14px 4px}
+  .leaflet-container{font-family:var(--sans)}
+  .leaflet-popup-content{font-size:13px}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="logo"><i></i><span>Lead<em>Hunter</em> · Locales</span></div>
+  <span class="chip" id="chipPais">CHILE</span>
+  <span class="sp"></span>
+  <button class="btn ghost" id="irCartera" type="button">Cartera <span id="nCartera">0</span></button>
+  <button class="btn" id="abrirAjustes" type="button">Ajustes</button>
+</header>
+
+<div class="wrap">
+  <div class="grid">
+    <section class="panel">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" aria-selected="true" data-tab="mapa" type="button">Mapa satelital</button>
+        <button class="tab" role="tab" aria-selected="false" data-tab="fotos" type="button">Fotos y capturas <span id="nFotos"></span></button>
+      </div>
+
+      <div id="tab-mapa">
+        <form class="buscar" id="formBuscar">
+          <input type="text" id="q" placeholder="Busca una calle, dirección o lugar" autocomplete="off">
+          <button class="btn" type="submit">Buscar</button>
+          <button class="btn" type="button" id="miUbic" title="Ir a mi ubicación">Mi ubicación</button>
+          <select id="capa" style="width:auto" aria-label="Tipo de mapa">
+            <option value="sat">Satélite</option>
+            <option value="calles">Calles</option>
+          </select>
+        </form>
+        <ul class="resultados" id="resultados" hidden></ul>
+        <div id="mapa"></div>
+        <p class="hint">Toca el mapa encima del local para marcarlo (hasta 8). Arrastra el número para afinar. Desde cada marca puedes abrir Street View o Google Earth, sacar la captura y pegarla en "Fotos y capturas".</p>
+        <ol class="lista" id="marcas"></ol>
+      </div>
+
+      <div id="tab-fotos" hidden>
+        <label class="drop" id="drop">
+          <input type="file" id="archivos" accept="image/*" multiple hidden>
+          <b>Sube, arrastra o pega (Ctrl+V) fotos y capturas</b>
+          <span>Fachadas, letreros con teléfono, capturas de Google Earth o Street View. Si la foto trae GPS, se marca sola en el mapa.</span>
+        </label>
+        <div class="thumbs" id="fotos"></div>
+      </div>
+    </section>
+
+    <div>
+      <section class="panel">
+        <h2><span class="kick">Agente</span> Analizar propiedades</h2>
+        <div class="fila">
+          <label class="campo">Objetivo
+            <select id="objetivo">
+              <option value="arrendar">Arrendar</option>
+              <option value="comprar">Comprar</option>
+              <option value="arrendar con opción a compra">Arrendar con opción a compra</option>
+              <option value="cualquiera">Lo que convenga</option>
+            </select>
+          </label>
+          <label class="campo">Modo
+            <select id="modo">
+              <option value="">Automático</option>
+              <option value="EXPEDIENTE">Expediente (una propiedad)</option>
+              <option value="BARRIDO">Barrido (varias)</option>
+            </select>
+          </label>
+        </div>
+        <label class="campo">Lo que ya sabes (opcional)
+          <textarea id="notas" placeholder="Ej: tiene letrero de 'se arrienda' sin teléfono, antes era una ferretería, lleva cerrado más de un año"></textarea>
+        </label>
+        <p class="sel" id="sel">0 marcas · 0 fotos</p>
+        <button class="btn cta" id="analizar" type="button">Analizar</button>
+        <div class="acciones" style="margin-top:8px">
+          <button class="btn sm ghost" id="detener" type="button" hidden>Detener</button>
+          <button class="btn sm ghost" id="limpiar" type="button">Limpiar marcas y fotos</button>
+        </div>
+        <div class="aviso" id="aviso" hidden></div>
+      </section>
+
+      <section class="panel" id="resultado" hidden>
+        <div class="res-head">
+          <h2 id="resTitulo">Expediente</h2>
+          <span class="costo" id="costo"></span>
+          <button class="btn sm" id="copiarTodo" type="button">Copiar todo</button>
+        </div>
+        <ul class="actividad" id="actividad"></ul>
+        <pre class="vivo" id="vivo"></pre>
+        <div id="secciones"></div>
+        <div id="fichas"></div>
+        <details id="fuentesBox" hidden><summary id="fuentesSum">Fuentes</summary><ol class="fuentes" id="fuentes"></ol></details>
+        <div id="respuestas"></div>
+        <div class="seguir">
+          <textarea id="pregunta" placeholder="Sigue con este caso: “redacta la carta de intención”, “respondió: …”, “¿qué le digo si me pide garantía?”"></textarea>
+          <button class="btn" id="preguntar" type="button">Enviar</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel" id="cartera" style="margin-top:16px">
+    <div class="res-head">
+      <h2><span class="kick">Cartera</span> Propiedades en seguimiento</h2>
+      <select id="orden" style="width:auto" aria-label="Ordenar">
+        <option value="puntaje">Por puntaje</option>
+        <option value="fecha">Más recientes</option>
+        <option value="proxima">Próxima acción</option>
+      </select>
+      <button class="btn sm" id="exportar" type="button">Exportar CSV</button>
+      <label class="btn sm" for="importar">Importar CSV de LeadHunter</label>
+      <input type="file" id="importar" accept=".csv,text/csv" hidden>
+    </div>
+    <div class="tabla-wrap">
+      <table>
+        <thead><tr><th>Prioridad</th><th>Propiedad</th><th>Dueño / contacto</th><th>Estado</th><th>Siguiente paso</th><th></th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <p class="vacio" id="carteraVacia">Todavía no hay propiedades. Analiza una y queda guardada aquí.</p>
+  </section>
+</div>
+
+<dialog id="ajustes">
+  <form method="dialog" id="formAjustes">
+    <h3>Ajustes</h3>
+    <label class="campo">Clave de API de Anthropic
+      <input type="password" id="cfgClave" placeholder="sk-ant-..." autocomplete="off">
+    </label>
+    <label class="check"><input type="checkbox" id="cfgRecordar"> Recordar la clave en este navegador</label>
+    <p class="nota">La clave queda solo en tu navegador y viaja directo a Anthropic. Créala en <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a> y activa la búsqueda web de tu organización en la Consola, o el agente no podrá investigar.</p>
+    <div class="grid2">
+      <label class="campo">País
+        <select id="cfgPais"><option value="CL">Chile (Santo Domingo, V Región)</option><option value="DO">República Dominicana</option></select>
+      </label>
+      <label class="campo">Actúo como
+        <select id="cfgRol"><option value="directo">Interesado directo (para mí)</option><option value="corredor">Corredor (capto para clientes)</option></select>
+      </label>
+      <label class="campo">Modelo
+        <select id="cfgModelo"><option value="claude-opus-5-5">Claude Opus 5.5 (mejor)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 (más barato)</option></select>
+      </label>
+      <label class="campo">Profundidad
+        <select id="cfgEsfuerzo"><option value="low">Rápida</option><option value="medium">Normal</option><option value="high">A fondo</option></select>
+      </label>
+      <label class="campo">Tu nombre<input type="text" id="cfgNombre"></label>
+      <label class="campo">Empresa o marca<input type="text" id="cfgEmpresa" placeholder="o vacío: a título personal"></label>
+      <label class="campo">Teléfono / WhatsApp<input type="tel" id="cfgTelefono"></label>
+      <label class="campo">Correo<input type="email" id="cfgCorreo"></label>
+      <label class="campo">Uso del local<input type="text" id="cfgUso" placeholder="restaurante, tienda, oficina…"></label>
+      <label class="campo">Metraje<input type="text" id="cfgMetraje" placeholder="60 a 200 m²"></label>
+      <label class="campo">Presupuesto<input type="text" id="cfgPresupuesto" placeholder="hasta 30 UF/mes o compra hasta 6.000 UF"></label>
+      <label class="campo">Zonas prioritarias<input type="text" id="cfgZonas" placeholder="Las Rocas, centro, Av. del Litoral"></label>
+    </div>
+    <div class="acciones" style="justify-content:flex-end">
+      <button class="btn ghost" value="cancel" type="submit">Cerrar</button>
+      <button class="btn cta" style="width:auto" id="guardarAjustes" value="ok" type="submit">Guardar</button>
+    </div>
+  </form>
+</dialog>
+
+<footer>
+  Imágenes satelitales © Esri, Maxar, Earthstar Geographics · Mapas y direcciones © colaboradores de OpenStreetMap.<br>
+  El agente solo usa fuentes públicas; nada se envía a nadie sin que tú lo copies y lo mandes.
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script type="module">
+import * as C from './locales-core.js';
+
+/* ---------- utilidades ---------- */
+const $ = id => document.getElementById(id);
+function h(tag, attrs, ...hijos) {
+  const el = document.createElement(tag);
+  for (const [k, val] of Object.entries(attrs || {})) {
+    if (val == null || val === false) continue;
+    if (k === 'class') el.className = val;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), val);
+    else el.setAttribute(k, val === true ? '' : val);
+  }
+  for (const c of hijos.flat()) if (c != null && c !== false) el.append(c.nodeType ? c : String(c));
+  return el;
+}
+const leer = (k, def) => { try { const s = localStorage.getItem(k); return s ? JSON.parse(s) : def; } catch (_) { return def; } };
+const escribir = (k, val) => { try { localStorage.setItem(k, JSON.stringify(val)); return true; } catch (_) { return false; } };
+const dormir = ms => new Promise(r => setTimeout(r, ms));
+const hoy = () => new Date().toISOString().slice(0, 10);
+const nuevoId = () => 'L' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2, 5).toUpperCase();
+const linkSeguro = (url, txt) => /^https?:\/\//i.test(url || '') ? h('a', { href: url, target: '_blank', rel: 'noopener noreferrer' }, txt || url) : document.createTextNode(txt || url || '');
+
+async function copiar(texto, boton) {
+  try { await navigator.clipboard.writeText(texto); }
+  catch (_) { const t = h('textarea', {}, texto); document.body.append(t); t.select(); try { document.execCommand('copy'); } catch (__) {} t.remove(); }
+  if (boton) { const o = boton.textContent; boton.textContent = 'Copiado'; setTimeout(() => { boton.textContent = o; }, 1200); }
+}
+function aviso(msg, tipo) {
+  const a = $('aviso');
+  if (!msg) { a.hidden = true; return; }
+  a.textContent = msg; a.className = 'aviso' + (tipo === 'err' ? ' err' : ''); a.hidden = false;
+}
+
+/* ---------- estado ---------- */
+const DEF = { pais: 'CL', rol: 'directo', modelo: 'claude-opus-5-5', esfuerzo: 'medium', nombre: '', empresa: '', telefono: '', correo: '', uso: '', metraje: '', presupuesto: '', zonas: '' };
+let cfg = Object.assign({}, DEF, leer('lhl.cfg', {}));
+let clave = '';
+try { clave = localStorage.getItem('lhl.key') || sessionStorage.getItem('lhl.key') || ''; } catch (_) {}
+let cartera = leer('lhl.cartera', []);
+const S = { marcas: [], fotos: [], caso: null, ocupado: false, abort: null, sinFallback: false };
+const PAIS = () => C.PAISES[cfg.pais] || C.PAISES.CL;
+
+/* ---------- mapa ---------- */
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/';
+const T_IMG = ESRI + 'World_Imagery/MapServer/tile/{z}/{y}/{x}';
+const T_CALLES = ESRI + 'Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}';
+const T_LUGARES = ESRI + 'Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}';
+const T_OSM = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+const mapa = L.map('mapa', { zoomControl: true, attributionControl: true }).setView(PAIS().centro, PAIS().zoom);
+const capaSat = L.layerGroup([
+  L.tileLayer(T_IMG, { maxZoom: 20, maxNativeZoom: 19, attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics' }),
+  L.tileLayer(T_CALLES, { maxZoom: 20, maxNativeZoom: 19 }),
+  L.tileLayer(T_LUGARES, { maxZoom: 20, maxNativeZoom: 19 }),
+]);
+const capaCalles = L.tileLayer(T_OSM, { maxZoom: 20, maxNativeZoom: 19, attribution: '© OpenStreetMap' });
+capaSat.addTo(mapa);
+const capaCartera = L.layerGroup().addTo(mapa);
+$('capa').addEventListener('change', e => {
+  if (e.target.value === 'sat') { mapa.removeLayer(capaCalles); capaSat.addTo(mapa); }
+  else { mapa.removeLayer(capaSat); capaCalles.addTo(mapa); }
+});
+mapa.on('click', e => agregarMarca(e.latlng.lat, e.latlng.lng));
+
+/* geocodificación (OpenStreetMap / Nominatim): una consulta por segundo como pide su política */
+let colaGeo = Promise.resolve(); let ultimaGeo = 0;
+function geo(url) {
+  const p = colaGeo.then(async () => {
+    await dormir(Math.max(0, 1100 - (Date.now() - ultimaGeo)));
+    ultimaGeo = Date.now();
+    const r = await fetch(url + '&accept-language=es');
+    if (!r.ok) throw new Error('geocoder ' + r.status);
+    return r.json();
+  });
+  colaGeo = p.catch(() => {});
+  return p;
+}
+async function direccionDe(lat, lon) {
+  try {
+    const j = await geo(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&lat=${lat}&lon=${lon}`);
+    return j && j.display_name ? j.display_name : '';
+  } catch (_) { return ''; }
+}
+
+$('formBuscar').addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = $('q').value.trim(); const ul = $('resultados');
+  if (!q) return;
+  ul.replaceChildren(h('li', {}, h('button', { type: 'button', disabled: true }, 'Buscando…'))); ul.hidden = false;
+  try {
+    const r = await geo(`https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&countrycodes=${PAIS().cc}&q=${encodeURIComponent(q)}`);
+    if (!r.length) { ul.replaceChildren(h('li', {}, h('button', { type: 'button', disabled: true }, 'Sin resultados. Prueba con calle y comuna.'))); return; }
+    ul.replaceChildren(...r.map(x => h('li', {}, h('button', { type: 'button', onclick: () => { mapa.setView([+x.lat, +x.lon], 18); ul.hidden = true; aviso('Toca el local exacto en el mapa para marcarlo.'); } }, x.display_name))));
+  } catch (_) { ul.replaceChildren(h('li', {}, h('button', { type: 'button', disabled: true }, 'No se pudo buscar ahora. Mueve el mapa a mano.'))); }
+});
+$('miUbic').addEventListener('click', () => {
+  if (!navigator.geolocation) return aviso('Este navegador no entrega ubicación.');
+  navigator.geolocation.getCurrentPosition(p => mapa.setView([p.coords.latitude, p.coords.longitude], 18), () => aviso('No se pudo obtener tu ubicación (revisa el permiso).'), { enableHighAccuracy: true, timeout: 10000 });
+});
+
+/* ---------- marcas ---------- */
+const iconoNum = n => L.divIcon({ className: '', html: `<div class="pin">${n}</div>`, iconSize: [28, 28], iconAnchor: [14, 14] });
+
+async function agregarMarca(lat, lon, origen) {
+  if (S.ocupado) return;
+  if (S.marcas.length >= 8) return aviso('Máximo 8 marcas por análisis. Quita alguna o analiza estas primero.');
+  const m = { id: nuevoId(), lat, lon, dir: '', origen: origen || 'mapa' };
+  m.marker = L.marker([lat, lon], { icon: iconoNum(S.marcas.length + 1), draggable: true }).addTo(mapa);
+  m.marker.on('dragend', async () => {
+    const p = m.marker.getLatLng(); m.lat = p.lat; m.lon = p.lng; m.dir = 'buscando dirección…'; pintarMarcas();
+    m.dir = await direccionDe(m.lat, m.lon); pintarMarcas();
+  });
+  S.marcas.push(m); m.dir = 'buscando dirección…'; pintarMarcas(); aviso('');
+  m.dir = await direccionDe(lat, lon); pintarMarcas();
+}
+function quitarMarca(id) {
+  const i = S.marcas.findIndex(x => x.id === id); if (i < 0) return;
+  mapa.removeLayer(S.marcas[i].marker); S.marcas.splice(i, 1); pintarMarcas();
+}
+function pintarMarcas() {
+  S.marcas.forEach((m, i) => m.marker.setIcon(iconoNum(i + 1)));
+  $('marcas').replaceChildren(...S.marcas.map((m, i) => {
+    const e = C.enlaces(m.lat, m.lon);
+    return h('li', {},
+      h('span', { class: 'num' }, i + 1),
+      h('span', { class: 'dir' }, m.dir || `${m.lat.toFixed(5)}, ${m.lon.toFixed(5)}`, m.origen === 'foto' ? ' (GPS de foto)' : ''),
+      h('a', { class: 'btn sm', href: e.streetview, target: '_blank', rel: 'noopener' }, 'Street View'),
+      h('a', { class: 'btn sm', href: e.earth, target: '_blank', rel: 'noopener' }, 'Earth'),
+      h('a', { class: 'btn sm', href: e.maps, target: '_blank', rel: 'noopener' }, 'Maps'),
+      h('button', { class: 'btn sm danger', type: 'button', onclick: () => quitarMarca(m.id), 'aria-label': 'Quitar marca' }, '×'));
+  }));
+  pintarSel();
+}
+function pintarSel() {
+  $('sel').textContent = `${S.marcas.length} marca${S.marcas.length === 1 ? '' : 's'} · ${S.fotos.length} foto${S.fotos.length === 1 ? '' : 's'}`;
+  $('nFotos').textContent = S.fotos.length ? `(${S.fotos.length})` : '';
+}
+
+/* captura satelital de una marca: teselas cosidas en un canvas con la marca numerada al centro */
+function cargarImg(src) {
+  return new Promise((ok, mal) => { const im = new Image(); im.crossOrigin = 'anonymous'; im.onload = () => ok(im); im.onerror = mal; im.src = src; });
+}
+async function captura(lat, lon, z, n, conNombres) {
+  const W = 768, H = 768;
+  const cv = h('canvas', { width: W, height: H }); const g = cv.getContext('2d');
+  g.fillStyle = '#111'; g.fillRect(0, 0, W, H);
+  const capas = conNombres ? [T_IMG, T_CALLES, T_LUGARES] : [T_IMG];
+  let okBase = 0;
+  for (const plantilla of capas) {
+    const ts = C.teselasPara(lat, lon, z, W, H);
+    await Promise.all(ts.map(t => cargarImg(plantilla.replace('{z}', t.z).replace('{x}', t.x).replace('{y}', t.y))
+      .then(im => { g.drawImage(im, t.dx, t.dy); if (plantilla === T_IMG) okBase++; }).catch(() => {})));
+  }
+  if (!okBase) return null;
+  const cx = W / 2, cy = H / 2;
+  g.strokeStyle = 'rgba(163,230,53,.9)'; g.lineWidth = 2;
+  g.beginPath(); g.moveTo(cx - 40, cy); g.lineTo(cx - 18, cy); g.moveTo(cx + 18, cy); g.lineTo(cx + 40, cy);
+  g.moveTo(cx, cy - 40); g.lineTo(cx, cy - 18); g.moveTo(cx, cy + 18); g.lineTo(cx, cy + 40); g.stroke();
+  g.beginPath(); g.arc(cx, cy, 15, 0, Math.PI * 2); g.fillStyle = 'rgba(163,230,53,.92)'; g.fill();
+  g.lineWidth = 2; g.strokeStyle = '#0c1203'; g.stroke();
+  g.fillStyle = '#0c1203'; g.font = 'bold 15px monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(String(n), cx, cy + 1);
+  g.fillStyle = 'rgba(0,0,0,.65)'; g.fillRect(0, H - 26, W, 26);
+  g.fillStyle = '#e8f0e4'; g.font = '13px monospace'; g.textAlign = 'left';
+  g.fillText(`MARCA #${n} · ${lat.toFixed(6)}, ${lon.toFixed(6)} · ${conNombres ? 'contexto' : 'detalle'} z${z}`, 10, H - 13);
+  try { return cv.toDataURL('image/jpeg', 0.85).split(',')[1]; } catch (_) { return null; }
+}
+
+/* ---------- fotos ---------- */
+async function aJpeg(file, max) {
+  const bmp = await createImageBitmap(file);
+  const k = Math.min(1, max / Math.max(bmp.width, bmp.height));
+  const cv = h('canvas', { width: Math.round(bmp.width * k), height: Math.round(bmp.height * k) });
+  cv.getContext('2d').drawImage(bmp, 0, 0, cv.width, cv.height);
+  if (bmp.close) bmp.close();
+  return cv.toDataURL('image/jpeg', 0.85);
+}
+async function agregarArchivos(files) {
+  const lista = [...files].filter(f => f.type.startsWith('image/'));
+  if (!lista.length) return;
+  for (const f of lista) {
+    if (S.fotos.length >= 10) { aviso('Máximo 10 fotos por análisis.'); break; }
+    try {
+      let gps = null;
+      if (/jpe?g/i.test(f.type)) gps = C.gpsDeJpeg(await f.slice(0, 256 * 1024).arrayBuffer());
+      const url = await aJpeg(f, 1568); const thumb = await aJpeg(f, 240);
+      S.fotos.push({ id: nuevoId(), nombre: f.name || 'captura', b64: url.split(',')[1], mt: 'image/jpeg', thumb, gps });
+      if (gps) { await agregarMarca(gps.lat, gps.lon, 'foto'); mapa.setView([gps.lat, gps.lon], 18); }
+    } catch (_) { aviso(`No se pudo leer ${f.name || 'la imagen'}.`, 'err'); }
+  }
+  pintarFotos(); mostrarTab('fotos');
+}
+function pintarFotos() {
+  $('fotos').replaceChildren(...S.fotos.map(f => h('div', { class: 'thumb' },
+    h('img', { src: f.thumb, alt: f.nombre }),
+    h('span', {}, f.gps ? 'GPS ✓ ' : '', f.nombre),
+    h('button', { type: 'button', 'aria-label': 'Quitar foto', onclick: () => { S.fotos = S.fotos.filter(x => x.id !== f.id); pintarFotos(); } }, '×'))));
+  pintarSel();
+}
+$('archivos').addEventListener('change', e => { agregarArchivos(e.target.files); e.target.value = ''; });
+const drop = $('drop');
+['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => agregarArchivos(e.dataTransfer.files));
+window.addEventListener('paste', e => {
+  const fs = [...(e.clipboardData ? e.clipboardData.items : [])].filter(i => i.kind === 'file' && i.type.startsWith('image/')).map(i => i.getAsFile()).filter(Boolean);
+  if (fs.length) { e.preventDefault(); agregarArchivos(fs); }
+});
+
+function mostrarTab(t) {
+  document.querySelectorAll('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+  $('tab-mapa').hidden = t !== 'mapa'; $('tab-fotos').hidden = t !== 'fotos';
+  if (t === 'mapa') setTimeout(() => mapa.invalidateSize(), 50);
+}
+document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => mostrarTab(b.dataset.tab)));
+
+/* ---------- llamada al agente ---------- */
+function explicarError(status, msg) {
+  const m = String(msg || '');
+  if (status === 401) return 'La clave de API no es válida. Revísala en Ajustes.';
+  if (/web.?search|web.?fetch/i.test(m) && /enable|disabled|not allowed|permission/i.test(m)) return 'Tu organización de Anthropic tiene la búsqueda web desactivada. Actívala en la Consola y vuelve a intentar.';
+  if (status === 403) return 'Tu clave no tiene permiso para esta operación. ' + m;
+  if (status === 404) return 'El modelo no está disponible en tu cuenta. Cambia a Sonnet 5.5 en Ajustes.';
+  if (status === 429) return 'Llegaste al límite de uso de tu cuenta por ahora. Espera un minuto y reintenta.';
+  if (status === 529 || /overloaded/i.test(m)) return 'Anthropic está saturado en este momento. Reintenta en un rato.';
+  if (/credit|billing|balance/i.test(m)) return 'Tu cuenta de Anthropic no tiene saldo. Carga créditos en la Consola.';
+  return 'Error del agente: ' + (m || 'sin detalle');
+}
+function actividad(t) { $('actividad').append(h('li', {}, t)); $('actividad').scrollTop = 1e9; }
+function sumar(a, b) {
+  for (const [k, val] of Object.entries(b || {})) {
+    if (typeof val === 'number') a[k] = (a[k] || 0) + val;
+    else if (val && typeof val === 'object') { a[k] = a[k] || {}; sumar(a[k], val); }
+  }
+  return a;
+}
+
+async function llamar(messages, alTexto) {
+  const { body, headers } = C.buildRequest({ model: cfg.modelo, effort: cfg.esfuerzo, pais: cfg.pais, cfg, messages, fallbacks: !S.sinFallback });
+  headers['x-api-key'] = clave;
+  let r;
+  try { r = await fetch('https://api.anthropic.com/v1/messages', { method: 'POST', headers, body: JSON.stringify(body), signal: S.abort.signal }); }
+  catch (e) { if (e.name === 'AbortError') throw e; throw new Error('No hubo conexión con Anthropic. Revisa tu internet y reintenta.'); }
+  if (!r.ok) {
+    let err = {}; try { err = (await r.json()).error || {}; } catch (_) {}
+    if (r.status === 400 && /fallback/i.test(err.message || '') && !S.sinFallback) { S.sinFallback = true; return llamar(messages, alTexto); }
+    throw new Error(explicarError(r.status, err.message));
+  }
+  const acc = new C.Acumulador();
+  const on = {
+    texto: alTexto,
+    bloque: (b, fase) => {
+      if (fase !== 'stop' || b.type !== 'server_tool_use') return;
+      const inp = b.input || {};
+      if (b.name === 'web_search') actividad('Buscó: ' + (inp.query || ''));
+      else if (b.name === 'web_fetch') actividad('Leyó: ' + (inp.url || ''));
+      else actividad('Filtró resultados');
+    },
+  };
+  const lector = r.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  for (;;) {
+    const { value, done } = await lector.read();
+    if (done) break;
+    buf += dec.decode(value, { stream: true });
+    const { eventos, resto } = C.parseSSE(buf); buf = resto;
+    for (const e of eventos) acc.push(e, on);
+  }
+  buf += dec.decode();
+  if (buf.trim()) for (const e of C.parseSSE(buf + '\n\n').eventos) acc.push(e, on);
+  if (acc.error) throw new Error(explicarError(0, acc.error.message || acc.error.type));
+  return acc;
+}
+
+/* corre un turno completo: retoma pause_turn (búsquedas largas) hasta 5 veces */
+async function correr(mensajes, alTexto) {
+  let msgs = mensajes.slice(); const bloques = []; const usage = {}; let texto = '';
+  for (let vuelta = 0; vuelta < 6; vuelta++) {
+    const acc = await llamar(msgs, alTexto);
+    bloques.push(...acc.bloques); sumar(usage, acc.usage); texto += acc.texto;
+    if (acc.stopReason === 'pause_turn') {
+      msgs = mensajes.concat([{ role: 'assistant', content: bloques.slice() }]);
+      actividad('Sigue investigando…'); continue;
+    }
+    if (acc.stopReason === 'refusal') throw new Error('El modelo no quiso responder esta consulta. Reformula las notas y reintenta.');
+    if (acc.stopReason === 'max_tokens') actividad('La respuesta llegó al largo máximo; pide lo que faltó en "Sigue con este caso".');
+    break;
+  }
+  return { texto, bloques, usage };
+}
+
+function ocupado(si) {
+  S.ocupado = si;
+  $('analizar').disabled = si; $('preguntar').disabled = si;
+  $('detener').hidden = !si;
+  $('analizar').textContent = si ? 'Analizando…' : 'Analizar';
+}
+$('detener').addEventListener('click', () => { if (S.abort) S.abort.abort(); });
+
+/* ---------- analizar ---------- */
+$('analizar').addEventListener('click', analizar);
+async function analizar() {
+  aviso('');
+  if (!clave) { abrirAjustes(); return aviso('Primero pega tu clave de API de Anthropic en Ajustes.'); }
+  if (!S.marcas.length && !S.fotos.length) return aviso('Marca al menos una propiedad en el mapa o sube una foto.');
+  ocupado(true); S.abort = new AbortController();
+  const t0 = Date.now();
+  prepararResultado(S.marcas.length + S.fotos.length > 1 ? 'Barrido' : 'Expediente');
+  try {
+    actividad('Generando capturas satelitales…');
+    const marcas = [];
+    for (const [i, m] of S.marcas.entries()) {
+      const imgs = [];
+      const det = await captura(m.lat, m.lon, 18, i + 1, false); if (det) imgs.push({ b64: det });
+      const ctx = await captura(m.lat, m.lon, 16, i + 1, true); if (ctx) imgs.push({ b64: ctx });
+      if (!imgs.length) actividad(`Sin captura satelital para la marca #${i + 1}: va solo con coordenadas.`);
+      marcas.push({ n: i + 1, lat: m.lat, lon: m.lon, dir: m.dir && !/buscando/.test(m.dir) ? m.dir : '', imgs });
+    }
+    const fotos = S.fotos.map((f, i) => ({ n: i + 1, nombre: f.nombre, b64: f.b64, mt: f.mt, gps: f.gps }));
+    const pedido = { modo: $('modo').value, objetivo: $('objetivo').value, notas: $('notas').value, pais: cfg.pais, marcas, fotos };
+    const contenido = C.buildUserContent(pedido);
+    const liviano = { ...pedido, marcas: marcas.map(m => ({ ...m, imgs: m.imgs.map(() => ({})) })), fotos: fotos.map(f => ({ ...f, b64: '' })) };
+    const resumen = C.resumenTexto(liviano);
+    actividad(`Agente trabajando (${C.MODELOS[cfg.modelo] ? C.MODELOS[cfg.modelo].nombre : cfg.modelo})…`);
+    const timer = setInterval(() => { $('costo').textContent = `${Math.round((Date.now() - t0) / 1000)} s`; }, 1000);
+    let res;
+    try { res = await correr([{ role: 'user', content: contenido }], t => { $('vivo').textContent += t; $('vivo').scrollTop = 1e9; }); }
+    finally { clearInterval(timer); }
+    const thumb = (S.fotos[0] && S.fotos[0].thumb) || null;
+    S.caso = {
+      ids: [], resumen, marcas: marcas.map(m => ({ n: m.n, lat: m.lat, lon: m.lon, dir: m.dir })), fotos: fotos.map(f => ({ n: f.n, gps: f.gps })),
+      texto: res.texto, fuentes: C.fuentes(res.bloques).slice(0, 40), seguimiento: [],
+      hist: [{ role: 'user', content: contenido }, { role: 'assistant', content: res.texto || '(sin texto)' }],
+    };
+    pintarResultado(S.caso, res.usage, Date.now() - t0);
+    guardarCaso(S.caso, thumb);
+  } catch (e) {
+    if (e.name === 'AbortError') actividad('Detenido.');
+    else { aviso(e.message, 'err'); actividad('Error: ' + e.message); }
+  } finally { ocupado(false); }
+}
+
+function prepararResultado(titulo) {
+  $('resultado').hidden = false; $('resTitulo').textContent = titulo;
+  $('actividad').replaceChildren(); $('vivo').textContent = ''; $('vivo').hidden = false;
+  $('secciones').replaceChildren(); $('fichas').replaceChildren(); $('respuestas').replaceChildren();
+  $('fuentesBox').hidden = true; $('costo').textContent = '';
+  $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function tarjetaSeccion(s) {
+  const b = h('button', { class: 'btn sm', type: 'button' }, 'Copiar');
+  b.addEventListener('click', () => copiar(s.cuerpo, b));
+  return h('div', { class: 'sec' }, h('div', { class: 'sec-h' }, h('b', {}, s.titulo || 'NOTAS'), b), h('pre', {}, s.cuerpo));
+}
+function badgePrioridad(p) {
+  const cls = /ATACAR/.test(p) ? 'b-atacar' : /COLA/.test(p) ? 'b-cola' : 'b-descartar';
+  return h('span', { class: 'badge ' + cls }, p || 'sin puntaje');
+}
+function pintarResultado(caso, usage, ms) {
+  $('vivo').hidden = true;
+  const limpio = C.sinFichas(caso.texto);
+  $('secciones').replaceChildren(...C.secciones(limpio).map(tarjetaSeccion));
+  const fichas = C.parseFichas(caso.texto);
+  if (fichas.length) $('fichas').replaceChildren(h('div', { class: 'sec' }, h('div', { class: 'sec-h' }, h('b', {}, 'FICHAS → GUARDADAS EN LA CARTERA')),
+    h('pre', {}, fichas.map(f => `#${f.n} · ${f.puntaje ?? '–'} pts · ${f.prioridad || '–'} · ${f.direccion || ''}\n   dueño: ${f.dueno || '–'} (${f.estatus || '–'}) · contacto: ${f.contacto || '–'}\n   siguiente paso: ${f.siguiente || '–'}`).join('\n\n'))));
+  pintarFuentes(caso.fuentes || []);
+  const partes = [];
+  if (usage) { const busq = (usage.server_tool_use && usage.server_tool_use.web_search_requests) || 0; partes.push(`≈ US$${C.costoAprox(cfg.modelo, usage).toFixed(2)}`, `${busq} búsquedas`); }
+  if (ms) partes.push(`${Math.round(ms / 1000)} s`);
+  $('costo').textContent = partes.join(' · ');
+}
+function pintarFuentes(fs) {
+  $('fuentesBox').hidden = !fs.length;
+  $('fuentesSum').textContent = `Fuentes (${fs.length})`;
+  $('fuentes').replaceChildren(...fs.map(f => h('li', {}, linkSeguro(f.url, f.titulo), f.citada ? ' · citada' : '')));
+}
+$('copiarTodo').addEventListener('click', e => {
+  if (!S.caso) return;
+  const extra = S.caso.seguimiento.map(s => `\n\n— ${s.q}\n${s.a}`).join('');
+  copiar(C.sinFichas(S.caso.texto) + extra, e.currentTarget);
+});
+
+/* ---------- seguimiento ---------- */
+$('preguntar').addEventListener('click', preguntar);
+$('pregunta').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) preguntar(); });
+async function preguntar() {
+  const q = $('pregunta').value.trim();
+  if (!q || !S.caso || S.ocupado) return;
+  if (!clave) { abrirAjustes(); return; }
+  ocupado(true); S.abort = new AbortController(); aviso('');
+  const caja = h('pre', { class: 'vivo' });
+  const bloque = h('div', { class: 'respuesta' }, h('div', { class: 'q' }, '› ' + q), caja);
+  $('respuestas').append(bloque);
+  try {
+    const msgs = S.caso.hist.concat([{ role: 'user', content: 'MODO: SEGUIMIENTO\n' + q }]);
+    const res = await correr(msgs, t => { caja.textContent += t; });
+    caja.textContent = C.sinFichas(res.texto);
+    const b = h('button', { class: 'btn sm', type: 'button' }, 'Copiar'); b.addEventListener('click', () => copiar(C.sinFichas(res.texto), b));
+    bloque.append(b);
+    S.caso.hist.push({ role: 'user', content: 'MODO: SEGUIMIENTO\n' + q }, { role: 'assistant', content: res.texto || '(sin texto)' });
+    S.caso.seguimiento.push({ q, a: res.texto });
+    const nuevas = C.parseFichas(res.texto);
+    actualizarCasoEnCartera(S.caso, nuevas);
+    pintarFuentes(C.fuentes(res.bloques).concat(S.caso.fuentes || []).slice(0, 40));
+    $('pregunta').value = '';
+  } catch (e) {
+    if (e.name === 'AbortError') caja.textContent += '\n(detenido)';
+    else { caja.textContent += '\n' + e.message; }
+  } finally { ocupado(false); }
+}
+
+/* ---------- cartera ---------- */
+const ESTADOS = ['NUEVO', 'INVESTIGANDO', 'DUEÑO IDENTIFICADO', 'CONTACTADO', 'EN CONVERSACIÓN', 'VISITA', 'OFERTA', 'DEBIDA DILIGENCIA', 'FIRMADO', 'DESCARTADO'];
+
+function guardarCartera() {
+  if (!escribir('lhl.cartera', cartera)) {
+    // sin espacio: se sacan las miniaturas y se reintenta
+    cartera.forEach(l => { delete l.thumb; });
+    if (!escribir('lhl.cartera', cartera)) aviso('El navegador no tiene espacio para guardar la cartera. Exporta el CSV y borra propiedades viejas.', 'err');
+  }
+}
+function coordsDeFicha(caso, n) {
+  const m = caso.marcas.find(x => x.n === n);
+  if (m) return { lat: m.lat, lon: m.lon, dir: m.dir };
+  const f = caso.fotos.find(x => x.n === n - caso.marcas.length);
+  if (f && f.gps) return { lat: f.gps.lat, lon: f.gps.lon, dir: '' };
+  return caso.marcas.length === 1 && caso.fotos.length === 0 ? { lat: caso.marcas[0].lat, lon: caso.marcas[0].lon, dir: caso.marcas[0].dir } : {};
+}
+function guardarCaso(caso, thumb) {
+  let fichas = C.parseFichas(caso.texto);
+  if (!fichas.length) fichas = [{ n: 1, puntaje: null, prioridad: '', direccion: '', dueno: '', estatus: '', contacto: '', siguiente: '' }];
+  const analisis = C.sinFichas(caso.texto);
+  const resumenHist = caso.resumen;
+  for (const f of fichas) {
+    const c = coordsDeFicha(caso, f.n);
+    const lead = {
+      id: nuevoId(), creado: hoy(), pais: cfg.pais, origen: 'Locales',
+      titulo: f.direccion || c.dir || (c.lat != null ? `${c.lat.toFixed(5)}, ${c.lon.toFixed(5)}` : 'Propiedad analizada'),
+      lat: c.lat ?? null, lon: c.lon ?? null,
+      puntaje: f.puntaje, prioridad: f.prioridad || C.prioridadDe(f.puntaje, ''),
+      dueno: f.dueno, estatus: f.estatus, contacto: f.contacto, siguiente: f.siguiente,
+      estado: 'NUEVO', fechaSig: '', notas: '', ficha: f.n,
+      analisis, resumen: resumenHist, fuentes: caso.fuentes || [], seguimiento: [], thumb: f.n === 1 ? thumb : null,
+    };
+    cartera.unshift(lead); caso.ids.push(lead.id);
+  }
+  guardarCartera(); pintarCartera();
+}
+function actualizarCasoEnCartera(caso, nuevas) {
+  for (const id of caso.ids || []) {
+    const l = cartera.find(x => x.id === id); if (!l) continue;
+    l.seguimiento = caso.seguimiento.slice();
+    const f = nuevas.find(x => x.n === l.ficha) || (nuevas.length === 1 && caso.ids.length === 1 ? nuevas[0] : null);
+    if (f) {
+      if (f.puntaje != null) { l.puntaje = f.puntaje; l.prioridad = f.prioridad || C.prioridadDe(f.puntaje, ''); }
+      for (const k of ['dueno', 'estatus', 'contacto', 'siguiente']) if (f[k]) l[k] = f[k];
+    }
+  }
+  guardarCartera(); pintarCartera();
+}
+function abrirLead(id) {
+  const l = cartera.find(x => x.id === id); if (!l) return;
+  const hist = [{ role: 'user', content: l.resumen || `Propiedad: ${l.titulo}${l.lat != null ? ` (${l.lat}, ${l.lon})` : ''}. Origen: ${l.origen}.` },
+    { role: 'assistant', content: l.analisis || '(sin análisis)' }];
+  for (const s of l.seguimiento || []) hist.push({ role: 'user', content: 'MODO: SEGUIMIENTO\n' + s.q }, { role: 'assistant', content: s.a || '(sin texto)' });
+  S.caso = { ids: [l.id], resumen: l.resumen, marcas: [], fotos: [], texto: l.analisis || '', fuentes: l.fuentes || [], seguimiento: (l.seguimiento || []).slice(), hist };
+  prepararResultado(l.titulo);
+  pintarResultado(S.caso, null, 0);
+  for (const s of l.seguimiento || []) $('respuestas').append(h('div', { class: 'respuesta' }, h('div', { class: 'q' }, '› ' + s.q), h('pre', { class: 'vivo' }, C.sinFichas(s.a))));
+  if (l.lat != null) mapa.setView([l.lat, l.lon], 18);
+}
+function borrarLead(id) {
+  const l = cartera.find(x => x.id === id);
+  if (!l || !confirm(`¿Borrar "${l.titulo}" de la cartera?`)) return;
+  cartera = cartera.filter(x => x.id !== id); guardarCartera(); pintarCartera();
+}
+function pintarCartera() {
+  $('nCartera').textContent = cartera.length;
+  const orden = $('orden').value;
+  const filas = cartera.slice().sort((a, b) =>
+    orden === 'fecha' ? String(b.creado).localeCompare(String(a.creado)) :
+    orden === 'proxima' ? String(a.fechaSig || '9999').localeCompare(String(b.fechaSig || '9999')) :
+    (b.puntaje ?? -1) - (a.puntaje ?? -1));
+  $('carteraVacia').hidden = !!filas.length;
+  $('tbody').replaceChildren(...filas.map(l => {
+    const est = h('select', { 'aria-label': 'Estado', onchange: e => { l.estado = e.target.value; guardarCartera(); } }, ...ESTADOS.map(s => h('option', { value: s, selected: s === l.estado }, s)));
+    const fecha = h('input', { type: 'date', value: l.fechaSig || '', 'aria-label': 'Fecha del siguiente paso', onchange: e => { l.fechaSig = e.target.value; guardarCartera(); } });
+    return h('tr', {},
+      h('td', {}, badgePrioridad(l.prioridad), h('div', { class: 'sub' }, l.puntaje != null ? `${l.puntaje} pts` : '')),
+      h('td', {}, h('div', {}, l.titulo), h('div', { class: 'sub' }, `${l.creado} · ${l.origen || ''}`)),
+      h('td', {}, h('div', {}, l.dueno || 'dueño no encontrado', l.estatus ? ` (${l.estatus})` : ''), h('div', { class: 'sub' }, l.contacto || '')),
+      h('td', {}, est),
+      h('td', {}, h('div', { class: 'sub' }, l.siguiente || ''), fecha),
+      h('td', {}, h('div', { class: 'acciones' },
+        h('button', { class: 'btn sm', type: 'button', onclick: () => abrirLead(l.id) }, 'Abrir'),
+        h('button', { class: 'btn sm danger', type: 'button', onclick: () => borrarLead(l.id), 'aria-label': 'Borrar' }, '×'))));
+  }));
+  capaCartera.clearLayers();
+  for (const l of cartera) {
+    if (l.lat == null) continue;
+    const color = /ATACAR/.test(l.prioridad) ? '#a3e635' : /COLA/.test(l.prioridad) ? '#fbbf24' : '#8fa389';
+    const pop = h('div', {}, h('b', {}, l.titulo), h('br'), `${l.puntaje ?? '–'} pts · ${l.estado}`, h('br'), h('button', { class: 'btn sm', type: 'button', onclick: () => abrirLead(l.id) }, 'Abrir'));
+    L.circleMarker([l.lat, l.lon], { radius: 7, color: '#0c1203', weight: 2, fillColor: color, fillOpacity: .95 }).bindPopup(pop).addTo(capaCartera);
+  }
+}
+$('orden').addEventListener('change', pintarCartera);
+$('irCartera').addEventListener('click', () => $('cartera').scrollIntoView({ behavior: 'smooth' }));
+
+$('exportar').addEventListener('click', () => {
+  const cols = [
+    ['ID', l => l.id], ['Fecha alta', l => l.creado], ['Propiedad', l => l.titulo],
+    ['Coordenadas', l => l.lat != null ? `${l.lat.toFixed(6)}, ${l.lon.toFixed(6)}` : ''],
+    ['Enlace mapa', l => l.lat != null ? C.enlaces(l.lat, l.lon).maps : ''],
+    ['Puntaje', l => l.puntaje ?? ''], ['Prioridad', l => l.prioridad], ['Dueño', l => l.dueno], ['Estatus dueño', l => l.estatus],
+    ['Contacto', l => l.contacto], ['Estado', l => l.estado], ['Siguiente paso', l => l.siguiente], ['Fecha siguiente paso', l => l.fechaSig],
+    ['Fuente principal', l => (l.fuentes && l.fuentes[0] && l.fuentes[0].url) || l.fuente || ''], ['Origen', l => l.origen],
+  ].map(([titulo, valor]) => ({ titulo, valor }));
+  const blob = new Blob([C.toCSV(cartera, cols)], { type: 'text/csv;charset=utf-8' });
+  const a = h('a', { href: URL.createObjectURL(blob), download: `leadhunter-locales-${hoy()}.csv` });
+  document.body.append(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+});
+$('importar').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  const nuevos = C.leadsDesdeLeadHunter(C.parseCSV(await f.text()));
+  if (!nuevos.length) return aviso('Ese CSV no tiene el formato de LeadHunter (falta la columna "Prospecto").', 'err');
+  for (const n of nuevos) cartera.unshift({ id: nuevoId(), creado: hoy(), pais: cfg.pais, lat: null, lon: null, estado: 'NUEVO', fechaSig: '', notas: '', seguimiento: [], fuentes: n.fuente ? [{ url: n.fuente, titulo: n.fuente, citada: true }] : [], ...n });
+  guardarCartera(); pintarCartera();
+  aviso(`Importé ${nuevos.length} prospectos de LeadHunter a la cartera.`);
+});
+
+/* ---------- ajustes ---------- */
+const CAMPOS = { cfgPais: 'pais', cfgRol: 'rol', cfgModelo: 'modelo', cfgEsfuerzo: 'esfuerzo', cfgNombre: 'nombre', cfgEmpresa: 'empresa', cfgTelefono: 'telefono', cfgCorreo: 'correo', cfgUso: 'uso', cfgMetraje: 'metraje', cfgPresupuesto: 'presupuesto', cfgZonas: 'zonas' };
+function abrirAjustes() {
+  for (const [id, k] of Object.entries(CAMPOS)) $(id).value = cfg[k] || '';
+  $('cfgClave').value = clave;
+  let recordada = false; try { recordada = !!localStorage.getItem('lhl.key'); } catch (_) {}
+  $('cfgRecordar').checked = recordada || !clave;
+  $('ajustes').showModal();
+}
+$('abrirAjustes').addEventListener('click', abrirAjustes);
+$('formAjustes').addEventListener('submit', e => {
+  if (e.submitter && e.submitter.value !== 'ok') return;
+  const paisAntes = cfg.pais;
+  for (const [id, k] of Object.entries(CAMPOS)) cfg[k] = $(id).value.trim();
+  escribir('lhl.cfg', cfg);
+  clave = $('cfgClave').value.trim();
+  try {
+    localStorage.removeItem('lhl.key'); sessionStorage.removeItem('lhl.key');
+    if (clave) ($('cfgRecordar').checked ? localStorage : sessionStorage).setItem('lhl.key', clave);
+  } catch (_) {}
+  pintarPais();
+  if (paisAntes !== cfg.pais) mapa.setView(PAIS().centro, PAIS().zoom);
+});
+function pintarPais() { $('chipPais').textContent = PAIS().nombre.toUpperCase(); }
+
+/* ---------- inicio ---------- */
+$('limpiar').addEventListener('click', () => {
+  S.marcas.forEach(m => mapa.removeLayer(m.marker)); S.marcas = []; S.fotos = [];
+  pintarMarcas(); pintarFotos(); aviso('');
+});
+pintarPais(); pintarMarcas(); pintarFotos(); pintarCartera();
+if (!clave) setTimeout(() => { abrirAjustes(); }, 300);
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
