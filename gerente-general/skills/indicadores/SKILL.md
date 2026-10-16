@@ -47,4 +47,4 @@ la lista de datos que faltan para cerrar el mes.
 
 - UF o CLP según la fuente; conversiones con tipo de cambio y fecha.
 - Márgenes, deuda, impuestos: análisis sí; asesoría contable o tributaria no → especialista de `personas.md`.
-- Dashboard: primero datos confiables; el dashboard es otro pedido.
+- Dashboard (`<HQ>/dashboard.html`, skill `dashboard`): muestra valor y umbral tal cual; nada se alerta sin OK.

@@ -28,7 +28,9 @@ se avisa y se sigue con el siguiente. La carpeta elegida en la primera ejecució
    copiar también `gerente-general/CLAUDE.md` a `<HQ>/CLAUDE.md`. Copiar solo si el destino no existe; **nunca
    editar el origen**.
 3. Quitar la línea `<!-- PLANTILLA: sin datos reales -->` de las copias.
-4. Decir en una línea dónde quedó y recordar que esa carpeta no debe subirse a ningún repositorio público.
+4. Generar la vista: `node <plugin>/herramientas/dashboard.mjs --hq <HQ>` escribe `<HQ>/dashboard.html` (si Node no
+   está instalado, saltar este paso y decirlo).
+5. Decir en una línea dónde quedó y recordar que esa carpeta no debe subirse a ningún repositorio público.
 
 Nunca crear HQ dentro de un repositorio git ni dentro de la carpeta del plugin. Si el único lugar disponible es un
 repo, parar y preguntar.
@@ -41,6 +43,7 @@ repo, parar y preguntar.
 | `<HQ>/.leadhunter-url` | la URL de la app de LeadHunter, una línea | `herramientas/leadhunter.mjs` |
 | `<HQ>/agentes/*.md` | subagentes aprobados (copia canónica) | `crear-subagente`, delegación |
 | `<HQ>/CLAUDE.md` | copia del bloque del plugin, si el gerente usa Claude Code | Claude Code |
+| `<HQ>/dashboard.html` | vista de toda la memoria, regenerada al cerrar cada sesión (tan confidencial como HQ) | el gerente, en su navegador |
 
 Las plantillas del plugin son de **solo lectura**. Si una skill se encuentra escribiendo bajo `gerente-general/`
 o bajo un repo, está en el lugar equivocado: parar y resolver HQ de nuevo.

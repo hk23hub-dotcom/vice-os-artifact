@@ -9,6 +9,7 @@ de la carpeta del plugin). Este README no se copia a HQ.
 ```
 DMS/
 ├── CONTEXTO.md         caché caliente (≤ 100 líneas): lo que hay que saber antes de responder
+├── dashboard.html      vista de toda la memoria (la escribe herramientas/dashboard.mjs al cerrar; doble clic para abrir)
 └── memoria/
     ├── empresa.md      perfil de DMS (lo llena look-and-fill-dms)
     ├── diego.md        perfil y estilo de Diego; qué decide solo y qué va a socios

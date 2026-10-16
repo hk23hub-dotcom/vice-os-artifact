@@ -159,7 +159,7 @@ Smoke con Chromium sobre `guia.html` (catálogo, 17 pasos, vista previa, persist
 
 ## 8. Fuera de alcance
 Recordatorios proactivos (requieren planificador); espejo en Supabase y búsqueda semántica; envío automático; ERP/Excel de
-obra (A10 pendiente); guías 2+; dashboard de indicadores.
+obra (A10 pendiente); guías 2+. (El dashboard local pasó a alcance en §11.)
 
 ## 9. Supuestos declarados
 - `www.dmsinversiones.cl` no fue accesible desde el entorno de construcción (red restringida): `empresa.md` es plantilla;
@@ -179,3 +179,26 @@ servidor · esquema de plantillas definido · producto con precio y entrega · m
 Menores: lo inferido "por confirmar" · reutilizar = preguntar, no negar · aprobación por sí explícito · socios por
 defecto · contrapeso permanente · disparadores bilingües · tuteo y registro · envío con aprobación por envío ·
 especialista solo para el caso concreto · delegación visible · `fresh.id` en la página de claves · `npm test`.
+
+## 11. Dashboard local y ecosistema de trabajo (pedido posterior de HK23)
+HK23 pidió "darle forma": un dashboard interactivo y un ecosistema de trabajo, y eligió que fuera **para Diego, sobre su
+memoria DMS**. Decisiones:
+- **Vista derivada, no fuente.** `herramientas/dashboard.mjs --hq <HQ>` lee `CONTEXTO.md` y `memoria/*.md`, calcula la
+  presión por vencido (persona.md) y el brief de §2 del protocolo, y escribe `<HQ>/dashboard.html` inyectando los datos en
+  `plantillas/dashboard.html`. Nunca modifica la memoria; se sobrescribe en cada generación (las bitácoras son la
+  historia). Se regenera al cerrar (`gg` Paso 4, protocolo §4), en la primera ejecución (`hq.md`) y con la skill
+  `dashboard`. Generar no cambia estado: sin compuerta.
+- **Un solo archivo, cero red.** Sin fuentes externas, analytics, `fetch` ni módulos: abre con doble clic (`file://`).
+  Pestañas Pendientes (filtros sección · nivel · texto, hijas expandibles) · Obras (semáforo, 🔴 primero) · Tratos
+  (pipeline por etapa; sin `next:` se marca) · Indicadores (valor y umbral textuales, alertas) · Memoria (bitácora,
+  decisiones, radar, CONTEXTO) · Ecosistema (ciclo abrir→trabajar→decidir→cerrar, quién escribe qué, estado vivo de
+  memoria, subagentes, LeadHunter y cadencia; `referencias/ecosistema.md` es la fuente del texto).
+- **Confidencialidad.** Banner "Confidencial · generado desde <HQ>"; el generador no lee `.leadhunter*` (solo si
+  existen), no lista nombres de prospectos (solo cuenta y fecha), y `--out` pasa por `rutaProhibida` igual que `--hq`.
+  El JSON se inyecta con `<` escapado (`<`) para que un título con `</script>` no rompa la página. El HTML es tan
+  confidencial como HQ; `--json` existe para pruebas y la skill no lo pega en el chat.
+- **Parseo tolerante** a las plantillas: comentarios HTML fuera, campos por prefijo (`due:` puede faltar), filas
+  placeholder descartadas, semáforo normalizado, umbrales sin comparar, "pendiente / en preparación" en decisiones,
+  bitácora más reciente por nombre (los `<fecha>-<área>.md` de subagentes no cuentan), fecha local (no UTC).
+- Pruebas: `tests/dashboard.test.mjs` (parseo de plantillas y de un HQ sintético, presión con `--hoy`, fuga de clave y
+  URL, inyección, rechazo dentro de un repo, brief, plantilla sin datos ni red). Smoke manual con Chromium sobre `file://`.

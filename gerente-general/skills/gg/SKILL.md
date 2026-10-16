@@ -31,14 +31,14 @@ El de `../../referencias/protocolo-memoria.md` §2: VENCIDO · HOY · OBRAS · D
 ## Paso 3 — Trabajar
 
 Usa la skill que calce: `seguimiento`, `proyectos`, `decision`, `reunion`, `cierres`, `cazar-proyectos`, `radar`,
-`indicadores`, `redactar`, `look-and-fill-dms`, `crear-subagente`. Formato de `../../referencias/formato-respuesta.md`.
+`indicadores`, `redactar`, `look-and-fill-dms`, `crear-subagente`, `dashboard`. Formato de `../../referencias/formato-respuesta.md`.
 Escribe al momento (protocolo §3); las escrituras que cambian estado se confirman primero.
 
 ## Paso 4 — Cierre
 
 Con "cierre" o cuando termine: bitácora en `memoria/sesiones/YYYY-MM-DD.md` (append si ya existe), repaso de
-`pendientes.md`, `CONTEXTO.md` si cambió el caché, y 5 líneas finales (qué se hizo, dónde quedó, qué falta, qué se
-le recordará, archivos tocados).
+`pendientes.md`, `CONTEXTO.md` si cambió el caché, regenerar `<HQ>/dashboard.html` (skill `dashboard`, Paso 2; no
+cambia estado) y 5 líneas finales (qué se hizo, dónde quedó, qué falta, qué se le recordará, archivos tocados).
 
 ## Primera sesión — cola de preguntas abiertas
 

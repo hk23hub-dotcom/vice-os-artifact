@@ -8,7 +8,7 @@ import { parseArgs, buildRequest, parseSSE, readSSE, toMarkdown, slug, run, ruta
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = join(REPO, 'gerente-general');
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');
-const SKILLS = ['cazar-proyectos', 'cierres', 'crear-subagente', 'decision', 'gg', 'indicadores', 'look-and-fill-dms', 'proyectos', 'radar', 'redactar', 'reunion', 'seguimiento'];
+const SKILLS = ['cazar-proyectos', 'cierres', 'crear-subagente', 'dashboard', 'decision', 'gg', 'indicadores', 'look-and-fill-dms', 'proyectos', 'radar', 'redactar', 'reunion', 'seguimiento'];
 
 /* ── frontmatter mínimo: suficiente para validar los campos del spec ── */
 function frontmatter(md) {
@@ -132,7 +132,7 @@ test('las plantillas de memoria existen, llevan marcador, CONTEXTO cabe en 100 l
 
 test('referencias citadas existen', () => {
   const refs = readdirSync(join(ROOT, 'referencias')).filter((f) => f.endsWith('.md'));
-  for (const r of ['persona.md', 'hq.md', 'protocolo-memoria.md', 'formato-respuesta.md', 'protocolo-delegacion.md', 'ficha-decision.md', 'agenda-y-resumen.md', 'indicadores-constructora.md', 'radar-fuentes-chile.md', 'sector-constructora-chile.md', 'agent-spec.md']) {
+  for (const r of ['persona.md', 'hq.md', 'protocolo-memoria.md', 'ecosistema.md', 'formato-respuesta.md', 'protocolo-delegacion.md', 'ficha-decision.md', 'agenda-y-resumen.md', 'indicadores-constructora.md', 'radar-fuentes-chile.md', 'sector-constructora-chile.md', 'agent-spec.md']) {
     assert.ok(refs.includes(r), r); assert.ok(statSync(join(ROOT, 'referencias', r)).size > 200, r);
   }
   const all = SKILLS.map((s) => read(`skills/${s}/SKILL.md`)).join('\n') + read('agents/gerente-general-dms.md') + readdirSync(join(ROOT, 'referencias')).map((f) => read('referencias/' + f)).join('\n');

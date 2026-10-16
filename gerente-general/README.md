@@ -1,6 +1,6 @@
 # Gerente General DMS — agente acompañante con memoria
 
-Plugin para Cowork y Claude Code, **autocontenido**: trae sus doce skills, sus referencias, la persona y las plantillas de
+Plugin para Cowork y Claude Code, **autocontenido**: trae sus trece skills, sus referencias, la persona y las plantillas de
 memoria. No depende de otros plugins ni conectores del instalador (ORCHESTRA, Gmail, Drive…); LeadHunter es opcional y
 tiene camino manual. Está hecho para otro usuario (Diego, gerente general de DMS): se instala en su máquina y trabaja
 desde su carpeta privada.
@@ -28,6 +28,7 @@ Diseño: `docs/superpowers/specs/2026-10-16-agente-gerente-general-design.md` (s
 | "indicadores" · "cómo vamos en números" | `indicadores` | KPIs con umbral, registro de valores, alertas |
 | "redacta" · "write an email" | `redactar` | borrador en la voz de DMS, es-CL o inglés; nunca envía |
 | "crea un subagente de finanzas" | `crear-subagente` | propuesta de una pantalla → solo con un sí explícito a esa propuesta escribe e instala |
+| "dashboard" · "tablero" | `dashboard` | regenera `<HQ>/dashboard.html`: pendientes con presión, obras con semáforo, tratos, KPIs, radar, decisiones, bitácora y el mapa del ecosistema |
 
 Lo que **nunca** hace, ni con "ejecuta": decidir solo, enviar o contactar a terceros, gastar sin confirmar, crear o
 lanzar subagentes sin un sí explícito, cerrar pendientes o registrar decisiones sin su OK, sacar información
@@ -38,7 +39,7 @@ confidencial de la carpeta HQ, inventar cifras o fuentes.
 1. **Cowork:** `npm run plugin:pack` genera `gerente-general.plugin`; se instala con el botón "Aceptar" sobre ese
    archivo. Conecta una carpeta privada llamada `DMS` (o una carpeta que la contenga): ahí vivirá la memoria.
 2. **Claude Code:** `claude plugin marketplace add hk23hub-dotcom/vice-os-artifact` y luego instala `gerente-general`;
-   o copia la carpeta completa del plugin (agents/, skills/, referencias/, memoria/, propuestos/, herramientas/) a `~/.claude/plugins/gerente-general/` manteniendo la estructura. Agrega el bloque de `CLAUDE.md` a `~/.claude/CLAUDE.md`.
+   o copia la carpeta completa del plugin (agents/, skills/, referencias/, memoria/, propuestos/, herramientas/, plantillas/) a `~/.claude/plugins/gerente-general/` manteniendo la estructura. Agrega el bloque de `CLAUDE.md` a `~/.claude/CLAUDE.md`.
 3. Primera sesión: di **"GG"**. El agente pregunta una vez dónde guardar la memoria (propone `~/DMS`, nunca dentro de
    un repo), copia las plantillas, recorre la cola de preguntas abiertas y propone `look-and-fill-dms`.
 4. **LeadHunter con la cuenta del gerente (opcional):** en la app → *Agentes* → *Crear clave*. La skill
@@ -47,7 +48,11 @@ confidencial de la carpeta HQ, inventar cifras o fuentes.
    ```bash
    node gerente-general/herramientas/leadhunter.mjs --hq ~/DMS infer --url https://www.dmsinversiones.cl --dry-run
    ```
-   Sin Node o sin clave, la skill entrega el brief para pegar en la app y normaliza el CSV que él exporte.
+. **Dashboard:** se genera solo en la primera ejecución y al cerrar cada sesión; a mano:
+   ```bash
+   node gerente-general/herramientas/dashboard.mjs --hq ~/DMS
+   ```
+   Abre `~/DMS/dashboard.html` con doble clic (sin servidor ni red). Lleva la memoria completa: no se comparte.
 
 ## Memoria (dónde vive y por qué no está aquí)
 
@@ -57,6 +62,13 @@ real (socios, cifras, clientes, proyectos, decisiones, bitácora) vive en la car
 `$DMS_HQ` → `$HOME/mnt/DMS` → `$HOME/mnt/*/DMS` → `~/DMS` → `./DMS` solo fuera de un repo git (primer acierto;
 `referencias/hq.md`). `.gitignore` y `.vercelignore` ignoran `DMS/`. Regla de la casa: si no está escrito en la
 memoria, no pasó.
+
+## Ecosistema de trabajo
+
+Abrir ("GG" → brief desde la memoria) → trabajar (una skill por pedido, se escribe al momento) → decidir (el gerente
+decide; GG propone y pregunta) → cerrar ("cierre" → bitácora + `dashboard.html`). Quién escribe qué, dónde queda y la
+cadencia sugerida (lunes obras y KPIs, viernes tratos, primera semana del mes KPIs mensuales y radar, socios con
+ficha): `referencias/ecosistema.md`. La pestaña **Ecosistema** del dashboard lo muestra con el estado vivo de cada pieza.
 
 ## Subagentes
 
@@ -70,11 +82,13 @@ cuando él lo aprueba, vía `crear-subagente`, y quedan registrados en `memoria/
 gerente-general/
 ├── .claude-plugin/plugin.json
 ├── agents/gerente-general-dms.md      ejecutor delegable (trabajo largo); la persona vive en referencias/
-├── skills/<12 skills>/SKILL.md        cada una adopta la persona y resuelve HQ en su Paso 1
+├── skills/<13 skills>/SKILL.md        cada una adopta la persona y resuelve HQ en su Paso 1
 ├── referencias/                       persona, hq, protocolo de memoria, formato, fichas, sector, fuentes, agent-spec
 ├── memoria/                           PLANTILLAS (se copian a DMS/ privado)
 ├── propuestos/                        borradores de subagentes (no cargados)
 ├── herramientas/leadhunter.mjs        cliente LeadHunter (cuenta propia, sin dependencias)
+├── herramientas/dashboard.mjs         genera <HQ>/dashboard.html desde la memoria (vista, sin red)
+├── plantillas/dashboard.html          plantilla del dashboard (sin datos; nunca se abre desde aquí)
 └── CLAUDE.md                          bloque para ~/.claude/CLAUDE.md
 ```
 

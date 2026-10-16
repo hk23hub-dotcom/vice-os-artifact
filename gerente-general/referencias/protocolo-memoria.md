@@ -56,7 +56,10 @@ requiere confirmación.
    bloque con la hora, no sobrescribir.
 2. Repasar `pendientes.md`: fechas, dueños, nada en Hoy que no sea para hoy.
 3. Si cambió el caché, actualizar `CONTEXTO.md` y su línea `_Actualizado:_`.
-4. Terminar con 5 líneas: qué se hizo, dónde quedó, qué falta, qué se le recordará, archivos tocados.
+4. Regenerar `<HQ>/dashboard.html`: `node <plugin>/herramientas/dashboard.mjs --hq <HQ>` (skill `dashboard`; es una vista
+   derivada, no cambia estado; si Node no está instalado, decirlo y seguir).
+5. Terminar con 5 líneas: qué se hizo, dónde quedó, qué falta, qué se le recordará, archivos tocados (el dashboard
+   incluido).
 
 La única escritura durable es la inmediata (sección 3). El cierre produce la bitácora, no la memoria.
 
