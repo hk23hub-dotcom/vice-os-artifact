@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guía interactiva — HK23</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root { --bg:#050508; --fg:#F0EDE8; --dim:#8a8a94; --line:#1a1a22; --accent:#AAFF00; --accent2:#00F0FF; --red:#FF3A1F; }
+  html,body { background:var(--bg); color:var(--fg); font-family:'Space Mono',monospace; min-height:100%; }
+  #bar { position:fixed; top:0; left:0; height:2px; background:var(--accent); width:0; transition:width .5s; z-index:9; box-shadow:0 0 12px rgba(170,255,0,.5); }
+  .top { display:flex; justify-content:space-between; align-items:center; padding:22px 24px; font-size:9px; letter-spacing:3px; text-transform:uppercase; color:#555; }
+  .top a { color:#666; text-decoration:none; }
+  .top span b { color:var(--accent); }
+  main { max-width:640px; margin:0 auto; padding:40px 20px 120px; }
+  .eyebrow { font-size:8px; letter-spacing:5px; color:var(--accent); text-transform:uppercase; margin-bottom:14px; }
+  .intro { color:var(--dim); font-size:11.5px; line-height:1.6; margin-bottom:22px; }
+  h2 { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(22px,4vw,32px); line-height:1.2; margin-bottom:14px; letter-spacing:-.3px; }
+  .help { color:var(--dim); font-size:12px; line-height:1.6; margin-bottom:22px; }
+  .ej { font-size:11px; color:#666; line-height:1.5; margin-bottom:18px; border-left:2px solid #222; padding-left:10px; }
+  .ej b { color:#999; }
+  input[type=text], textarea { width:100%; background:none; border:none; border-bottom:1px solid #222; color:var(--fg); font-family:inherit; font-size:16px; padding:12px 0; outline:none; }
+  textarea { min-height:110px; resize:vertical; line-height:1.5; }
+  input:focus, textarea:focus { border-color:var(--accent); }
+  .opts { display:flex; flex-wrap:wrap; gap:8px; }
+  .opt { border:1px solid #2a2a33; padding:10px 14px; font-size:12px; cursor:pointer; color:#bbb; background:none; font-family:inherit; }
+  .opt.on { border-color:var(--accent); color:var(--accent); }
+  .nav { display:flex; gap:10px; margin-top:34px; align-items:center; flex-wrap:wrap; }
+  button.btn { background:none; border:1px solid #333; color:#aaa; font-family:inherit; font-size:11px; letter-spacing:3px; text-transform:uppercase; padding:13px 20px; cursor:pointer; }
+  button.btn.main { border-color:var(--accent); color:var(--accent); }
+  button.btn.main:hover { background:var(--accent); color:#000; }
+  button.btn:disabled { opacity:.35; cursor:default; }
+  .muted { font-size:10px; color:#555; letter-spacing:2px; margin-left:auto; }
+  .hidden { display:none; }
+  pre { white-space:pre-wrap; font-size:12px; line-height:1.6; background:#08080d; border:1px solid var(--line); padding:18px; margin:14px 0; max-height:420px; overflow:auto; }
+  .lock { border:1px solid #2a3a0f; padding:22px; margin-top:24px; background:#070a05; }
+  .lock h3 { font-family:'Space Grotesk',sans-serif; font-size:20px; margin-bottom:8px; }
+  .lock p { color:var(--dim); font-size:12px; line-height:1.6; margin-bottom:12px; }
+  .price { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:28px; color:var(--accent); margin-bottom:6px; }
+  .price small { font-family:'Space Mono',monospace; font-size:10px; color:var(--dim); font-weight:400; margin-left:8px; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .row input { flex:1; min-width:220px; border:1px solid #333; padding:10px 12px; font-size:13px; }
+  .err { color:var(--red); font-size:12px; margin-top:8px; }
+  .ok { color:var(--accent); font-size:12px; margin-top:8px; }
+  .files { display:flex; flex-wrap:wrap; gap:8px; margin:12px 0; }
+  .files button { border-color:var(--accent2); color:var(--accent2); }
+  a.buy { display:inline-block; border:1px solid var(--accent); color:var(--accent); padding:12px 18px; text-decoration:none; font-size:11px; letter-spacing:3px; text-transform:uppercase; }
+  .small { font-size:10px; color:#555; line-height:1.6; margin-top:14px; }
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<div id="bar"></div>
+<div class="top"><a href="/guias">← guías</a><span id="count"></span></div>
+<main>
+  <section id="stage"></section>
+  <section id="final" class="hidden"></section>
+</main>
+<script type="module">
+import { validarGuia, armarSalida, render, progreso, vacia } from '/guias/motor.js';
+
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const id = new URLSearchParams(location.search).get('g') || 'gerente-general';
+const KEY = 'hk23-guia-' + id;          // respuestas y posición, por navegador
+const LIC = 'hk23-tier-license';         // misma clave que el universo: { tier: license_key }
+const CACHE = 'hk23-guia-salida-' + id;  // plantillas pagas ya descargadas
+const stage = document.getElementById('stage'), final = document.getElementById('final');
+let g, i = 0, r = {};
+
+try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); r = s.r || {}; i = s.i || 0; } catch (_) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ r, i })); } catch (_) {} };
+
+g = await fetch(`/guias/${encodeURIComponent(id)}.json`).then((x) => { if (!x.ok) throw new Error('no existe'); return x.json(); }).catch(() => null);
+if (!g || validarGuia(g).length) { stage.innerHTML = '<h2>Esta guía no existe o está mal armada.</h2><p class="help">Vuelve al catálogo.</p>'; throw new Error('guía inválida');
+}
+document.title = g.titulo + ' — Guías HK23';
+if (i >= g.pasos.length) i = g.pasos.length - 1;
+
+function paso() {
+  const p = g.pasos[i], parte = g.partes.find((x) => x.id === p.id || x.id === p.parte);
+  const cur = r[p.id];
+  const prog = progreso(g, r);
+  document.getElementById('bar').style.width = Math.round(((i) / g.pasos.length) * 100) + '%';
+  document.getElementById('count').innerHTML = `pregunta <b>${i + 1}</b> / ${g.pasos.length} · ${prog.hechos} respondidas`;
+  let input = '';
+  if (p.tipo === 'text') input = `<input type="text" id="in" value="${esc(cur || '')}" placeholder="Escribe aquí… o «no sé»">`;
+  else if (p.tipo === 'textarea') input = `<textarea id="in" placeholder="Escribe aquí… o «no sé»">${esc(cur || '')}</textarea>`;
+  else {
+    const sel = new Set(Array.isArray(cur) ? cur : cur ? [cur] : []);
+    input = `<div class="opts" id="opts">${p.opciones.map((o) => `<button class="opt ${sel.has(o) ? 'on' : ''}" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>`;
+  }
+  stage.innerHTML = `<div class="eyebrow">Parte ${esc(p.parte)} · ${esc(parte ? parte.titulo : '')}</div>
+    ${i === 0 || g.pasos[i - 1].parte !== p.parte ? `<p class="intro">${esc(parte ? parte.intro : '')}</p>` : ''}
+    <h2>${esc(p.titulo)}</h2><p class="help">${esc(p.ayuda || '')}</p>
+    <div class="ej"><b>Ejemplo</b> (empresa ficticia): ${esc(p.ejemplo)}</div>${input}
+    <div class="nav"><button class="btn" id="back" ${i === 0 ? 'disabled' : ''}>← atrás</button>
+    <button class="btn main" id="next">${i === g.pasos.length - 1 ? 'Ver mi spec →' : 'Continuar →'}</button>
+    <button class="btn" id="skip">no sé</button><span class="muted">Enter = continuar</span></div>`;
+  const inEl = document.getElementById('in');
+  if (inEl) { inEl.focus(); inEl.addEventListener('input', () => { r[p.id] = inEl.value; save(); }); inEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (p.tipo === 'text' || e.metaKey || e.ctrlKey)) { e.preventDefault(); next(); } }); }
+  const opts = document.getElementById('opts');
+  if (opts) opts.addEventListener('click', (e) => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    const o = b.dataset.o;
+    if (p.tipo === 'choice') { r[p.id] = o; save(); paso(); setTimeout(next, 250); }
+    else { const s = new Set(Array.isArray(r[p.id]) ? r[p.id] : []); s.has(o) ? s.delete(o) : s.add(o); r[p.id] = [...s]; save(); paso(); }
+  });
+  document.getElementById('back').onclick = () => { i--; save(); paso(); };
+  document.getElementById('next').onclick = next;
+  document.getElementById('skip').onclick = () => { r[p.id] = 'no sé'; save(); next(); };
+}
+function next() { if (i < g.pasos.length - 1) { i++; save(); paso(); } else mostrarFinal(); }
+
+function licencia() { try { return (JSON.parse(localStorage.getItem(LIC) || '{}'))[g.tier] || ''; } catch (_) { return ''; } }
+function guardarLicencia(k) { try { const l = JSON.parse(localStorage.getItem(LIC) || '{}'); l[g.tier] = k; localStorage.setItem(LIC, JSON.stringify(l)); } catch (_) {} }
+function salidaCache() { try { return JSON.parse(localStorage.getItem(CACHE) || 'null'); } catch (_) { return null; } }
+
+async function desbloquear(key, nueva) {
+  const res = await fetch('/api/guia-unlock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ guia: g.id, license_key: key, nueva }) });
+  const j = await res.json().catch(() => ({}));
+  if (res.status === 503 && j.code === 'pending') return { pending: true };
+  if (!res.ok || !j.ok) return { error: j.error || ('Error ' + res.status) };
+  try { localStorage.setItem(CACHE, JSON.stringify(j.salida)); } catch (_) {}
+  guardarLicencia(key);
+  return { salida: j.salida, uses: j.uses, maxSeats: j.maxSeats, via: j.via };
+}
+
+async function mostrarFinal() {
+  document.getElementById('bar').style.width = '100%';
+  stage.classList.add('hidden'); final.classList.remove('hidden');
+  document.getElementById('count').innerHTML = `<b>${progreso(g, r).hechos}</b> / ${g.pasos.length} respondidas`;
+  const prev = render(g.vista_previa, r, g.pasos);
+  final.innerHTML = `<div class="eyebrow">Tu spec · vista previa</div><h2>${esc(g.titulo)}</h2>
+    <p class="help">Esto es lo que el Builder va a recibir. Lo que dejaste en «no sé» tomó un valor razonable; el agente lo confirmará contigo en la primera sesión.</p>
+    <pre id="prev">${esc(prev)}</pre><div id="lock"></div>
+    <div class="nav"><button class="btn" id="edit">← editar respuestas</button><button class="btn" id="reset">empezar de nuevo</button></div>
+    <p class="small">${esc(g.ejemplo_nota)}</p>`;
+  document.getElementById('edit').onclick = () => { final.classList.add('hidden'); stage.classList.remove('hidden'); i = 0; paso(); };
+  document.getElementById('reset').onclick = () => { if (confirm('¿Borrar tus respuestas de este navegador?')) { r = {}; i = 0; save(); location.reload(); } };
+  const cached = salidaCache();
+  if (cached) return pintarSalida(cached, null);
+  const key = licencia();
+  if (key) { const d = await desbloquear(key, false); if (d.salida) return pintarSalida(d.salida, d); }
+  pintarCandado();
+}
+
+function pintarCandado(msg) {
+  document.getElementById('lock').innerHTML = `<div class="lock"><h3>Desbloquea el spec completo</h3>
+    <div class="price">US$ ${esc(g.precio.usd)}<small>${esc(g.precio.nota)}</small></div>
+    <p>${(g.entrega || []).map(esc).join(' · ')}</p>
+    <div class="row"><a class="buy" id="buy" href="https://hk23hub.gumroad.com" target="_blank" rel="noopener">Comprar en Gumroad →</a></div>
+    <p style="margin-top:14px">¿Ya compraste? Pega tu license key (o tu código):</p>
+    <div class="row"><input type="text" id="key" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button class="btn main" id="go">Activar</button></div>
+    <div id="msg" class="${msg && msg.ok ? 'ok' : 'err'}">${esc(msg ? msg.text : '')}</div></div>`;
+  document.getElementById('go').onclick = async () => {
+    const key = document.getElementById('key').value.trim();
+    if (key.length < 6) return pintarCandado({ text: 'Pega la license key completa.' });
+    document.getElementById('msg').textContent = 'verificando…';
+    const d = await desbloquear(key, true);
+    if (d.pending) return pintarCandado({ text: 'Esta guía aún no está a la venta. Escríbenos a hk23hub@gmail.com y te avisamos.' });
+    if (d.error) return pintarCandado({ text: d.error });
+    pintarSalida(d.salida, d);
+  };
+}
+
+function pintarSalida(salida, d) {
+  const out = armarSalida(salida, r, g.pasos);
+  const lock = document.getElementById('lock');
+  lock.innerHTML = `<div class="lock"><h3>Spec desbloqueado${d && d.uses != null ? ` · dispositivo ${esc(d.uses)}/${esc(d.maxSeats)}` : ''}</h3>
+    <p>Copia el prompt para el Builder y descarga los archivos. Quedan guardados en este navegador.</p>
+    <div class="row"><button class="btn main" id="copy">Copiar prompt para el Builder</button></div>
+    <div class="files">${out.archivos.map((a, k) => `<button class="btn" data-k="${k}">⇩ ${esc(a.nombre)}</button>`).join('')}</div>
+    <pre>${esc(out.prompt)}</pre></div>`;
+  document.getElementById('copy').onclick = async () => { try { await navigator.clipboard.writeText(out.prompt); document.getElementById('copy').textContent = '✓ Copiado'; } catch (_) { alert('No se pudo copiar; selecciona el texto.'); } };
+  lock.querySelectorAll('.files button').forEach((b) => b.onclick = () => {
+    const a = out.archivos[+b.dataset.k];
+    const url = URL.createObjectURL(new Blob([a.contenido], { type: 'text/markdown;charset=utf-8' }));
+    const el = document.createElement('a'); el.href = url; el.download = a.nombre; el.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  });
+}
+
+if (new URLSearchParams(location.search).get('final') === '1') mostrarFinal(); else paso();
+</script>
+</body>
+</html>

@@ -17,3 +17,7 @@ prompts/
 
 # El Centro: scripts, pruebas y notas de Shopify (no se sirven)
 centro/
+
+# Gerente General DMS: plugin interno (agente, skills, plantillas); no se sirve
+gerente-general/
+DMS/

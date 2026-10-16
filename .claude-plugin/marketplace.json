@@ -1,0 +1,16 @@
+{
+  "name": "hk23",
+  "owner": {
+    "name": "HK23"
+  },
+  "metadata": {
+    "description": "Plugins de HK23: agentes con memoria para empresas y creadores."
+  },
+  "plugins": [
+    {
+      "name": "gerente-general",
+      "source": "./gerente-general",
+      "description": "Gerente General acompañante con memoria privada, seguimiento, decisiones, reuniones, radar, LeadHunter con cuenta propia y subagentes solo con aprobación."
+    }
+  ]
+}

@@ -5,3 +5,10 @@ node_modules/
 etsy-agent/tokens.json
 etsy-agent/config.json
 etsy-agent/*.local.json
+
+# Memoria privada del Gerente General DMS y paquete del plugin: nunca al repo
+DMS/
+**/DMS/
+.env
+.env.*
+*.plugin
