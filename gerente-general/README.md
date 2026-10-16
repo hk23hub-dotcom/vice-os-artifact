@@ -28,7 +28,7 @@ Diseño: `docs/superpowers/specs/2026-10-16-agente-gerente-general-design.md` (s
 | "indicadores" · "cómo vamos en números" | `indicadores` | KPIs con umbral, registro de valores, alertas |
 | "redacta" · "write an email" | `redactar` | borrador en la voz de DMS, es-CL o inglés; nunca envía |
 | "crea un subagente de finanzas" | `crear-subagente` | propuesta de una pantalla → solo con un sí explícito a esa propuesta escribe e instala |
-| "dashboard" · "tablero" | `dashboard` | regenera `<HQ>/dashboard.html`: pendientes con presión, obras con semáforo, tratos, KPIs, radar, decisiones, bitácora y el mapa del ecosistema |
+| "dashboard" · "abre el dashboard" | `dashboard` | regenera `<HQ>/dashboard.html`: pendientes con presión, obras con semáforo, tratos, KPIs, radar, decisiones, bitácora y el mapa del ecosistema |
 
 Lo que **nunca** hace, ni con "ejecuta": decidir solo, enviar o contactar a terceros, gastar sin confirmar, crear o
 lanzar subagentes sin un sí explícito, cerrar pendientes o registrar decisiones sin su OK, sacar información
@@ -43,16 +43,18 @@ confidencial de la carpeta HQ, inventar cifras o fuentes.
 3. Primera sesión: di **"GG"**. El agente pregunta una vez dónde guardar la memoria (propone `~/DMS`, nunca dentro de
    un repo), copia las plantillas, recorre la cola de preguntas abiertas y propone `look-and-fill-dms`.
 4. **LeadHunter con la cuenta del gerente (opcional):** en la app → *Agentes* → *Crear clave*. La skill
-   `cazar-proyectos` pide la clave y la URL una vez y las guarda en `<HQ>/.leadhunter` y `<HQ>/.leadhunter-url`
-   (nunca en la memoria ni en un repo). Prueba:
+   `cazar-proyectos` te da los pasos para que **tú** guardes la clave y la URL en `<HQ>/.leadhunter` y
+   `<HQ>/.leadhunter-url` (una línea cada uno; nunca en el chat, en la memoria ni en un repo). Prueba:
    ```bash
    node gerente-general/herramientas/leadhunter.mjs --hq ~/DMS infer --url https://www.dmsinversiones.cl --dry-run
    ```
-. **Dashboard:** se genera solo en la primera ejecución y al cerrar cada sesión; a mano:
+   Sin Node o sin clave, la skill entrega el brief para pegar en la app y normaliza el CSV que él exporte.
+5. **Dashboard:** GG lo genera en la primera ejecución y al cerrar cada sesión («cierre»), y cuando le pides
+   «dashboard». Abre `~/DMS/dashboard.html` con doble clic (sin servidor ni red); la presión por vencido se recalcula
+   con la fecha del día en que lo abres. Lleva la memoria completa: no se comparte. A mano, desde el repo:
    ```bash
    node gerente-general/herramientas/dashboard.mjs --hq ~/DMS
    ```
-   Abre `~/DMS/dashboard.html` con doble clic (sin servidor ni red). Lleva la memoria completa: no se comparte.
 
 ## Memoria (dónde vive y por qué no está aquí)
 
@@ -68,7 +70,7 @@ memoria, no pasó.
 Abrir ("GG" → brief desde la memoria) → trabajar (una skill por pedido, se escribe al momento) → decidir (el gerente
 decide; GG propone y pregunta) → cerrar ("cierre" → bitácora + `dashboard.html`). Quién escribe qué, dónde queda y la
 cadencia sugerida (lunes obras y KPIs, viernes tratos, primera semana del mes KPIs mensuales y radar, socios con
-ficha): `referencias/ecosistema.md`. La pestaña **Ecosistema** del dashboard lo muestra con el estado vivo de cada pieza.
+ficha; sin cadencia fija hasta que el gerente la confirme): `referencias/ecosistema.md`. La pestaña **Ecosistema** del dashboard lo muestra con el estado vivo de cada pieza.
 
 ## Subagentes
 

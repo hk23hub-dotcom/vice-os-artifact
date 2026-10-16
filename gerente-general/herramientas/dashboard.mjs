@@ -1,25 +1,41 @@
 #!/usr/bin/env node
 // Gerente General — dashboard local a partir de la memoria HQ. Sin dependencias (Node >= 18).
 //
-//   node dashboard.mjs --hq ~/DMS [--out <archivo.html>] [--hoy YYYY-MM-DD] [--json]
+//   node dashboard.mjs --hq ~/DMS [--out <archivo.html dentro de HQ>] [--hoy YYYY-MM-DD] [--json]
 //
 // Lee CONTEXTO.md y memoria/*.md de la carpeta HQ, calcula la presión por vencido y el brief de apertura, y escribe
 // <HQ>/dashboard.html inyectando los datos en ../plantillas/dashboard.html (un solo archivo, se abre con doble clic,
-// sin red). Es una VISTA: nunca modifica la memoria. Nunca lee .leadhunter ni .leadhunter-url (solo si existen).
-// Se niega a escribir dentro de un repositorio git o de la carpeta del plugin. Progreso por stderr; con --json, los
-// datos por stdout (para pruebas: no pegarlos en el chat, son la memoria completa).
+// sin red; la página vuelve a calcular la presión con la fecha del día en que se abre). Es una VISTA: nunca modifica
+// la memoria. Nunca lee .leadhunter ni .leadhunter-url (solo si existen). Se niega a escribir fuera de HQ, dentro de
+// un repositorio git o de la carpeta del plugin. Progreso por stderr; con --json, los datos por stdout (para pruebas:
+// no pegarlos en el chat, son la memoria completa).
+//
+// Las funciones de presión (días de atraso, nivel, líneas VENCIDO y HOY) viven en la plantilla, entre los marcadores
+// /*<compartido>*/ … /*</compartido>*/, y este módulo las carga de ahí: un solo origen para el generador y la página.
 
-import { readFileSync, writeFileSync, existsSync, readdirSync, renameSync, mkdirSync, statSync } from 'node:fs';
-import { join, resolve, dirname, basename } from 'node:path';
+import { readFileSync, writeFileSync, existsSync, readdirSync, renameSync, mkdirSync, statSync, realpathSync, unlinkSync } from 'node:fs';
+import { join, resolve, dirname, basename, relative, isAbsolute } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { rutaProhibida } from './leadhunter.mjs';
 
 const AQUI = dirname(fileURLToPath(import.meta.url));
-const PLANTILLA = join(AQUI, '..', 'plantillas', 'dashboard.html');
+const PLUGIN = resolve(AQUI, '..');
+const PLANTILLA = join(PLUGIN, 'plantillas', 'dashboard.html');
 const FLAGS_VALOR = ['hq', 'out', 'hoy'];
 const FLAGS_BOOL = ['json'];
 const ARCHIVOS_MEMORIA = ['empresa.md', 'diego.md', 'personas.md', 'proyectos.md', 'pendientes.md', 'decisiones.md', 'indicadores.md', 'radar.md', 'glosario.md', 'agentes.md'];
 const SECCIONES_PENDIENTES = [['inbox', 'Inbox'], ['hoy', 'Hoy'], ['semana', 'Esta semana'], ['backlog', 'Backlog'], ['seguimientos', 'Seguimientos'], ['parked', 'Parked'], ['hecho', 'Hecho']];
+const RE_BITACORA = /^(\d{4}-\d{2}-\d{2})(?:-(\d+))?\.md$/;
+
+/* ── bloque compartido con la plantilla ── */
+function leerPlantilla() { return readFileSync(PLANTILLA, 'utf8'); }
+function cargarCompartido(src) {
+  const m = src.match(/^[ \t]*\/\*<compartido>\*\/[ \t]*\n([\s\S]*?)^[ \t]*\/\*<\/compartido>\*\//m);
+  if (!m) throw new Error('la plantilla no tiene el bloque /*<compartido>*/');
+  return new Function(m[1] + '\nreturn { diasEntre, nivelPresion, fmtAtraso, recalcularPresion, lineasPresion, abierta };')();
+}
+export const compartido = cargarCompartido(leerPlantilla());
+export const { diasEntre, nivelPresion, fmtAtraso, recalcularPresion, lineasPresion } = compartido;
 
 /* Solo banderas conocidas. */
 export function parseArgs(argv) {
@@ -38,35 +54,24 @@ export function parseArgs(argv) {
 }
 
 /* ── utilidades de texto ── */
-const norm = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
-const sinComentarios = (md) => String(md || '').replace(/<!--[\s\S]*?-->/g, '');
+const norm = (s) => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+/* BOM y finales de línea de Windows fuera, comentarios HTML fuera: todo parser pasa por aquí antes de cualquier regex. */
+export const normalizar = (md) => String(md || '').replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n');
+const sinComentarios = (md) => normalizar(md).replace(/<!--[\s\S]*?-->/g, '');
 const limpio = (s) => String(s || '').trim();
-const esPlaceholder = (s) => { const t = limpio(s); return !t || t.startsWith('(') || t.includes('<') || t === '—' || t === '-'; };
+/* Solo marcadores completos de plantilla: «(por confirmar)», «<slug>», «—»; un valor real con «<» no es placeholder. */
+export const esPlaceholder = (s) => { const t = limpio(s); return !t || ['—', '-', '…'].includes(t) || /^\(.*\)$/.test(t) || /^<[^<>]+>$/.test(t); };
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 const pad = (n) => String(n).padStart(2, '0');
 
 /* Fecha local de hoy (no toISOString: en Chile de noche ya es otro día en UTC). */
 export function hoyLocal(d = new Date()) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 
-/* Días calendario entre dos fechas YYYY-MM-DD (positivo si `hasta` es después de `desde`). */
-export function diasEntre(desde, hasta) {
-  if (!FECHA.test(desde) || !FECHA.test(hasta)) return null;
-  const [a1, m1, d1] = desde.split('-').map(Number); const [a2, m2, d2] = hasta.split('-').map(Number);
-  return Math.round((Date.UTC(a2, m2 - 1, d2) - Date.UTC(a1, m1 - 1, d1)) / 86400000);
-}
-
-/* Presión por días de atraso (persona.md): 0–2 recordar · 3–6 insistir · ≥ 7 escalar; null si no está vencido. */
-export function nivelPresion(due, hoy) {
-  const atraso = diasEntre(due, hoy);
-  if (atraso === null || atraso < 0) return null;
-  return atraso >= 7 ? 'escalar' : atraso >= 3 ? 'insistir' : 'recordar';
-}
-
 /* Parte un markdown en secciones por encabezado de un nivel dado. La parte previa al primer encabezado va con título ''. */
 export function secciones(md, nivel = 2) {
   const re = new RegExp('^' + '#'.repeat(nivel) + '\\s+(.*)$');
   const out = [{ titulo: '', lineas: [] }];
-  for (const l of String(md || '').split('\n')) {
+  for (const l of normalizar(md).split('\n')) {
     const m = l.match(re);
     if (m) out.push({ titulo: m[1].trim(), lineas: [] }); else out[out.length - 1].lineas.push(l);
   }
@@ -74,7 +79,10 @@ export function secciones(md, nivel = 2) {
 }
 const buscar = (secs, prefijo) => secs.find((s) => norm(s.titulo).startsWith(norm(prefijo)));
 const bullets = (lineas) => (lineas || []).map((l) => l.match(/^\s*[-*]\s+(.*)$/)).filter(Boolean).map((m) => m[1].trim()).filter((t) => !esPlaceholder(t));
+/* posicional (alertas, historial, radar): parte en todo « · » */
 const partes = (s) => String(s).split(/\s+·\s+/).map(limpio);
+/* fichas de obra: parte solo antes de una «Clave:» que empieza por letra (no parte «https://» ni «10:30») */
+export const partesClave = (s) => String(s).split(/\s+·\s+(?=[A-Za-zÁ-ÿ][^·:]{0,39}:(?!\/\/))/).map(limpio);
 
 /* Filas de una tabla markdown: primera fila = cabecera, se salta la línea |---|. */
 export function filasTabla(lineas) {
@@ -83,10 +91,13 @@ export function filasTabla(lineas) {
   const [cabecera, ...resto] = filas;
   return { cabecera, filas: resto.filter((f) => !f.every((c) => /^:?-+:?$/.test(c) || c === '')) };
 }
+/* columna por nombre de cabecera (prefijo, sin acentos); -1 si no está */
+const columna = (cabecera, nombre) => cabecera.findIndex((c) => norm(c).startsWith(norm(nombre)));
+const celda = (fila, i) => (i >= 0 ? fila[i] || '' : '');
 
 /* ── pendientes.md ── */
 const RE_TAREA = /^- \[( |~|x|X)\] ([TS]-\d{4})\s*\|\s*(.*)$/;
-const RE_HIJA = /^\s{2,}([a-z][a-z-]*):\s*(.*)$/;
+const RE_HIJA = /^(?:\t|[ ]{2,})\s*([a-z][a-z-]*):\s*(.*)$/;
 const PREFIJOS = /^(proj|resp|due|nivel|etapa|monto):/;
 
 function claveSeccion(titulo) {
@@ -104,7 +115,7 @@ export function parsePendientes(md, hoy) {
     for (const l of sec.lineas) {
       const m = l.match(RE_TAREA);
       if (m) {
-        const estado = m[1] === ' ' ? 'abierta' : m[1] === '~' ? 'curso' : 'hecha';
+        const estado = m[1] !== ' ' && m[1] !== '~' ? 'hecha' : seccion === 'hecho' ? 'hecha' : m[1] === '~' ? 'curso' : 'abierta';
         const celdas = m[3].split('|').map(limpio).filter(Boolean);
         const campos = {}; const libres = [];
         for (const c of celdas) {
@@ -114,7 +125,6 @@ export function parsePendientes(md, hoy) {
         }
         const due = FECHA.test(campos.due || '') ? campos.due : '';
         const base = { id: m[2], estado, seccion, due, hijas: {}, nivel: null, atraso: null };
-        if (estado !== 'hecha' && due) { base.atraso = diasEntre(due, hoy); base.nivel = nivelPresion(due, hoy); }
         if (m[2].startsWith('T-')) {
           actual = { ...base, prioridad: campos.prioridad || '', proj: campos.proj || '', resp: campos.resp || '', titulo: libres.join(' | ') };
           tareas.push(actual);
@@ -125,22 +135,23 @@ export function parsePendientes(md, hoy) {
         continue;
       }
       const h = actual && l.match(RE_HIJA);
-      if (h) { actual.hijas[h[1]] = h[2].trim(); continue; }
+      if (h) { const v = h[2].trim(); actual.hijas[h[1]] = actual.hijas[h[1]] ? actual.hijas[h[1]] + ' · ' + v : v; continue; }
       if (l.trim()) actual = null; // cualquier otra línea corta la tarea
     }
   }
+  recalcularPresion(tareas, hoy); recalcularPresion(seguimientos, hoy);
   return { tareas, seguimientos };
 }
 
 /* ── proyectos.md ── */
 export function normSemaforo(s) {
-  const t = norm(s);
-  if (/🔴|rojo|red/.test(String(s)) || /rojo|red/.test(t)) return 'rojo';
-  if (/🟡|amarillo|yellow/.test(String(s)) || /amarillo/.test(t)) return 'amarillo';
-  if (/🟢|verde|green/.test(String(s)) || /verde/.test(t)) return 'verde';
-  return 'sin';
+  const t = String(s || '') + ' ' + norm(s);
+  const m = t.match(/🔴|🟡|🟢|\b(rojo|amarillo|verde)\b/);
+  if (!m) return 'sin';
+  return /🔴|rojo/.test(m[0]) ? 'rojo' : /🟡|amarillo/.test(m[0]) ? 'amarillo' : 'verde';
 }
 const ORDEN_SEMAFORO = { rojo: 0, amarillo: 1, verde: 2, sin: 3 };
+const nuevoProyecto = (slug, nombre) => ({ slug, nombre, cliente: '', estado: '', semaforo: 'sin', hito: '', fecha: '', resp: '', campos: {}, riesgos: '', pendientes: [], actualizado: '' });
 
 export function parseProyectos(md) {
   const secs = secciones(sinComentarios(md));
@@ -148,31 +159,31 @@ export function parseProyectos(md) {
   const resumen = buscar(secs, 'Resumen');
   if (resumen) {
     const { cabecera, filas } = filasTabla(resumen.lineas);
-    const idx = (nombre) => cabecera.findIndex((c) => norm(c).startsWith(norm(nombre)));
-    const [iSlug, iNombre, iCliente, iEstado, iSem, iHito, iFecha, iResp] = ['Slug', 'Nombre', 'Cliente', 'Estado', 'Sem', 'Próximo', 'Fecha', 'Resp'].map(idx);
+    const [iSlug, iNombre, iCliente, iEstado, iSem, iHito, iFecha, iResp] = ['Slug', 'Nombre', 'Cliente', 'Estado', 'Sem', 'Próximo', 'Fecha', 'Resp'].map((n) => columna(cabecera, n));
     for (const f of filas) {
-      const slug = f[iSlug] || '';
+      const slug = celda(f, iSlug);
       if (esPlaceholder(slug)) continue;
-      porSlug.set(slug, { slug, nombre: f[iNombre] || '', cliente: f[iCliente] || '', estado: f[iEstado] || '', semaforo: normSemaforo(f[iSem]), hito: f[iHito] || '', fecha: f[iFecha] || '', resp: f[iResp] || '', campos: {}, riesgos: '', pendientes: [], actualizado: '' });
+      porSlug.set(slug, { ...nuevoProyecto(slug, celda(f, iNombre)), cliente: celda(f, iCliente), estado: celda(f, iEstado), semaforo: normSemaforo(celda(f, iSem)), hito: celda(f, iHito), fecha: celda(f, iFecha), resp: celda(f, iResp) });
     }
   }
   for (const ficha of secciones(sinComentarios(md), 3)) {
     const m = ficha.titulo.match(/^(.+?)\s+[—–-]\s+(.+)$/);
     if (!m || esPlaceholder(m[1])) continue;
     const slug = limpio(m[1]);
-    const p = porSlug.get(slug) || { slug, nombre: limpio(m[2]), cliente: '', estado: '', semaforo: 'sin', hito: '', fecha: '', resp: '', campos: {}, riesgos: '', pendientes: [], actualizado: '' };
+    const p = porSlug.get(slug) || nuevoProyecto(slug, limpio(m[2]));
     if (!p.nombre) p.nombre = limpio(m[2]);
     for (const b of bullets(ficha.lineas)) {
-      for (const trozo of partes(b)) {
+      const mR = b.match(/^riesgos[^:]*:\s*(.*)$/i);
+      if (mR) { p.riesgos = esPlaceholder(mR[1]) ? '' : limpio(mR[1]); continue; }
+      for (const trozo of partesClave(b)) {
         const i = trozo.indexOf(':'); if (i < 1) continue;
         const k = limpio(trozo.slice(0, i)); const v = limpio(trozo.slice(i + 1));
         const nk = norm(k);
-        // Cliente, Estado y Próximo hito ya vienen de la fila del Resumen: la ficha solo los completa si faltan.
-        if (nk === 'semaforo') { if (v) p.semaforo = normSemaforo(v); }
+        // Cliente, Estado, Próximo hito y Semáforo ya vienen de la fila del Resumen: la ficha solo los completa si faltan.
+        if (nk === 'semaforo') { if (v && p.semaforo === 'sin') p.semaforo = normSemaforo(v); }
         else if (nk === 'estado') { if (v && !p.estado) p.estado = v; }
         else if (nk === 'cliente') { if (v && !p.cliente) p.cliente = v; }
         else if (nk.startsWith('proximo hito')) { if (v && !esPlaceholder(v) && !p.hito) p.hito = v; }
-        else if (nk.startsWith('riesgos')) p.riesgos = esPlaceholder(v) ? '' : v;
         else if (nk.startsWith('pendientes')) p.pendientes = Array.from(b.matchAll(/T-\d{4}/g)).map((x) => x[0]);
         else if (nk.startsWith('ultima actualizacion')) p.actualizado = esPlaceholder(v) ? '' : v;
         else if (nk === 'fuente') { if (v) p.actualizado = (p.actualizado ? p.actualizado + ' · ' : '') + 'fuente: ' + v; }
@@ -189,9 +200,11 @@ export function parseIndicadores(md) {
   const secs = secciones(sinComentarios(md));
   const tabla = (nombre) => {
     const s = buscar(secs, nombre); if (!s) return [];
-    return filasTabla(s.lineas).filas.map((f) => ({ kpi: f[0] || '', definicion: f[1] || '', fuente: f[2] || '', umbral: f[3] || '', valor: f[4] || '', fecha: f[5] || '' })).filter((r) => r.kpi && !esPlaceholder(r.kpi));
+    const { cabecera, filas } = filasTabla(s.lineas);
+    const [iK, iD, iF, iU, iV, iFe] = ['KPI', 'Defin', 'Fuente', 'Umbral', 'Último', 'Fecha'].map((n) => columna(cabecera, n));
+    return filas.map((f) => ({ kpi: celda(f, iK), definicion: celda(f, iD), fuente: celda(f, iF), umbral: celda(f, iU), valor: celda(f, iV), fecha: celda(f, iFe) })).filter((r) => r.kpi && !esPlaceholder(r.kpi));
   };
-  const alertas = bullets((buscar(secs, 'Alertas') || {}).lineas).map((b) => { const [fecha, kpi, valor, propuesta, estado] = partes(b); return { fecha: fecha || '', kpi: kpi || '', valor: valor || '', propuesta: propuesta || '', estado: estado || '' }; });
+  const alertas = bullets((buscar(secs, 'Alertas') || {}).lineas).map((b) => { const [fecha, kpi, valor, propuesta, estado] = partes(b); return { fecha: fecha || '', kpi: kpi || '', valor: valor || '', propuesta: propuesta || '', estado: estado || '', cerrada: /cerrad|resuelt/i.test(estado || '') }; });
   const historial = bullets((buscar(secs, 'Historial') || {}).lineas).map((b) => { const [fecha, kpi, valor, fuente] = partes(b); return { fecha: fecha || '', kpi: kpi || '', valor: valor || '', fuente: fuente || '' }; });
   const cabecera = secs[0].lineas.join('\n');
   return { semanal: tabla('Semanal'), mensual: tabla('Mensual'), alertas, historial: historial.slice(-12).reverse(), porConfirmar: /por confirmar/i.test(cabecera) };
@@ -205,15 +218,34 @@ export function parseRadar(md) {
   return { temas: bullets((buscar(secs, 'Temas') || {}).lineas), entradas, oportunidades };
 }
 
-/* ── decisiones.md ── */
+/* ── decisiones.md: bloques «## fecha — título» y fichas «# Decisión: título» (referencias/ficha-decision.md) ── */
+const campoDe = (lineas, k) => { const re = new RegExp('^\\s*(?:-\\s*)?\\**\\s*' + k + '\\**\\s*:\\s*(.*)$', 'i'); for (const l of lineas) { const m = norm(l).match(new RegExp('^\\s*(?:-\\s*)?\\**\\s*' + norm(k) + '\\**\\s*:')); if (m) { const r = l.match(re); return limpio(r ? r[1] : l.slice(l.indexOf(':') + 1)).replace(/\*+$/, '').trim(); } } return ''; };
+function esPendiente({ estado, decision, quien, esFicha }) {
+  if (estado) return /^(pendiente|en preparaci)/i.test(estado);
+  if (decision) return /^(pendiente|en preparaci)/i.test(decision) || /pendiente/i.test(quien);
+  return !!esFicha; // una ficha sin «Decisión:» todavía no se decidió
+}
 export function parseDecisiones(md) {
   const out = [];
-  for (const s of secciones(sinComentarios(md))) {
-    const m = s.titulo.match(/^(\d{4}-\d{2}-\d{2})\s*[—–-]\s*(.+)$/);
-    if (!m) continue;
-    const campo = (k) => { const l = s.lineas.find((x) => norm(x).startsWith(norm(k) + ':')); return l ? limpio(l.slice(l.indexOf(':') + 1)) : ''; };
-    const texto = s.titulo + '\n' + s.lineas.join('\n');
-    out.push({ fecha: m[1], titulo: limpio(m[2]), contexto: campo('Contexto'), decision: campo('Decisión'), quien: campo('Quién decidió'), consecuencia: campo('Consecuencia'), pendiente: /pendiente|en preparaci/i.test(texto) });
+  for (const s1 of secciones(sinComentarios(md), 1)) {
+    const mf = s1.titulo.match(/^Decisi[oó]n:\s*(.+)$/i);
+    if (mf) {
+      const fechaL = campoDe(s1.lineas, 'Fecha');
+      const fecha = (fechaL.match(/\d{4}-\d{2}-\d{2}/) || [''])[0];
+      const sub = secciones(s1.lineas.join('\n'), 2);
+      const primera = (n) => ((buscar(sub, n) || { lineas: [] }).lineas.find((l) => l.trim() && !/^\s*\|/.test(l)) || '').replace(/^\s*[-*]\s+/, '').trim();
+      const decision = campoDe(s1.lineas, 'Decisión') || primera('Recomendación');
+      const quien = campoDe(s1.lineas, 'Quién decidió') || (fechaL.match(/Decide:\s*([^·]+)/i) || ['', ''])[1].trim();
+      const estado = campoDe(s1.lineas, 'Estado');
+      out.push({ fecha, titulo: limpio(mf[1]), contexto: primera('Contexto'), decision, quien, consecuencia: campoDe(s1.lineas, 'Consecuencia'), pendiente: esPendiente({ estado, decision: campoDe(s1.lineas, 'Decisión'), quien, esFicha: true }) });
+      continue;
+    }
+    for (const s of secciones(s1.lineas.join('\n'), 2)) {
+      const m = s.titulo.match(/^(\d{4}-\d{2}-\d{2})\s*[—–-]\s*(.+)$/);
+      if (!m) continue;
+      const decision = campoDe(s.lineas, 'Decisión'); const quien = campoDe(s.lineas, 'Quién decidió'); const estado = campoDe(s.lineas, 'Estado');
+      out.push({ fecha: m[1], titulo: limpio(m[2]), contexto: campoDe(s.lineas, 'Contexto'), decision, quien, consecuencia: campoDe(s.lineas, 'Consecuencia'), pendiente: esPendiente({ estado, decision, quien, esFicha: false }) });
+    }
   }
   return out.sort((a, b) => (a.fecha < b.fecha ? 1 : a.fecha > b.fecha ? -1 : 0));
 }
@@ -221,24 +253,32 @@ export function parseDecisiones(md) {
 /* ── bitácora de sesión ── */
 const CLAVES_BITACORA = [['pedia', 'Qué pedía'], ['hizo', 'Qué se hizo'], ['decisiones', 'Decisiones'], ['pendientes', 'Pendientes'], ['preguntas', 'Preguntas'], ['recordar', 'Para recordar']];
 export function parseBitacora(md, archivo = '') {
-  const secs = secciones(sinComentarios(md));
-  const out = { archivo, fecha: (archivo.match(/^\d{4}-\d{2}-\d{2}/) || [''])[0], titulo: (String(md).match(/^#\s+(.*)$/m) || ['', ''])[1].trim(), secciones: {} };
+  const texto = sinComentarios(md);
+  const secs = secciones(texto);
+  const out = { archivo, fecha: (archivo.match(/^\d{4}-\d{2}-\d{2}/) || [''])[0], titulo: (texto.match(/^#\s+(.*)$/m) || ['', ''])[1].trim(), secciones: {} };
   for (const [k, pref] of CLAVES_BITACORA) {
     const todas = secs.filter((s) => norm(s.titulo).startsWith(norm(pref)));
     out.secciones[k] = todas.flatMap((s) => bullets(s.lineas)).filter((b) => b !== '…');
   }
   return out;
 }
+/* orden numérico: 2026-10-12.md < 2026-10-12-2.md < 2026-10-12-10.md */
+export function ordenBitacora(a, b) {
+  const ka = a.match(RE_BITACORA), kb = b.match(RE_BITACORA);
+  if (ka[1] !== kb[1]) return ka[1] < kb[1] ? -1 : 1;
+  return (+(ka[2] || 1)) - (+(kb[2] || 1));
+}
 export function ultimaBitacora(dir) {
   if (!existsSync(dir)) return null;
-  const nombres = readdirSync(dir).filter((f) => /^\d{4}-\d{2}-\d{2}(-\d+)?\.md$/.test(f)).sort();
+  const nombres = readdirSync(dir).filter((f) => RE_BITACORA.test(f)).sort(ordenBitacora);
   return nombres.length ? nombres[nombres.length - 1] : null;
 }
 
 /* ── CONTEXTO.md ── */
 export function parseContexto(md) {
-  const secs = secciones(sinComentarios(md));
-  const act = (String(md).match(/_Actualizado:\s*([^_]*)_/) || ['', ''])[1].trim();
+  const texto = sinComentarios(md);
+  const secs = secciones(texto);
+  const act = (texto.match(/_Actualizado:\s*([^_]*)_/) || ['', ''])[1].trim();
   return { actualizado: act, proxima: bullets((buscar(secs, 'Para la próxima') || {}).lineas), hitos: bullets((buscar(secs, 'Próximos hitos') || {}).lineas), herramientas: bullets((buscar(secs, 'Herramientas') || {}).lineas) };
 }
 
@@ -250,23 +290,20 @@ export function parseAgentes(md) {
   return { activos, propuestos };
 }
 
-/* ── brief de apertura (protocolo-memoria §2): 7 líneas ── */
-const fmtAtraso = (n) => (n === 1 ? '1 día' : n + ' días');
+/* ── brief de apertura (protocolo-memoria §2): 7 líneas; VENCIDO y HOY salen del bloque compartido ── */
 export function armarBrief(d) {
-  const abiertas = d.pendientes.tareas.filter((t) => t.estado !== 'hecha');
-  const vencidas = [...abiertas.filter((t) => t.atraso > 0), ...d.pendientes.seguimientos.filter((s) => s.estado !== 'hecha' && s.atraso > 0)].sort((a, b) => b.atraso - a.atraso);
-  const hoyL = abiertas.filter((t) => t.seccion === 'hoy' || t.atraso === 0);
+  const L = lineasPresion(d.pendientes.tareas, d.pendientes.seguimientos);
   const obras = d.proyectos.filter((p) => p.semaforo === 'rojo' || p.semaforo === 'amarillo' || (FECHA.test(p.fecha) && diasEntre(d.hoy, p.fecha) >= 0 && diasEntre(d.hoy, p.fecha) <= 7));
   const decisiones = d.decisiones.filter((x) => x.pendiente);
   const desde = d.bitacora ? d.bitacora.fecha : '';
   const radar = d.radar.entradas.filter((e) => !desde || e.fecha > desde).slice(0, 3);
   const debia = [...(d.bitacora ? d.bitacora.secciones.recordar : []), ...d.contexto.proxima];
-  const escalar = vencidas.find((v) => v.nivel === 'escalar');
-  const pregunta = (d.bitacora && d.bitacora.secciones.preguntas[0]) || (escalar ? `${escalar.id}: ¿nueva fecha, reasignar o soltar?` : '');
+  const preguntas = d.bitacora ? d.bitacora.secciones.preguntas : [];
+  const pregunta = preguntas[preguntas.length - 1] || (L.escalar ? `${L.escalar.id}: ¿nueva fecha, reasignar o soltar?` : '');
   const sem = { rojo: '🔴', amarillo: '🟡', verde: '🟢', sin: '⚪' };
   return [
-    { k: 'VENCIDO', v: vencidas.length ? vencidas.map((v) => `${v.id} ${v.id.startsWith('T-') ? `${v.titulo} · ${v.resp || '—'}` : `${v.quien}${v.que ? ' · ' + v.que : ''}`} · ${fmtAtraso(v.atraso)} · ${v.nivel}`).join(' | ') : 'nada' },
-    { k: 'HOY', v: hoyL.length ? hoyL.slice(0, 5).map((t) => `${t.id} ${t.titulo}`).join(' | ') : 'nada para hoy' },
+    { k: 'VENCIDO', v: L.VENCIDO },
+    { k: 'HOY', v: L.HOY },
     { k: 'OBRAS', v: obras.length ? obras.map((p) => `${sem[p.semaforo]} ${p.slug}${p.hito ? ' · ' + p.hito : ''}${p.fecha ? ' · ' + p.fecha : ''}`).join(' | ') : 'sin novedades' },
     { k: 'DECISIÓN', v: decisiones.length ? decisiones.map((x) => x.titulo).join(' | ') : 'ninguna' },
     { k: 'RADAR', v: radar.length ? radar.map((e) => `${e.fecha} · ${e.tema} · ${e.cambio}`).join(' | ') : 'sin novedades' },
@@ -276,7 +313,7 @@ export function armarBrief(d) {
 }
 
 /* ── lectura de HQ ── */
-function leer(p, readImpl) { try { return readImpl(p, 'utf8'); } catch (_) { return ''; } }
+function leer(p, readImpl) { try { return normalizar(readImpl(p, 'utf8')); } catch (_) { return ''; } }
 function lineas(p, readImpl) { const t = leer(p, readImpl); return t ? t.split('\n').length : 0; }
 
 export function armarDatos(hq, { hoy = hoyLocal(), readImpl = readFileSync, existsImpl = existsSync } = {}) {
@@ -294,12 +331,13 @@ export function armarDatos(hq, { hoy = hoyLocal(), readImpl = readFileSync, exis
   const prospectos = existsImpl(dirPros) ? readdirSync(dirPros).filter((f) => /^\d{4}-\d{2}-\d{2}-(hunt|infer)-.*\.json$/.test(f)).sort() : [];
   const dirAg = join(hq, 'agentes');
   const instalados = existsImpl(dirAg) ? readdirSync(dirAg).filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, '')).sort() : [];
-  const dirSkills = join(AQUI, '..', 'skills');
+  const dirSkills = join(PLUGIN, 'skills');
   const skills = existsImpl(dirSkills) ? readdirSync(dirSkills).filter((f) => existsImpl(join(dirSkills, f, 'SKILL.md'))).sort((a, b) => (a === 'gg' ? -1 : b === 'gg' ? 1 : a.localeCompare(b))) : [];
   const memoria = [{ archivo: 'CONTEXTO.md', existe: existsImpl(join(hq, 'CONTEXTO.md')), lineas: lineas(join(hq, 'CONTEXTO.md'), readImpl) }, ...ARCHIVOS_MEMORIA.map((f) => ({ archivo: 'memoria/' + f, existe: existsImpl(mem(f)), lineas: lineas(mem(f), readImpl) }))];
-  const sesiones = existsImpl(mem('sesiones')) ? readdirSync(mem('sesiones')).filter((f) => /^\d{4}-\d{2}-\d{2}(-\d+)?\.md$/.test(f)).length : 0;
+  const sesiones = existsImpl(mem('sesiones')) ? readdirSync(mem('sesiones')).filter((f) => RE_BITACORA.test(f)).length : 0;
+  const ahora = new Date();
   const d = {
-    generado: `${hoyLocal()} ${pad(new Date().getHours())}:${pad(new Date().getMinutes())}`, hoy, hq: resolve(hq),
+    generado: `${hoyLocal(ahora)} ${pad(ahora.getHours())}:${pad(ahora.getMinutes())}`, hoy, hqNombre: basename(resolve(hq)),
     pendientes, proyectos, indicadores, radar, decisiones, contexto, bitacora,
     ecosistema: {
       skills, memoria, sesiones,
@@ -308,27 +346,36 @@ export function armarDatos(hq, { hoy = hoyLocal(), readImpl = readFileSync, exis
     },
   };
   d.brief = armarBrief(d);
-  const abiertas = pendientes.tareas.filter((t) => t.estado !== 'hecha');
+  const L = lineasPresion(pendientes.tareas, pendientes.seguimientos);
   d.stats = {
-    vencidos: abiertas.filter((t) => t.atraso > 0).length + pendientes.seguimientos.filter((s) => s.estado !== 'hecha' && s.atraso > 0).length,
-    hoy: abiertas.filter((t) => t.seccion === 'hoy' || t.atraso === 0).length,
+    vencidos: L.vencidos,
+    hoy: L.hoy,
     obrasRojas: proyectos.filter((p) => p.semaforo === 'rojo').length,
     decisiones: decisiones.filter((x) => x.pendiente).length,
-    alertas: indicadores.alertas.length,
+    alertas: indicadores.alertas.filter((a) => !a.cerrada).length,
     tratos: pendientes.seguimientos.filter((s) => s.tipo === 'trato' && s.estado !== 'hecha').length,
   };
   return d;
 }
 
-/* Inyecta el JSON en la plantilla. `<` → <: así ni </script> ni <!-- dentro de un título rompen la página. */
+/* Inyecta el JSON en la plantilla. `<` → \u003c: así ni </script> ni <!-- dentro de un título rompen la página. */
 export function inyectar(plantilla, datos) {
   const json = JSON.stringify(datos).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
   const re = /(<script id="datos" type="application\/json">)[\s\S]*?(<\/script>)/;
   if (!re.test(plantilla)) throw new Error('la plantilla no tiene el marcador <script id="datos">');
-  return plantilla.replace(re, (_, a, b) => a + json + b);
+  return plantilla.replace(re, (_, a, b) => a + json + b); // función: ningún «$» del JSON se interpreta
+
 }
 
-export async function run(argv, { stdout = process.stdout, stderr = process.stderr, env = process.env, execImpl, existsImpl, readImpl, hoy } = {}) {
+/* ruta real de un archivo que puede no existir todavía: realpath del ancestro existente más cercano + el resto */
+function rutaReal(p) {
+  let base = resolve(p); let resto = '';
+  while (!existsSync(base)) { resto = join(basename(base), resto); const up = dirname(base); if (up === base) break; base = up; }
+  return resto ? join(realpathSync(base), resto) : realpathSync(base);
+}
+const dentroDe = (padre, hijo) => { const r = relative(padre, hijo); return !r.startsWith('..') && !isAbsolute(r); }; // r === '' (el mismo directorio) cuenta como dentro: lo rechaza el chequeo de directorio
+
+export async function run(argv, { stdout = process.stdout, stderr = process.stderr, env = process.env, execImpl, existsImpl, readImpl, writeImpl = writeFileSync, renameImpl = renameSync, hoy } = {}) {
   const args = parseArgs(argv);
   const hq = String(args.hq || env.DMS_HQ || '');
   if (!hq) throw new Error('Falta la carpeta HQ: usa --hq <ruta> o la variable DMS_HQ.');
@@ -341,20 +388,29 @@ export async function run(argv, { stdout = process.stdout, stderr = process.stde
   const out = resolve(String(args.out || join(hq, 'dashboard.html')));
   const malOut = prohibida(out);
   if (malOut) throw new Error(`El destino (${out}) ${malOut}: el dashboard lleva la memoria completa y no puede escribirse ahí.`);
+  const hqReal = rutaReal(hq); const outReal = rutaReal(out);
+  if (!dentroDe(hqReal, outReal)) throw new Error(`El destino (${out}) está fuera de la carpeta HQ: el dashboard lleva la memoria completa y solo se escribe dentro de HQ.`);
+  if (dentroDe(PLUGIN, outReal) || outReal === PLUGIN) throw new Error(`El destino (${out}) está dentro de la carpeta del plugin.`);
+  if (existsSync(out) && statSync(out).isDirectory()) throw new Error(`El destino (${out}) es una carpeta: indica el archivo, p. ej. ${join(out, 'dashboard.html')}.`);
   const h = String(args.hoy || hoy || hoyLocal());
   if (!FECHA.test(h)) throw new Error('--hoy debe ser YYYY-MM-DD');
   const log = (s) => stderr.write(s + '\n');
   log(`dashboard: leyendo ${hq}`);
   const datos = armarDatos(hq, { hoy: h, readImpl: rd, existsImpl: ex });
-  const plantilla = rd(PLANTILLA, 'utf8');
-  const html = inyectar(plantilla, datos);
+  const html = inyectar(leerPlantilla(), datos);
   mkdirSync(dirname(out), { recursive: true });
-  const tmp = out + '.tmp';
-  writeFileSync(tmp, html); renameSync(tmp, out);
+  const tmp = join(dirname(out), `.${basename(out)}.${process.pid}.${Date.now().toString(36)}.tmp`);
+  try {
+    writeImpl(tmp, html, { flag: 'wx' });
+    renameImpl(tmp, out);
+  } finally {
+    try { unlinkSync(tmp); } catch (_) { /* ya renombrado */ }
+  }
   const s = datos.stats;
-  if (args.json) stdout.write(JSON.stringify({ ...datos, salida: out }, null, 2) + '\n');
+  const r = { ...datos, hq: resolve(hq), salida: out };
+  if (args.json) stdout.write(JSON.stringify(r, null, 2) + '\n');
   else stdout.write(`${out} · vencidos ${s.vencidos} · hoy ${s.hoy} · obras 🔴 ${s.obrasRojas} · decisiones ${s.decisiones} · alertas ${s.alertas} · tratos ${s.tratos}\n`);
-  return { ...datos, salida: out };
+  return r;
 }
 
 const esPrincipal = (() => { try { return import.meta.url === pathToFileURL(process.argv[1]).href; } catch (_) { return false; } })();

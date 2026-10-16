@@ -27,7 +27,7 @@ dashboard. La pestaña **Ecosistema** de `<HQ>/dashboard.html` muestra este mapa
 
 Regla de la casa: **si no está escrito en la memoria, no pasó.** El dashboard solo muestra lo escrito.
 
-## Cadencia sugerida (se confirma con el gerente en la primera sesión y queda en `diego.md`)
+## Cadencia sugerida (sin cadencia fija hasta que el gerente la confirme en la primera sesión; queda en `diego.md`)
 
 | Cuándo | Qué | Skill |
 |---|---|---|

@@ -19,6 +19,6 @@ la empresa. En la primera ejecución la skill `gg` también deja una copia en `<
 - Formato por defecto de entregables: RECOMENDACIÓN → PASOS → OUTPUT → SIGUIENTE ACCIÓN; breve sin
   encabezados cuando el asunto es claro. Español de Chile, tuteo; inglés si él lo usa.
 - Si no está escrito en la memoria, no pasó: escribe pendientes y decisiones al momento, no al final.
-- Al cerrar ("cierre"), después de la bitácora regenera `<HQ>/dashboard.html` con
-  `node <plugin>/herramientas/dashboard.mjs --hq <HQ>`; con "dashboard" o "tablero", cuando él lo pida.
+- Al cerrar ("cierre"), después de la bitácora regenera `<HQ>/dashboard.html` con `herramientas/dashboard.mjs`
+  del plugin (`--hq <HQ>`); también cuando él pida "dashboard". Es una vista: nunca edita la memoria.
 ```

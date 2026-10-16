@@ -28,7 +28,7 @@ se avisa y se sigue con el siguiente. La carpeta elegida en la primera ejecució
    copiar también `gerente-general/CLAUDE.md` a `<HQ>/CLAUDE.md`. Copiar solo si el destino no existe; **nunca
    editar el origen**.
 3. Quitar la línea `<!-- PLANTILLA: sin datos reales -->` de las copias.
-4. Generar la vista: `node <plugin>/herramientas/dashboard.mjs --hq <HQ>` escribe `<HQ>/dashboard.html` (si Node no
+4. Generar la vista: `node <carpeta del plugin>/herramientas/dashboard.mjs --hq <HQ>` escribe `<HQ>/dashboard.html` (si Node no
    está instalado, saltar este paso y decirlo).
 5. Decir en una línea dónde quedó y recordar que esa carpeta no debe subirse a ningún repositorio público.
 

@@ -6,9 +6,10 @@
 <meta name="robots" content="noindex,nofollow">
 <title>DMS · HQ</title>
 <!-- Plantilla del dashboard del Gerente General. Sin datos reales: herramientas/dashboard.mjs inyecta la memoria en
-     <script id="datos"> y escribe la copia en <HQ>/dashboard.html. Un solo archivo, cero red: se abre con doble clic. -->
+     <script id="datos"> y escribe la copia en <HQ>/dashboard.html. Un solo archivo, cero red: se abre con doble clic.
+     Las funciones de presión del bloque marcado «compartido» las usa también el generador. -->
 <style>
-:root{--bg:#08080c;--surf:#101016;--surf2:#16161e;--bd:#1e1e28;--red:#FF3A1F;--orange:#FF6600;--gold:#FFD200;--green:#AAFF00;--cyan:#00F0FF;--purple:#B84DFF;--mut:#6a6a78;--txt:#ECECF0;--soft:#b8b8c4}
+:root{--bg:#08080c;--surf:#101016;--surf2:#16161e;--bd:#1e1e28;--red:#FF3A1F;--orange:#FF6600;--gold:#FFD200;--green:#AAFF00;--cyan:#00F0FF;--purple:#B84DFF;--mut:#8a8a98;--txt:#ECECF0;--soft:#b8b8c4}
 *{box-sizing:border-box}
 html,body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.5 ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace}
 .wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
@@ -17,8 +18,9 @@ h1{font:900 clamp(26px,4vw,38px)/1 system-ui,-apple-system,"Segoe UI",Roboto,san
 h1 span{color:var(--green)}
 .eyebrow{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--mut)}
 .gen{font-size:12px;color:var(--mut);text-align:right}
-.banner{border:1px solid #3a2a0a;background:#15110a;color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;margin:14px 0;word-break:break-all}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.gen .viejo{color:var(--orange)}
+.banner{border:1px solid #3a2a0a;background:#15110a;color:var(--gold);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:8px 12px;margin:14px 0;overflow-wrap:anywhere}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:8px}
 .stat{background:var(--surf);border:1px solid var(--bd);padding:14px 16px}
 .stat .n{font:900 32px/1 system-ui,sans-serif}
 .stat .l{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--mut);margin-top:6px}
@@ -27,16 +29,16 @@ h1 span{color:var(--green)}
 .brief .row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:6px 0;border-bottom:1px dashed var(--bd)}
 .brief .row:last-child{border:0}
 .brief .k{font-size:10px;letter-spacing:3px;color:var(--cyan);padding-top:3px}
-.brief .v{color:var(--soft)}
+.brief .v{color:var(--soft);overflow-wrap:anywhere}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 12px}
 .tab{background:none;border:1px solid var(--bd);color:var(--mut);font:inherit;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:10px 14px;cursor:pointer}
-.tab:hover{color:var(--txt)}
+.tab:hover,.tab:focus-visible{color:var(--txt);outline:none;border-color:var(--mut)}
 .tab.on{border-color:var(--green);color:var(--green)}
-.card{background:var(--surf);border:1px solid var(--bd);padding:14px 16px;position:relative}
+.card{background:var(--surf);border:1px solid var(--bd);padding:14px 16px;position:relative;min-width:0}
 .card .bar{position:absolute;top:0;left:0;right:0;height:3px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
-.h{font:700 15px/1.25 system-ui,sans-serif;margin:0 0 6px}
-.h2{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin:20px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:10px}
+.h{font:700 15px/1.25 system-ui,sans-serif;margin:0 0 6px;overflow-wrap:anywhere}
+.h2{font-size:10px;letter-spacing:4px;text-transform:uppercase;color:var(--mut);margin:20px 0 8px;display:flex;justify-content:space-between;align-items:center;gap:8px}
 .mut{color:var(--mut)}.soft{color:var(--soft)}.small{font-size:12px}
 .pill{display:inline-block;border:1px solid;border-radius:2px;padding:1px 7px;font-size:10px;letter-spacing:2px;text-transform:uppercase;white-space:nowrap}
 .pill.recordar{color:var(--gold);border-color:var(--gold)}.pill.insistir{color:var(--orange);border-color:var(--orange)}.pill.escalar{color:var(--red);border-color:var(--red)}
@@ -46,39 +48,51 @@ th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--bd);vertical
 th{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--mut);font-weight:400}
 .tbl{overflow:auto}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center}
-select,input{background:var(--surf2);border:1px solid var(--bd);color:var(--txt);font:inherit;font-size:12px;padding:8px 10px}
+select,input{background:var(--surf2);border:1px solid var(--bd);color:var(--txt);font:inherit;font-size:12px;padding:8px 10px;max-width:100%}
 input{flex:1;min-width:160px}
-.task{border:1px solid var(--bd);background:var(--surf);padding:10px 12px;margin-bottom:6px;cursor:pointer}
+.task{border:1px solid var(--bd);background:var(--surf);padding:10px 12px;margin-bottom:6px;min-width:0}
 .task:hover{border-color:#2c2c3a}
 .task.vencida{border-left:3px solid var(--red)}
 .task.curso{border-left:3px solid var(--gold)}
-.task.hecha{opacity:.55}
+.task.vencida.curso{border-left-color:var(--red)}
+.task.hecha{color:var(--mut);background:var(--bg)}
+.task.hecha .id{color:var(--mut)}
+summary.t{display:flex;flex-wrap:wrap;gap:8px;align-items:center;cursor:pointer;list-style:none}
+summary.t::-webkit-details-marker{display:none}
+summary.t:focus-visible{outline:1px solid var(--cyan);outline-offset:4px}
 .task .t{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .task .id{color:var(--cyan)}.task .meta{color:var(--mut);font-size:12px}
-.task .kids{display:none;margin-top:8px;font-size:12px;color:var(--soft);border-top:1px dashed var(--bd);padding-top:8px}
-.task.open .kids{display:block}
+.task .kids{margin-top:8px;font-size:12px;color:var(--soft);border-top:1px dashed var(--bd);padding-top:8px;overflow-wrap:anywhere}
 .kids b{color:var(--mut);font-weight:400;letter-spacing:1px;text-transform:uppercase;font-size:10px;margin-right:6px}
 .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;background:#333}
 .dot.rojo{background:var(--red);box-shadow:0 0 8px var(--red)}.dot.amarillo{background:var(--gold);box-shadow:0 0 8px var(--gold)}.dot.verde{background:var(--green);box-shadow:0 0 8px var(--green)}
 .empty{color:var(--mut);padding:22px;border:1px dashed var(--bd);text-align:center;font-size:12px}
 .empty code{color:var(--green)}
 code{font-family:inherit;background:var(--surf2);padding:1px 5px;font-size:12px}
-ul{margin:6px 0;padding-left:18px}li{margin:3px 0}
+ul{margin:6px 0;padding-left:18px}li{margin:3px 0;overflow-wrap:anywhere}
 .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 18px;font-size:12px}
 .flow .step{border:1px solid var(--bd);padding:8px 12px;background:var(--surf)}
 .flow .step b{display:block;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);font-weight:400}
 .flow .arr{color:var(--mut)}
-.eco{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+.eco{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:10px}
 .node .how{margin-top:8px;font-size:12px;color:var(--soft)}
 .node .how code{color:var(--green)}
 .ok{color:var(--green)}.no{color:var(--red)}
 .stage{margin-bottom:14px}
 .stage .h2{margin-top:8px}
-.ficha dl{display:grid;grid-template-columns:max-content 1fr;gap:4px 10px;margin:8px 0;font-size:12px}
-.ficha dt{color:var(--mut)}.ficha dd{margin:0;color:var(--soft)}
+.ficha dl{display:grid;grid-template-columns:fit-content(45%) 1fr;gap:4px 10px;margin:8px 0;font-size:12px}
+.ficha dt{color:var(--mut);overflow-wrap:anywhere}.ficha dd{margin:0;color:var(--soft);overflow-wrap:anywhere}
+.alerta.cerrada{color:var(--mut);border-left-color:var(--bd)}
 footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(--bd);padding-top:12px}
 @media (max-width:600px){.brief .row{grid-template-columns:1fr}.stat .n{font-size:26px}}
-@media print{body{background:#fff;color:#000}.tabs,.filters{display:none}.card,.task,.stat,.brief,.flow .step{border-color:#999;background:#fff;color:#000}.brief .v,.soft{color:#222}}
+@media print{
+  :root{--bg:#fff;--surf:#fff;--surf2:#fff;--bd:#999;--txt:#000;--soft:#222;--mut:#555;--cyan:#00606a;--green:#2f6b00;--gold:#7a5c00;--orange:#a33f00;--red:#b0200c;--purple:#5e1f9e}
+  body{background:#fff;color:#000}
+  .tabs,.filters,footer{display:none}
+  .banner{color:#000;border-color:#000;background:#fff}
+  .dot,.card .bar,.task{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .task,.card{break-inside:avoid}
+}
 </style>
 </head>
 <body>
@@ -93,7 +107,7 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
   <div class="banner" id="banner">Confidencial · memoria privada de la empresa · no compartir este archivo</div>
   <section class="stats" id="stats"></section>
   <section class="brief" id="brief"></section>
-  <nav class="tabs" id="tabs"></nav>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones del dashboard"></nav>
   <main id="view"></main>
   <footer>Vista derivada de la memoria HQ: no escribe nada. Si algo no está aquí, no está en la memoria; se lo dices a GG y queda escrito. Se regenera al cerrar cada sesión o pidiendo «dashboard».</footer>
 </div>
@@ -101,29 +115,70 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
 <script>
 (function () {
   'use strict';
+  /*<compartido>*/
+  var FECHA_ISO = /^\d{4}-\d{2}-\d{2}$/;
+  /* días calendario entre dos fechas YYYY-MM-DD (positivo si `hasta` es después); null si alguna no es fecha */
+  function diasEntre(desde, hasta) {
+    if (!FECHA_ISO.test(desde || '') || !FECHA_ISO.test(hasta || '')) return null;
+    var a = desde.split('-').map(Number), b = hasta.split('-').map(Number);
+    return Math.round((Date.UTC(b[0], b[1] - 1, b[2]) - Date.UTC(a[0], a[1] - 1, a[2])) / 86400000);
+  }
+  /* persona.md: 0–2 días de atraso recordar · 3–6 insistir · ≥ 7 escalar; null si no está vencido */
+  function nivelPresion(due, hoy) { var n = diasEntre(due, hoy); if (n === null || n < 0) return null; return n >= 7 ? 'escalar' : n >= 3 ? 'insistir' : 'recordar'; }
+  function fmtAtraso(n) { return n === 1 ? '1 día' : n + ' días'; }
+  /* abierta = cuenta para presión, HOY y stats: ni hecha ni estacionada en Parked */
+  function abierta(t) { return t.estado !== 'hecha' && t.seccion !== 'parked'; }
+  /* recalcula atraso y nivel de cada ítem con la fecha dada (muta en sitio) */
+  function recalcularPresion(items, hoy) {
+    for (var i = 0; i < items.length; i++) {
+      var t = items[i];
+      if (t.estado === 'hecha' || !t.due) { t.atraso = null; t.nivel = null; continue; }
+      t.atraso = diasEntre(t.due, hoy); t.nivel = nivelPresion(t.due, hoy);
+    }
+  }
+  /* líneas VENCIDO y HOY del brief (protocolo-memoria §2) y los conteos que van en los stats */
+  function lineasPresion(tareas, segs) {
+    var vencidas = tareas.filter(function (t) { return abierta(t) && t.atraso > 0; })
+      .concat(segs.filter(function (s) { return abierta(s) && s.atraso > 0; }))
+      .sort(function (a, b) { return b.atraso - a.atraso; });
+    var hoyL = tareas.filter(function (t) { return abierta(t) && (t.seccion === 'hoy' || t.atraso === 0); });
+    var VENCIDO = vencidas.length ? vencidas.map(function (v) {
+      var que = v.id.indexOf('T-') === 0 ? v.titulo + ' · ' + (v.resp || '—') : v.quien + (v.que ? ' · ' + v.que : '');
+      return v.id + ' ' + que + ' · ' + fmtAtraso(v.atraso) + ' · ' + v.nivel;
+    }).join(' | ') : 'nada';
+    var HOY = hoyL.length ? hoyL.slice(0, 5).map(function (t) { return t.id + ' ' + t.titulo; }).join(' | ') : 'nada para hoy';
+    var escalar = null;
+    for (var j = 0; j < vencidas.length; j++) if (vencidas[j].nivel === 'escalar') { escalar = vencidas[j]; break; }
+    return { VENCIDO: VENCIDO, HOY: HOY, vencidos: vencidas.length, hoy: hoyL.length, escalar: escalar, vencidas: vencidas };
+  }
+  /*</compartido>*/
+
   var D = {};
   try { D = JSON.parse(document.getElementById('datos').textContent || '{}') || {}; } catch (e) { D = {}; }
   var VACIO = !D.generado;
   var $ = function (id) { return document.getElementById(id); };
   var esc = function (s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); };
+  var nrm = function (s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); };
+  var pad2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  var hoyLocal = function () { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); };
   var SEM = { rojo: '🔴', amarillo: '🟡', verde: '🟢', sin: '⚪' };
   var SECS = [['inbox', 'Inbox'], ['hoy', 'Hoy'], ['semana', 'Esta semana'], ['backlog', 'Backlog'], ['seguimientos', 'Seguimientos'], ['parked', 'Parked'], ['hecho', 'Hecho'], ['otra', 'Otras']];
-  var ETAPAS = ['contacto', 'visita', 'propuesta', 'negociación', 'firma'];
+  var ETAPAS = [['contacto', 'contacto'], ['visita', 'visita'], ['propuesta', 'propuesta'], ['negociacion', 'negociación'], ['firma', 'firma']];
   var TABS = [['pendientes', 'Pendientes'], ['obras', 'Obras'], ['tratos', 'Tratos'], ['indicadores', 'Indicadores'], ['memoria', 'Memoria'], ['ecosistema', 'Ecosistema']];
   var SKILLS = {
-    gg: ['«GG», «en qué vamos», «cierre»', 'abre con el brief, lleva la sesión y la cierra con bitácora'],
+    gg: ['«GG», «en qué vamos», «cierre»', 'abre con el brief, lleva la sesión y la cierra con bitácora y dashboard'],
     seguimiento: ['«anota», «qué está vencido»', 'pendientes con dueño y fecha; presión por atraso'],
     proyectos: ['«cómo va la obra», «control semanal»', 'obras con semáforo, hitos y riesgos'],
     decision: ['«ayúdame a decidir», «cuestióname»', 'ficha de decisión con opciones y contrapeso'],
     reunion: ['«reunión de socios», «resumen»', 'agenda y resumen; acuerdos a pendientes con tu OK'],
-    cierres: ['«cierres», «qué le respondo»', 'tablero de tratos, objeciones y mensaje listo'],
+    cierres: ['«cierres», «qué le respondo»', 'tratos abiertos, objeciones y mensaje listo'],
     'cazar-proyectos': ['«busca proyectos», «prospectos»', 'LeadHunter con tu cuenta; confirma créditos antes'],
     radar: ['«radar», «bonos», «normas»', 'novedades con fuente, fecha e impacto'],
     indicadores: ['«indicadores», «cómo vamos en números»', 'KPIs con umbral, valores y alertas'],
     redactar: ['«redacta», «write an email»', 'borrador en la voz de DMS; nunca envía'],
     'look-and-fill-dms': ['«look & fill DMS»', 'perfil de la empresa desde la web y documentos'],
     'crear-subagente': ['«crea un subagente de finanzas»', 'propuesta de una pantalla; solo con tu sí'],
-    dashboard: ['«dashboard», «tablero»', 'regenera este archivo desde la memoria']
+    dashboard: ['«dashboard», «abre el dashboard»', 'regenera este archivo desde la memoria']
   };
   var arr = function (x) { return Array.isArray(x) ? x : []; };
   var P = D.pendientes || { tareas: [], seguimientos: [] };
@@ -133,14 +188,34 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
   var CTX = D.contexto || { proxima: [], hitos: [], herramientas: [] };
   var ECO = D.ecosistema || { skills: [], memoria: [], agentes: { activos: [], propuestos: [], instalados: [] }, leadhunter: { key: false, url: false, prospectos: { total: 0 } } };
   var S = D.stats || { vencidos: 0, hoy: 0, obrasRojas: 0, decisiones: 0, alertas: 0, tratos: 0 };
+  var BRIEF = arr(D.brief);
+  var HOY = hoyLocal();
+  var desfase = VACIO ? 0 : (diasEntre(D.hoy, HOY) || 0);
+
+  /* ── presión viva: la página recalcula con la fecha de hoy, no con la del archivo ── */
+  if (!VACIO) {
+    recalcularPresion(tareas, HOY); recalcularPresion(segs, HOY);
+    var L = lineasPresion(tareas, segs);
+    S.vencidos = L.vencidos; S.hoy = L.hoy;
+    var obrasHoy = obras.filter(function (p) { var n = diasEntre(HOY, p.fecha); return p.semaforo === 'rojo' || p.semaforo === 'amarillo' || (n !== null && n >= 0 && n <= 7); });
+    var lineaObras = obrasHoy.length ? obrasHoy.map(function (p) { return SEM[p.semaforo] + ' ' + p.slug + (p.hito ? ' · ' + p.hito : '') + (p.fecha ? ' · ' + p.fecha : ''); }).join(' | ') : 'sin novedades';
+    BRIEF = BRIEF.map(function (r) {
+      if (r.k === 'VENCIDO') return { k: r.k, v: L.VENCIDO };
+      if (r.k === 'HOY') return { k: r.k, v: L.HOY };
+      if (r.k === 'OBRAS') return { k: r.k, v: lineaObras };
+      if (r.k === 'PREGUNTA' && r.v === 'ninguna' && L.escalar) return { k: r.k, v: L.escalar.id + ': ¿nueva fecha, reasignar o soltar?' };
+      return r;
+    });
+  }
 
   function vacio(msg) { return '<div class="empty">' + msg + '</div>'; }
   function fechaRel(t) {
     if (t.estado === 'hecha') return '<span class="pill mut">hecha</span>';
-    if (!t.due) return '<span class="pill mut">sin fecha</span>';
-    if (t.atraso > 0) return '<span class="pill ' + esc(t.nivel) + '">' + esc(t.nivel) + ' · ' + t.atraso + (t.atraso === 1 ? ' día' : ' días') + '</span>';
+    if (t.seccion === 'parked') return '<span class="pill mut">parked</span>';
+    if (!t.due || typeof t.atraso !== 'number') return '<span class="pill mut">sin fecha</span>';
+    if (t.atraso > 0) return '<span class="pill ' + esc(t.nivel) + '">' + esc(t.nivel) + ' · ' + fmtAtraso(t.atraso) + '</span>';
     if (t.atraso === 0) return '<span class="pill hoy">vence hoy</span>';
-    return '<span class="pill ok">en ' + (-t.atraso) + (t.atraso === -1 ? ' día' : ' días') + '</span>';
+    return '<span class="pill ok">en ' + fmtAtraso(-t.atraso) + '</span>';
   }
   function hijas(h) {
     var ks = Object.keys(h || {});
@@ -150,71 +225,86 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
   function lista(items, vacioMsg) { return items.length ? '<ul>' + items.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '<div class="mut small">' + vacioMsg + '</div>'; }
 
   /* ── cabecera, stats, brief ── */
-  $('gen').innerHTML = VACIO ? 'Plantilla sin datos' : 'Generado ' + esc(D.generado) + '<br>hoy ' + esc(D.hoy);
-  if (!VACIO) $('banner').textContent = 'Confidencial · generado desde ' + D.hq + ' · ' + D.generado + ' · no compartir este archivo';
+  $('gen').innerHTML = VACIO ? 'Plantilla sin datos' : 'Generado ' + esc(D.generado) + '<br>hoy ' + esc(HOY) + (desfase > 0 ? '<br><span class="viejo">generado hace ' + fmtAtraso(desfase) + (desfase >= 3 ? ' · pídele «dashboard» a GG' : '') + '</span>' : '');
+  if (!VACIO) $('banner').textContent = 'Confidencial · generado desde la carpeta ' + (D.hqNombre || 'HQ') + ' · ' + D.generado + ' · no compartir este archivo';
   $('stats').innerHTML = [
     ['vencidos', 'Vencidos', 'red'], ['hoy', 'Hoy', 'cyan'], ['obrasRojas', 'Obras 🔴', 'red'], ['decisiones', 'Decisiones', 'purple'], ['alertas', 'Alertas KPI', 'gold'], ['tratos', 'Tratos abiertos', 'green']
-  ].map(function (s) { var n = S[s[0]] || 0; return '<div class="stat ' + (n ? s[2] : 'zero') + '"><div class="n">' + n + '</div><div class="l">' + s[1] + '</div></div>'; }).join('');
-  $('brief').innerHTML = '<div class="eyebrow" style="margin-bottom:6px">Brief de apertura · lo mismo que te dice GG al partir</div>' +
-    (VACIO ? vacio('Sin datos. Genera el dashboard con <code>node &lt;plugin&gt;/herramientas/dashboard.mjs --hq &lt;HQ&gt;</code> o pídele «dashboard» a GG.') :
-      arr(D.brief).map(function (r) { return '<div class="row"><div class="k">' + esc(r.k) + '</div><div class="v">' + esc(r.v) + '</div></div>'; }).join(''));
+  ].map(function (s) { var n = Number(S[s[0]]) || 0; return '<div class="stat ' + (n ? s[2] : 'zero') + '"><div class="n">' + n + '</div><div class="l">' + s[1] + '</div></div>'; }).join('');
+  $('brief').innerHTML = '<div class="eyebrow" style="margin-bottom:6px">Brief de apertura · lo mismo que te dice GG al partir' + (VACIO ? '' : ' · presión calculada hoy') + '</div>' +
+    (VACIO ? vacio('Sin datos. Pídele «dashboard» a GG: el generador escribe la copia con la memoria en tu carpeta HQ.') :
+      BRIEF.map(function (r) { return '<div class="row"><div class="k">' + esc(r.k) + '</div><div class="v">' + esc(r.v) + '</div></div>'; }).join(''));
 
-  /* ── tabs ── */
+  /* ── pestañas: se pintan una sola vez; cambiar de pestaña solo alterna clases ── */
   var tabActual = (location.hash || '').replace('#', '');
   if (!TABS.some(function (t) { return t[0] === tabActual; })) tabActual = 'pendientes';
-  function pintarTabs() {
-    $('tabs').innerHTML = TABS.map(function (t) { return '<button class="tab' + (t[0] === tabActual ? ' on' : '') + '" data-tab="' + t[0] + '">' + t[1] + '</button>'; }).join('');
+  $('tabs').innerHTML = TABS.map(function (t) { return '<button class="tab" role="tab" data-tab="' + t[0] + '" id="tab-' + t[0] + '">' + t[1] + '</button>'; }).join('');
+  function marcarTab() {
+    var bs = $('tabs').querySelectorAll('[data-tab]');
+    for (var i = 0; i < bs.length; i++) { var on = bs[i].getAttribute('data-tab') === tabActual; bs[i].classList.toggle('on', on); bs[i].setAttribute('aria-selected', on ? 'true' : 'false'); }
   }
   $('tabs').addEventListener('click', function (e) {
     var b = e.target.closest('[data-tab]'); if (!b) return;
     tabActual = b.getAttribute('data-tab');
-    try { history.replaceState(null, '', '#' + tabActual); } catch (_) { /* file:// en algunos navegadores */ }
+    try { history.replaceState(null, '', '#' + tabActual); } catch (_) { try { location.hash = tabActual; } catch (__) { /* file:// en algunos navegadores */ } }
     pintar();
   });
-  window.addEventListener('hashchange', function () { var h = location.hash.replace('#', ''); if (TABS.some(function (t) { return t[0] === h; })) { tabActual = h; pintar(); } });
+  window.addEventListener('hashchange', function () { var h = location.hash.replace('#', ''); if (TABS.some(function (t) { return t[0] === h; }) && h !== tabActual) { tabActual = h; pintar(); } });
 
   /* ── Pendientes ── */
   var F = { sec: 'todas', nivel: 'abiertas', q: '' };
-  function pasaFiltro(t) {
-    if (F.sec !== 'todas' && t.seccion !== F.sec) return false;
-    if (F.nivel === 'abiertas' && t.estado === 'hecha') return false;
-    if (F.nivel === 'vencidos' && !(t.atraso > 0)) return false;
-    if (['recordar', 'insistir', 'escalar'].indexOf(F.nivel) >= 0 && t.nivel !== F.nivel) return false;
-    if (F.nivel === 'hoy' && !(t.seccion === 'hoy' || t.atraso === 0)) return false;
-    if (F.nivel === 'sinfecha' && (t.due || t.estado === 'hecha')) return false;
-    if (F.nivel === 'hechas' && t.estado !== 'hecha') return false;
-    if (F.q) { var q = F.q.toLowerCase(); var txt = [t.id, t.titulo, t.proj, t.resp, t.prioridad, JSON.stringify(t.hijas || {})].join(' ').toLowerCase(); if (txt.indexOf(q) < 0) return false; }
+  function pasaNivel(t) {
+    if (F.nivel === 'abiertas') return t.estado !== 'hecha' || F.sec === 'hecho';
+    if (F.nivel === 'vencidos') return abierta(t) && t.atraso > 0;
+    if (F.nivel === 'recordar' || F.nivel === 'insistir' || F.nivel === 'escalar') return abierta(t) && t.atraso > 0 && t.nivel === F.nivel;
+    if (F.nivel === 'hoy') return abierta(t) && (t.seccion === 'hoy' || t.atraso === 0);
+    if (F.nivel === 'sinfecha') return t.estado !== 'hecha' && !t.due;
+    if (F.nivel === 'hechas') return t.estado === 'hecha';
     return true;
   }
+  function pasaTexto(t) {
+    var palabras = nrm(F.q).split(/\s+/).filter(Boolean);
+    if (!palabras.length) return true;
+    var h = t.hijas || {};
+    var txt = nrm([t.id, t.titulo, t.proj, t.resp, t.prioridad, t.due].concat(Object.keys(h).map(function (k) { return h[k]; })).join(' '));
+    return palabras.every(function (w) { return txt.indexOf(w) >= 0; });
+  }
+  function pasaFiltro(t) { return (F.sec === 'todas' || t.seccion === F.sec) && pasaNivel(t) && pasaTexto(t); }
   function tarea(t) {
-    var cls = 'task' + (t.atraso > 0 && t.estado !== 'hecha' ? ' vencida' : '') + (t.estado === 'curso' ? ' curso' : '') + (t.estado === 'hecha' ? ' hecha' : '');
-    return '<div class="' + cls + '" data-id="' + esc(t.id) + '"><div class="t"><span class="id">' + esc(t.id) + '</span>' +
+    var cls = 'task' + (abierta(t) && t.atraso > 0 ? ' vencida' : '') + (t.estado === 'curso' ? ' curso' : '') + (t.estado === 'hecha' ? ' hecha' : '');
+    return '<details class="' + cls + '" data-id="' + esc(t.id) + '"><summary class="t"><span class="id">' + esc(t.id) + '</span>' +
       (t.prioridad ? '<span class="pill p">' + esc(t.prioridad) + '</span>' : '') + '<span>' + esc(t.titulo) + '</span>' +
       '<span class="meta">' + (t.proj ? 'proj:' + esc(t.proj) + ' · ' : '') + 'resp:' + esc(t.resp || '—') + (t.due ? ' · due:' + esc(t.due) : '') + '</span>' + fechaRel(t) +
-      '</div><div class="kids">' + hijas(t.hijas) + '</div></div>';
+      '</summary><div class="kids">' + hijas(t.hijas) + '</div></details>';
   }
-  function vistaPendientes() {
-    if (!tareas.length) return vacio('Sin pendientes registrados. Cuéntale a GG lo que tienes entre manos: «anota …».');
-    var html = '<div class="filters"><select id="f-sec"><option value="todas">Todas las secciones</option>' +
-      SECS.map(function (s) { var n = tareas.filter(function (t) { return t.seccion === s[0]; }).length; return n ? '<option value="' + s[0] + '"' + (F.sec === s[0] ? ' selected' : '') + '>' + s[1] + ' (' + n + ')</option>' : ''; }).join('') + '</select>' +
-      '<select id="f-nivel">' + [['abiertas', 'Abiertas'], ['vencidos', 'Vencidos'], ['escalar', 'Escalar (≥ 7 días)'], ['insistir', 'Insistir (3–6)'], ['recordar', 'Recordar (0–2)'], ['hoy', 'Hoy'], ['sinfecha', 'Sin fecha'], ['hechas', 'Hechas'], ['todas', 'Todas']].map(function (o) { return '<option value="' + o[0] + '"' + (F.nivel === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
-      '<input id="f-q" placeholder="buscar: título, T-0001, resp, obra…" value="' + esc(F.q) + '"></div>';
-    var vis = tareas.filter(pasaFiltro); var n = 0;
+  function listaHtml() {
+    var vis = tareas.filter(pasaFiltro); var n = 0; var html = '';
     SECS.forEach(function (s) {
       var del = vis.filter(function (t) { return t.seccion === s[0]; }); if (!del.length) return;
       n += del.length;
       html += '<div class="h2"><span>' + s[1] + '</span><span>' + del.length + '</span></div>' + del.map(tarea).join('');
     });
     if (!n) html += vacio('Nada con ese filtro.');
+    var segVenc = segs.filter(function (s) { return abierta(s) && s.atraso > 0; }).length;
+    if (F.nivel === 'vencidos' && segVenc) html += '<div class="mut small" style="margin-top:10px">+' + segVenc + ' seguimiento' + (segVenc === 1 ? '' : 's') + ' vencido' + (segVenc === 1 ? '' : 's') + ' en la pestaña <b>Tratos</b>.</div>';
     if (segs.length) html += '<div class="mut small" style="margin-top:14px">Seguimientos de terceros y tratos (S-####): ' + segs.length + ' en la pestaña <b>Tratos</b>.</div>';
+    return html;
+  }
+  function vistaPendientes() {
+    if (!tareas.length) return vacio('Sin pendientes registrados. Cuéntale a GG lo que tienes entre manos: «anota …».');
+    var conteo = function (sec) { return tareas.filter(function (t) { return t.seccion === sec && pasaNivel(t) && pasaTexto(t); }).length; };
+    var html = '<div class="filters"><select id="f-sec" aria-label="Sección"><option value="todas">Todas las secciones</option>' +
+      SECS.map(function (s) { var total = tareas.filter(function (t) { return t.seccion === s[0]; }).length; return total ? '<option value="' + s[0] + '"' + (F.sec === s[0] ? ' selected' : '') + '>' + s[1] + ' (' + conteo(s[0]) + ')</option>' : ''; }).join('') + '</select>' +
+      '<select id="f-nivel" aria-label="Nivel">' + [['abiertas', 'Abiertas'], ['vencidos', 'Vencidos'], ['escalar', 'Escalar (≥ 7 días)'], ['insistir', 'Insistir (3–6)'], ['recordar', 'Recordar (0–2)'], ['hoy', 'Hoy'], ['sinfecha', 'Sin fecha'], ['hechas', 'Hechas'], ['todas', 'Todas']].map(function (o) { return '<option value="' + o[0] + '"' + (F.nivel === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>' +
+      '<input id="f-q" type="search" aria-label="Buscar pendientes" placeholder="buscar: título, T-0001, resp, obra…" value="' + esc(F.q) + '"></div>' +
+      '<div id="p-lista">' + listaHtml() + '</div>';
     return html;
   }
   function enlazarPendientes() {
     var sec = $('f-sec'), niv = $('f-nivel'), q = $('f-q');
-    if (sec) sec.onchange = function () { F.sec = sec.value; pintar(); };
-    if (niv) niv.onchange = function () { F.nivel = niv.value; pintar(); };
-    if (q) q.oninput = function () { F.q = q.value; var pos = q.selectionStart; pintar(); var nq = $('f-q'); if (nq) { nq.focus(); try { nq.setSelectionRange(pos, pos); } catch (_) {} } };
-    $('view').querySelectorAll('.task').forEach(function (el) { el.addEventListener('click', function () { el.classList.toggle('open'); }); });
+    var refrescar = function () { $('p-lista').innerHTML = listaHtml(); var opts = sec.options; for (var i = 0; i < opts.length; i++) { var v = opts[i].value; if (v !== 'todas') { var n = tareas.filter(function (t) { return t.seccion === v && pasaNivel(t) && pasaTexto(t); }).length; opts[i].textContent = opts[i].textContent.replace(/\(\d+\)$/, '(' + n + ')'); } } };
+    if (sec) sec.addEventListener('change', function () { F.sec = sec.value; refrescar(); });
+    if (niv) niv.addEventListener('change', function () { F.nivel = niv.value; refrescar(); });
+    if (q) q.addEventListener('input', function () { F.q = q.value; refrescar(); });
   }
 
   /* ── Obras ── */
@@ -222,12 +312,12 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
     if (!obras.length) return vacio('Sin obras ni proyectos en la memoria. Pídele a GG: «registra la obra … con su estado y próximo hito».');
     var col = { rojo: 'var(--red)', amarillo: 'var(--gold)', verde: 'var(--green)', sin: 'var(--bd)' };
     return '<div class="mut small" style="margin-bottom:10px">🔴 requiere tu decisión · 🟡 desviación con plan · 🟢 en plan · ⚪ sin semáforo. Orden: 🔴 primero.</div><div class="grid">' + obras.map(function (p) {
-      var campos = Object.keys(p.campos || {});
+      var campos = p.campos || {}; var ks = Object.keys(campos);
       return '<div class="card ficha"><div class="bar" style="background:' + col[p.semaforo] + '"></div>' +
-        '<div class="h"><span class="dot ' + esc(p.semaforo) + '"></span>' + esc(p.slug) + (p.nombre ? ' — ' + esc(p.nombre) : '') + '</div>' +
+        '<div class="h"><span class="dot ' + esc(p.semaforo) + '" aria-hidden="true"></span><span class="pill mut">' + (SEM[p.semaforo] || SEM.sin) + ' ' + esc(p.semaforo) + '</span> ' + esc(p.slug) + (p.nombre ? ' — ' + esc(p.nombre) : '') + '</div>' +
         '<div class="small soft">' + (p.cliente ? 'Cliente: ' + esc(p.cliente) + ' · ' : '') + 'Estado: ' + esc(p.estado || 'sin dato') + '</div>' +
         '<dl>' + (p.hito ? '<dt>Próximo hito</dt><dd>' + esc(p.hito) + (p.fecha ? ' · ' + esc(p.fecha) : '') + (p.resp ? ' · ' + esc(p.resp) : '') + '</dd>' : '') +
-        campos.map(function (k) { return '<dt>' + esc(k) + '</dt><dd>' + esc(p.campos[k]) + '</dd>'; }).join('') +
+        ks.map(function (k) { return '<dt>' + esc(k) + '</dt><dd>' + esc(campos[k]) + '</dd>'; }).join('') +
         (p.riesgos ? '<dt>Riesgos</dt><dd>' + esc(p.riesgos) + '</dd>' : '') +
         (p.pendientes && p.pendientes.length ? '<dt>Pendientes</dt><dd>' + p.pendientes.map(esc).join(', ') + '</dd>' : '') +
         (p.actualizado ? '<dt>Actualizado</dt><dd>' + esc(p.actualizado) + '</dd>' : '') + '</dl>' +
@@ -238,25 +328,30 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
 
   /* ── Tratos ── */
   function segCard(s) {
-    var next = s.hijas && s.hijas.next;
-    return '<div class="task' + (s.atraso > 0 && s.estado !== 'hecha' ? ' vencida' : '') + (s.estado === 'hecha' ? ' hecha' : '') + '"><div class="t"><span class="id">' + esc(s.id) + '</span><span>' + esc(s.quien) + '</span>' +
+    var h = s.hijas || {}; var next = h.next; var abierto = s.estado !== 'hecha';
+    return '<div class="task' + (abierta(s) && s.atraso > 0 ? ' vencida' : '') + (abierto ? '' : ' hecha') + '"><div class="t"><span class="id">' + esc(s.id) + '</span><span>' + esc(s.quien) + '</span>' +
       (s.que ? '<span class="soft">' + esc(s.que) + '</span>' : '') +
       '<span class="meta">' + (s.etapa ? 'etapa:' + esc(s.etapa) + ' · ' : '') + (s.monto ? 'monto:' + esc(s.monto) + ' · ' : '') + (s.due ? 'due:' + esc(s.due) : 'sin fecha') + '</span>' + fechaRel(s) + '</div>' +
-      '<div class="kids" style="display:block">' + (s.tipo === 'trato' ? (next ? '<div><b>next</b>' + esc(next) + '</div>' : '<div style="color:var(--orange)">Sin siguiente paso: un trato sin <code>next:</code> se enfría. Pídele a GG «cierres».</div>') : '') +
-      Object.keys(s.hijas || {}).filter(function (k) { return k !== 'next'; }).map(function (k) { return '<div><b>' + esc(k) + '</b>' + esc(s.hijas[k]) + '</div>'; }).join('') + '</div></div>';
+      '<div class="kids">' + (s.tipo === 'trato' && abierto ? (next ? '<div><b>next</b>' + esc(next) + '</div>' : '<div style="color:var(--orange)">Sin siguiente paso: un trato sin <code>next:</code> se enfría. Pídele a GG «cierres».</div>') : (next ? '<div><b>next</b>' + esc(next) + '</div>' : '')) +
+      Object.keys(h).filter(function (k) { return k !== 'next'; }).map(function (k) { return '<div><b>' + esc(k) + '</b>' + esc(h[k]) + '</div>'; }).join('') + '</div></div>';
   }
   function vistaTratos() {
-    var tratos = segs.filter(function (s) { return s.tipo === 'trato'; }), comp = segs.filter(function (s) { return s.tipo !== 'trato'; });
-    var html = '';
-    if (!tratos.length && !comp.length) return vacio('Sin tratos ni compromisos de terceros. Cuéntale a GG: «me prometió …» o «cierres».');
-    html += '<div class="h2"><span>Tratos abiertos (pipeline)</span><span>' + tratos.length + '</span></div>';
-    if (!tratos.length) html += '<div class="mut small">Ninguno. «cierres» arma el tablero.</div>';
-    var orden = ETAPAS.concat(tratos.map(function (t) { return (t.etapa || 'sin etapa').toLowerCase(); }).filter(function (e) { return ETAPAS.indexOf(e) < 0; }).filter(function (e, i, a) { return a.indexOf(e) === i; }));
+    var tratos = segs.filter(function (s) { return s.tipo === 'trato' && s.estado !== 'hecha'; });
+    var cerrados = segs.filter(function (s) { return s.estado === 'hecha'; });
+    var comp = segs.filter(function (s) { return s.tipo !== 'trato' && s.estado !== 'hecha'; });
+    if (!segs.length) return vacio('Sin tratos ni compromisos de terceros. Cuéntale a GG: «me prometió …» o «cierres».');
+    var html = '<div class="h2"><span>Tratos abiertos (pipeline)</span><span>' + tratos.length + '</span></div>';
+    if (!tratos.length) html += '<div class="mut small">Ninguno abierto. «cierres» arma el pipeline.</div>';
+    var etapaDe = function (t) { return nrm(t.etapa) || 'sin etapa'; };
+    var orden = ETAPAS.map(function (e) { return e[0]; });
+    tratos.forEach(function (t) { var e = etapaDe(t); if (orden.indexOf(e) < 0) orden.push(e); });
     orden.forEach(function (et) {
-      var del = tratos.filter(function (t) { return (t.etapa || 'sin etapa').toLowerCase() === et; }); if (!del.length) return;
-      html += '<div class="stage"><div class="h2"><span>' + esc(et) + '</span><span>' + del.length + '</span></div>' + del.map(segCard).join('') + '</div>';
+      var del = tratos.filter(function (t) { return etapaDe(t) === et; }); if (!del.length) return;
+      var nombre = (ETAPAS.filter(function (e) { return e[0] === et; })[0] || [et, del[0].etapa || et])[1];
+      html += '<div class="stage"><div class="h2"><span>' + esc(nombre) + '</span><span>' + del.length + '</span></div>' + del.map(segCard).join('') + '</div>';
     });
-    html += '<div class="h2"><span>Compromisos de terceros</span><span>' + comp.length + '</span></div>' + (comp.length ? comp.map(segCard).join('') : '<div class="mut small">Ninguno registrado.</div>');
+    html += '<div class="h2"><span>Compromisos de terceros</span><span>' + comp.length + '</span></div>' + (comp.length ? comp.map(segCard).join('') : '<div class="mut small">Ninguno abierto.</div>');
+    if (cerrados.length) html += '<details style="margin-top:14px"><summary class="h2" style="cursor:pointer"><span>Cerrados</span><span>' + cerrados.length + '</span></summary>' + cerrados.map(segCard).join('') + '</details>';
     return html;
   }
 
@@ -265,13 +360,14 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
     if (!rows.length) return '<div class="mut small">Sin KPIs definidos.</div>';
     return '<div class="tbl"><table><tr><th>KPI</th><th>Umbral de alerta</th><th>Último valor</th><th>Fecha</th><th>Fuente</th></tr>' + rows.map(function (r) {
       var sin = /sin dato/i.test(r.valor) || !r.valor;
-      return '<tr><td>' + esc(r.kpi) + '<div class="mut">' + esc(r.definicion) + '</div></td><td>' + esc(r.umbral) + '</td><td' + (sin ? ' class="mut"' : ' style="color:var(--txt)"') + '>' + esc(r.valor || 'sin dato') + '</td><td class="mut">' + esc(r.fecha) + '</td><td class="mut">' + esc(r.fuente) + '</td></tr>';
+      return '<tr><td>' + esc(r.kpi) + '<div class="mut">' + esc(r.definicion) + '</div></td><td>' + esc(r.umbral) + '</td><td' + (sin ? ' class="mut"' : '') + '>' + esc(r.valor || 'sin dato') + '</td><td class="mut">' + esc(r.fecha) + '</td><td class="mut">' + esc(r.fuente) + '</td></tr>';
     }).join('') + '</table></div>';
   }
   function vistaIndicadores() {
+    var alertas = arr(IND.alertas); var abiertas = alertas.filter(function (a) { return !a.cerrada; }); var cerradas = alertas.filter(function (a) { return a.cerrada; });
     var html = IND.porConfirmar ? '<div class="banner" style="margin-top:0">Set de partida por confirmar con el gerente · nada se alerta hasta que el set, los umbrales y la cadencia tengan su OK</div>' : '';
-    html += '<div class="h2"><span>Alertas activas</span><span>' + arr(IND.alertas).length + '</span></div>';
-    html += arr(IND.alertas).length ? arr(IND.alertas).map(function (a) { return '<div class="task vencida"><div class="t"><span class="meta">' + esc(a.fecha) + '</span><span>' + esc(a.kpi) + '</span><span class="soft">' + esc(a.valor) + '</span>' + (a.estado ? '<span class="pill recordar">' + esc(a.estado) + '</span>' : '') + '</div>' + (a.propuesta ? '<div class="kids" style="display:block"><b>propone</b>' + esc(a.propuesta) + '</div>' : '') + '</div>'; }).join('') : '<div class="mut small">Ninguna.</div>';
+    html += '<div class="h2"><span>Alertas activas</span><span>abiertas ' + abiertas.length + (cerradas.length ? ' · cerradas ' + cerradas.length : '') + '</span></div>';
+    html += alertas.length ? abiertas.concat(cerradas).map(function (a) { return '<div class="task alerta' + (a.cerrada ? ' cerrada' : ' vencida') + '"><div class="t"><span class="meta">' + esc(a.fecha) + '</span><span>' + esc(a.kpi) + '</span><span class="soft">' + esc(a.valor) + '</span>' + (a.estado ? '<span class="pill ' + (a.cerrada ? 'mut' : 'recordar') + '">' + esc(a.estado) + '</span>' : '') + '</div>' + (a.propuesta ? '<div class="kids"><b>propone</b>' + esc(a.propuesta) + '</div>' : '') + '</div>'; }).join('') : '<div class="mut small">Ninguna.</div>';
     html += '<div class="h2"><span>Semanal</span><span>' + arr(IND.semanal).length + '</span></div>' + tablaKPI(arr(IND.semanal));
     html += '<div class="h2"><span>Mensual</span><span>' + arr(IND.mensual).length + '</span></div>' + tablaKPI(arr(IND.mensual));
     html += '<div class="h2"><span>Últimas mediciones</span><span>' + arr(IND.historial).length + '</span></div>';
@@ -281,13 +377,13 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
 
   /* ── Memoria: bitácora, decisiones, radar, contexto ── */
   function vistaMemoria() {
-    var B = D.bitacora;
-    var html = '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(320px,1fr))">';
+    var B = D.bitacora; var BS = (B && B.secciones) || {};
+    var html = '<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))">';
     html += '<div class="card"><div class="h">Última bitácora' + (B ? ' · ' + esc(B.fecha) : '') + '</div>' + (B ?
-      [['Qué se hizo', B.secciones.hizo], ['Pendientes nuevos o movidos', B.secciones.pendientes], ['Decisiones', B.secciones.decisiones], ['Preguntas abiertas', B.secciones.preguntas], ['Para recordarte', B.secciones.recordar]].map(function (s) { return arr(s[1]).length ? '<div class="h2" style="margin-top:10px">' + s[0] + '</div>' + lista(arr(s[1]), '') : ''; }).join('') || '<div class="mut small">Bitácora sin contenido.</div>'
+      [['Qué se hizo', BS.hizo], ['Pendientes nuevos o movidos', BS.pendientes], ['Decisiones', BS.decisiones], ['Preguntas abiertas', BS.preguntas], ['Para recordarte', BS.recordar]].map(function (s) { return arr(s[1]).length ? '<div class="h2" style="margin-top:10px">' + s[0] + '</div>' + lista(arr(s[1]), '') : ''; }).join('') || '<div class="mut small">Bitácora sin contenido.</div>'
       : '<div class="mut small">Sin bitácora todavía (primera sesión). Se escribe al cerrar cada sesión.</div>') + '</div>';
     html += '<div class="card"><div class="h">Decisiones <span class="mut small">· ' + decisiones.length + ' en el registro</span></div>' + (decisiones.length ? decisiones.slice(0, 8).map(function (x) {
-      return '<div style="margin:8px 0;border-top:1px dashed var(--bd);padding-top:8px"><div><span class="mut small">' + esc(x.fecha) + '</span> ' + esc(x.titulo) + (x.pendiente ? ' <span class="pill p">pendiente</span>' : '') + '</div>' + (x.decision ? '<div class="small soft">' + esc(x.decision) + '</div>' : '') + (x.quien ? '<div class="small mut">decidió: ' + esc(x.quien) + '</div>' : '') + '</div>';
+      return '<div style="margin:8px 0;border-top:1px dashed var(--bd);padding-top:8px"><div><span class="mut small">' + esc(x.fecha) + '</span> ' + esc(x.titulo) + (x.pendiente ? ' <span class="pill p">pendiente</span>' : '') + '</div>' + (x.decision ? '<div class="small soft">' + esc(x.decision) + '</div>' : '') + (x.quien ? '<div class="small mut">decide: ' + esc(x.quien) + '</div>' : '') + '</div>';
     }).join('') : '<div class="mut small">Ninguna registrada.</div>') + '</div>';
     html += '<div class="card"><div class="h">Radar <span class="mut small">· ' + arr(RAD.entradas).length + ' entradas</span></div>' + (arr(RAD.entradas).length ? arr(RAD.entradas).slice(0, 8).map(function (e) {
       return '<div style="margin:8px 0;border-top:1px dashed var(--bd);padding-top:8px"><div><span class="mut small">' + esc(e.fecha) + '</span> <b>' + esc(e.tema) + '</b> ' + esc(e.cambio) + '</div>' + (e.impacto ? '<div class="small soft">Impacto: ' + esc(e.impacto) + '</div>' : '') + (e.fuente ? '<div class="small mut">Fuente: ' + esc(e.fuente) + '</div>' : '') + (e.siguiente ? '<div class="small" style="color:var(--cyan)">→ ' + esc(e.siguiente) + '</div>' : '') + '</div>';
@@ -301,39 +397,45 @@ footer{margin-top:40px;font-size:11px;color:var(--mut);border-top:1px solid var(
     return html + '</div>';
   }
 
-  /* ── Ecosistema ── */
+  /* ── Ecosistema (texto fuente: referencias/ecosistema.md) ── */
   function vistaEcosistema() {
-    var A = ECO.agentes || { activos: [], propuestos: [], instalados: [] }, L = ECO.leadhunter || { prospectos: {} };
+    var A = ECO.agentes || { activos: [], propuestos: [], instalados: [] }, Lh = ECO.leadhunter || { prospectos: {} };
     var si = function (b) { return b ? '<span class="ok">✔</span>' : '<span class="no">✘</span>'; };
     var skills = arr(ECO.skills);
+    var ejecutor = arr(A.activos).filter(function (a) { return a.nombre === 'gerente-general-dms'; });
+    var area = arr(A.activos).filter(function (a) { return a.nombre !== 'gerente-general-dms'; }).map(function (a) { return a.nombre; }).concat(arr(A.instalados)).filter(function (n, i, all) { return all.indexOf(n) === i; });
     var html = '<div class="flow"><div class="step"><b>1 · abrir</b>«GG» → brief desde la memoria</div><span class="arr">→</span>' +
       '<div class="step"><b>2 · trabajar</b>una skill por pedido · se escribe al momento</div><span class="arr">→</span>' +
       '<div class="step"><b>3 · decidir</b>el gerente decide; GG propone y pregunta</div><span class="arr">→</span>' +
       '<div class="step"><b>4 · cerrar</b>«cierre» → bitácora + este dashboard</div></div>';
     html += '<div class="eco">';
-    html += '<div class="card node"><div class="bar" style="background:var(--green)"></div><div class="h">Diego · gerente</div><div class="small soft">Pide, decide y envía. Nada se gasta, se envía, se cierra ni se lanza sin su sí. «ejecuta» quita las preguntas de aclaración, no las compuertas.</div><div class="how">Cómo partir: <code>GG</code> · <code>en qué vamos</code> · <code>cierre</code></div></div>';
+    html += '<div class="card node"><div class="bar" style="background:var(--green)"></div><div class="h">Diego · gerente</div><div class="small soft">Pide, decide y envía. Se confirma antes, siempre: gastar · enviar o contactar a terceros · crear, instalar o lanzar subagentes · comprometer fechas o precios · cerrar, reasignar o reprogramar pendientes · registrar decisiones o sobrescribir CONTEXTO con lo inferido. «ejecuta» quita las preguntas de aclaración, no esas compuertas.</div><div class="how">Cómo partir: <code>GG</code> · <code>en qué vamos</code> · <code>cierre</code></div></div>';
     html += '<div class="card node"><div class="bar" style="background:var(--cyan)"></div><div class="h">Sesión GG · persona + ' + skills.length + ' skills</div><div class="small soft">Adopta la persona (directo, breve, una pregunta por turno), abre con el brief, escribe la memoria mientras conversa y cierra con la bitácora.</div><div class="how">' +
       skills.map(function (s) { var i = SKILLS[s] || ['«' + s + '»', '']; return '<div><code>' + esc(s) + '</code> ' + esc(i[0]) + (i[1] ? ' <span class="mut">— ' + esc(i[1]) + '</span>' : '') + '</div>'; }).join('') + '</div></div>';
-    html += '<div class="card node"><div class="bar" style="background:var(--gold)"></div><div class="h">Memoria HQ</div><div class="small soft">' + (VACIO ? 'Carpeta privada fuera de todo repositorio.' : esc(D.hq)) + ' · ' + (ECO.sesiones || 0) + ' sesiones con bitácora. Si no está escrito, no pasó.</div>' +
-      '<div class="tbl" style="margin-top:8px"><table><tr><th>Archivo</th><th>Estado</th><th>Líneas</th></tr>' + arr(ECO.memoria).map(function (m) { return '<tr><td>' + esc(m.archivo) + '</td><td>' + si(m.existe) + '</td><td class="mut">' + (m.lineas || 0) + '</td></tr>'; }).join('') + '</table></div></div>';
-    html += '<div class="card node"><div class="bar" style="background:var(--purple)"></div><div class="h">Subagentes</div><div class="small soft">Ejecutor del plugin: ' + (arr(A.activos).length ? arr(A.activos).map(function (a) { return esc(a.nombre); }).join(', ') : 'ninguno') + '.<br>Instalados en HQ/agentes: ' + (arr(A.instalados).length ? arr(A.instalados).map(esc).join(', ') : 'ninguno') + '.<br>Propuestos (no cargados): ' + (arr(A.propuestos).length ? arr(A.propuestos).map(function (a) { return esc(a.nombre) + (a.area ? ' <span class="mut">(' + esc(a.area) + ')</span>' : ''); }).join(', ') : 'ninguno') + '.</div>' +
-      '<div class="how">Se analizan juntos y se crean uno a uno solo con tu sí a la propuesta concreta: <code>crea un subagente de finanzas</code>. Cada uno escribe solo su bitácora de área.</div></div>';
-    html += '<div class="card node"><div class="bar" style="background:var(--red)"></div><div class="h">LeadHunter · cuenta del gerente</div><div class="small soft">Clave configurada ' + si(L.key) + ' · URL ' + si(L.url) + ' · cacerías guardadas: ' + ((L.prospectos || {}).total || 0) + ((L.prospectos || {}).ultima ? ' (última ' + esc(L.prospectos.ultima) + ')' : '') + '</div>' +
-      '<div class="how">Pídelo con <code>busca proyectos</code> o <code>prospectos</code>. Cuesta créditos por prospecto: GG confirma antes de correr. Los resultados quedan en <code>memoria/prospectos/</code>; los mensajes los envías tú.' + (!L.key ? '<br><span style="color:var(--orange)">Sin clave: créala en LeadHunter → Agentes y GG la guarda en HQ (nunca en el chat).</span>' : '') + '</div></div>';
-    html += '<div class="card node"><div class="bar" style="background:var(--txt)"></div><div class="h">Dashboard · este archivo</div><div class="small soft">Vista derivada de la memoria. Se regenera al cerrar cada sesión o con «dashboard». No escribe nada: lo que quieras cambiar se lo dices a GG y queda en la memoria.</div><div class="how">Manual: <code>node &lt;plugin&gt;/herramientas/dashboard.mjs --hq &lt;HQ&gt;</code></div></div>';
+    html += '<div class="card node"><div class="bar" style="background:var(--gold)"></div><div class="h">Memoria HQ</div><div class="small soft">Carpeta privada ' + (VACIO ? '' : '<code>' + esc(D.hqNombre || 'HQ') + '</code> ') + 'fuera de todo repositorio · ' + (ECO.sesiones || 0) + ' sesiones con bitácora. Si no está escrito, no pasó.</div>' +
+      '<div class="tbl" style="margin-top:8px"><table><tr><th>Archivo</th><th>Estado</th><th>Líneas</th></tr>' + arr(ECO.memoria).map(function (m) { return '<tr><td>' + esc(m.archivo) + '</td><td>' + si(m.existe) + '</td><td class="mut">' + (Number(m.lineas) || 0) + '</td></tr>'; }).join('') + '</table></div></div>';
+    html += '<div class="card node"><div class="bar" style="background:var(--purple)"></div><div class="h">Subagentes</div><div class="small soft">Ejecutor del plugin (trabajo largo por lotes, no conversa): ' + (ejecutor.length ? ejecutor.map(function (a) { return esc(a.nombre); }).join(', ') : 'ninguno') + '.<br>Subagentes de área aprobados: ' + (area.length ? area.map(esc).join(', ') : 'ninguno') + '.<br>Propuestos (no cargados): ' + (arr(A.propuestos).length ? arr(A.propuestos).map(function (a) { return esc(a.nombre) + (a.area ? ' <span class="mut">(' + esc(a.area) + ')</span>' : ''); }).join(', ') : 'ninguno') + '.</div>' +
+      '<div class="how">Se analizan juntos y se crean uno a uno solo con tu sí a la propuesta concreta: <code>crea un subagente de finanzas</code>. Cada uno escribe su bitácora de área y lo que su ficha autorice; pendientes y decisiones pasan por la sesión.</div></div>';
+    html += '<div class="card node"><div class="bar" style="background:var(--red)"></div><div class="h">LeadHunter · cuenta del gerente</div><div class="small soft">Clave configurada ' + si(Lh.key) + ' · URL ' + si(Lh.url) + ' · cacerías guardadas: ' + (Number((Lh.prospectos || {}).total) || 0) + ((Lh.prospectos || {}).ultima ? ' (última ' + esc(Lh.prospectos.ultima) + ')' : '') + '</div>' +
+      '<div class="how">Pídelo con <code>busca proyectos</code> o <code>prospectos</code>. Cuesta créditos por prospecto: GG confirma antes de correr. Los resultados quedan en <code>memoria/prospectos/</code>; los mensajes los envías tú.' + (!Lh.key ? '<br><span style="color:var(--orange)">Sin clave: créala en LeadHunter → Agentes y guárdala tú en <code>.leadhunter</code> dentro de tu carpeta HQ con los pasos que te da GG. Nunca la pegues en el chat.</span>' : '') + '</div></div>';
+    html += '<div class="card node"><div class="bar" style="background:var(--txt)"></div><div class="h">Dashboard · este archivo</div><div class="small soft">Vista derivada de la memoria. GG lo regenera al cerrar con «cierre» (si hay Node) y cuando le pides «dashboard». La presión por vencido se recalcula cada vez que abres el archivo. No escribe nada: lo que quieras cambiar se lo dices a GG y queda en la memoria.</div><div class="how">Es tan confidencial como la memoria: vive en tu carpeta HQ y no se comparte.</div></div>';
     html += '</div>';
-    html += '<div class="h2" style="margin-top:22px">Cadencia sugerida (se confirma en la primera sesión)</div><div class="grid">' +
-      [['Cada sesión', 'brief de apertura · vencidos con nivel de presión · cierre con bitácora'], ['Lunes', 'control de obras (semáforos, hitos de la semana) · KPIs semanales'], ['Viernes', 'tratos abiertos: cada uno con su next: · cobros y compromisos de terceros'], ['Primera semana del mes', 'KPIs mensuales · radar de normas, subsidios y mercado'], ['Antes de la reunión de socios', 'agenda con las decisiones a pedir · fichas de decisión · después, acuerdos a pendientes con tu OK']].map(function (c) { return '<div class="card"><div class="h">' + c[0] + '</div><div class="small soft">' + c[1] + '</div></div>'; }).join('') + '</div>';
+    html += '<div class="h2" style="margin-top:22px">Cadencia sugerida · sin cadencia fija hasta que Diego la confirme en la primera sesión</div><div class="grid">' +
+      [['Cada sesión', 'brief de apertura · vencidos con nivel de presión · cierre con bitácora y dashboard'], ['Lunes', 'control de obras (semáforos, hitos de la semana) · KPIs semanales'], ['Viernes', 'tratos abiertos: cada uno con su next: · cobros y compromisos de terceros'], ['Primera semana del mes', 'KPIs mensuales · radar de normas, subsidios y mercado'], ['Antes de la reunión de socios', 'agenda con las decisiones a pedir · fichas de decisión · después, acuerdos a pendientes con tu OK'], ['Cuando haga falta', 'perfil de la empresa · caza de proyectos · redacción · subagentes']].map(function (c) { return '<div class="card"><div class="h">' + c[0] + '</div><div class="small soft">' + c[1] + '</div></div>'; }).join('') + '</div>';
     return html;
   }
 
   function pintar() {
-    pintarTabs();
+    marcarTab();
     var v = $('view');
-    if (VACIO && tabActual !== 'ecosistema') { v.innerHTML = vacio('Plantilla sin datos. El generador escribe la copia con la memoria en &lt;HQ&gt;/dashboard.html.'); return; }
+    if (VACIO && tabActual !== 'ecosistema') { v.innerHTML = vacio('Plantilla sin datos. Pídele «dashboard» a GG: el generador escribe la copia con la memoria en tu carpeta HQ.'); return; }
     v.innerHTML = { pendientes: vistaPendientes, obras: vistaObras, tratos: vistaTratos, indicadores: vistaIndicadores, memoria: vistaMemoria, ecosistema: vistaEcosistema }[tabActual]();
     if (tabActual === 'pendientes') enlazarPendientes();
   }
+  /* al imprimir, los detalles cerrados no salen: se abren y luego se restauran */
+  var abiertosPorImpresion = [];
+  window.addEventListener('beforeprint', function () { abiertosPorImpresion = Array.prototype.slice.call(document.querySelectorAll('details:not([open])')); abiertosPorImpresion.forEach(function (d) { d.open = true; }); });
+  window.addEventListener('afterprint', function () { abiertosPorImpresion.forEach(function (d) { d.open = false; }); abiertosPorImpresion = []; });
   pintar();
 })();
 </script>

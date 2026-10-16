@@ -37,8 +37,8 @@ Escribe al momento (protocolo §3); las escrituras que cambian estado se confirm
 ## Paso 4 — Cierre
 
 Con "cierre" o cuando termine: bitácora en `memoria/sesiones/YYYY-MM-DD.md` (append si ya existe), repaso de
-`pendientes.md`, `CONTEXTO.md` si cambió el caché, regenerar `<HQ>/dashboard.html` (skill `dashboard`, Paso 2; no
-cambia estado) y 5 líneas finales (qué se hizo, dónde quedó, qué falta, qué se le recordará, archivos tocados).
+`pendientes.md`, `CONTEXTO.md` si cambió el caché, regenerar `<HQ>/dashboard.html` con `../../herramientas/dashboard.mjs --hq <HQ>` (skill
+`dashboard`; no cambia estado) y 5 líneas finales (qué se hizo, dónde quedó, qué falta, qué se le recordará, archivos tocados).
 
 ## Primera sesión — cola de preguntas abiertas
 

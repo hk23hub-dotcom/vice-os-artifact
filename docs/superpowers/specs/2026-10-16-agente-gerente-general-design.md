@@ -113,7 +113,7 @@ OBRAS · DECISIÓN · RADAR · TE DEBÍA · PREGUNTA) y, si falta la bitácora a
 momento; las escrituras que cambian estado se confirman. Cierre: bitácora (append si ya existe). Si no está escrito, no
 pasó.
 
-### 4.5 Skills (12; disparadores en español e inglés; test)
+### 4.5 Skills (13; disparadores en español e inglés; test)
 | Skill | Para qué | Compuerta |
 |---|---|---|
 | `gg` | sesión: brief, trabajo, cierre; **cola de preguntas de la primera sesión** (LOOK & FILL, cierres, rol comercial, herramientas, confidencial, indicadores, frecuencia, autorización del ejemplo) | no cierra pendientes sin evidencia + OK |
@@ -128,6 +128,7 @@ pasó.
 | `indicadores` | set inicial, registro, revisión; cierre de mes | nada se alerta hasta aprobar set, umbrales y cadencia |
 | `redactar` | correos, comunicados, informes en la voz de la empresa | no envía; si hay canal, cada envío se aprueba |
 | `crear-subagente` | mostrar lo existente y preguntar; propuesta; sí explícito; crear en HQ; registrar; probar | sí a esa propuesta; "ejecuta" no aprueba |
+| `dashboard` | regenera `<HQ>/dashboard.html` desde la memoria: pendientes con presión, obras, tratos, KPIs, memoria, ecosistema | vista derivada; nunca escribe memoria; solo dentro de HQ |
 
 ### 4.6 Herramienta
 `herramientas/leadhunter.mjs --hq <HQ> infer|hunt …` (Node ≥ 18, sin dependencias): credenciales de env o de HQ, URL
@@ -194,9 +195,12 @@ memoria DMS**. Decisiones:
   decisiones, radar, CONTEXTO) · Ecosistema (ciclo abrir→trabajar→decidir→cerrar, quién escribe qué, estado vivo de
   memoria, subagentes, LeadHunter y cadencia; `referencias/ecosistema.md` es la fuente del texto).
 - **Confidencialidad.** Banner "Confidencial · generado desde <HQ>"; el generador no lee `.leadhunter*` (solo si
-  existen), no lista nombres de prospectos (solo cuenta y fecha), y `--out` pasa por `rutaProhibida` igual que `--hq`.
+  existen), no vuelca nombres de archivos de prospectos (solo cuenta y fecha; los tratos S-#### sí se muestran, dentro de HQ), y `--out` pasa por `rutaProhibida` igual que `--hq`.
   El JSON se inyecta con `<` escapado (`<`) para que un título con `</script>` no rompa la página. El HTML es tan
   confidencial como HQ; `--json` existe para pruebas y la skill no lo pega en el chat.
+- **Presión viva y un solo origen.** Las funciones de presión (días de atraso, nivel, líneas VENCIDO y HOY) viven en la
+  plantilla entre `/*<compartido>*/` y el generador las carga de ahí; la página las vuelve a ejecutar con la fecha del día
+  en que se abre y avisa "generado hace N días". `--out` solo dentro de la HQ real; escritura temporal única y limpia.
 - **Parseo tolerante** a las plantillas: comentarios HTML fuera, campos por prefijo (`due:` puede faltar), filas
   placeholder descartadas, semáforo normalizado, umbrales sin comparar, "pendiente / en preparación" en decisiones,
   bitácora más reciente por nombre (los `<fecha>-<área>.md` de subagentes no cuentan), fecha local (no UTC).
