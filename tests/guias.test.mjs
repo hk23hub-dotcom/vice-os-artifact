@@ -31,7 +31,7 @@ test('la parte pública no contiene las plantillas pagas ni respuestas reales de
   assert.doesNotMatch(pub, /Eres el Builder/);
   assert.doesNotMatch(pub, /desorden y destiempos|dmsinversiones|DMS Inversiones|abarcar todo|imagen de la empresa|trato con clientes|control general|búsqueda de (nuevos )?proyectos|arquitectura y construcción/i, 'los ejemplos no pueden ser las respuestas reales del cliente');
   assert.match(pub, /"gumroad": "https:\/\/hk23hub\.gumroad\.com\/l\//);
-  assert.match(pub, /ficticia/);
+  assert.match(pub, /inventada|ficticia/);
   const g = guias.find((x) => x.id === 'gerente-general');
   assert.equal(g.pasos.length, 17);
   assert.ok(g.pasos.every((p) => p.default != null), 'todo paso tiene valor por defecto para «no sé»');
