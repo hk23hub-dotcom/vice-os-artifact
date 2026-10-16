@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync, statSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseArgs, buildRequest, parseSSE, readSSE, toMarkdown, slug, run, rutaProhibida, credenciales } from '../gerente-general/herramientas/leadhunter.mjs';
+import { parseArgs, buildRequest, parseSSE, readSSE, toMarkdown, slug, run, rutaProhibida, credenciales, normalizarUrl } from '../gerente-general/herramientas/leadhunter.mjs';
 
 const REPO = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ROOT = join(REPO, 'gerente-general');
@@ -107,6 +107,11 @@ test('HQ nunca cae dentro de un repo y la memoria está ignorada por git y Verce
   const vi = readFileSync(join(REPO, '.vercelignore'), 'utf8');
   assert.match(vi, /^gerente-general\/$/m);
   assert.match(vi, /^DMS\/$/m);
+  assert.match(vi, /^\*\.plugin$/m);
+  for (const f of ['memoria/README.md', 'referencias/hq.md', 'referencias/persona.md', 'README.md', 'CLAUDE.md']) assert.doesNotMatch(read(f), /hk23-neuralhub/, f + ': ruta del instalador');
+  assert.doesNotMatch(read('memoria/README.md'), /\.\/DMS/);
+  const todo = readdirSync(join(ROOT, 'skills')).map((x) => read(`skills/${x}/SKILL.md`)).join('\n') + read('README.md') + read('propuestos/README.md') + read('memoria/agentes.md') + read('memoria/decisiones.md');
+  assert.doesNotMatch(todo, /sí, créalo/, 'la aprobación es un sí explícito, no una frase literal');
   assert.ok(!existsSync(join(REPO, 'DMS')), 'no debe existir DMS/ en el repo');
 });
 
@@ -138,6 +143,9 @@ test('referencias citadas existen', () => {
 test('parseArgs y buildRequest', () => {
   const a = parseArgs(['--hq', '/x', 'hunt', '--offer', 'Construimos', '--target', 'inmobiliarias', '--channel', 'Email', '--count', '5', '--dry-run']);
   assert.deepEqual(a._, ['hunt']); assert.equal(a.hq, '/x'); assert.equal(a['dry-run'], true);
+  assert.deepEqual(parseArgs(['--dry-run', 'hunt'])._, ['hunt'], '--dry-run no se come el comando');
+  assert.throws(() => parseArgs(['hunt', '--out', '/x']), /bandera desconocida: --out/);
+  assert.throws(() => parseArgs(['hunt', '--offer']), /necesita un valor/);
   const r = buildRequest('hunt', a);
   assert.deepEqual(r, { mode: 'hunt', input: { offer: 'Construimos', target: 'inmobiliarias', zone: '', channel: 'Email', count: 5 } });
   assert.deepEqual(buildRequest('infer', { url: 'https://x.cl' }), { mode: 'infer', input: { url: 'https://x.cl' } });
@@ -147,15 +155,23 @@ test('parseArgs y buildRequest', () => {
   assert.throws(() => buildRequest('nada', {}), /comando desconocido/);
 });
 
-test('rutaProhibida: plugin y repos git; credenciales: env primero, luego archivos de HQ', () => {
-  assert.match(rutaProhibida('/home/x/vice-os-artifact/gerente-general/memoria', { execImpl: () => 'false' }), /plugin/);
-  assert.match(rutaProhibida('/home/x/repo/DMS', { execImpl: () => 'true\n' }), /repositorio git/);
-  assert.equal(rutaProhibida('/home/x/DMS', { execImpl: () => { throw new Error('not a git repo'); } }), null);
+test('rutaProhibida: plugin y repos git (también sin git y con carpeta que aún no existe); credenciales', () => {
+  const sinGit = () => { throw new Error('ENOENT git'); };
+  const fs = (set) => (p) => set.has(p);
+  assert.match(rutaProhibida('/home/x/vice-os-artifact/gerente-general/memoria', { execImpl: () => 'false', existsImpl: () => false }), /plugin/);
+  assert.match(rutaProhibida('/home/x/repo/DMS', { execImpl: () => 'true\n', existsImpl: fs(new Set(['/home/x/repo/DMS', '/home/x/repo', '/home/x', '/home', '/'])) }), /repositorio git/);
+  // carpeta nueva dentro de un repo, sin git instalado: se detecta por el .git del ancestro
+  assert.match(rutaProhibida('/home/x/repo/carpeta/hq', { execImpl: sinGit, existsImpl: fs(new Set(['/home/x/repo/.git', '/home/x/repo', '/home/x', '/home', '/'])) }), /repositorio git/);
+  assert.equal(rutaProhibida('/home/x/DMS', { execImpl: sinGit, existsImpl: fs(new Set(['/home/x', '/home', '/'])) }), null);
   const files = { '/hq/.leadhunter': 'lh_file\n', '/hq/.leadhunter-url': 'https://lh.test/\n' };
   const readImpl = (p) => { if (p in files) return files[p]; throw new Error('ENOENT'); };
   assert.deepEqual(credenciales({ env: {}, hq: '/hq', readImpl }), { key: 'lh_file', url: 'https://lh.test' });
   assert.deepEqual(credenciales({ env: { LEADHUNTER_API_KEY: 'lh_env', LEADHUNTER_URL: 'https://e.test' }, hq: '/hq', readImpl }), { key: 'lh_env', url: 'https://e.test' });
   assert.deepEqual(credenciales({ env: {}, hq: '', readImpl }), { key: '', url: '' });
+  assert.equal(normalizarUrl('lh.test'), 'https://lh.test');
+  assert.equal(normalizarUrl('https://lh.test//'), 'https://lh.test');
+  assert.equal(normalizarUrl('https://lh.test/api/agent'), 'https://lh.test');
+  assert.equal(normalizarUrl('https://lh.test/app/'), 'https://lh.test/app');
 });
 
 test('parseSSE ignora pings y líneas rotas; readSSE junta chunks partidos', async () => {
@@ -200,11 +216,16 @@ test('run manda la clave, lee el stream y guarda en <HQ>/memoria/prospectos', as
   const hq = mkdtempSync(join(tmpdir(), 'dms-hq-'));
   const r = await run(['--hq', hq, 'hunt', '--offer', 'o', '--target', 'Inmobiliarias', '--zone', 'z', '--channel', 'WhatsApp', '--count', '3'], { fetchImpl, stdout: sink(), stderr, env: { LEADHUNTER_API_KEY: 'lh_abc', LEADHUNTER_URL: 'https://lh.test/' }, execImpl: noGit });
   assert.equal(req.url, 'https://lh.test/api/agent');
+  assert.equal(req.url, 'https://lh.test/api/agent');
   assert.equal(req.init.headers.Authorization, 'Bearer lh_abc');
   assert.equal(JSON.parse(req.init.body).mode, 'hunt');
   assert.equal(r.charged, 1); assert.equal(r.huntId, 'h1'); assert.equal(r.result[0].name, 'A');
   assert.match(stderr.out, /buscando: «inmobiliarias»/);
   assert.ok(r.saved.startsWith(join(hq, 'memoria', 'prospectos')) && existsSync(r.saved));
+  const r2 = await run(['--hq', hq, 'hunt', '--offer', 'o', '--target', 'Inmobiliarias', '--channel', 'WhatsApp', '--count', '3'], { fetchImpl, stdout: sink(), stderr: sink(), env: { LEADHUNTER_API_KEY: 'lh_abc', LEADHUNTER_URL: 'https://lh.test/' }, execImpl: noGit });
+  assert.notEqual(r2.saved, r.saved, 'una segunda cacería el mismo día no pisa la primera');
+  assert.ok(existsSync(r.saved) && existsSync(r2.saved));
+  await assert.rejects(run(['hunt', '--offer', 'o', '--target', 't', '--channel', 'Email'], { fetchImpl, stdout: sink(), stderr: sink(), env: { LEADHUNTER_API_KEY: 'lh_abc', LEADHUNTER_URL: 'https://lh.test' } }), /sin --hq/);
 });
 
 test('run explica 402, 401 y 429 en palabras del gerente', async () => {

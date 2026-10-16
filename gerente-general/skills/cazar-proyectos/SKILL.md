@@ -26,16 +26,24 @@ Adopta `../../referencias/persona.md`; resuelve HQ con `../../referencias/hq.md`
 ## Conexión (primera vez)
 
 2. Clave y URL viven en HQ: `<HQ>/.leadhunter` (una línea `lh_…`, permisos 600) y `<HQ>/.leadhunter-url`.
-   Si no existen, pedir: "Entra a LeadHunter → Agentes → Crear clave y pégamela aquí (se muestra una sola vez);
-   dime también la URL de tu LeadHunter." Escribir ambos archivos, nunca en la memoria ni en un repo, y probar:
-   `node <plugin>/herramientas/leadhunter.mjs --hq <HQ> infer --url <web de la empresa> --dry-run`.
-   Variables de entorno `LEADHUNTER_API_KEY` / `LEADHUNTER_URL` tienen prioridad si existen.
+   **El agente nunca recibe la clave** (si pasa por el chat queda en la transcripción). Si no existen, no se pregunta:
+   se entrega igual el brief de caza (ver "Sin herramienta") y, como SIGUIENTE ACCIÓN, los pasos para que el
+   gerente la guarde él mismo: "LeadHunter → Agentes → Crear clave; luego en tu terminal:
+   `umask 077; printf '%s\n' 'lh_…' > <HQ>/.leadhunter; printf '%s\n' 'https://<tu-app>' > <HQ>/.leadhunter-url`
+   (o exporta LEADHUNTER_API_KEY y LEADHUNTER_URL). Avísame cuando esté." Después el agente solo prueba:
+   `node <plugin>/herramientas/leadhunter.mjs --hq <HQ> infer --url <web> --dry-run` (debe decir `hayClave: true`).
+   Si el gerente pegó la clave en el chat igual, pedirle que la revoque en Agentes y cree otra. La compuerta
+   "¿Corro?" se formula solo cuando la clave existe.
 
 ## Pasos
 
 3. **Brief de caza** desde `empresa.md`: oferta (primera persona, con diferencial), cliente ideal buscable (rubro +
-   tamaño + quién decide; no "pymes"), zona, canal (WhatsApp local, Email corporativo, LinkedIn profesionales),
-   cantidad 3–20. Si `empresa.md` está vacío: `look-and-fill-dms` o `infer` (gratis) con la web.
+   tamaño + quién decide; no "pymes"), zona, canal, cantidad 3–20. Canal si el gerente no lo dice: Email para
+   empresas e inmobiliarias, WhatsApp para particulares y locales, LinkedIn para profesionales; siempre declarado en
+   Asumo. Zona ambigua ("Valparaíso" = comuna o región): asumir la más amplia y decirlo. Si Identidad, Qué hace o
+   Propuesta de valor siguen "por confirmar" en `empresa.md`: la oferta se arma con lo validado en `CONTEXTO.md`, el
+   diferencial se declara "por confirmar" en Asumo, y se propone `look-and-fill-dms` al cierre. `infer` (no gasta
+   créditos) solo con clave. El brief se guarda en `<HQ>/memoria/prospectos/<fecha>-brief-<slug>.md`.
 4. **Compuerta de gasto**: "N prospectos = N créditos de tu cuenta. ¿Corro?". Sin un sí a esa corrida, no se
    corre. "Ejecuta" no reemplaza este sí. Nunca se reintenta una cacería sola.
 5. **Correr**: `node <plugin>/herramientas/leadhunter.mjs --hq <HQ> hunt --offer "…" --target "…" --zone "…"
@@ -49,8 +57,10 @@ Adopta `../../referencias/persona.md`; resuelve HQ con `../../referencias/hq.md`
 
 ## Sin herramienta (sin Node, sin clave, Cowork sin terminal)
 
-Entregar el brief de caza listo para pegar en la app de LeadHunter con su cuenta; el gerente pega o exporta el CSV
-del resultado y el agente lo normaliza a `<HQ>/memoria/prospectos/<fecha>-<slug>.md`. Mismo output, un paso más.
+Entregar el brief de caza (ya guardado en `<HQ>/memoria/prospectos/`) listo para pegar en la app de LeadHunter con
+su cuenta, y crear `T-#### resp:<gerente>` con `blocked-by:` el pendiente de la clave si falta; el gerente pega o
+exporta el CSV del resultado y el agente lo normaliza a `<HQ>/memoria/prospectos/<fecha>-<slug>.md`. Mismo output,
+un paso más.
 
 ## Ángulos propios de construcción (con fuente, sin inventar)
 
@@ -61,4 +71,4 @@ licitan mejoras. Cada hallazgo entra a `radar.md` o `pendientes.md` con URL y fe
 ## Reglas
 
 - Nunca enviar ni contactar prospectos. A LeadHunter solo va oferta, cliente ideal y zona.
-- La clave nunca se escribe en la memoria, en el chat de vuelta ni en un repo.
+- La clave nunca pasa por el chat (ni de ida ni de vuelta), ni se escribe en la memoria ni en un repo.

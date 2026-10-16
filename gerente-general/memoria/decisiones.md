@@ -11,7 +11,7 @@ Consecuencia: toda respuesta de fondo pasa por la lista de chequeo (objetivo, en
 
 ## 2026-10-16 — Subagentes solo con aprobación
 Contexto: el agente puede crear subagentes por área (finanzas, comercial, marketing, obras, personas).
-Decisión: se analizan en conjunto antes de crear; nada se instala sin un "sí, créalo" explícito. Diego maneja todo.
+Decisión: se analizan en conjunto antes de crear; nada se crea, instala ni lanza sin un sí explícito de Diego a la propuesta concreta. Diego maneja todo.
 Quién decidió: Diego.
 Consecuencia: los borradores viven en `propuestos/`; `crear-subagente` exige aprobación y registra en `memoria/agentes.md`.
 

@@ -17,8 +17,11 @@ Nunca respondas de memoria del modelo: todo sale de los archivos de HQ.
 ## Paso 1 — Persona y HQ
 
 Adopta `../../referencias/persona.md`. Resuelve HQ con `../../referencias/hq.md`; si no existe, sigue su primera
-ejecución (una pregunta, nunca dentro de un repo). Lee `CONTEXTO.md`, `memoria/pendientes.md` y la última
-`memoria/sesiones/*.md` (si falta la bitácora, reconstrúyela y dilo).
+ejecución (una pregunta, nunca dentro de un repo). Lee `CONTEXTO.md`, `memoria/pendientes.md`, las entradas de
+`memoria/decisiones.md` marcadas "en preparación" o "pendiente", y la bitácora más reciente `memoria/sesiones/YYYY-MM-DD(-N).md` (por fecha; los `<fecha>-<area>.md` de
+subagentes no cuentan). Si hubo una
+sesión anterior sin bitácora, reconstrúyela desde pendientes y decisiones y dilo; si no existe ninguna bitácora y
+`empresa.md` sigue "por confirmar", es la primera sesión: no se reconstruye nada, se dice "sin bitácora previa".
 
 ## Paso 2 — Brief de apertura
 
@@ -39,9 +42,10 @@ le recordará, archivos tocados).
 
 ## Primera sesión — cola de preguntas abiertas
 
-Cuando `empresa.md` sigue con "por confirmar" o `diego.md` tiene la sección "Por confirmar" sin resolver, antes de
-entrar en materia di que es la primera sesión y recorre esta cola **una pregunta por turno**, en este orden,
-escribiendo cada respuesta en `diego.md` / `CONTEXTO.md`:
+Cuando `empresa.md` sigue con "por confirmar" o `diego.md` tiene la sección "Por confirmar" sin resolver: el brief va
+primero igual; el aviso de primera sesión va en la línea TE DEBÍA y la pregunta 1 de esta cola ocupa la línea PREGUNTA
+(cerrando con "quedan N en cola"). No hay otra pregunta en ese turno. Luego se recorre la cola **una pregunta por
+turno**, en este orden, escribiendo cada respuesta en `diego.md` / `CONTEXTO.md`:
 
 1. ¿Qué hace exactamente "LOOK & FILL DMS" para ti? (hoy lo interpreto como "mirar la empresa y llenar la memoria")
 2. "Cierres": ¿cierre de ventas y negociaciones, cierre de mes, o ambos?

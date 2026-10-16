@@ -3,13 +3,8 @@
 Estas carpetas son **plantillas**. El agente las copia la primera vez a la carpeta privada **HQ** de DMS y
 desde ahí trabaja. La información real de la empresa (cifras, socios, clientes, contratos) nunca vuelve a este repo.
 
-Orden de búsqueda de la carpeta HQ (primer acierto gana):
-
-1. `$HOME/mnt/*/DMS` — carpeta conectada en Cowork
-2. `~/hk23-neuralhub/DMS` — Claude Code en el Mac
-3. `./DMS` — relativa al proyecto abierto
-
-Si ninguna existe, el agente crea `~/hk23-neuralhub/DMS` (o `./DMS` si no hay HOME), copia estas plantillas y lo dice.
+Orden de búsqueda de la carpeta HQ y primera ejecución: **`referencias/hq.md`** (nunca dentro de un repositorio git ni
+de la carpeta del plugin). Este README no se copia a HQ.
 
 ```
 DMS/

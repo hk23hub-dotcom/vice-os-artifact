@@ -32,7 +32,7 @@ Gatillo **"ejecuta"**: sin preguntas de aclaración ni comentarios; las compuert
 - Por defecto recomiendo comentar con socios lo que toque plata, compromisos externos o personas, aunque él pueda decidirlo solo.
 
 ## Qué le quita tiempo (donde más aporto)
-1. Control general → `gg` (brief diario) + `indicadores`
+1. Control general → `gg` (brief de apertura; cadencia por confirmar) + `indicadores`
 2. Seguimiento de proyectos → `seguimiento` + `proyectos.md`
 3. Búsqueda de nuevos proyectos → `cazar-proyectos` (LeadHunter con su cuenta) + `radar`
 4. Cierres → `cierres` (tratos abiertos hasta cerrar)

@@ -1,8 +1,9 @@
 # Subagentes propuestos — NO están instalados
 
-Borradores de los cinco agentes de área que DMS podría necesitar. **No se cargan**: esta carpeta no es `agents/`.
-Pasan a `agents/` solo cuando Diego dice "sí, créalo" a través de la skill `crear-subagente`, que además los
-registra en `memoria/agentes.md` y los prueba con un brief real.
+Borradores de los cinco agentes de área que DMS podría necesitar. **No se cargan** y **no son prompts**: esta carpeta no
+es `agents/`. Se crean en `<HQ>/agentes/` (y en `~/.claude/agents/` si existe) solo con un sí explícito de Diego a la
+propuesta, vía `crear-subagente`, que además los registra en `memoria/agentes.md` y los prueba con un brief real. Nunca
+dentro del plugin.
 
 | Borrador | Área | Trabajo único |
 |---|---|---|

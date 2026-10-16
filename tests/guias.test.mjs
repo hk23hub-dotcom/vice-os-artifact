@@ -29,7 +29,8 @@ test('cada guía tiene su parte paga en el servidor y las plantillas referencian
 test('la parte pública no contiene las plantillas pagas ni respuestas reales de clientes', () => {
   const pub = readFileSync(join(DIR, 'gerente-general.json'), 'utf8');
   assert.doesNotMatch(pub, /Eres el Builder/);
-  assert.doesNotMatch(pub, /desorden y destiempos|dmsinversiones|DMS Inversiones/);
+  assert.doesNotMatch(pub, /desorden y destiempos|dmsinversiones|DMS Inversiones|abarcar todo|imagen de la empresa|trato con clientes|control general|búsqueda de (nuevos )?proyectos|arquitectura y construcción/i, 'los ejemplos no pueden ser las respuestas reales del cliente');
+  assert.match(pub, /"gumroad": "https:\/\/hk23hub\.gumroad\.com\/l\//);
   assert.match(pub, /ficticia/);
   const g = guias.find((x) => x.id === 'gerente-general');
   assert.equal(g.pasos.length, 17);
@@ -45,13 +46,20 @@ test('motor: vacia, render con {{id}}, {{id|fb}} y [[si:id]], y progreso', () =>
   assert.equal(render(t, { a: 'A1', b: [], c: 'C1' }, pasos), 'A=A1 B= C=C1 (hay c: C1)\n');
   assert.deepEqual(referencias(t).sort(), ['a', 'b', 'c']);
   assert.deepEqual(progreso({ pasos }, { a: 'x', b: 'no sé' }), { hechos: 1, total: 3, pct: 33 });
+  // :linea colapsa saltos (tablas y títulos); [[si]] respeta defaults; marcadores sueltos no llegan al comprador
+  assert.equal(render('| E | {{c:linea}} |', { c: 'Línea 1\nLínea 2' }, pasos), '| E | Línea 1 · Línea 2 |\n');
+  assert.equal(render('[[si:a]]hay a[[/si]]', { a: 'no sé' }, pasos), 'hay a\n');
+  assert.equal(render('x [[si:a]] y', { a: 'z' }, pasos), 'x  y\n');
+  assert.deepEqual(validarSalida({ prompt: 'ok [[si:a]] sin cierre', archivos: [{ nombre: 'a.md', plantilla: 'b' }] }, pasos), ['prompt: [[si]] sin cerrar']);
 });
 
 test('armarSalida produce el prompt y los archivos con las respuestas (y con «no sé» usa defaults)', () => {
   const g = guias.find((x) => x.id === 'gerente-general');
-  const r = { empresa: 'Constructora Andina SpA, Valparaíso', etapa: 'crecimiento', funciones: ['dar seguimiento a pendientes y compromisos', 'preparar decisiones con opciones, riesgos y recomendación'], prohibido: 'nunca decidir solo', nombre_gerente: 'Andrés' };
+  const r = { empresa: 'Constructora Andina SpA\nValparaíso', etapa: 'crecimiento', funciones: ['dar seguimiento a pendientes y compromisos', 'preparar decisiones con opciones, riesgos y recomendación'], prohibido: 'nunca decidir solo', nombre_gerente: 'Andrés' };
   const out = armarSalida(GUIAS[g.id].salida, r, g.pasos);
-  assert.match(out.prompt, /Constructora Andina SpA, Valparaíso/);
+  assert.match(out.prompt, /Constructora Andina SpA\nValparaíso/);
+  assert.match(out.archivos[0].contenido, /\| Empresa \| Constructora Andina SpA · Valparaíso \|/, 'la tabla queda en una fila');
+  assert.match(out.archivos[0].contenido, /## Skills recomendadas \(una por función\)\ndar seguimiento/);
   assert.match(out.prompt, /Llama al gerente "Andrés"/);
   assert.match(out.prompt, /dar seguimiento a pendientes y compromisos, preparar decisiones/);
   assert.match(out.prompt, /no sé \(se define en la primera sesión\)/, 'herramientas sin responder → default');

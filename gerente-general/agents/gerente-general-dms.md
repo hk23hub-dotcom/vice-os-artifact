@@ -10,13 +10,13 @@ description: >
   <example>
   Context: la sesión principal necesita la ficha de decisión completa de una obra mientras sigue conversando.
   user: "ármame la ficha completa de la obra con todo lo que hay en la memoria"
-  assistant: "Delego en gerente-general-dms la ficha larga con datos, opciones y contrapeso; la revisamos juntos cuando vuelva."
+  assistant: "¿Lanzo gerente-general-dms para la ficha larga con datos, opciones y contrapeso? La revisamos juntos cuando vuelva."
   <commentary>Trabajo por lotes con artefacto en HQ; la decisión sigue siendo del gerente.</commentary>
   </example>
   <example>
   Context: lunes, hay que consolidar el estado de todas las obras y los vencidos.
   user: "prepara el control semanal completo"
-  assistant: "Lanzo gerente-general-dms para escribir el informe de control en memoria/sesiones y te traigo el resumen."
+  assistant: "Propongo lanzar gerente-general-dms para escribir el informe de control en memoria/sesiones; con tu sí lo corro y te traigo el resumen."
   <commentary>Lectura y síntesis de varios archivos de memoria; sin decisiones ni envíos.</commentary>
   </example>
 model: inherit

@@ -67,7 +67,7 @@ const KEY = 'hk23-guia-' + id;          // respuestas y posición, por navegador
 const LIC = 'hk23-tier-license';         // misma clave que el universo: { tier: license_key }
 const CACHE = 'hk23-guia-salida-' + id;  // plantillas pagas ya descargadas
 const stage = document.getElementById('stage'), final = document.getElementById('final');
-let g, i = 0, r = {};
+let g, i = 0, r = {}, avanzando = 0, estado = null;
 
 try { const s = JSON.parse(localStorage.getItem(KEY) || '{}'); r = s.r || {}; i = s.i || 0; } catch (_) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify({ r, i })); } catch (_) {} };
@@ -97,17 +97,17 @@ function paso() {
     <div class="ej"><b>Ejemplo</b> (empresa ficticia): ${esc(p.ejemplo)}</div>${input}
     <div class="nav"><button class="btn" id="back" ${i === 0 ? 'disabled' : ''}>← atrás</button>
     <button class="btn main" id="next">${i === g.pasos.length - 1 ? 'Ver mi spec →' : 'Continuar →'}</button>
-    <button class="btn" id="skip">no sé</button><span class="muted">Enter = continuar</span></div>`;
+    <button class="btn" id="skip">no sé</button><span class="muted">${p.tipo === 'textarea' ? 'Ctrl/⌘ + Enter = continuar' : p.tipo === 'text' ? 'Enter = continuar' : ''}</span></div>`;
   const inEl = document.getElementById('in');
   if (inEl) { inEl.focus(); inEl.addEventListener('input', () => { r[p.id] = inEl.value; save(); }); inEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (p.tipo === 'text' || e.metaKey || e.ctrlKey)) { e.preventDefault(); next(); } }); }
   const opts = document.getElementById('opts');
   if (opts) opts.addEventListener('click', (e) => {
     const b = e.target.closest('.opt'); if (!b) return;
     const o = b.dataset.o;
-    if (p.tipo === 'choice') { r[p.id] = o; save(); paso(); setTimeout(next, 250); }
+    if (p.tipo === 'choice') { if (avanzando) return; r[p.id] = o; save(); paso(); opts.querySelectorAll('.opt').forEach((x) => (x.disabled = true)); avanzando = setTimeout(() => { avanzando = 0; next(); }, 250); }
     else { const s = new Set(Array.isArray(r[p.id]) ? r[p.id] : []); s.has(o) ? s.delete(o) : s.add(o); r[p.id] = [...s]; save(); paso(); }
   });
-  document.getElementById('back').onclick = () => { i--; save(); paso(); };
+  document.getElementById('back').onclick = () => { clearTimeout(avanzando); avanzando = 0; i--; save(); paso(); };
   document.getElementById('next').onclick = next;
   document.getElementById('skip').onclick = () => { r[p.id] = 'no sé'; save(); next(); };
 }
@@ -116,15 +116,16 @@ function next() { if (i < g.pasos.length - 1) { i++; save(); paso(); } else most
 function licencia() { try { return (JSON.parse(localStorage.getItem(LIC) || '{}'))[g.tier] || ''; } catch (_) { return ''; } }
 function guardarLicencia(k) { try { const l = JSON.parse(localStorage.getItem(LIC) || '{}'); l[g.tier] = k; localStorage.setItem(LIC, JSON.stringify(l)); } catch (_) {} }
 function salidaCache() { try { return JSON.parse(localStorage.getItem(CACHE) || 'null'); } catch (_) { return null; } }
+async function estadoVenta() { try { const r = await fetch('/api/guia-unlock?guia=' + encodeURIComponent(g.id)); return await r.json(); } catch (_) { return null; } }
 
 async function desbloquear(key, nueva) {
   const res = await fetch('/api/guia-unlock', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ guia: g.id, license_key: key, nueva }) });
   const j = await res.json().catch(() => ({}));
   if (res.status === 503 && j.code === 'pending') return { pending: true };
   if (!res.ok || !j.ok) return { error: j.error || ('Error ' + res.status) };
-  try { localStorage.setItem(CACHE, JSON.stringify(j.salida)); } catch (_) {}
+  try { localStorage.setItem(CACHE, JSON.stringify({ ...j.salida, version: j.version || 1 })); } catch (_) {}
   guardarLicencia(key);
-  return { salida: j.salida, uses: j.uses, maxSeats: j.maxSeats, via: j.via };
+  return { salida: j.salida, uses: j.uses, maxSeats: j.maxSeats, via: j.via, version: j.version || 1 };
 }
 
 async function mostrarFinal() {
@@ -140,21 +141,35 @@ async function mostrarFinal() {
   document.getElementById('edit').onclick = () => { final.classList.add('hidden'); stage.classList.remove('hidden'); i = 0; paso(); };
   document.getElementById('reset').onclick = () => { if (confirm('¿Borrar tus respuestas de este navegador?')) { r = {}; i = 0; save(); location.reload(); } };
   const cached = salidaCache();
-  if (cached) return pintarSalida(cached, null);
   const key = licencia();
+  if (cached) {
+    pintarSalida(cached, null);
+    // 'incluye actualizaciones': si el servidor tiene una versión nueva de las plantillas, se repinta en segundo plano
+    estado = await estadoVenta();
+    if (key && estado && estado.version && estado.version !== (cached.version || 1)) { const d = await desbloquear(key, false); if (d.salida) pintarSalida(d.salida, d); }
+    return;
+  }
+  estado = await estadoVenta();
   if (key) { const d = await desbloquear(key, false); if (d.salida) return pintarSalida(d.salida, d); }
   pintarCandado();
 }
 
 function pintarCandado(msg) {
-  document.getElementById('lock').innerHTML = `<div class="lock"><h3>Desbloquea el spec completo</h3>
-    <div class="price">US$ ${esc(g.precio.usd)}<small>${esc(g.precio.nota)}</small></div>
-    <p>${(g.entrega || []).map(esc).join(' · ')}</p>
-    <div class="row"><a class="buy" id="buy" href="https://hk23hub.gumroad.com" target="_blank" rel="noopener">Comprar en Gumroad →</a></div>
-    <p style="margin-top:14px">¿Ya compraste? Pega tu license key (o tu código):</p>
-    <div class="row"><input type="text" id="key" placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"><button class="btn main" id="go">Activar</button></div>
+  const enVenta = !estado || estado.venta;          // sin respuesta del servidor se asume en venta
+  const conCodigo = !!(estado && estado.codigo);
+  const compra = enVenta
+    ? `<div class="price">US$ ${esc(g.precio.usd)}<small>${esc(g.precio.nota)}</small></div>
+       <p>${(g.entrega || []).map(esc).join(' · ')}</p>
+       <div class="row"><a class="buy" id="buy" href="${esc(g.gumroad || 'https://hk23hub.gumroad.com')}" target="_blank" rel="noopener">Comprar en Gumroad →</a></div>
+       <p style="margin-top:14px">¿Ya compraste? Pega tu license key${conCodigo ? ' (o tu código)' : ''}:</p>`
+    : `<p><b>Próximamente.</b> Esta guía todavía no está a la venta. Escríbenos a <a href="mailto:hk23hub@gmail.com" style="color:var(--accent)">hk23hub@gmail.com</a> y te avisamos cuando salga.</p>
+       ${conCodigo ? '<p style="margin-top:14px">¿Tienes un código de acceso? Pégalo aquí:</p>' : ''}`;
+  const input = enVenta || conCodigo ? `<div class="row"><input type="text" id="key" placeholder="${enVenta ? 'XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX' : 'código'}"><button class="btn main" id="go">Activar</button></div>` : '';
+  document.getElementById('lock').innerHTML = `<div class="lock"><h3>${enVenta ? 'Desbloquea el spec completo' : 'Spec completo'}</h3>${compra}${input}
     <div id="msg" class="${msg && msg.ok ? 'ok' : 'err'}">${esc(msg ? msg.text : '')}</div></div>`;
-  document.getElementById('go').onclick = async () => {
+  const go = document.getElementById('go');
+  if (!go) return;
+  go.onclick = async () => {
     const key = document.getElementById('key').value.trim();
     if (key.length < 6) return pintarCandado({ text: 'Pega la license key completa.' });
     document.getElementById('msg').textContent = 'verificando…';

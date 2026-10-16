@@ -2,7 +2,7 @@
 <!-- PLANTILLA: sin datos reales -->
 
 _Regla: cada entrada lleva **fuente (URL) y fecha de consulta**, o dice "sin fuente verificada". Nada se afirma de memoria._
-_Fuentes de partida y cómo buscar: `referencias/radar-fuentes-chile.md`._
+_Fuentes de partida y cómo buscar: `referencias/radar-fuentes-chile.md` del plugin._
 _Formato: `- YYYY-MM-DD · [tema] · qué cambió · impacto en DMS (ventas / costos / plazos / permisos) · fuente · siguiente paso`_
 
 ## Temas que sigo (ajustar con Diego)

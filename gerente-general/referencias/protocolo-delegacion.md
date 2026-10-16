@@ -1,13 +1,14 @@
 # Protocolo de delegación a subagentes
 
-Mismo contrato que ORCHESTRA (`delegation-protocol.md`), con las reglas de la empresa encima.
+Contrato de delegación del plugin, con las reglas de la empresa encima.
 
 ## Antes de delegar
 
-1. Solo se delega a lo que figura en `memoria/agentes.md › Activos` con copia en `<HQ>/agentes/`. Los `.md` de
-   `propuestos/` son documentos de propuesta, **no prompts**: no se pasan al Agent tool.
-2. Lanzar un agente genérico (`general-purpose`) con un brief de área equivale a usar un subagente: requiere el sí
-   explícito del gerente en esa sesión. Lecturas con `Explore` / `Plan` sobre HQ sí están permitidas.
+1. Solo se delega al ejecutor que trae el plugin (`gerente-general-dms`) o a lo que figura en `memoria/agentes.md ›
+   Activos` con copia en `<HQ>/agentes/`. Los `.md` de `propuestos/` son documentos de propuesta, **no prompts**: no
+   se pasan al Agent tool.
+2. Todo lanzamiento de subagente, incluido el ejecutor del plugin, un agente genérico con un brief de área o uno de
+   solo lectura, requiere el sí explícito del gerente en ese turno (persona.md). Leer HQ lo hace la sesión directamente.
 3. Nunca se delegan: decisiones de precio, contratación, despido o gasto; envíos a terceros; elegir entre dos
    caminos estratégicos. Esas se presentan al gerente reducidas a dos opciones y una recomendación.
 4. Toda delegación se informa en la respuesta (a quién, qué brief, qué devolvió) y se anota en la bitácora y en

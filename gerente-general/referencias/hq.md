@@ -13,8 +13,10 @@ relativas: siempre la ruta absoluta de HQ resuelta aquí.
 5. `./DMS` — **solo si el directorio actual NO está dentro de un repositorio git**
    (`git rev-parse --is-inside-work-tree` falla o devuelve false)
 
-Una carpeta cuenta como HQ solo si su `CONTEXTO.md` empieza con la línea `# DMS — HQ`. Un `DMS/` vacío o ajeno no
-cuenta.
+Una carpeta cuenta como HQ solo si la primera línea de su `CONTEXTO.md` comienza con el prefijo `# DMS — HQ` (el resto de
+la línea puede variar). Un `DMS/` vacío o ajeno no cuenta. **Cualquier candidato se descarta si está dentro de un
+repositorio git** (`git -C <ruta> rev-parse --is-inside-work-tree` devuelve true, o hay un `.git` en algún ancestro):
+se avisa y se sigue con el siguiente. La carpeta elegida en la primera ejecución se verifica igual antes de copiar.
 
 ## Si no hay acierto (primera ejecución)
 
@@ -22,7 +24,9 @@ cuenta.
    Si el gerente dice "ejecuta" o no responde en ese turno, usar `~/DMS`.
 2. Crear la carpeta y copiar **cada archivo** de las plantillas del plugin (`../memoria/` relativo a esta
    referencia, es decir `gerente-general/memoria/`) a `<HQ>/` (`CONTEXTO.md` en la raíz, el resto bajo
-   `<HQ>/memoria/`). Copiar solo si el destino no existe; **nunca editar el origen**.
+   `<HQ>/memoria/`), **excepto los `README.md`** (son documentación del plugin). Si el gerente usa Claude Code,
+   copiar también `gerente-general/CLAUDE.md` a `<HQ>/CLAUDE.md`. Copiar solo si el destino no existe; **nunca
+   editar el origen**.
 3. Quitar la línea `<!-- PLANTILLA: sin datos reales -->` de las copias.
 4. Decir en una línea dónde quedó y recordar que esa carpeta no debe subirse a ningún repositorio público.
 

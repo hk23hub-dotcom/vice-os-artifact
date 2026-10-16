@@ -3,7 +3,7 @@
 //
 //   node leadhunter.mjs --hq ~/DMS infer --url https://www.ejemplo.cl
 //   node leadhunter.mjs --hq ~/DMS hunt --offer "…" --target "…" --zone "Santiago" --channel WhatsApp --count 10 \
-//        [--booking https://…] [--site https://…] [--dry-run]
+//        [--booking https://…] [--site https://…] [--dry-run] [--no-save]
 //
 // Clave y URL: variables LEADHUNTER_API_KEY / LEADHUNTER_URL o, si no existen, los archivos <HQ>/.leadhunter y
 // <HQ>/.leadhunter-url (una línea cada uno). HQ viene de --hq o de DMS_HQ. El resultado se guarda en
@@ -16,16 +16,21 @@ import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 
 const CHANNELS = ['WhatsApp', 'Email', 'LinkedIn'];
+const FLAGS_VALOR = ['hq', 'url', 'offer', 'target', 'zone', 'channel', 'count', 'booking', 'site'];
+const FLAGS_BOOL = ['dry-run', 'no-save'];
 
+/* Solo acepta las banderas conocidas: una bandera mal escrita no puede gastar créditos sin guardar nada. */
 export function parseArgs(argv) {
   const out = { _: [] };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     if (a.startsWith('--')) {
       const k = a.slice(2);
+      if (FLAGS_BOOL.includes(k)) { out[k] = true; continue; }
+      if (!FLAGS_VALOR.includes(k)) throw new Error('bandera desconocida: --' + k + ' (válidas: --' + [...FLAGS_VALOR, ...FLAGS_BOOL].join(', --') + ')');
       const next = argv[i + 1];
-      if (next === undefined || next.startsWith('--')) out[k] = true;
-      else { out[k] = next; i++; }
+      if (next === undefined || next.startsWith('--')) throw new Error('--' + k + ' necesita un valor');
+      out[k] = next; i++;
     } else out._.push(a);
   }
   return out;
@@ -52,14 +57,22 @@ export function buildRequest(cmd, args) {
   throw new Error('comando desconocido: ' + cmd + ' (usa infer | hunt)');
 }
 
-/* ¿La ruta está dentro de un repositorio git o de la carpeta del plugin? Ahí no se escribe nunca. */
-export function rutaProhibida(dir, { execImpl = execFileSync } = {}) {
+/* ¿La ruta está dentro de un repositorio git o de la carpeta del plugin? Ahí no se escribe nunca.
+   Sube hasta el primer ancestro que exista (la carpeta puede no existir todavía), busca un `.git` hacia arriba
+   (sirve aunque git no esté instalado) y además pregunta a git si está disponible. */
+export function rutaProhibida(dir, { execImpl = execFileSync, existsImpl = existsSync } = {}) {
   const abs = resolve(dir);
   if (/[\\/]gerente-general([\\/]|$)/.test(abs)) return 'está dentro de la carpeta del plugin';
+  let base = abs;
+  while (!existsImpl(base) && dirname(base) !== base) base = dirname(base);
+  for (let p = base; ; p = dirname(p)) {
+    if (existsImpl(join(p, '.git'))) return 'está dentro de un repositorio git';
+    if (dirname(p) === p) break;
+  }
   try {
-    const r = String(execImpl('git', ['-C', existsSync(abs) ? abs : dirname(abs), 'rev-parse', '--is-inside-work-tree'], { stdio: ['ignore', 'pipe', 'ignore'] })).trim();
+    const r = String(execImpl('git', ['-C', base, 'rev-parse', '--is-inside-work-tree'], { stdio: ['ignore', 'pipe', 'ignore'] })).trim();
     if (r === 'true') return 'está dentro de un repositorio git';
-  } catch (_) { /* sin git o fuera de un repo: bien */ }
+  } catch (_) { /* sin git: ya se revisó .git hacia arriba */ }
   return null;
 }
 
@@ -67,8 +80,16 @@ export function rutaProhibida(dir, { execImpl = execFileSync } = {}) {
 export function credenciales({ env = {}, hq = '', readImpl = readFileSync } = {}) {
   const leer = (f) => { try { return String(readImpl(join(hq, f), 'utf8')).split('\n')[0].trim(); } catch (_) { return ''; } };
   const key = String(env.LEADHUNTER_API_KEY || (hq ? leer('.leadhunter') : '')).trim();
-  const url = String(env.LEADHUNTER_URL || (hq ? leer('.leadhunter-url') : '')).trim().replace(/\/$/, '');
-  return { key, url };
+  return { key, url: normalizarUrl(env.LEADHUNTER_URL || (hq ? leer('.leadhunter-url') : '')) };
+}
+
+/* Acepta lo que el gerente pegue: con o sin https://, con barras de más o con /api/agent al final. */
+export function normalizarUrl(u) {
+  let s = String(u || '').trim();
+  if (!s) return '';
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  s = s.replace(/\/+$/, '').replace(/\/api\/agent$/i, '').replace(/\/+$/, '');
+  try { return new URL(s).origin + new URL(s).pathname.replace(/\/+$/, ''); } catch (_) { return ''; }
 }
 
 /* Parsea un bloque de texto SSE ("data: {...}\n\n") a eventos. Ignora pings y líneas rotas. */
@@ -144,6 +165,7 @@ export async function run(argv, { fetchImpl = globalThis.fetch, stdout = process
     return { dryRun: true, hayClave: key.startsWith('lh_'), ...req };
   }
   if (!url) throw new Error('Falta la URL de LeadHunter: LEADHUNTER_URL o <HQ>/.leadhunter-url (está en la página Agentes).');
+  if (!hq && !args['no-save'] && req.mode === 'hunt') throw new Error('Una cacería gasta créditos y sin --hq (o DMS_HQ) no se guardaría en la memoria. Pasa --hq <HQ>, o --no-save si de verdad no quieres guardarla.');
   if (!key.startsWith('lh_') || /\s/.test(key)) throw new Error('Falta la clave: LEADHUNTER_API_KEY o <HQ>/.leadhunter con una sola línea lh_… (se crea en LeadHunter → Agentes).');
 
   const res = await fetchImpl(url + '/api/agent', {
@@ -175,7 +197,8 @@ export async function run(argv, { fetchImpl = globalThis.fetch, stdout = process
   if (hq) {
     const dir = join(hq, 'memoria', 'prospectos');
     mkdirSync(dir, { recursive: true });
-    const name = `${new Date().toISOString().slice(0, 10)}-${req.mode}-${slug(req.mode === 'infer' ? req.input.url : req.input.target)}`;
+    const base = `${new Date().toISOString().slice(0, 10)}-${req.mode}-${slug(req.mode === 'infer' ? req.input.url : req.input.target)}`;
+    let name = base; for (let n = 2; existsSync(join(dir, name + '.json')) || existsSync(join(dir, name + '.md')); n++) name = `${base}-${n}`; // nunca pisar una cacería pagada
     writeFileSync(join(dir, name + '.json'), JSON.stringify(out, null, 2));
     writeFileSync(join(dir, name + '.md'), toMarkdown(out));
     out.saved = join(dir, name + '.md');

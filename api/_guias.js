@@ -4,6 +4,7 @@
 
 export const GUIAS = {
   'gerente-general': {
+    version: 2,
     salida: {
       prompt: `Eres el Builder. Con este spec de diseño construye un agente acompañante de gerencia general. Respeta cada sección; lo que el spec no define, el agente lo pregunta al gerente en la primera sesión (no lo inventes).
 
@@ -43,33 +44,34 @@ Solo con un sí explícito del gerente a una propuesta concreta (nombre, trabajo
 ## 9. Primera sesión
 Ver primera-sesion.md: qué entrega el gerente y qué pregunta el agente, una pregunta por turno.`,
       archivos: [
-        { nombre: 'spec-agente.md', plantilla: `# Spec de diseño — Agente acompañante de Gerente General de {{empresa|la empresa}}
+        { nombre: 'spec-agente.md', plantilla: `# Spec de diseño — Agente acompañante de Gerente General de {{empresa:linea|la empresa}}
 
 | Campo | Valor |
 |---|---|
-| Empresa | {{empresa}} |
-| Etapa | {{etapa}} |
-| Áreas que reportan | {{areas}} |
-| Gerente | {{nombre_gerente}} |
-| Fortaleza (estándar a replicar) | {{fortaleza}} |
-| Debilidad (lo que cubre el agente) | {{debilidad}} |
-| Cómo quiere la ayuda | {{ayuda}} |
-| Decide solo / con socios | {{decide}} |
-| Tareas que más tiempo quitan | {{tareas}} |
-| Funciones del agente | {{funciones}} |
-| Prohibiciones | {{prohibido}} |
-| Herramientas | {{herramientas}} |
-| Confidencial | {{confidencial}} |
-| Indicadores | {{indicadores}} |
-| Tono | {{tono}} |
-| Idiomas | {{idiomas}} |
-| Frecuencia | {{frecuencia}} |
+| Empresa | {{empresa:linea}} |
+| Etapa | {{etapa:linea}} |
+| Áreas que reportan | {{areas:linea}} |
+| Gerente | {{nombre_gerente:linea}} |
+| Fortaleza (estándar a replicar) | {{fortaleza:linea}} |
+| Debilidad (lo que cubre el agente) | {{debilidad:linea}} |
+| Cómo quiere la ayuda | {{ayuda:linea}} |
+| Decide solo / con socios | {{decide:linea}} |
+| Tareas que más tiempo quitan | {{tareas:linea}} |
+| Funciones del agente | {{funciones:linea}} |
+| Prohibiciones | {{prohibido:linea}} |
+| Herramientas | {{herramientas:linea}} |
+| Confidencial | {{confidencial:linea}} |
+| Indicadores | {{indicadores:linea}} |
+| Tono | {{tono:linea}} |
+| Idiomas | {{idiomas:linea}} |
+| Frecuencia | {{frecuencia:linea}} |
 
 ## Rol
 Acompañante de gerencia general: apoya, ordena, prepara decisiones, presiona cuando corresponde. Nunca decide solo.
 
-## Skills recomendadas (una por función marcada)
-[[si:funciones]]{{funciones}}[[/si]]
+## Skills recomendadas (una por función)
+{{funciones}}
+
 Para cada skill: disparadores en el idioma del gerente, Paso 1 "leer la memoria", pasos numerados, compuerta explícita en todo lo que envíe, gaste, publique o comprometa, y artefacto escrito en la memoria.
 
 ## Memoria
@@ -79,7 +81,7 @@ CONTEXTO.md (≤ 100 líneas) + memoria/ (empresa, gerente, personas, proyectos,
 Gerente → socios ({{decide}}) → especialista (legal, tributario, laboral, prevención). El agente señala y prepara la pregunta; no opina como experto.` },
         { nombre: 'checklist-agente.md', plantilla: `# Lista de chequeo del agente (antes de cada respuesta de fondo)
 
-Contexto: {{empresa}} · gerente: {{nombre_gerente}} · etapa: {{etapa}}
+Contexto: {{empresa:linea}} · gerente: {{nombre_gerente:linea}} · etapa: {{etapa:linea}}
 
 1. ¿Cuál es el objetivo real detrás de esta solicitud?
 2. ¿Qué decisión o entregable se necesita y para cuándo?

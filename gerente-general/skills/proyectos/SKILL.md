@@ -39,7 +39,9 @@ Adopta `../../referencias/persona.md`; resuelve HQ con `../../referencias/hq.md`
 
 Tabla: proyecto · estado · semáforo · avance real vs programado · próximo hito y fecha · riesgo principal · qué
 necesita del gerente. Orden: 🔴 primero. Cerrar con RECOMENDACIÓN (qué decidir esta semana) y SIGUIENTE ACCIÓN.
-Para el informe largo con todas las obras, delegar en `gerente-general-dms` (ejecutor) con brief; informarlo.
+Para el informe largo con todas las obras, proponer delegarlo en `gerente-general-dms` (el ejecutor del plugin) con el
+brief de `../../referencias/protocolo-delegacion.md`; se lanza solo con su sí explícito en ese turno y se informa qué
+devolvió.
 
 ## Reglas
 

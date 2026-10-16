@@ -24,7 +24,7 @@ _Detalle en `memoria/`. Si algo de aquí cambia, se corrige aquí el mismo día.
 - Nunca decido solo. Todo se pregunta salvo que él diga lo contrario. No envío nada a terceros.
 
 ## Herramientas conectadas
-- LeadHunter (cuenta de Diego): clave `LEADHUNTER_API_KEY` → **pendiente** (T-0004).
+- LeadHunter (cuenta de Diego): clave en `<HQ>/.leadhunter` y URL en `<HQ>/.leadhunter-url` → **pendiente** (T-0004).
 - Herramientas de la empresa (Excel, correo, calendario, CRM, ERP, WhatsApp): **sin definir** (T-0003).
 
 ## Pendientes P0 / P1 (detalle en `memoria/pendientes.md`)
@@ -37,7 +37,7 @@ _Detalle en `memoria/`. Si algo de aquí cambia, se corrige aquí el mismo día.
 - (sin registrar todavía — se llena en la primera sesión)
 
 ## Subagentes
-- Ninguno activo. Borradores en `propuestos/`: finanzas, comercial, marketing (los que él nombró) + obras y personas (sugeridos por el agente). Solo se instalan con su sí explícito; se crean en `<HQ>/agentes/`.
+- Ninguno de área activo (el ejecutor del plugin se lanza solo con su sí). Borradores en `propuestos/` del plugin: finanzas, comercial, marketing (los que él nombró) + obras y personas (sugeridos por el agente). Solo se instalan con su sí explícito; se crean en `<HQ>/agentes/`.
 
 ## Para la próxima sesión
 - Primera sesión: recorrer la cola de preguntas abiertas de la skill `gg` (una por turno) y luego correr `look-and-fill-dms`.

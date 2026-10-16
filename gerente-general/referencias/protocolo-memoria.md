@@ -7,10 +7,17 @@ Compartido por todas las skills. El agente solo sabe lo que está en la carpeta 
 Resolver HQ (`hq.md`) y leer `CONTEXTO.md` + `memoria/pendientes.md` (secciones Hoy, Esta semana, Seguimientos).
 Son cortos; se leen siempre, aunque el pedido sea "redacta un correo". Sin esto el agente contesta sin memoria.
 
+Si `empresa.md` sigue "por confirmar" y la skill no es `gg`, **no se recorre la cola de preguntas de la primera
+sesión**: se trabaja con lo que hay, lo inferido va marcado "por confirmar" en la línea Asumo, y se cierra con una
+línea "quedan N preguntas de primera sesión en cola". Con "ejecuta", igual.
+
 ## 2. Al abrir con `gg`
 
-Leer además la última `memoria/sesiones/*.md`. Si la última sesión no tiene bitácora (se cerró la ventana sin
-"cierre"), reconstruirla desde `pendientes.md` y `decisiones.md`, marcarla "reconstruida" y decirlo.
+Leer además la bitácora más reciente `memoria/sesiones/YYYY-MM-DD(-N).md` (por fecha; se ignoran los
+`<fecha>-<area>.md` de subagentes) y las entradas de `decisiones.md` marcadas "en preparación" o
+"pendiente" (alimentan la línea DECISIÓN). Si la última sesión no tiene bitácora (se cerró la ventana sin "cierre"),
+reconstruirla desde `pendientes.md` y `decisiones.md`, marcarla "reconstruida" y decirlo. Si no existe ninguna
+bitácora y `empresa.md` sigue "por confirmar", es la primera sesión: nada que reconstruir.
 
 Brief de apertura (≤ 9 líneas, sin preámbulo):
 ```

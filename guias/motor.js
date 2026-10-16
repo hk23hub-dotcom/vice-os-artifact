@@ -3,7 +3,8 @@
 // plantillas Markdown que usan exactamente tres construcciones:
 //   {{id}}            → la respuesta al paso `id` (o su valor por defecto si quedó vacío o "no sé")
 //   {{id|texto}}      → igual, pero con ese texto literal como último recurso
-//   [[si:id]]…[[/si]] → el bloque se omite si la respuesta a `id` quedó vacía (sin default)
+//   {{id:linea}}      → igual, pero en una sola línea (los saltos se vuelven ' · '); para tablas y títulos
+//   [[si:id]]…[[/si]] → el bloque se omite si la respuesta a `id` quedó vacía y el paso no tiene default
 // Las plantillas pagas viven en el servidor (api/_guias.js); este motor solo las renderiza.
 
 export const TIPOS = ['text', 'textarea', 'choice', 'multi'];
@@ -27,9 +28,13 @@ export function render(plantilla, respuestas, pasos) {
   const porId = Object.fromEntries((pasos || []).map((p) => [p.id, p]));
   const val = (id) => (porId[id] ? valor(porId[id], respuestas) : '');
   let out = String(plantilla);
-  // bloques condicionales (sin anidar): se quitan si la respuesta real está vacía
-  out = out.replace(/\[\[si:([a-z0-9_-]+)\]\]([\s\S]*?)\[\[\/si\]\]/g, (_, id, cuerpo) => (vacia(respuestas && respuestas[id]) ? '' : cuerpo));
-  out = out.replace(/\{\{([a-z0-9_-]+)(?:\|([^}]*))?\}\}/g, (_, id, fb) => val(id) || (fb != null ? fb : ''));
+  // bloques condicionales (sin anidar): se quitan si no hay respuesta ni default
+  out = out.replace(/\[\[si:([a-z0-9_-]+)\]\]([\s\S]*?)\[\[\/si\]\]/g, (_, id, cuerpo) => (val(id) ? cuerpo : ''));
+  out = out.replace(/\{\{([a-z0-9_-]+)(?::linea)?(?:\|([^}]*))?\}\}/g, (m, id, fb) => {
+    const v = val(id) || (fb != null ? fb : '');
+    return m.includes(':linea') ? v.replace(/\s*\n+\s*/g, ' · ') : v;
+  });
+  out = out.replace(/\[\[\/?si(?::[a-z0-9_-]+)?\]\]/g, ''); // red: ningún marcador llega al comprador
   return out.replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
@@ -69,7 +74,11 @@ export function validarSalida(salida, pasos) {
   if (!salida || !salida.prompt) e.push('falta prompt');
   if (!Array.isArray(salida?.archivos) || !salida.archivos.length) e.push('faltan archivos');
   const plantillas = [['prompt', salida?.prompt || ''], ...((salida?.archivos || []).map((a) => [a.nombre, a.plantilla || '']))];
-  for (const [n, t] of plantillas) for (const id of referencias(t)) if (!ids.has(id)) e.push(n + ' referencia id inexistente: ' + id);
+  for (const [n, t] of plantillas) {
+    for (const id of referencias(t)) if (!ids.has(id)) e.push(n + ' referencia id inexistente: ' + id);
+    const ab = (t.match(/\[\[si:/g) || []).length, ce = (t.match(/\[\[\/si\]\]/g) || []).length;
+    if (ab !== ce) e.push(n + ': [[si]] sin cerrar');
+  }
   for (const a of salida?.archivos || []) if (!/^[a-z0-9-]+\.md$/.test(a.nombre || '')) e.push('nombre de archivo inválido: ' + a.nombre);
   return e;
 }

@@ -44,7 +44,7 @@ _Cada dato lleva su fuente (web, Diego, documento) y fecha. Lo que no se sabe qu
 - Tono de la web: por confirmar
 - Palabras que usa / que no usa: por confirmar
 
-## Vacíos a preguntar (de a uno, máximo 5 por sesión)
+## Vacíos a preguntar (de a uno, por orden de impacto; sin tope)
 1. ¿Qué líneas de negocio pesan más en ventas hoy?
 2. ¿Ciudad / región principal y zonas donde quieren crecer?
 3. ¿Quiénes son los socios y qué área lleva cada uno?

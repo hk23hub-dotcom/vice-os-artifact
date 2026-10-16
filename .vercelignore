@@ -21,3 +21,5 @@ centro/
 # Gerente General DMS: plugin interno (agente, skills, plantillas); no se sirve
 gerente-general/
 DMS/
+*.plugin
+.leadhunter*

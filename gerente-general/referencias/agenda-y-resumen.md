@@ -53,4 +53,5 @@ Asistieron: <…>
 <fecha · objetivo>
 ```
 
-Cada acuerdo se convierte en una línea de `pendientes.md` **antes** de entregar el resumen.
+Cada acuerdo se propone como línea de `pendientes.md` (T-#### o S-####) y se escribe **solo con el OK del gerente**;
+sin OK queda en el resumen marcado "por confirmar".

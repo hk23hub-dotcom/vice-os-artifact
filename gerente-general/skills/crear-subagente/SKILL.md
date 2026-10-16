@@ -26,31 +26,37 @@ Adopta `../../referencias/persona.md`; resuelve HQ con `../../referencias/hq.md`
 ## Pasos
 
 2. **Mostrar lo que ya existe.** Revisar `agentes.md`, las skills de este plugin y los agentes y skills de la sesión.
-   Si algo cubre el trabajo (encaje ≥ 0.7), decirlo y preguntar: "¿usamos este o creamos uno nuevo?". Nunca un no
+   Lo que encontró va en la línea "Por qué no lo cubre algo existente" de la propuesta; si algo ya cubre el trabajo,
+   la propuesta recomienda usarlo y la pregunta final pasa a ser "¿usamos este o lo creo igual?". Nunca un no
    silencioso. Un gap puntual suele resolverse con un buen brief; un rol recurrente justifica un agente.
 3. **Propuesta de una pantalla** (en el chat):
    ```
    AGENTE PROPUESTO: dms-<area>
    Trabajo único: <una frase>          Lo que NO hace: <decidir, enviar, contratar…>
    Entradas: <qué lee de HQ>           Salida: <artefacto y ruta en HQ>
-   Tools mínimas: <lista>              Modelo: sonnet | haiku | opus (por qué)
+   Permisos: <qué lee de HQ y qué único archivo escribe; sin terminal ni internet salvo que se diga>
+   Tamaño de modelo: estándar (lee y calcula) | grande (solo si decide entre alternativas defendibles)
    Por qué no lo cubre algo existente: <una línea>
    Riesgos y compuertas: <…>
+   Si dices sí: escribo <HQ>/agentes/dms-<area>.md, lo instalo en ~/.claude/agents/ (si usas Claude Code) y lo
+   pruebo con un brief de 3 líneas de pendientes.md; te informo el resultado.
    ¿Lo creo?
    ```
-   Si hay borrador en `propuestos/`, mostrar ese (los de obras y personas fueron sugeridos por el agente, no
-   pedidos por el gerente; decirlo). Las áreas que él nombró: finanzas, comercial, marketing; preguntar si ventas y
-   crecimiento van dentro de comercial.
-4. **Esperar un sí explícito a esa propuesta** ("dale", "ok, hazlo", "sí"). Un "ejecuta" genérico no aprueba;
-   cualquier otra respuesta es no.
+   Una sola pregunta en el turno. Las herramientas exactas quedan en el `.md` del agente, no en el chat. Si hay
+   borrador en `propuestos/`, mostrar ese (los de obras y personas fueron sugeridos por el agente, no pedidos por el
+   gerente; decirlo). Las áreas que él nombró: finanzas, comercial, marketing; solo cuando el área pedida es
+   comercial, la pregunta final incluye si ventas y crecimiento van dentro.
+4. **Esperar un sí explícito a esa propuesta** ("dale", "ok, hazlo", "sí"). Ese sí cubre las tres acciones que la
+   propuesta anuncia (crear, instalar, probar). Un "ejecuta" genérico no aprueba; cualquier otra respuesta es no.
 5. **Escribir** `<HQ>/agentes/dms-<area>.md` cumpliendo el spec (≥ 2 `<example>`, responsabilidad única, límites,
    salida con ruta en HQ). El archivo no contiene datos de la empresa, solo rutas a `memoria/*`. Nunca sobrescribir:
    versionar (`-v2`). Nunca escribir bajo la carpeta del plugin ni bajo un repositorio.
 6. **Instalar** además en `~/.claude/agents/` si existe `~/.claude/` (Claude Code). En Cowork el subagente aprobado
    se usa pasando su `.md` como brief al Agent tool. Decir las rutas escritas.
 7. **Registrar** en `memoria/agentes.md › Activos` (cubre / no cubre / creado) y anotar en `decisiones.md`.
-8. **Prueba**: lanzarlo con un brief real de 3 líneas de `pendientes.md` (informarlo). Si falla, corregir antes de
-   darlo por instalado. Reportar: nombre, modelo, rol, rutas, resultado.
+8. **Prueba** (cubierta por el mismo sí): lanzarlo con un brief real de 3 líneas de `pendientes.md` cuyo único
+   destino de escritura es `<HQ>/agentes/pruebas/<nombre>-<fecha>.md` (no toca la memoria). Si falla, corregir antes
+   de darlo por instalado. Reportar: nombre, rol, rutas, resultado.
 
 ## Límites de todo subagente de la empresa
 

@@ -3,7 +3,7 @@
 
 _Estado: **propuesta inicial, por confirmar con Diego** (cuestionario A12: "no sé aún, lo vamos a ir viendo")._
 _Regla: ningún valor se inventa. Si no hay dato, la celda dice "sin dato" y se pide la fuente._
-_Set de partida para una constructora en crecimiento: ver `referencias/indicadores-constructora.md`._
+_Set de partida para una constructora en crecimiento: ver `referencias/indicadores-constructora.md` del plugin._
 
 ## Semanal (revisión en el brief del lunes)
 | KPI | Definición | Fuente del dato | Umbral de alerta | Último valor | Fecha |

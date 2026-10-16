@@ -1,14 +1,14 @@
 # AGENTES — subagentes del Gerente General DMS
 <!-- PLANTILLA: sin datos reales -->
 
-_Nada se crea ni se instala sin un "sí, créalo" de Diego. Reutilizar antes de crear: si un skill o agente existente cubre el trabajo (encaje ≥ 0.7), se usa ese._
+_Nada se crea, instala ni lanza sin un sí explícito de Diego a una propuesta concreta. Reutilizar antes de crear: si algo existente cubre el trabajo, la propuesta lo dice y se le pregunta._
 
 ## Activos
 | Agente | Archivo | Cubre | No cubre | Creado | Último uso |
 | --- | --- | --- | --- | --- | --- |
-| gerente-general-dms | agents/gerente-general-dms.md | acompañar a Diego: memoria, seguimiento, decisiones, reuniones, radar, caza, redacción | decidir, enviar, contactar terceros | 2026-10-16 | — |
+| gerente-general-dms | agents/gerente-general-dms.md | trabajo largo por lotes sobre la memoria (ficha completa, control semanal, pack de reunión, barrido de radar); no conversa | decidir, enviar, contactar terceros, conversar con Diego (eso lo hace la sesión con la persona) | 2026-10-16 | — |
 
-## Propuestos (borradores en `propuestos/`, no cargados)
+## Propuestos (borradores en `propuestos/` del plugin gerente-general, no cargados)
 | Agente | Área | Trabajo único | Estado |
 | --- | --- | --- | --- |
 | dms-finanzas | finanzas | caja, cobranza, márgenes y desviaciones por obra a partir de los datos que entregue Diego | propuesto |

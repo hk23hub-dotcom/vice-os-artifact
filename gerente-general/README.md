@@ -27,7 +27,7 @@ Diseño: `docs/superpowers/specs/2026-10-16-agente-gerente-general-design.md` (s
 | "radar" · "bonos" · "normas" | `radar` | novedades con fuente, fecha e impacto en DMS |
 | "indicadores" · "cómo vamos en números" | `indicadores` | KPIs con umbral, registro de valores, alertas |
 | "redacta" · "write an email" | `redactar` | borrador en la voz de DMS, es-CL o inglés; nunca envía |
-| "crea un subagente de finanzas" | `crear-subagente` | propuesta de una pantalla → solo con "sí, créalo" escribe e instala |
+| "crea un subagente de finanzas" | `crear-subagente` | propuesta de una pantalla → solo con un sí explícito a esa propuesta escribe e instala |
 
 Lo que **nunca** hace, ni con "ejecuta": decidir solo, enviar o contactar a terceros, gastar sin confirmar, crear o
 lanzar subagentes sin un sí explícito, cerrar pendientes o registrar decisiones sin su OK, sacar información
@@ -38,7 +38,7 @@ confidencial de la carpeta HQ, inventar cifras o fuentes.
 1. **Cowork:** `npm run plugin:pack` genera `gerente-general.plugin`; se instala con el botón "Aceptar" sobre ese
    archivo. Conecta una carpeta privada llamada `DMS` (o una carpeta que la contenga): ahí vivirá la memoria.
 2. **Claude Code:** `claude plugin marketplace add hk23hub-dotcom/vice-os-artifact` y luego instala `gerente-general`;
-   o copia `agents/`, `skills/` y `referencias/` a `~/.claude/`. Agrega el bloque de `CLAUDE.md` a `~/.claude/CLAUDE.md`.
+   o copia la carpeta completa del plugin (agents/, skills/, referencias/, memoria/, propuestos/, herramientas/) a `~/.claude/plugins/gerente-general/` manteniendo la estructura. Agrega el bloque de `CLAUDE.md` a `~/.claude/CLAUDE.md`.
 3. Primera sesión: di **"GG"**. El agente pregunta una vez dónde guardar la memoria (propone `~/DMS`, nunca dentro de
    un repo), copia las plantillas, recorre la cola de preguntas abiertas y propone `look-and-fill-dms`.
 4. **LeadHunter con la cuenta del gerente (opcional):** en la app → *Agentes* → *Crear clave*. La skill

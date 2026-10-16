@@ -1,7 +1,6 @@
-# Especificacion de subagente (contrato ORCHESTRA, copiado para que crear-subagente lo tenga a mano)
+# Especificacion de subagente — contrato que cumple todo agente creado por `crear-subagente`
 
-Todo agente creado por ORCHESTRA cumple este contrato. `agent-architect` lo
-usa como plantilla; `spawn-agent` lo valida antes de instalar.
+(Adaptado del contrato de ORCHESTRA; aqui lo valida `crear-subagente` antes de instalar en `<HQ>/agentes/`.)
 
 ## Frontmatter
 
@@ -60,7 +59,7 @@ Un agente no se instala si falla cualquiera:
 - [ ] `tools` es el minimo: sin `Write`/`Edit`/`Bash` salvo que el proceso lo exija.
 - [ ] El cuerpo tiene "Responsabilidad unica" y "Limites".
 - [ ] `Salida` nombra un artefacto y una ruta, no "un resumen".
-- [ ] Nombre no colisiona con nada en `AGENTS.md` ni en la sesion.
+- [ ] Nombre no colisiona con nada en `memoria/agentes.md` ni con los agentes de la sesion.
 - [ ] Smoke test con un brief real devolvio el artefacto esperado.
 
 ## Plantilla lista
