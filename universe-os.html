@@ -8792,7 +8792,7 @@ var qrcode = function() {
   @supports (height: 100dvh) { body { height: 100dvh; } }
   @media (max-width: 820px), (pointer: coarse) {
     /* nav del mapa: una línea deslizable, nunca tapa el mapa */
-    .map-ui { padding: 12px 12px calc(env(safe-area-inset-top, 0px)); flex-wrap: nowrap; }
+    .map-ui { padding: calc(12px + env(safe-area-inset-top, 0px)) 12px 12px; flex-wrap: nowrap; }
     .map-nav { overflow-x: auto; flex-wrap: nowrap; max-width: 58vw; scrollbar-width: none;
       -webkit-overflow-scrolling: touch; }
     .map-nav::-webkit-scrollbar { display: none; }
@@ -17057,6 +17057,147 @@ addEventListener('DOMContentLoaded', function(){
     compartir: function(){ if(actual) compartir(actual); },
     todas: leer, actual: function(){ return actual; }
   };
+})();
+</script>
+
+
+<!-- ═══════════ PULIDA 01 — lo que no llevaba a ninguna parte ═══════════
+     1. AGENTS abría un panel cuyo markup nunca se shippeó → acá está el panel.
+     2. 🏛 MADRE recargaba la misma página y borraba todo → ahora vuelve al mapa.
+     3. Winamp: – y ✕ medían 13×13 en el teléfono → 44×44.
+     4. "TOCÁ PARA ENTRAR" medía 22px y la píldora Dashboard lo tapaba → 44px y despejado.
+     (El padding del notch en .map-ui se corrigió en su propia regla, más arriba.)
+     ═══════════════════════════════════════════════════════════════════════ -->
+<style id="pulida-01-style">
+  /* ── ACTION RUNNER: el panel que faltaba ── */
+  #agents-run{ position:fixed; inset:0; z-index:640; display:none; align-items:center; justify-content:center;
+    background:rgba(4,4,6,.92); backdrop-filter:blur(6px);
+    padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom)); }
+  #agents-run.open{ display:flex; }
+  .ar-box{ width:min(640px,100%); max-height:100%; overflow:auto; -webkit-overflow-scrolling:touch;
+    background:#0B0B0D; border:1px solid #1E1E22; border-radius:4px; padding:18px 18px 16px;
+    box-shadow:0 30px 80px rgba(0,0,0,.7); }
+  .ar-head{ display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .ar-head h3{ margin:0; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:5px;
+    text-transform:uppercase; color:#00F0FF; font-weight:700; }
+  .ar-head .ar-sub{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#555; text-transform:uppercase; }
+  .ar-head .ar-sp{ flex:1; }
+  .ar-x{ font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:#777; background:none;
+    border:1px solid #222; border-radius:2px; min-width:44px; min-height:44px; cursor:pointer; }
+  .ar-x:hover{ color:#000; background:#00F0FF; border-color:#00F0FF; }
+  #ar-agents{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+  .ar-agent{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:#777; border:1px solid #222; border-radius:2px; padding:0 12px; min-height:44px;
+    display:inline-flex; align-items:center; cursor:pointer; user-select:none; }
+  .ar-agent.on{ color:#000; background:#00F0FF; border-color:#00F0FF; font-weight:700; }
+  #ar-input{ width:100%; box-sizing:border-box; min-height:96px; resize:vertical; background:#060607;
+    color:#E8E8E8; border:1px solid #222; border-radius:2px; padding:12px;
+    font-family:'Space Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.4; }
+  #ar-input:focus{ outline:none; border-color:#00F0FF; }
+  .ar-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin:10px 0 12px; }
+  #ar-runbtn{ font-family:'Space Mono',monospace; font-size:10px; letter-spacing:3px; font-weight:700;
+    background:#00F0FF; color:#000; border:none; border-radius:2px; padding:0 18px; min-height:44px; cursor:pointer; }
+  #ar-runbtn[disabled]{ opacity:.5; cursor:default; }
+  .ar-link{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:#666; background:none; border:1px solid #222; border-radius:2px; padding:0 12px; min-height:44px; cursor:pointer; }
+  .ar-link:hover{ color:#00F0FF; border-color:#00F0FF; }
+  #ar-out{ white-space:pre-wrap; font-family:'Space Grotesk',system-ui,sans-serif; font-size:14px; line-height:1.55;
+    color:#CFCFCF; background:#060607; border:1px solid #1A1A1A; border-radius:2px; padding:12px; min-height:56px; margin:0; }
+  .ar-nota{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#444; text-transform:uppercase; margin-top:10px; }
+
+  /* ── teléfono: lo que medía menos que un dedo ── */
+  @media (max-width:820px), (pointer:coarse){
+    .wa-tb{ width:44px !important; height:44px !important; font-size:15px !important; border-radius:3px !important; }
+    .wa-tt .sp{ gap:4px !important; }
+    .wa-b{ width:44px !important; height:44px !important; font-size:14px !important; }
+    #gate-badge{ min-height:44px !important; display:inline-flex !important; align-items:center !important;
+      padding:0 12px !important; top:calc(116px + env(safe-area-inset-top,0px)) !important; }
+  }
+</style>
+
+<div id="agents-run" role="dialog" aria-label="ACTION RUNNER">
+  <div class="ar-box">
+    <div class="ar-head">
+      <h3>ACTION RUNNER</h3>
+      <span class="ar-sub">agentes de verdad · vía /api/run</span>
+      <span class="ar-sp"></span>
+      <button class="ar-x" onclick="RUNNER.close()" aria-label="cerrar">✕</button>
+    </div>
+    <div id="ar-agents"></div>
+    <textarea id="ar-input" placeholder="¿Qué querés que haga el agente? Ej: dame los próximos 3 pasos para lanzar ViceGolfer."></textarea>
+    <div class="ar-row">
+      <button id="ar-runbtn" onclick="RUNNER.go()">▶ INVOCAR</button>
+      <button class="ar-link" onclick="RUNNER.verBase()">VER LA BASE DE AGENTES →</button>
+    </div>
+    <pre id="ar-out">Elegí un agente, escribí la tarea y apretá INVOCAR.</pre>
+    <div class="ar-nota" id="ar-nota"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── 1 · AGENTS: la base autoral sigue accesible desde el runner ── */
+  function verBase(){
+    if(!window.RUNNER) return;
+    RUNNER.close();
+    if(window.DASH && typeof DASH._origGoTo === 'function') DASH._origGoTo('agents');
+    else if(typeof window.goTo === 'function') window.goTo('agents');
+  }
+  function enganchar(){
+    if(!window.RUNNER || RUNNER.__pulida) return false;
+    RUNNER.verBase = verBase;
+    /* en un espejo fuera de Vercel, /api/run no existe: decirlo, no fingir */
+    var go = RUNNER.go;
+    var host = location.hostname;
+    var hayApi = /vercel\.app$/.test(host) || host === 'localhost' || host === '127.0.0.1';
+    var nota = document.getElementById('ar-nota');
+    if(nota) nota.textContent = hayApi ? 'cada respuesta sale de /api/run con tu token de invitado'
+                                      : 'acá es el espejo: los agentes corren en hk23universe.vercel.app';
+    RUNNER.go = function(){
+      if(!hayApi){
+        var out = document.getElementById('ar-out');
+        if(out) out.textContent = '⚠ ACÁ ES SOLO EL ESPEJO — LOS AGENTES CORREN EN hk23universe.vercel.app/universe-os';
+        return;
+      }
+      return go.apply(RUNNER, arguments);
+    };
+    RUNNER.__pulida = true;
+    return true;
+  }
+  /* Escape cierra el runner antes que cualquier cosa de abajo */
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    var p = document.getElementById('agents-run');
+    if(p && p.classList.contains('open') && window.RUNNER){ e.stopPropagation(); RUNNER.close(); }
+  }, true);
+  var ov = document.getElementById('agents-run');
+  if(ov) ov.addEventListener('click', function(e){ if(e.target === ov && window.RUNNER) RUNNER.close(); });
+
+  /* ── 2 · 🏛 MADRE: volver al mapa sin recargar ── */
+  function madre(){
+    var dock = document.getElementById('hk-dock');
+    if(!dock) return false;
+    var b = Array.prototype.find.call(dock.querySelectorAll('button.dk'), function(x){ return /MADRE/.test(x.textContent); });
+    if(!b || b.__pulida) return !!b;
+    b.onclick = function(){
+      try{ if(window.DASH && typeof DASH.closeWorld === 'function') DASH.closeWorld(); }catch(e){}
+      try{ var ar = document.getElementById('agents-run'); if(ar && ar.classList.contains('open')) RUNNER.close(); }catch(e){}
+      try{ if(window.DASH && typeof DASH._origGoTo === 'function') DASH._origGoTo('map'); else goTo('map'); }catch(e){}
+      try{ window.scrollTo(0,0); }catch(e){}
+    };
+    b.title = 'volver al planeta madre (sin recargar)';
+    b.__pulida = true;
+    return true;
+  }
+
+  var n = 0;
+  var t = setInterval(function(){
+    var a = enganchar(), m = madre();
+    if((a && m) || ++n > 60) clearInterval(t);
+  }, 200);
+  enganchar(); madre();
 })();
 </script>
 
