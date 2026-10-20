@@ -89,8 +89,8 @@ let r = await admin('resumen');
 ok(r.conteo.postulados === 4 && r.postulados.length === 4 && !('admin_token_sha256' in r.config), 'resumen: 4 postulaciones; no expone el hash de la clave');
 const id = (email) => r.postulados.find((p) => p.email === email).id;
 const a1 = await admin('aprobar', { id: id('ana@mail.com') });
-ok(a1.codigo === 'HK23-ANAP' && a1.fundador === 1 && Number(a1.comision) === 20 && /^[0-9a-f]{32}$/.test(a1.llave),
-  'Ana: código HK23-ANAP, fundador #1, 20%, llave de 32 hex');
+ok(a1.codigo === 'HK23-ANAP' && a1.fundador === 1 && Number(a1.comision) === 49 && /^[0-9a-f]{32}$/.test(a1.llave),
+  'Ana: código HK23-ANAP, fundador #1, 49%, llave de 32 hex');
 ok(/no_esta_en_revision/.test(await err('anon', `select socios_admin($1,'aprobar',$2::jsonb)`, [TOKEN, JSON.stringify({ id: id('ana@mail.com') })]) || ''),
   'aprobar dos veces: no_esta_en_revision');
 const a2 = await admin('aprobar', { id: id('bruno@mail.com'), codigo: 'golf-bruno' });
@@ -133,8 +133,12 @@ ok(/pedido_invalido/.test(await err('service_role', `select socios_registrar_sho
 const socioId = (await db.query(`select id from socios where codigo='HK23-CARLA'`)).rows[0].id;
 const prod = (await db.query(`select id from socios_productos where clave='agentes-pixel'`)).rows[0].id;
 await admin('venta', { socio_id: socioId, monto: '200', referencia: 'Transferencia 77', producto_id: prod, detalle: 'Pixel anual' });
-ok(/referencia_repetida/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: socioId, monto: 5, referencia: 'Transferencia 77' })]) || ''),
+ok(/referencia_repetida/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: socioId, monto: 5, referencia: 'Transferencia 77', producto_id: prod })]) || ''),
   'venta manual con referencia repetida rechazada');
+ok(/falta_producto/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: socioId, monto: 5, referencia: 'Sin producto' })]) || ''),
+  'venta manual sin producto rechazada: sin producto no se sabe el costo');
+ok(/comision_sobre_mitad/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: socioId, monto: 5, referencia: 'Mitad', producto_id: prod, comision: 50 })]) || ''),
+  'venta manual con comisión de 50% rechazada');
 ok(/monto_invalido/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: socioId, monto: 'abc', referencia: 'x' })]) || ''),
   'monto inválido rechazado con mensaje claro');
 
@@ -154,10 +158,44 @@ ok(!JSON.stringify(e).includes('@') && !JSON.stringify(e).includes(a1.llave), 'e
 
 // ---------- panel privado ----------
 const p = (await como('anon', `select socios_mi_panel($1) r`, [a2.llave])).rows[0].r;
-ok(p.codigo === 'GOLF-BRUNO' && p.fundador === 2 && p.ventas.length === 2 && Number(p.totales.monto) === 70 && Number(p.totales.comision) === 14,
-  'panel de Bruno: 2 ventas, US$70 netos, US$14 de comisión');
+ok(p.codigo === 'GOLF-BRUNO' && p.fundador === 2 && p.ventas.length === 2 && Number(p.totales.monto) === 70 && Number(p.totales.comision) === 13.03,
+  'panel de Bruno: US$70 netos; ganancia 70 × (1 − 62%) = 26,60; su 49% = US$13,03');
+const pc = (await como('anon', `select socios_mi_panel($1) r`, [a3.llave])).rows[0].r;
+ok(Number(pc.totales.comision) === 17, 'panel de Carla: venta de Pixel US$200, costo 15% → ganancia 170, su 10% = US$17');
+const pa = (await como('anon', `select socios_mi_panel($1) r`, [a1.llave])).rows[0].r;
+ok(Number(pa.totales.comision) === 7.45, 'panel de Ana: pedido de US$40 en la tienda → ganancia 15,20, su 49% = US$7,45');
 ok(/llave_invalida/.test(await err('anon', `select socios_mi_panel($1)`, ['0'.repeat(32)]) || ''), 'llave inexistente rechazada');
 ok(/llave_invalida/.test(await err('anon', `select socios_mi_panel($1)`, ["' or 1=1 --"]) || ''), 'llave con formato raro rechazada');
+
+// ---------- los números siempre cuadran a favor de HK23 ----------
+// poster real: lista US$17,63, el cliente paga 15,87 con el código; el costo (62%) se calcula sobre la lista
+await shop({ evento: 'pagado', pedido: '5006', nombre: '#1006', codigos: ['HK23-ANAP'], monto: 15.87 });
+await db.exec('set role service_role');
+await db.query(`select socios_registrar_shopify(p_evento=>'pagado', p_pedido=>'5007', p_nombre=>'#1007', p_codigos=>array['HK23-ANAP'], p_monto=>15.87, p_lista=>17.63)`);
+await db.exec('reset role');
+const v7 = (await db.query(`select lista, costo_pct, socios__ganancia(estado,monto,reembolsado,lista,costo_pct) g,
+  socios__comision(estado,monto,reembolsado,lista,costo_pct,comision_pct) c from socios_ventas where referencia='5007'`)).rows[0];
+ok(Number(v7.lista) === 17.63 && Number(v7.costo_pct) === 62 && Number(v7.g) === 4.94 && Number(v7.c) === 2.42,
+  'poster con descuento: ganancia 15,87 − 62% de 17,63 = 4,94; socia US$2,42; HK23 US$2,52');
+const v6 = (await db.query(`select socios__comision(estado,monto,reembolsado,lista,costo_pct,comision_pct) c from socios_ventas where referencia='5006'`)).rows[0];
+ok(Number(v6.c) > Number(v7.c), 'si Shopify no manda el precio de lista, se usa lo pagado (la versión con lista paga menos comisión)');
+ok(/comision_sobre_mitad/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ comision_fundador: '50' })]) || ''),
+  'comisión de fundador de 50% rechazada: HK23 siempre se queda con más de la mitad');
+await admin('config', { comision_fundador: '49.99' });
+ok((await db.query(`select value from socios_config where key='comision_fundador'`)).rows[0].value === '49.99', '49,99% se acepta');
+await admin('config', { comision_fundador: '49' });
+ok(/sin_margen/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ descuento: '40' })]) || ''),
+  'descuento de 40% rechazado: con el costo de la tienda (62%) no queda ganancia');
+const tienda = (await db.query(`select * from socios_productos where clave='tienda-hk23-studio'`)).rows[0];
+ok(/sin_margen/.test(await err('anon', `select socios_admin($1,'producto',$2::jsonb)`, [TOKEN, JSON.stringify({ ...tienda, costo_pct: 95 })]) || ''),
+  'costo de 95% en la tienda rechazado: con el descuento de 10% no queda ganancia');
+const peor = (await db.query(`
+  select max(socios__comision('valida', m, m * r, m / (1 - d), c, p) - socios__ganancia('valida', m, m * r, m / (1 - d), c) / 2) exceso,
+         min(socios__ganancia('valida', m, m * r, m / (1 - d), c)) minimo, count(*)::int n
+    from unnest(array[0.5, 3, 17.63, 57, 999.99]) m, unnest(array[0, 0.1, 0.3]) d, unnest(array[0, 15, 40, 62, 95]) c,
+         unnest(array[0, 10, 49, 49.99]) p, unnest(array[0, 0.5, 1]) r`)).rows[0];
+ok(Number(peor.exceso) <= 0.005 && Number(peor.minimo) >= 0,
+  `en ${peor.n} combinaciones de precio, descuento, costo, comisión y reembolso: la ganancia nunca es negativa y el socio nunca supera la mitad`);
 
 // ---------- productos y config ----------
 const np = await admin('producto', { nombre: 'Guía de prompts', estado: 'disponible', url: 'https://hk23hub.gumroad.com/l/x', color: '#00F0FF' });
@@ -170,8 +208,10 @@ await admin('producto', { id: np.id, nombre: 'Guía de prompts', estado: 'oculto
 ok(!(await estado()).productos.some((x) => x.nombre === 'Guía de prompts'), 'un producto oculto no sale en la página');
 ok(/ajuste_desconocido/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ admin_token_sha256: 'x' })]) || ''),
   'la clave no se puede cambiar desde el panel');
-ok(/porcentaje_invalido/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ comision_fundador: '95' })]) || ''),
-  'comisión fuera de rango rechazada');
+ok(/porcentaje_invalido/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ descuento: '95' })]) || ''),
+  'descuento fuera de rango rechazado');
+ok(/porcentaje_invalido/.test(await err('anon', `select socios_admin($1,'config',$2::jsonb)`, [TOKEN, JSON.stringify({ comision_normal: 'diez' })]) || ''),
+  'comisión que no es número rechazada');
 
 // ---------- topes por IP ----------
 await db.exec(`set request.headers = '{"x-forwarded-for":"1.2.3.4, 10.0.0.1"}'`);

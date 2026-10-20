@@ -68,6 +68,10 @@ header.top{border-bottom:var(--borde);background:var(--crema)}
 @media(max-width:980px){.hero .shell{grid-template-columns:1fr}}
 .hero-copy{display:flex;flex-direction:column;gap:26px}
 .acciones{display:flex;gap:16px;flex-wrap:wrap}
+.sticker{align-self:flex-start;display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;background:var(--lima);border:var(--borde);
+  border-radius:var(--r);box-shadow:6px 6px 0 var(--tinta);padding:12px 18px;transform:rotate(-2deg)}
+.sticker b{font-size:clamp(2.6rem,5.4vw,4rem);line-height:.9;letter-spacing:-.05em}
+.sticker span{font:700 .82rem var(--mono);letter-spacing:.05em;text-transform:uppercase;max-width:22ch}
 .tarjeta-estado{background:var(--blanco);border:var(--borde);border-radius:var(--r);box-shadow:8px 8px 0 var(--tinta);padding:28px;display:flex;flex-direction:column;gap:16px}
 .chip{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font:700 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;
   border:var(--borde);border-radius:999px;padding:5px 12px;background:var(--crema)}
@@ -113,6 +117,9 @@ a.producto{transition:transform .12s,box-shadow .12s}
 .estado{font:700 .72rem var(--mono);letter-spacing:.05em;text-transform:uppercase;border:var(--borde);border-radius:999px;padding:4px 10px}
 .estado.si{background:var(--tinta);color:var(--blanco)}
 .estado.no{background:var(--blanco);border-style:dashed}
+.parte{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;border-top:2px dashed var(--tinta);padding-top:10px;margin-top:2px}
+.parte b{font-size:1.6rem;letter-spacing:-.04em;line-height:1}
+.parte span{font:700 .72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--gris)}
 
 /* cómo funciona */
 .negro{background:var(--tinta);color:var(--crema)}
@@ -215,6 +222,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       <div class="ojo">Programa Freelancers Fundadores · HK23</div>
       <h1 id="titulo">Vende lo que hace HK23. Sé de los primeros.</h1>
       <p class="lede">Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie: agentes de IA, apps, arte y guías. Los fundadores prueban cada producto primero y ganan más por cada venta.</p>
+      <div class="sticker" id="heroPct" hidden><b id="heroPctNum">—</b><span id="heroPctTxt">de cada venta para los fundadores</span></div>
       <div class="acciones">
         <a class="btn" href="#postular" id="ctaHero">Quiero ser fundador</a>
         <a class="btn alt" href="#catalogo">Ver qué vendes</a>
@@ -280,7 +288,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     <div class="pasos">
       <div class="paso" style="background:var(--amarillo)"><b>01</b><h3>Postulas</h3><p>Un formulario corto. Si quedas, recibes tu código personal y un panel privado con tus ventas.</p></div>
       <div class="paso" style="background:var(--cian)"><b>02</b><h3>Compartes</h3><p id="pasoCompartes">Tu código da un descuento a tus clientes y deja cada venta a tu nombre. En la tienda también funciona como link directo.</p></div>
-      <div class="paso" style="background:var(--morado)"><b>03</b><h3>Cobras</h3><p>Ves cada venta en tu panel. Pagamos cada mes la comisión de las ventas pagadas del mes anterior, descontando devoluciones.</p></div>
+      <div class="paso" style="background:var(--morado)"><b>03</b><h3>Cobras</h3><p>Ves cada venta y tu parte de la ganancia en tu panel. Pagamos cada mes lo de las ventas pagadas del mes anterior, descontando devoluciones.</p></div>
     </div>
   </div>
 </section>
@@ -290,13 +298,13 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     <div class="cabeza">
       <div class="ojo">Por qué entrar ahora</div>
       <h2 id="fundTitulo">Los primeros se llevan más.</h2>
-      <p class="lede muted">Los fundadores prueban el producto antes que nadie y por eso ganan más. Cuando se llenan los cupos, el programa sigue con la comisión normal.</p>
+      <p class="lede muted" id="fundLede">Los fundadores prueban el producto antes que nadie y por eso ganan más. Cuando se llenan los cupos, el programa sigue con la comisión normal.</p>
     </div>
     <div class="comparar">
       <div class="plan destaca">
         <div class="ojo">Fundador · etapa 1</div>
         <div class="pct" id="pctFundador">—</div>
-        <div class="muted" style="color:var(--tinta)">de comisión por cada venta</div>
+        <div class="muted" style="color:var(--tinta)">de la ganancia de cada venta</div>
         <ul>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Pruebas cada producto antes de que salga al público.</span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Sello «Fundador #N» para siempre en el ranking.</span></li>
@@ -307,7 +315,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       <div class="plan">
         <div class="ojo">Socio · etapa 2</div>
         <div class="pct" id="pctNormal">—</div>
-        <div class="muted">de comisión por cada venta</div>
+        <div class="muted">de la ganancia de cada venta</div>
         <ul>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Abierto a más freelancers cuando terminan los cupos de fundador.</span></li>
           <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Entra viendo el ranking con las ventas reales de los fundadores.</span></li>
@@ -530,14 +538,36 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   }
 
   function pintarComisiones() {
-    $('pctFundador').textContent = pct(E.comision_fundador);
+    var f = num(E.comision_fundador);
+    $('pctFundador').textContent = pct(f);
     $('pctNormal').textContent = pct(E.comision_normal);
+    var mitad = f >= 45 && f < 50;
+    if (f > 0) {
+      $('heroPct').hidden = false;
+      $('heroPctNum').textContent = pct(f);
+      $('heroPctTxt').textContent = (mitad ? 'Casi la mitad de la ganancia de cada venta, ' : 'De la ganancia de cada venta, ') + 'para los fundadores';
+      $('fundLede').textContent = 'Los fundadores se llevan ' + pct(f) + ' de la ganancia de cada venta' + (mitad ? ': nos la repartimos casi a medias. ' : '. ') +
+        'Es más de lo que nos conviene, y por eso solo hay ' + (num(E.cupos) > 0 ? num(E.cupos) + ' cupos' : 'cupos limitados') +
+        '. Cuando se llenan, el programa sigue con la comisión normal.';
+    }
     $('cuposTxt').textContent = num(E.cupos) > 0 ? ('Solo ' + num(E.cupos) + ' cupos.') : 'Cupos limitados.';
     if (num(E.descuento) > 0) {
       $('pasoCompartes').textContent = 'Tu código da ' + pct(E.descuento) + ' de descuento a tus clientes y deja cada venta a tu nombre. En la tienda también funciona como link directo.';
     }
-    $('faqGano').textContent = 'Fundadores: ' + pct(E.comision_fundador) + ' de cada venta pagada hecha con tu código. Desde la etapa 2: ' + pct(E.comision_normal) +
-      '. Se calcula sobre el precio de los productos, sin envío ni impuestos, y descuenta devoluciones.';
+    $('faqGano').textContent = 'Fundadores: ' + pct(E.comision_fundador) + ' de la ganancia de cada venta pagada con tu código. Desde la etapa 2: ' + pct(E.comision_normal) +
+      '. La ganancia es lo que paga el cliente, sin envío ni impuestos, menos lo que cuesta fabricar y cobrar el producto. ' +
+      'En lo digital casi todo es ganancia; en lo impreso, menos. Cada producto muestra cuánto te llevas de lo que paga el cliente. Las devoluciones se descuentan.';
+  }
+
+  // tasa que rige hoy para un nuevo socio: fundador mientras haya cupos en la etapa 1
+  function tasaVigente() {
+    return (num(E.etapa) >= 2 || cuposLlenos()) ? num(E.comision_normal) : num(E.comision_fundador);
+  }
+  // cuánto se lleva el socio de lo que paga el cliente: su % de la ganancia
+  function parteDe(p) {
+    var c = num(p.costo_pct) / 100, d = p.canal === 'shopify' ? num(E.descuento) / 100 : 0;
+    if (d >= 1) return 0;
+    return tasaVigente() * Math.max(1 - d - c, 0) / (1 - d);
   }
 
   function tarjetaProducto(p) {
@@ -550,7 +580,12 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       el('span', { clase: 'precio', texto: p.precio || 'Precio al lanzar' }),
       el('span', { clase: 'estado ' + (disponible ? 'si' : 'no'), texto: disponible ? 'Disponible' : 'Próximamente' })
     ]);
-    var cuerpo = el('div', { clase: 'cuerpo' }, [el('h3', { texto: p.nombre }), p.descripcion ? el('p', { texto: p.descripcion }) : null, pie]);
+    var fundador = !(num(E.etapa) >= 2 || cuposLlenos());
+    var parte = el('div', { clase: 'parte' }, [
+      el('b', { texto: '~' + Math.round(parteDe(p)) + '%' }),
+      el('span', { texto: (fundador ? 'para ti como fundador' : 'para ti') + ', de lo que paga el cliente' })
+    ]);
+    var cuerpo = el('div', { clase: 'cuerpo' }, [el('h3', { texto: p.nombre }), p.descripcion ? el('p', { texto: p.descripcion }) : null, parte, pie]);
     if (disponible) {
       return el('a', { clase: 'producto', href: seguro(p.url), target: '_blank', rel: 'noopener noreferrer',
                        'aria-label': p.nombre + ': disponible. Abre el producto en otra pestaña.' }, [bloque, cuerpo]);
@@ -691,7 +726,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     $('panel').hidden = false;
     $('panelOjo').textContent = P.fundador ? 'Tu panel · Fundador #' + P.fundador : 'Tu panel · Socio';
     $('panelTitulo').textContent = 'Hola, ' + (P.alias || P.nombre) + '.';
-    $('panelLede').textContent = 'Ganas ' + pct(P.comision) + ' de cada venta pagada con tu código.' +
+    $('panelLede').textContent = 'Ganas ' + pct(P.comision) + ' de la ganancia de cada venta pagada con tu código.' +
       (num(P.descuento) > 0 ? ' Tus clientes obtienen ' + pct(P.descuento) + ' de descuento en la tienda.' : '') +
       ' Guarda este link: es tu acceso privado.';
     $('panelCodigo').textContent = P.codigo;

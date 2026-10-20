@@ -60,9 +60,11 @@ export function argumentos(tema: string, o: Record<string, any>, cuerpo = ''): R
       .filter((c: string) => c.length > 0);
     const pedido = idExacto(cuerpo, /gid:\/\/shopify\/Order\/(\d+)/, o.id);
     if (!codigos.length || !pedido) return null;
-    // base de la comisión: productos después de descuentos, sin envío ni impuestos (moneda de la tienda)
+    // lo que pagó el cliente por los productos: después de descuentos, sin envío ni impuestos (moneda de la tienda)
     const monto = numero(o.current_subtotal_price ?? o.subtotal_price ?? o.total_price);
-    return { p_evento: 'pagado', p_pedido: pedido, p_nombre: String(o.name || ''), p_codigos: codigos, p_monto: monto };
+    // precio de lista (antes del descuento): el costo de fabricar se calcula sobre este, no sobre lo rebajado
+    const lista = numero(o.total_line_items_price) || Math.round((monto + numero(o.current_total_discounts ?? o.total_discounts)) * 100) / 100;
+    return { p_evento: 'pagado', p_pedido: pedido, p_nombre: String(o.name || ''), p_codigos: codigos, p_monto: monto, p_lista: lista };
   }
   if (tema === 'orders/cancelled') {
     const pedido = idExacto(cuerpo, /gid:\/\/shopify\/Order\/(\d+)/, o.id);

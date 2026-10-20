@@ -19,7 +19,8 @@
 | Ventas de la tienda | Webhooks de Shopify firmados (HMAC) → Edge Function `socios-shopify` → `socios_registrar_shopify` (solo service role) | Automático y verificable. No suma funciones a Vercel |
 | Datos reales | Etapa 1: el ranking no se publica. Etapa 2: alias, ventas y monto netos de reembolsos | Pedido del dueño: nada inventado |
 | Consentimiento | Postular exige aceptar que alias y ventas se publiquen en la etapa 2 | Pedido del dueño |
-| Fundadores | Primeros N aprobados en etapa 1 → número de fundador y comisión mayor | «Algo mejor por probar el producto» |
+| Fundadores | Primeros N aprobados en etapa 1 → número de fundador y comisión mayor (49 %) | «Algo mejor por probar el producto». El dueño apuesta a volumen: «100 ventas regalando 49 % es mejor que 5 de 100 % mías» |
+| Base de la comisión | % de la **ganancia**: lo pagado − costo del producto (costo % × precio de lista). Comisión < 50 %. Descuento + costo de la tienda < 100 % | «Si te doy números, que siempre cuadren a mi favor y haya margen». Con 49 % sobre el precio, los posters PROOF OF WORK (57 % de costo real en Printify) se venderían a pérdida |
 | Catálogo | Tabla editable desde el panel: disponible, próximamente u oculto | «Si está en esta página, lo puede vender» |
 
 ## Piezas

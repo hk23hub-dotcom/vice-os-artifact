@@ -8,12 +8,12 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const HTML = fs.readFileSync(process.env.REPO + '/socios.html', 'utf8');
 
 const PRODUCTOS = [
-  { clave: 'agentes-pixel', nombre: 'Ecosistema de agentes Pixel', marca: 'Pixel', categoria: 'AGENTES IA', descripcion: 'Agentes que publican.', precio: '', url: null, canal: 'directo', estado: 'proximamente', color: '#AAFF00' },
-  { clave: 'tienda-hk23-studio', nombre: 'Tienda HK23 STUDIO', marca: 'Proof of Work', categoria: 'ARTE', descripcion: 'Posters.', precio: 'desde US$3', url: 'https://fcqevq-jr.myshopify.com', canal: 'shopify', estado: 'disponible', color: '#FF3A1F' },
-  { clave: 'guia', nombre: '<img src=x onerror="window.__xss=1">', marca: 'Guía', categoria: 'GUÍA', descripcion: '', precio: 'US$9', url: 'https://hk23hub.gumroad.com/l/guia', canal: 'directo', estado: 'disponible', color: 'red;background:url(x)' },
+  { clave: 'agentes-pixel', nombre: 'Ecosistema de agentes Pixel', marca: 'Pixel', categoria: 'AGENTES IA', descripcion: 'Agentes que publican.', precio: '', url: null, canal: 'directo', costo_pct: 15, estado: 'proximamente', color: '#AAFF00' },
+  { clave: 'tienda-hk23-studio', nombre: 'Tienda HK23 STUDIO', marca: 'Proof of Work', categoria: 'ARTE', descripcion: 'Posters.', precio: 'desde US$3', url: 'https://fcqevq-jr.myshopify.com', canal: 'shopify', costo_pct: 62, estado: 'disponible', color: '#FF3A1F' },
+  { clave: 'guia', nombre: '<img src=x onerror="window.__xss=1">', marca: 'Guía', categoria: 'GUÍA', descripcion: '', precio: 'US$9', url: 'https://hk23hub.gumroad.com/l/guia', canal: 'directo', costo_pct: 15, estado: 'disponible', color: 'red;background:url(x)' },
 ];
 const BASE = { ahora: new Date().toISOString(), etapa: 1, cupos: 20, fundadores: 0, interesados: 3, mostrar_desde: 10,
-  comision_fundador: 20, comision_normal: 10, descuento: 10, tienda: 'https://fcqevq-jr.myshopify.com', productos: PRODUCTOS, ranking: null, totales: null };
+  comision_fundador: 49, comision_normal: 10, descuento: 10, tienda: 'https://fcqevq-jr.myshopify.com', productos: PRODUCTOS, ranking: null, totales: null };
 const futuro = (ms) => new Date(Date.now() + ms).toISOString();
 
 function montar({ estados, rpcs = {}, url = 'https://hk23universe.vercel.app/socios' }) {
@@ -53,6 +53,13 @@ const txt = (d, id) => d.getElementById(id).textContent;
   ok(txt(d, 'estadoChipTxt') === 'Próximamente' && /hora de Chile/.test(txt(d, 'estadoFecha')), 'muestra la fecha de apertura en hora de Chile: ' + txt(d, 'estadoFecha'));
   ok(!d.getElementById('cuenta').hidden && txt(d, 'cD') === '3', 'cuenta regresiva visible (3 días)');
   ok(!/anotadas/.test(txt(d, 'cifras')), 'con 3 interesados (menos de 10) no se muestra el contador');
+  ok(!d.getElementById('heroPct').hidden && txt(d, 'heroPctNum') === '49%' && txt(d, 'pctFundador') === '49%',
+    'el 49% de fundador se destaca en el inicio y en la comparación');
+  ok(/de la ganancia/.test(txt(d, 'fundLede')) && /casi a medias/.test(txt(d, 'fundLede')) && /20 cupos/.test(txt(d, 'fundLede')),
+    'explica que es 49% de la ganancia, casi a medias, y que por eso hay 20 cupos');
+  const partes = [...d.querySelectorAll('#productos .parte b')].map((b) => b.textContent);
+  ok(partes[0] === '~42%' && partes[1] === '~15%', 'cada producto muestra la parte real: Pixel ~42% (costo 15%), tienda ~15% (costo 62% y 10% de descuento) → ' + partes.join(', '));
+  ok(/de lo que paga el cliente/.test(d.querySelector('#productos .parte').textContent), 'la parte se explica: de lo que paga el cliente');
   ok(d.getElementById('fAlias').closest('[data-modo]').hidden && txt(d, 'enviar') === 'Anotarme', 'formulario en modo lista de espera');
   const cards = d.querySelectorAll('#productos .producto');
   ok(cards.length === 3, 'pinta los 3 productos del catálogo');

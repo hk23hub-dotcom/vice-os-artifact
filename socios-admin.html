@@ -125,6 +125,7 @@ details .cont{padding:0 1rem 1rem}
             <label>Dónde se vende<select id="pCanal"><option value="directo">Fuera de Shopify (link con ?ref=)</option><option value="shopify">Tienda Shopify (código de descuento)</option></select></label>
             <label>Estado<select id="pEstado"><option value="proximamente">Próximamente</option><option value="disponible">Disponible</option><option value="oculto">Oculto</option></select></label>
             <label>Color<select id="pColor"><option value="#FFD200">Amarillo</option><option value="#00F0FF">Cian</option><option value="#B84DFF">Morado</option><option value="#AAFF00">Lima</option><option value="#FF3A1F">Rojo</option></select></label>
+            <label>Costo % <span class="dim">fabricar + enviar + cobrar, sobre el precio</span><input id="pCosto" type="number" min="0" max="95" step="0.5" value="15"></label>
             <label>Orden<input id="pOrden" type="number" step="1" value="100"></label>
             <label style="grid-column:1/-1">Descripción<textarea id="pDescripcion" maxlength="300"></textarea></label>
             <div class="row"><button class="ok" type="submit">Guardar producto</button><button type="button" id="pNuevo">Limpiar</button></div>
@@ -140,13 +141,16 @@ details .cont{padding:0 1rem 1rem}
         <label>Apertura de postulaciones (tu hora local)<input id="cAbre" type="datetime-local" required></label>
         <label>Etapa<select id="cEtapa"><option value="1">1 · Fundadores</option><option value="2">2 · Ranking público</option></select></label>
         <label>Cupos de fundador<input id="cCupos" type="number" min="0" step="1"></label>
-        <label>Comisión fundador %<input id="cFund" type="number" min="0" max="90" step="0.5"></label>
-        <label>Comisión etapa 2 %<input id="cNormal" type="number" min="0" max="90" step="0.5"></label>
+        <label>Comisión fundador % <span class="dim">de la ganancia, menos de 50</span><input id="cFund" type="number" min="0" max="49.99" step="0.01"></label>
+        <label>Comisión etapa 2 % <span class="dim">de la ganancia, menos de 50</span><input id="cNormal" type="number" min="0" max="49.99" step="0.01"></label>
         <label>Descuento del código %<input id="cDesc" type="number" min="0" max="90" step="0.5"></label>
         <label>Mostrar «N anotados» desde<input id="cMostrar" type="number" min="0" step="1"></label>
         <button class="ok" type="submit">Guardar</button>
       </form>
       <p class="msg" id="cMsg" aria-live="polite"></p>
+      <h2 style="margin-top:1.4rem">¿Cuadra? Por cada US$100 a precio de lista</h2>
+      <p class="msg">Se recalcula mientras escribes. La comisión es un % de la ganancia y nunca llega a la mitad: HK23 siempre se queda con más que el socio.</p>
+      <div id="cuadra"></div>
       <p class="nota">Pasar a la etapa 2 publica el ranking con las ventas reales en la página. El descuento solo se muestra en la página: el que vale es el que configures en Shopify para cada código.</p>
     </section>
 
@@ -178,7 +182,11 @@ details .cont{padding:0 1rem 1rem}
     'socios: falta_nombre': 'Falta el nombre.', 'socios: url_invalida': 'El link debe empezar con https://',
     'socios: falta_url': 'Un producto disponible necesita su link.', 'socios: fecha_invalida': 'Fecha inválida.',
     'socios: porcentaje_invalido': 'Porcentaje entre 0 y 90.', 'socios: numero_invalido': 'Número inválido.',
-    'socios: comision_invalida': 'Comisión entre 0 y 90.', 'socios: no_existe': 'No existe.'
+    'socios: comision_invalida': 'Comisión entre 0 y 90.', 'socios: no_existe': 'No existe.',
+    'socios: comision_sobre_mitad': 'La comisión tiene que ser menor a 50 %: así HK23 siempre se queda con la mayor parte de la ganancia.',
+    'socios: sin_margen': 'Con ese costo y ese descuento no queda ganancia en la tienda. Baja el descuento o revisa el costo.',
+    'socios: falta_producto': 'Elige el producto: su costo define la ganancia.',
+    'socios: costo_invalido': 'Costo entre 0 y 95 %.'
   };
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, attrs, hijos) {
@@ -320,8 +328,7 @@ details .cont{padding:0 1rem 1rem}
     var vs = $('vSocio'); vaciar(vs);
     lista.forEach(function (s) { vs.appendChild(el('option', { value: String(s.id), texto: (s.alias || s.nombre) + ' · ' + s.codigo })); });
     var vp = $('vProducto'); vaciar(vp);
-    vp.appendChild(el('option', { value: '', texto: '— sin producto —' }));
-    (R.productos || []).forEach(function (p) { vp.appendChild(el('option', { value: String(p.id), texto: p.nombre })); });
+    (R.productos || []).forEach(function (p) { vp.appendChild(el('option', { value: String(p.id), texto: p.nombre + ' · costo ' + num(p.costo_pct) + '%' })); });
   }
 
   function pintarVentas() {
@@ -338,19 +345,22 @@ details .cont{padding:0 1rem 1rem}
           try { await admin('anular', { id: v.id }); cargar(); } catch (e) { acc.disabled = false; acc.textContent = e.message; }
         });
       }
-      var neto = Math.max(num(v.monto) - num(v.reembolsado), 0);
+      var anulada = v.estado === 'anulada';
+      var paraHK = Math.max(num(v.ganancia) - num(v.comision), 0);
       tb.appendChild(el('tr', null, [
         el('td', { texto: fecha(v.fecha) }),
         el('td', null, [el('b', { texto: v.socio || '' }), el('br'), el('code', { texto: v.codigo || '' })]),
         el('td', { texto: (v.origen === 'shopify' ? 'Shopify ' : 'Manual ') + (v.detalle || v.referencia || '') + (v.producto ? ' · ' + v.producto : '') }),
         el('td', { clase: 'num', texto: usd(v.monto) + (num(v.reembolsado) > 0 ? ' − ' + usd(v.reembolsado) : '') }),
-        el('td', { clase: 'num', texto: v.estado === 'anulada' ? 'Anulada' : usd(neto * num(v.comision_pct) / 100) }),
+        el('td', { clase: 'num', texto: anulada ? '—' : usd(v.ganancia) }),
+        el('td', { clase: 'num', texto: anulada ? 'Anulada' : usd(v.comision) + ' (' + num(v.comision_pct) + '%)' }),
+        el('td', { clase: 'num', texto: anulada ? '—' : usd(paraHK) }),
         el('td', null, [acc])
       ]));
     });
     box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
-      el('thead', null, [el('tr', null, ['Fecha', 'Socio', 'Qué', 'Monto', 'Comisión', ''].map(function (h, i) {
-        return el('th', { scope: 'col', clase: (i === 3 || i === 4) ? 'num' : '', texto: h });
+      el('thead', null, [el('tr', null, ['Fecha', 'Socio', 'Qué', 'Pagó el cliente', 'Ganancia', 'Socio', 'HK23', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: (i >= 3 && i <= 6) ? 'num' : '', texto: h });
       }))]), tb])]));
   }
 
@@ -364,13 +374,46 @@ details .cont{padding:0 1rem 1rem}
         el('td', null, [el('span', { clase: 'swatch', estilo: 'background:' + (/^#[0-9A-Fa-f]{6}$/.test(p.color) ? p.color : '#FFD200') }), el('b', { texto: p.nombre })]),
         el('td', { texto: p.estado === 'disponible' ? 'Disponible' : p.estado === 'oculto' ? 'Oculto' : 'Próximamente' }),
         el('td', { texto: p.canal === 'shopify' ? 'Shopify' : 'Directo' }),
+        el('td', { clase: 'num', texto: num(p.costo_pct) + '%' }),
         el('td', { texto: p.precio || '—' }),
         el('td', null, [p.url ? el('code', { texto: p.url }) : el('span', { clase: 'dim', texto: 'sin link' })]),
         el('td', null, [b])
       ]));
     });
     box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
-      el('thead', null, [el('tr', null, ['Producto', 'Estado', 'Canal', 'Precio', 'Link', ''].map(function (h) { return el('th', { scope: 'col', texto: h }); }))]), tb])]));
+      el('thead', null, [el('tr', null, ['Producto', 'Estado', 'Canal', 'Costo', 'Precio', 'Link', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: i === 3 ? 'num' : '', texto: h });
+      }))]), tb])]));
+  }
+
+  // ¿Cuadra? Por cada US$100 a precio de lista de cada producto, con los números que hay en el formulario.
+  function pintarCuadra() {
+    var box = $('cuadra'); if (!box || !R) return; vaciar(box);
+    var leer = function (id, def) { var v = Number($(id).value); return isFinite(v) && $(id).value !== '' ? v : def; };
+    var f = leer('cFund', num(R.config.comision_fundador)), n = leer('cNormal', num(R.config.comision_normal)), d = leer('cDesc', num(R.config.descuento));
+    var tb = el('tbody'), malas = 0;
+    (R.productos || []).filter(function (p) { return p.estado !== 'oculto'; }).forEach(function (p) {
+      var desc = p.canal === 'shopify' ? d : 0;
+      var paga = 100 - desc, costo = num(p.costo_pct), ganancia = Math.max(paga - costo, 0);
+      var socio = ganancia * f / 100, hk = ganancia - socio;
+      var cuadra = f < 50 && n < 50 && paga - costo > 0;
+      if (!cuadra) malas++;
+      tb.appendChild(el('tr', null, [
+        el('td', { texto: p.nombre }),
+        el('td', { clase: 'num', texto: usd(paga) }),
+        el('td', { clase: 'num', texto: '− ' + usd(costo) }),
+        el('td', { clase: 'num', texto: usd(ganancia) }),
+        el('td', { clase: 'num', texto: usd(socio) }),
+        el('td', { clase: 'num', texto: usd(hk) }),
+        el('td', { texto: cuadra ? 'Cuadra' : 'No cuadra', estilo: 'color:' + (cuadra ? 'var(--lima)' : 'var(--rojo)') + ';font-family:var(--mono)' })
+      ]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Producto', 'Cliente paga', 'Costo', 'Ganancia', 'Fundador', 'HK23', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: (i >= 1 && i <= 5) ? 'num' : '', texto: h });
+      }))]), tb])]));
+    if (f >= 50 || n >= 50) box.appendChild(el('p', { clase: 'msg bad', texto: MENSAJES['socios: comision_sobre_mitad'] }));
+    else if (malas) box.appendChild(el('p', { clase: 'msg bad', texto: MENSAJES['socios: sin_margen'] }));
   }
 
   function editarProducto(p) {
@@ -378,6 +421,7 @@ details .cont{padding:0 1rem 1rem}
     $('pNombre').value = p ? p.nombre : ''; $('pMarca').value = p ? p.marca : ''; $('pCategoria').value = p ? p.categoria : '';
     $('pPrecio').value = p ? p.precio : ''; $('pUrl').value = p && p.url ? p.url : ''; $('pCanal').value = p ? p.canal : 'directo';
     $('pEstado').value = p ? p.estado : 'proximamente'; $('pOrden').value = p ? String(p.orden) : '100';
+    $('pCosto').value = p ? String(num(p.costo_pct)) : '15';
     $('pDescripcion').value = p ? p.descripcion : '';
     var col = $('pColor'); col.value = p ? p.color : '#FFD200'; if (col.value === '') col.value = '#FFD200';
     $('pTitulo').textContent = p ? 'Editar: ' + p.nombre : 'Agregar un producto';
@@ -395,6 +439,7 @@ details .cont{padding:0 1rem 1rem}
     $('cAbre').value = aLocal(c.abre); $('cEtapa').value = c.etapa || '1'; $('cCupos').value = c.cupos || '';
     $('cFund').value = c.comision_fundador || ''; $('cNormal').value = c.comision_normal || '';
     $('cDesc').value = c.descuento || ''; $('cMostrar').value = c.mostrar_desde || '';
+    pintarCuadra();
   }
 
   function pintarLista() {
@@ -431,12 +476,13 @@ details .cont{padding:0 1rem 1rem}
     ev.preventDefault();
     var d = { nombre: $('pNombre').value, marca: $('pMarca').value, categoria: $('pCategoria').value, precio: $('pPrecio').value,
               url: $('pUrl').value.trim(), canal: $('pCanal').value, estado: $('pEstado').value, color: $('pColor').value,
-              orden: $('pOrden').value, descripcion: $('pDescripcion').value };
+              orden: $('pOrden').value, costo_pct: $('pCosto').value, descripcion: $('pDescripcion').value };
     if ($('pId').value) d.id = $('pId').value;
     try { await admin('producto', d); msg('pMsg', 'Producto guardado.', 'good'); editarProducto(null); $('dProducto').open = true; msg('pMsg', 'Producto guardado.', 'good'); cargar(); }
     catch (e) { msg('pMsg', e.message, 'bad'); }
   });
   $('pNuevo').addEventListener('click', function () { editarProducto(null); });
+  ['cFund', 'cNormal', 'cDesc'].forEach(function (id) { $(id).addEventListener('input', pintarCuadra); });
 
   $('fVenta').addEventListener('submit', async function (ev) {
     ev.preventDefault();

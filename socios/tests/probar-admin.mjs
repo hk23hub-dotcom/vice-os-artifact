@@ -84,6 +84,8 @@ let P = abrir('socios.html', 'https://hk23universe.vercel.app/socios');
 await wait(120);
 ok(P.d.getElementById('estadoChipTxt').textContent === 'Próximamente' && P.d.getElementById('cD').textContent === '4',
   'pública: próximamente, faltan 4 días y algo');
+ok(!P.d.getElementById('heroPct').hidden && P.d.getElementById('heroPctNum').textContent === '49%' && /Casi la mitad/.test(P.d.getElementById('heroPctTxt').textContent),
+  'pública: el inicio destaca 49% «casi la mitad de cada venta» desde la base');
 P.d.getElementById('fNombre').value = '<img src=x onerror=alert(1)> Ana';
 P.d.getElementById('fEmail').value = 'ana@mail.com';
 submit(P.w, P.d, 'form');
@@ -98,6 +100,27 @@ ok(A.d.querySelectorAll('#lista tbody tr').length === 1 && !A.d.querySelector('#
 click(A.w, A.d.getElementById('copiarCorreos'));
 await wait(20);
 ok(A.copiado.pop() === 'ana@mail.com', 'copia los correos de la lista para avisarles');
+
+// ¿Cuadra?: con 49% de fundador, 10% de descuento y la tienda a 62% de costo, todo cuadra a favor de HK23
+const cuadra = () => [...A.d.querySelectorAll('#cuadra tbody tr')].map((tr) => [...tr.children].map((td) => td.textContent));
+let filasC = cuadra();
+const tiendaC = filasC.find((r) => r[0] === 'Tienda HK23 STUDIO');
+ok(filasC.length === 7 && filasC.every((r) => r[6] === 'Cuadra'), '¿Cuadra?: los 7 productos cuadran con los números actuales');
+ok(tiendaC[1] === 'US$90' && tiendaC[3] === 'US$28' && tiendaC[4] === 'US$13,72' && tiendaC[5] === 'US$14,28',
+  'tienda por US$100: cliente paga 90, ganancia 28, fundador 13,72, HK23 14,28 → ' + tiendaC.join(' | '));
+A.d.getElementById('cFund').value = '50';
+A.d.getElementById('cFund').dispatchEvent(new A.w.Event('input'));
+ok(cuadra().every((r) => r[6] === 'No cuadra') && /menor a 50/.test(A.d.getElementById('cuadra').textContent), 'al escribir 50% se marca en rojo al tiro');
+submit(A.w, A.d, 'fConfig');
+await wait(150);
+ok(/menor a 50/.test(A.d.getElementById('cMsg').textContent), 'guardar 50% lo rechaza la base con el motivo');
+A.d.getElementById('cFund').value = '49';
+A.d.getElementById('cDesc').value = '40';
+A.d.getElementById('cDesc').dispatchEvent(new A.w.Event('input'));
+ok(cuadra().find((r) => r[0] === 'Tienda HK23 STUDIO')[6] === 'No cuadra', 'descuento de 40% con costo de 62%: la tienda no cuadra');
+A.d.getElementById('cDesc').value = '10';
+A.d.getElementById('cDesc').dispatchEvent(new A.w.Event('input'));
+
 const pasado = new Date(Date.now() - 60000);
 const z = (n) => String(n).padStart(2, '0');
 A.d.getElementById('cAbre').value = `${pasado.getFullYear()}-${z(pasado.getMonth() + 1)}-${z(pasado.getDate())}T${z(pasado.getHours())}:${z(pasado.getMinutes())}`;
@@ -136,7 +159,7 @@ await wait(150);
 ok(/fundador #1/.test(tarjeta.textContent) && /ANA-PIXEL/.test(tarjeta.textContent), 'aprobada como fundadora #1 con el código ANA-PIXEL');
 await wait(1000);
 const anaOk = await fila(`select * from socios where email='ana@mail.com'`);
-ok(anaOk.estado === 'aprobado' && anaOk.codigo === 'ANA-PIXEL' && Number(anaOk.comision) === 20, 'en la base: aprobada, código y 20%');
+ok(anaOk.estado === 'aprobado' && anaOk.codigo === 'ANA-PIXEL' && Number(anaOk.comision) === 49, 'en la base: aprobada, código y 49%');
 const bLink = btn(A.d.getElementById('socios'), 'Copiar link del panel');
 click(A.w, bLink);
 await wait(20);
@@ -161,13 +184,18 @@ await wait(200);
 ok(A.d.getElementById('vMsg').textContent === 'Esa referencia ya está registrada.', 'referencia repetida: mensaje claro');
 await wait(300);
 ok(A.d.querySelectorAll('#ventas tbody tr').length === 2 && /US\$155,5/.test(A.d.getElementById('cifras').textContent), 'el panel suma US$155,5 vendidos');
+const filaPixel = [...A.d.querySelectorAll('#ventas tbody tr')].find((tr) => /Transferencia 0042/.test(tr.textContent));
+const celdas = [...filaPixel.children].map((td) => td.textContent);
+ok(celdas[4] === 'US$102' && /^US\$49,98/.test(celdas[5]) && celdas[6] === 'US$52,02',
+  'venta de Pixel: ganancia US$102, socia US$49,98, HK23 US$52,02 → ' + celdas.slice(3, 7).join(' | '));
 
 // ---------- 7. panel privado de la socia ----------
 let S = abrir('socios.html', 'https://hk23universe.vercel.app/socios?llave=' + anaOk.llave);
 await wait(200);
 ok(!S.d.getElementById('panel').hidden && S.d.getElementById('panelCodigo').textContent === 'ANA-PIXEL', 'la socia ve su panel con su código');
-ok(S.d.querySelectorAll('#panelVentas tbody tr').length === 2 && /US\$31,1/.test(S.d.getElementById('panelCifras').textContent),
-  've sus 2 ventas y US$31,1 de comisión (20% de 155,5)');
+ok(S.d.querySelectorAll('#panelVentas tbody tr').length === 2 && /US\$56,59/.test(S.d.getElementById('panelCifras').textContent),
+  've sus 2 ventas y US$56,59: 49% de la ganancia (tienda 35,5 − 62% = 13,49 → 6,61; Pixel 120 − 15% = 102 → 49,98)');
+ok(/de la ganancia/.test(S.d.getElementById('panelLede').textContent), 'su panel le dice que gana sobre la ganancia');
 ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://fcqevq-jr.myshopify.com/discount/ANA-PIXEL?redirect=/'),
   'tiene su link de la tienda con el código aplicado');
 ok(S.d.getElementById('rankCuerpo').querySelector('table') === null, 'etapa 1: el ranking aún no se publica');

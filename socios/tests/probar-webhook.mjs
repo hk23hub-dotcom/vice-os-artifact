@@ -21,7 +21,7 @@ function fakeFetch(status = 200, body = { ok: true, atribuida: true }) {
 }
 
 const PAGADO = { id: 5512345678901, admin_graphql_api_id: 'gid://shopify/Order/5512345678901', name: '#1001',
-  subtotal_price: '35.50', current_subtotal_price: '35.50', total_price: '44.00',
+  subtotal_price: '35.50', current_subtotal_price: '35.50', total_price: '44.00', total_line_items_price: '39.45', total_discounts: '3.95',
   discount_codes: [{ code: 'HK23-ANAP', amount: '3.95', type: 'percentage' }], email: 'cliente@x.com',
   line_items: [{ id: 1, admin_graphql_api_id: 'gid://shopify/LineItem/1' }] };
 
@@ -38,6 +38,9 @@ ok(f.calls[0].init.headers.apikey === 'svc' && f.calls[0].init.headers.authoriza
 ok(a.p_evento === 'pagado' && a.p_pedido === '5512345678901' && a.p_monto === 35.5 && a.p_nombre === '#1001'
   && JSON.stringify(a.p_codigos) === '["HK23-ANAP"]', 'traduce pedido, monto sin envío ni impuestos y códigos');
 ok(!JSON.stringify(a).includes('cliente@x.com'), 'no manda el correo del comprador a la base');
+ok(a.p_lista === 39.45, 'manda el precio de lista antes del descuento (39,45) para calcular el costo');
+const sinLista = argumentos('orders/paid', { ...PAGADO, total_line_items_price: undefined }, JSON.stringify(PAGADO));
+ok(sinLista.p_lista === 39.45, 'sin precio de lista, lo reconstruye: pagado + descuentos');
 
 // id de 18 dígitos (más que 2^53): escrito a mano porque JSON.stringify ya lo redondearía
 const GRANDE = '{"id":820982911946154508,"admin_graphql_api_id":"gid://shopify/Order/820982911946154508","name":"#9",'

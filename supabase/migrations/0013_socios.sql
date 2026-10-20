@@ -17,6 +17,10 @@
 --   • Al aprobar, el socio recibe un código (el mismo que se crea como código de descuento en Shopify),
 --     una llave para su panel privado y su comisión: fundador mientras queden cupos en la etapa 1.
 --   • Las ventas entran solas desde Shopify (edge function socios-shopify) o las registra el dueño a mano.
+--   • Los números siempre cuadran a favor de HK23:
+--       ganancia = lo que pagó el cliente − costo del producto (costo_pct sobre el precio de lista)
+--       comisión = % del socio × ganancia, con el % siempre menor a 50 → HK23 se queda con la mayor parte
+--       el descuento del código + el costo de cada producto de la tienda nunca llegan a 100 %
 --   • El ranking público se muestra solo en la etapa 2.
 --
 -- MODELO DE SEGURIDAD
@@ -41,7 +45,7 @@ insert into public.socios_config (key, value) values
   ('abre',               '2026-10-27T15:00:00Z'),            -- martes 27 oct 2026, 12:00 en Chile
   ('etapa',              '1'),                               -- 1 = fundadores · 2 = ranking público
   ('cupos',              '20'),                              -- cupos de fundador
-  ('comision_fundador',  '20'),                              -- % por venta para fundadores
+  ('comision_fundador',  '49'),                              -- % por venta para fundadores (casi la mitad: por eso hay cupos)
   ('comision_normal',    '10'),                              -- % por venta desde la etapa 2
   ('descuento',          '10'),                              -- % que obtiene el comprador con el código
   ('mostrar_desde',      '10'),                              -- muestra "N interesados" desde este número
@@ -60,6 +64,8 @@ create table if not exists public.socios_productos (
   precio      text not null default '' check (char_length(precio) <= 40),
   url         text null check (url is null or (char_length(url) <= 300 and url ~ '^https://[^[:space:]<>"'']{4,}$')),
   canal       text not null default 'directo' check (canal in ('shopify', 'directo')),
+  -- lo que cuesta fabricar, enviar y cobrar una venta, como % del precio de lista. La comisión se paga sobre lo que queda.
+  costo_pct   numeric(5,2) not null default 15 check (costo_pct between 0 and 95),
   estado      text not null default 'proximamente' check (estado in ('disponible', 'proximamente', 'oculto')),
   color       text not null default '#FFD200' check (color ~ '^#[0-9A-Fa-f]{6}$'),
   orden       int  not null default 100,
@@ -67,28 +73,30 @@ create table if not exists public.socios_productos (
 );
 
 -- Catálogo inicial. Solo la tienda está a la venta hoy; el resto se activa desde /socios-admin cuando esté listo.
-insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, estado, color, orden) values
+-- Costos: la tienda usa el peor caso real de Printify en Shopify (posters PROOF OF WORK: 57 % del precio)
+-- más 5 % de cobro = 62 %. Los productos digitales llevan 15 % por plataforma y medios de pago.
+insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden) values
   ('agentes-pixel', 'Ecosistema de agentes Pixel', 'Pixel', 'AGENTES IA',
    'El equipo de agentes de IA que crea productos, escribe sus fichas y los publica en la tienda. La tienda HK23 STUDIO es su prueba de trabajo.',
-   '', null, 'directo', 'proximamente', '#AAFF00', 10),
+   '', null, 'directo', 15, 'proximamente', '#AAFF00', 10),
   ('tienda-hk23-studio', 'Tienda HK23 STUDIO', 'Proof of Work', 'ARTE · OBJETOS',
    'Posters, stickers y ediciones PROOF OF WORK publicados por los agentes. Se imprimen bajo pedido.',
-   'desde US$3', 'https://fcqevq-jr.myshopify.com', 'shopify', 'disponible', '#FF3A1F', 20),
+   'desde US$3', 'https://fcqevq-jr.myshopify.com', 'shopify', 62, 'disponible', '#FF3A1F', 20),
   ('el-centro', 'El Centro', 'El Centro', 'MERCADO DE AGENTES',
    'Un mercado de agentes de IA vivos: se usan en el navegador y cualquiera puede postular el suyo.',
-   '', null, 'directo', 'proximamente', '#FFD200', 30),
+   '', null, 'directo', 15, 'proximamente', '#FFD200', 30),
   ('universo-hk23', 'Universo HK23', 'HK23 OS', 'SISTEMA',
    'El universo HK23: frameworks, blueprints y agentes para construir y operar proyectos.',
-   '', null, 'directo', 'proximamente', '#00F0FF', 40),
+   '', null, 'directo', 15, 'proximamente', '#00F0FF', 40),
   ('app-golf', 'App de golf ViceGolfer', 'Vice Golfer', 'APP · GOLF',
    'La app de golf de HK23.',
-   '', null, 'directo', 'proximamente', '#B84DFF', 50),
+   '', null, 'directo', 15, 'proximamente', '#B84DFF', 50),
   ('rugby-vice', 'Rugby Vice', 'Rugby Vice', 'APP · RUGBY',
    'La app de rugby de HK23.',
-   '', null, 'directo', 'proximamente', '#00F0FF', 60),
+   '', null, 'directo', 15, 'proximamente', '#00F0FF', 60),
   ('libros-guias', 'Libros y guías HK23', 'Libros', 'LIBROS · GUÍAS',
    'Libros y guías escritos en HK23.',
-   '', null, 'directo', 'proximamente', '#FFD200', 70)
+   '', null, 'directo', 15, 'proximamente', '#FFD200', 70)
 on conflict (clave) do nothing;
 
 create table if not exists public.socios (
@@ -107,7 +115,7 @@ create table if not exists public.socios (
   fundador_n  int  null unique check (fundador_n is null or fundador_n > 0),
   codigo      text null unique check (codigo is null or codigo ~ '^[A-Z0-9][A-Z0-9-]{3,23}$'),
   llave       text null unique check (llave is null or llave ~ '^[0-9a-f]{32}$'),
-  comision    numeric(5,2) null check (comision is null or comision between 0 and 90),
+  comision    numeric(5,2) null check (comision is null or (comision >= 0 and comision < 50)), -- % de la ganancia; HK23 siempre se queda con más
   creado      timestamptz not null default now(),
   postulado   timestamptz null,
   decidido    timestamptz null,
@@ -121,10 +129,12 @@ create table if not exists public.socios_ventas (
   referencia   text not null check (char_length(referencia) between 1 and 80),
   producto_id  bigint null references public.socios_productos (id) on delete set null,
   detalle      text not null default '' check (char_length(detalle) <= 200),
-  monto        numeric(12,2) not null check (monto >= 0),        -- USD, base de la comisión
+  monto        numeric(12,2) not null check (monto >= 0),        -- USD que pagó el cliente, sin envío ni impuestos
+  lista        numeric(12,2) not null check (lista >= 0),        -- USD a precio de lista, antes del descuento del código
+  costo_pct    numeric(5,2) not null check (costo_pct between 0 and 95), -- costo del producto al momento de la venta
   reembolsado  numeric(12,2) not null default 0 check (reembolsado >= 0),
   reembolsos   text[] not null default '{}',                     -- ids de reembolso ya aplicados
-  comision_pct numeric(5,2) not null check (comision_pct between 0 and 90),
+  comision_pct numeric(5,2) not null check (comision_pct >= 0 and comision_pct < 50),
   estado       text not null default 'valida' check (estado in ('valida', 'anulada')),
   fecha        timestamptz not null default now(),
   creado       timestamptz not null default now(),
@@ -220,6 +230,25 @@ create or replace function public.socios__neto(p_estado text, p_monto numeric, p
 returns numeric language sql immutable set search_path = public
 as $$ select case when p_estado = 'valida' then greatest(p_monto - p_reembolsado, 0) else 0 end $$;
 
+-- ganancia de una venta: lo que pagó el cliente (neto de reembolsos) menos el costo, calculado sobre el precio de
+-- lista (el descuento del código no abarata la fabricación). Nunca negativa. Con un reembolso parcial, el costo se
+-- descuenta en la misma proporción que la venta.
+create or replace function public.socios__ganancia(p_estado text, p_monto numeric, p_reembolsado numeric,
+                                                   p_lista numeric, p_costo numeric)
+returns numeric language sql immutable set search_path = public
+as $$
+  select case when p_monto > 0
+              then greatest(round(public.socios__neto(p_estado, p_monto, p_reembolsado)
+                                  * (1 - p_costo / 100 * greatest(p_lista, p_monto) / p_monto), 2), 0)
+              else 0 end
+$$;
+
+-- comisión del socio: su % (siempre < 50) de la ganancia. HK23 se queda con el resto, que siempre es más.
+create or replace function public.socios__comision(p_estado text, p_monto numeric, p_reembolsado numeric,
+                                                   p_lista numeric, p_costo numeric, p_pct numeric)
+returns numeric language sql immutable set search_path = public
+as $$ select round(public.socios__ganancia(p_estado, p_monto, p_reembolsado, p_lista, p_costo) * p_pct / 100, 2) $$;
+
 create or replace function public.socios__alias(p_alias text, p_nombre text)
 returns text language sql immutable set search_path = public
 as $$ select coalesce(p_alias, split_part(p_nombre, ' ', 1)) $$;
@@ -257,7 +286,7 @@ begin
       select jsonb_agg(jsonb_build_object(
                'clave', p.clave, 'nombre', p.nombre, 'marca', p.marca, 'categoria', p.categoria,
                'descripcion', p.descripcion, 'precio', p.precio, 'url', p.url, 'canal', p.canal,
-               'estado', p.estado, 'color', p.color) order by p.orden, p.id)
+               'costo_pct', p.costo_pct, 'estado', p.estado, 'color', p.color) order by p.orden, p.id)
         from public.socios_productos p where p.estado <> 'oculto'), '[]'::jsonb),
     'ranking', null,
     'totales', null
@@ -268,7 +297,7 @@ begin
       select s.id, public.socios__alias(s.alias, s.nombre) as alias, s.fundador_n,
              count(v.id) filter (where public.socios__neto(v.estado, v.monto, v.reembolsado) > 0) as ventas,
              coalesce(sum(public.socios__neto(v.estado, v.monto, v.reembolsado)), 0) as monto,
-             coalesce(sum(round(public.socios__neto(v.estado, v.monto, v.reembolsado) * v.comision_pct / 100, 2)), 0) as comision
+             coalesce(sum(public.socios__comision(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct, v.comision_pct)), 0) as comision
         from public.socios s
         left join public.socios_ventas v on v.socio_id = s.id
        where s.estado = 'aprobado' and s.consiente
@@ -366,8 +395,9 @@ begin
   if not found then raise exception 'socios: llave_invalida'; end if;
 
   with v as (
-    select x.fecha, x.origen, x.detalle, p.nombre as producto, x.estado, x.comision_pct,
-           public.socios__neto(x.estado, x.monto, x.reembolsado) as neto
+    select x.fecha, x.origen, x.detalle, p.nombre as producto, x.estado,
+           public.socios__neto(x.estado, x.monto, x.reembolsado) as neto,
+           public.socios__comision(x.estado, x.monto, x.reembolsado, x.lista, x.costo_pct, x.comision_pct) as comision
       from public.socios_ventas x
       left join public.socios_productos p on p.id = x.producto_id
      where x.socio_id = s.id
@@ -382,13 +412,13 @@ begin
     'tienda',    public.socios__cfg('tienda'),
     'ventas', coalesce((select jsonb_agg(jsonb_build_object(
                           'fecha', v.fecha, 'origen', v.origen, 'detalle', v.detalle, 'producto', v.producto,
-                          'monto', v.neto, 'comision', round(v.neto * v.comision_pct / 100, 2), 'estado', v.estado)
+                          'monto', v.neto, 'comision', v.comision, 'estado', v.estado)
                           order by v.fecha desc)
                         from (select * from v order by fecha desc limit 200) v), '[]'::jsonb),
     'totales', (select jsonb_build_object(
                   'ventas',   count(*) filter (where v.neto > 0),
                   'monto',    coalesce(sum(v.neto), 0),
-                  'comision', coalesce(sum(round(v.neto * v.comision_pct / 100, 2)), 0))
+                  'comision', coalesce(sum(v.comision), 0))
                 from v)
   ) into r;
   return r;
@@ -402,7 +432,7 @@ as $$
     select v.socio_id,
            count(*) filter (where public.socios__neto(v.estado, v.monto, v.reembolsado) > 0) as ventas,
            sum(public.socios__neto(v.estado, v.monto, v.reembolsado)) as monto,
-           sum(round(public.socios__neto(v.estado, v.monto, v.reembolsado) * v.comision_pct / 100, 2)) as comision
+           sum(public.socios__comision(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct, v.comision_pct)) as comision
       from public.socios_ventas v group by v.socio_id
   )
   select jsonb_build_object(
@@ -431,8 +461,10 @@ as $$
     'ventas', coalesce((select jsonb_agg(jsonb_build_object(
                           'id', v.id, 'fecha', v.fecha, 'origen', v.origen, 'referencia', v.referencia,
                           'detalle', v.detalle, 'socio', public.socios__alias(s.alias, s.nombre), 'codigo', s.codigo,
-                          'producto', p.nombre, 'monto', v.monto, 'reembolsado', v.reembolsado,
-                          'comision_pct', v.comision_pct, 'estado', v.estado)
+                          'producto', p.nombre, 'monto', v.monto, 'lista', v.lista, 'reembolsado', v.reembolsado,
+                          'costo_pct', v.costo_pct, 'comision_pct', v.comision_pct, 'estado', v.estado,
+                          'ganancia', public.socios__ganancia(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct),
+                          'comision', public.socios__comision(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct, v.comision_pct))
                           order by v.fecha desc)
                          from (select * from public.socios_ventas order by fecha desc limit 200) v
                          join public.socios s on s.id = v.socio_id
@@ -498,6 +530,7 @@ declare
   v_estado text := coalesce(public.socios__txt(d->>'estado', 15), 'proximamente');
   v_color  text := coalesce(public.socios__txt(d->>'color', 7), '#FFD200');
   v_orden  int  := coalesce(public.socios__num(d->>'orden'), 100)::int;
+  v_costo  numeric := coalesce(public.socios__num(d->>'costo_pct'), 15);
   v_clave  text;
   v_base   text;
   i        int := 1;
@@ -508,6 +541,12 @@ begin
   if v_estado not in ('disponible', 'proximamente', 'oculto') then raise exception 'socios: estado_invalido'; end if;
   if v_color !~ '^#[0-9A-Fa-f]{6}$' then raise exception 'socios: color_invalido'; end if;
   if v_estado = 'disponible' and v_url is null then raise exception 'socios: falta_url'; end if;
+  if v_costo < 0 or v_costo > 95 then raise exception 'socios: costo_invalido'; end if;
+  -- en la tienda el código descuenta: costo + descuento tienen que dejar ganancia
+  if v_canal = 'shopify' and v_estado <> 'oculto'
+     and v_costo + coalesce(public.socios__num(public.socios__cfg('descuento')), 0) >= 100 then
+    raise exception 'socios: sin_margen';
+  end if;
 
   if v_id is null then
     v_base := left(public.socios__slug(v_nombre), 36);
@@ -517,10 +556,10 @@ begin
       i := i + 1;
       v_clave := v_base || '-' || i::text;
     end loop;
-    insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, estado, color, orden)
+    insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden)
     values (v_clave, v_nombre, coalesce(public.socios__txt(d->>'marca', 40), ''), coalesce(public.socios__txt(d->>'categoria', 30), ''),
             coalesce(public.socios__txt(d->>'descripcion', 300), ''), coalesce(public.socios__txt(d->>'precio', 40), ''),
-            v_url, v_canal, v_estado, v_color, v_orden)
+            v_url, v_canal, v_costo, v_estado, v_color, v_orden)
     returning id into v_id;
   else
     update public.socios_productos
@@ -528,7 +567,7 @@ begin
            categoria = coalesce(public.socios__txt(d->>'categoria', 30), ''),
            descripcion = coalesce(public.socios__txt(d->>'descripcion', 300), ''),
            precio = coalesce(public.socios__txt(d->>'precio', 40), ''),
-           url = v_url, canal = v_canal, estado = v_estado, color = v_color, orden = v_orden
+           url = v_url, canal = v_canal, costo_pct = v_costo, estado = v_estado, color = v_color, orden = v_orden
      where id = v_id;
     if not found then raise exception 'socios: no_existe'; end if;
   end if;
@@ -545,20 +584,22 @@ declare
   v_prod  bigint := public.socios__num(d->>'producto_id')::bigint;
   v_pct   numeric := public.socios__num(d->>'comision');
   v_fecha timestamptz := coalesce(public.socios__ts(d->>'fecha'), now());
+  v_costo numeric;
   v_id    bigint;
 begin
   select * into s from public.socios where id = public.socios__num(d->>'socio_id')::bigint and estado = 'aprobado';
   if not found then raise exception 'socios: socio_no_aprobado'; end if;
   if v_monto is null or v_monto <= 0 or v_monto > 1000000 then raise exception 'socios: monto_invalido'; end if;
   if v_ref is null then raise exception 'socios: falta_referencia'; end if;
-  if v_prod is not null and not exists (select 1 from public.socios_productos where id = v_prod) then
-    raise exception 'socios: no_existe';
-  end if;
-  if v_pct is not null and (v_pct < 0 or v_pct > 90) then raise exception 'socios: comision_invalida'; end if;
+  -- el producto define el costo: sin producto no se sabe la ganancia
+  if v_prod is null then raise exception 'socios: falta_producto'; end if;
+  select costo_pct into v_costo from public.socios_productos where id = v_prod;
+  if not found then raise exception 'socios: no_existe'; end if;
+  if v_pct is not null and (v_pct < 0 or v_pct >= 50) then raise exception 'socios: comision_sobre_mitad'; end if;
 
-  insert into public.socios_ventas (socio_id, origen, referencia, producto_id, detalle, monto, comision_pct, fecha)
+  insert into public.socios_ventas (socio_id, origen, referencia, producto_id, detalle, monto, lista, costo_pct, comision_pct, fecha)
   values (s.id, 'manual', v_ref, v_prod, coalesce(public.socios__txt(d->>'detalle', 200), ''),
-          round(v_monto, 2), coalesce(v_pct, s.comision), v_fecha)
+          round(v_monto, 2), round(v_monto, 2), v_costo, coalesce(v_pct, s.comision), v_fecha)
   on conflict (origen, referencia) do nothing
   returning id into v_id;
   if v_id is null then raise exception 'socios: referencia_repetida'; end if;
@@ -581,9 +622,19 @@ begin
       n := public.socios__num(v);
       if n is null or n < 0 or n > 100000 or n <> trunc(n) then raise exception 'socios: numero_invalido'; end if;
       v := n::int::text;
-    elsif k in ('comision_fundador', 'comision_normal', 'descuento') then
+    elsif k in ('comision_fundador', 'comision_normal') then
+      -- % de la ganancia que se lleva el socio: menos de la mitad, así HK23 siempre se queda con más
+      n := public.socios__num(v);
+      if n is null then raise exception 'socios: porcentaje_invalido'; end if;
+      if n < 0 or n >= 50 then raise exception 'socios: comision_sobre_mitad'; end if;
+      v := n::text;
+    elsif k = 'descuento' then
       n := public.socios__num(v);
       if n is null or n < 0 or n > 90 then raise exception 'socios: porcentaje_invalido'; end if;
+      -- el descuento no puede comerse la ganancia de ningún producto de la tienda
+      if n + coalesce((select max(costo_pct) from public.socios_productos where canal = 'shopify' and estado <> 'oculto'), 0) >= 100 then
+        raise exception 'socios: sin_margen';
+      end if;
       v := n::text;
     elsif k = 'tienda' then
       if v !~ '^https://[A-Za-z0-9.-]{4,120}$' then raise exception 'socios: url_invalida'; end if;
@@ -646,15 +697,22 @@ end $$;
 --   pagado    → si algún código de descuento del pedido es de un socio aprobado, registra la venta (una vez)
 --   cancelado → anula la venta del pedido
 --   reembolso → descuenta lo reembolsado (cada reembolso una sola vez); si llega al total, la anula
+-- El costo sale del producto de la tienda (canal shopify) en el catálogo. Si no hay ninguno, se usa 95 %:
+-- ante la duda, la comisión queda casi en cero y HK23 no pierde.
+drop function if exists public.socios_registrar_shopify(text, text, text, text[], numeric, text, numeric);
 create or replace function public.socios_registrar_shopify(
   p_evento text, p_pedido text, p_nombre text default '', p_codigos text[] default '{}',
-  p_monto numeric default 0, p_reembolso_id text default null, p_reembolso numeric default 0
+  p_monto numeric default 0, p_reembolso_id text default null, p_reembolso numeric default 0,
+  p_lista numeric default null
 )
 returns jsonb
 language plpgsql security definer
 set search_path = public set timezone = 'UTC'
 as $$
-declare s public.socios%rowtype; v_id bigint; n int; v_r numeric := greatest(coalesce(p_reembolso, 0), 0);
+declare
+  s public.socios%rowtype; v_id bigint; n int; v_r numeric := greatest(coalesce(p_reembolso, 0), 0);
+  v_monto numeric := round(greatest(coalesce(p_monto, 0), 0), 2);
+  v_prod bigint; v_costo numeric;
 begin
   if p_pedido is null or p_pedido !~ '^[0-9]{1,30}$' then raise exception 'socios: pedido_invalido'; end if;
 
@@ -664,9 +722,12 @@ begin
        and codigo = any (array(select upper(btrim(c)) from unnest(coalesce(p_codigos, '{}'::text[])) c))
      order by id limit 1;
     if not found then return jsonb_build_object('ok', true, 'atribuida', false); end if;
-    insert into public.socios_ventas (socio_id, origen, referencia, detalle, monto, comision_pct)
-    values (s.id, 'shopify', p_pedido, coalesce(left(public.socios__txt(p_nombre, 200), 200), ''),
-            round(greatest(coalesce(p_monto, 0), 0), 2), s.comision)
+    select id, costo_pct into v_prod, v_costo from public.socios_productos
+     where canal = 'shopify' and estado <> 'oculto'
+     order by (estado = 'disponible') desc, orden, id limit 1;
+    insert into public.socios_ventas (socio_id, origen, referencia, producto_id, detalle, monto, lista, costo_pct, comision_pct)
+    values (s.id, 'shopify', p_pedido, v_prod, coalesce(left(public.socios__txt(p_nombre, 200), 200), ''),
+            v_monto, greatest(round(coalesce(p_lista, v_monto), 2), v_monto), coalesce(v_costo, 95), s.comision)
     on conflict (origen, referencia) do nothing
     returning id into v_id;
     return jsonb_build_object('ok', true, 'atribuida', true, 'nueva', v_id is not null, 'codigo', s.codigo);
@@ -700,6 +761,10 @@ revoke all on function public.socios__ip()                              from pub
 revoke all on function public.socios__cuota(text, int)                  from public, anon, authenticated;
 revoke all on function public.socios__topes()                           from public, anon, authenticated;
 revoke all on function public.socios__neto(text, numeric, numeric)      from public, anon, authenticated;
+revoke all on function public.socios__ganancia(text, numeric, numeric, numeric, numeric)
+                                                                        from public, anon, authenticated;
+revoke all on function public.socios__comision(text, numeric, numeric, numeric, numeric, numeric)
+                                                                        from public, anon, authenticated;
 revoke all on function public.socios__alias(text, text)                 from public, anon, authenticated;
 revoke all on function public.socios__slug(text)                        from public, anon, authenticated;
 revoke all on function public.socios__resumen()                         from public, anon, authenticated;
@@ -713,7 +778,7 @@ revoke all on function public.socios_postular(text, text, text, text, text, text
                                                                         from public, anon, authenticated;
 revoke all on function public.socios_mi_panel(text)                     from public, anon, authenticated;
 revoke all on function public.socios_admin(text, text, jsonb)           from public, anon, authenticated;
-revoke all on function public.socios_registrar_shopify(text, text, text, text[], numeric, text, numeric)
+revoke all on function public.socios_registrar_shopify(text, text, text, text[], numeric, text, numeric, numeric)
                                                                         from public, anon, authenticated;
 
 grant execute on function public.socios_estado()                        to anon, authenticated;
@@ -722,7 +787,7 @@ grant execute on function public.socios_postular(text, text, text, text, text, t
                                                                         to anon, authenticated;
 grant execute on function public.socios_mi_panel(text)                  to anon, authenticated;
 grant execute on function public.socios_admin(text, text, jsonb)        to anon, authenticated;
-grant execute on function public.socios_registrar_shopify(text, text, text, text[], numeric, text, numeric)
+grant execute on function public.socios_registrar_shopify(text, text, text, text[], numeric, text, numeric, numeric)
                                                                         to service_role;
 
 -- ----------------------------------------------------------------------------- clave del panel

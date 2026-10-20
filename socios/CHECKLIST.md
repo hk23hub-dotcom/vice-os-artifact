@@ -1,21 +1,43 @@
 # Freelancers Fundadores — lo que tiene que hacer el dueño
 
-Todo lo técnico está hecho y probado (159 pruebas: `socios/tests/correr.sh`). Esto es lo que solo tú puedes hacer, en orden.
+Todo lo técnico está hecho y probado (185 pruebas: `socios/tests/correr.sh`). Esto es lo que solo tú puedes hacer, en orden.
 
 - Página pública: `https://hk23universe.vercel.app/socios`
 - Panel del dueño: `https://hk23universe.vercel.app/socios-admin`
 
-## 0 · Confirma estos números antes de publicar (quedaron como supuestos)
+## 0 · Cómo se calcula la comisión: siempre a tu favor
 
-Se cambian en el panel, en la sección «Programa». No hace falta tocar código.
+La comisión es un % de la **ganancia** de cada venta, no del precio:
 
-| Ajuste | Valor puesto | Por qué revisarlo |
+```
+ganancia = lo que pagó el cliente − costo del producto (costo % × precio de lista)
+socio    = comisión % × ganancia      (la comisión siempre es menor a 50 %)
+HK23     = ganancia − socio           (siempre más que el socio)
+```
+
+La base de datos lo hace cumplir, pongas los números que pongas:
+
+- **Comisión de 50 % o más:** se rechaza.
+- **Descuento que, sumado al costo de la tienda, llegue a 100 %:** se rechaza.
+- **Venta manual sin producto:** se rechaza, porque sin producto no se sabe el costo.
+
+Está probado en 900 combinaciones de precio, descuento, costo, comisión y reembolso. En «Programa» del panel, la tabla «¿Cuadra?» muestra el reparto por cada US$100 mientras escribes los números.
+
+Ejemplo real: un poster de US$17,63 vendido con el código. El cliente paga US$15,87 y el costo es US$10,93 (62 % de 17,63). Quedan US$4,94 de ganancia: el fundador se lleva US$2,42 y HK23 US$2,52, más lo que sobra del costo calculado con margen de seguridad.
+
+## 1 · Confirma estos números antes de publicar (quedaron como supuestos)
+
+Se cambian en el panel, en «Programa» y en «Productos de la página». No hace falta tocar código.
+
+| Ajuste | Valor puesto | De dónde sale |
 |---|---|---|
 | Apertura de postulaciones | martes 27 oct 2026, 12:00 (Chile) | Una semana después del aviso en LinkedIn |
 | Cupos de fundador | 20 | |
-| Comisión fundador | 20 % | En posters impresos bajo pedido el margen es bajo. Revisa que 20 % + 10 % de descuento no te deje en pérdida |
-| Comisión etapa 2 | 10 % | |
+| Comisión fundador | 49 % de la ganancia | Tu decisión: casi a medias, y por eso con cupos |
+| Comisión etapa 2 | 10 % de la ganancia | |
 | Descuento del código | 10 % | Solo se muestra en la página. El real es el que pongas en Shopify a cada código |
+| Costo de la tienda | 62 % del precio | Peor caso real de Printify en Shopify (PROOF OF WORK: 57 %) + 5 % de cobro. Posters de arte 40 %, stickers 33–50 % |
+| Costo de productos digitales | 15 % del precio | Plataforma y medios de pago. Ajusta cada uno cuando sepas dónde se vende |
 | Pago de comisiones | cada mes, ventas pagadas del mes anterior | Está escrito así en la página (sección «Cómo funciona» y preguntas) |
 
 Revisa también los textos del catálogo en «Productos de la página»: nombre de la app de golf, descripciones de Rugby Vice y de los libros, y precios.
@@ -77,9 +99,9 @@ Sin este paso el programa funciona igual, pero las ventas de la tienda las regis
 
 Cargo: **Freelancers Fundadores · Programa de ventas HK23**
 
-> **¿Quieres ser de los primeros?**
+> **¿Quieres ser de los primeros? 49 % de la ganancia de cada venta es tuya.**
 >
-> HK23 abre su programa de Freelancers Fundadores: un grupo pequeño de freelancers que venderá los productos de HK23 antes que nadie. Las postulaciones abren el martes 27 de octubre a las 12:00, hora de Chile. Anótate hoy en la lista y te avisamos ese día: https://hk23universe.vercel.app/socios
+> HK23 abre su programa de Freelancers Fundadores: un grupo pequeño de freelancers que venderá los productos de HK23 antes que nadie. Nos repartimos la ganancia de cada venta casi a medias. Es más de lo que nos conviene, y por eso hay solo 20 cupos. Las postulaciones abren el martes 27 de octubre a las 12:00, hora de Chile. Anótate hoy en la lista y te avisamos ese día: https://hk23universe.vercel.app/socios
 >
 > **Sobre HK23**
 > HK23 es un estudio chileno que construye productos con IA. Su ecosistema de agentes publica y opera la tienda HK23 STUDIO, con arte, posters, stickers y ediciones PROOF OF WORK. Además vienen El Centro, un mercado de agentes de IA, el universo HK23, apps de golf y rugby, y libros y guías.
@@ -93,7 +115,7 @@ Cargo: **Freelancers Fundadores · Programa de ventas HK23**
 > - Probar cada producto antes del lanzamiento y contarnos qué dicen tus clientes.
 >
 > **Qué ganas como fundador**
-> - 20 % de comisión por cada venta pagada con tu código. Desde la etapa 2, la comisión es 10 %.
+> - 49 % de la ganancia de cada venta pagada con tu código. La ganancia es lo que paga el cliente menos lo que cuesta fabricar y cobrar el producto. En lo digital es casi todo el precio. Desde la etapa 2, la comisión es 10 %.
 > - Acceso anticipado: pruebas cada producto antes de que salga al público.
 > - Sello «Fundador» permanente en el ranking del programa.
 > - Panel privado con cada venta y pago mensual.
