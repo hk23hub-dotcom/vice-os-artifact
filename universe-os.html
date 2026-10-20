@@ -15438,6 +15438,7 @@ addEventListener('DOMContentLoaded', function(){
   $('ar-close').onclick=cerrar; $('ar-new').onclick=subir;
   addEventListener('keydown',e=>{
     if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(window.HK_ENCIMA && HK_ENCIMA()) return; /* algo abierto encima (cuartel, biblioteca, runner): Escape es de eso */
     if(!$('ar').classList.contains('open')) return;
     if(e.key==='Escape'){ e.stopImmediatePropagation();
       if($('ar-panel').classList.contains('open')) $('ar-panel').classList.remove('open'); else cerrar(); }
@@ -15834,6 +15835,7 @@ addEventListener('DOMContentLoaded', function(){
   $('vg-close').onclick=cerrar;
   addEventListener('keydown',e=>{
     if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(window.HK_ENCIMA && HK_ENCIMA()) return; /* algo abierto encima (cuartel, biblioteca, runner): Escape es de eso */
     if(!$('vg').classList.contains('open')) return;
     if(e.key==='Escape'){ e.stopImmediatePropagation();
       if(tab!=='green') ir('green'); else cerrar(); }
@@ -16171,6 +16173,7 @@ addEventListener('DOMContentLoaded', function(){
   $('rv-close').onclick=cerrar;
   addEventListener('keydown',e=>{
     if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
+    if(window.HK_ENCIMA && HK_ENCIMA()) return; /* algo abierto encima (cuartel, biblioteca, runner): Escape es de eso */
     if(!$('rv').classList.contains('open')) return;
     if(e.key==='Escape'){ e.stopImmediatePropagation();
       if(tab!=='cancha') ir('cancha'); else cerrar(); }
@@ -17198,6 +17201,546 @@ addEventListener('DOMContentLoaded', function(){
     if((a && m) || ++n > 60) clearInterval(t);
   }, 200);
   enganchar(); madre();
+})();
+</script>
+
+
+<!-- ═══════════ CUARTEL — cada planeta es el cuartel de su proyecto ═══════════
+     Abrís un mundo y ahí está la app real, el dashboard, y el lugar donde dejás
+     todo lo que el proyecto va generando: bitácora de cambios, archivos e informes,
+     claves (cifradas con tu frase, nunca en texto plano), links.
+     Vive LOCAL en este dispositivo (IndexedDB). Exportar/Importar para moverlo.
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<style id="cu-style">
+  #cu-fab{ position:fixed; right:16px; bottom:calc(84px + env(safe-area-inset-bottom,0px)); z-index:705;
+    display:none; align-items:center; gap:6px; min-height:44px; padding:0 14px;
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    color:#000; background:var(--cuc,#F0EDE8); border:none; border-radius:2px; cursor:pointer;
+    box-shadow:0 10px 30px rgba(0,0,0,.6); }
+  #cu-fab.on{ display:inline-flex; }
+
+  #cu{ position:fixed; inset:0; z-index:760; display:none; align-items:flex-end; justify-content:center;
+    background:rgba(4,4,6,.9); backdrop-filter:blur(6px); }
+  #cu.open{ display:flex; }
+  .cu-box{ width:min(760px,100%); max-height:calc(100% - env(safe-area-inset-top,0px) - 12px); display:flex; flex-direction:column;
+    background:#0B0B0D; border:1px solid #1E1E22; border-radius:6px 6px 0 0;
+    box-shadow:0 -30px 80px rgba(0,0,0,.7); padding-bottom:env(safe-area-inset-bottom,0px); }
+  @media(min-width:900px){ #cu{ align-items:center; } .cu-box{ border-radius:6px; max-height:88vh; } }
+  .cu-head{ display:flex; align-items:center; gap:12px; padding:14px 16px 10px; border-bottom:1px solid #161618; }
+  .cu-tit{ flex:1; min-width:0; }
+  .cu-tit b{ display:block; font-family:'Space Grotesk',system-ui,sans-serif; font-size:20px; font-weight:700;
+    letter-spacing:1px; color:var(--cuc,#F0EDE8); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cu-tit i{ display:block; font-style:normal; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px;
+    color:#555; text-transform:uppercase; margin-top:3px; }
+  .cu-b{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:#888; background:transparent; border:1px solid #222; border-radius:2px; padding:0 12px;
+    min-height:44px; min-width:44px; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    white-space:nowrap; }
+  .cu-b:hover,.cu-b:focus-visible{ color:#000; background:var(--cuc,#F0EDE8); border-color:var(--cuc,#F0EDE8); outline:none; }
+  .cu-b.cu-app{ color:#000; background:var(--cuc,#F0EDE8); border-color:var(--cuc,#F0EDE8); font-weight:700; }
+  .cu-b.cu-app.sin{ color:#777; background:transparent; border-style:dashed; font-weight:400; }
+  .cu-b.peligro:hover{ background:#FF3A1F; border-color:#FF3A1F; }
+  .cu-b[disabled]{ opacity:.4; cursor:default; }
+  .cu-acciones{ display:flex; gap:6px; flex-wrap:wrap; padding:10px 16px 0; }
+  .cu-tabs{ display:flex; gap:4px; padding:10px 16px 0; overflow-x:auto; scrollbar-width:none; }
+  .cu-tabs::-webkit-scrollbar{ display:none; }
+  .cu-tab{ flex:0 0 auto; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase;
+    color:#666; background:transparent; border:1px solid transparent; border-bottom:2px solid transparent;
+    min-height:44px; padding:0 12px; cursor:pointer; }
+  .cu-tab.on{ color:var(--cuc,#F0EDE8); border-bottom-color:var(--cuc,#F0EDE8); }
+  .cu-cuerpo{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 16px; min-height:160px; }
+  .cu-pie{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#444; text-transform:uppercase;
+    padding:8px 16px 12px; border-top:1px solid #161618; }
+
+  .cu-form{ display:flex; gap:6px; flex-wrap:wrap; align-items:stretch; margin-bottom:12px; }
+  .cu-in{ flex:1 1 180px; min-height:44px; box-sizing:border-box; background:#060607; color:#E8E8E8;
+    border:1px solid #222; border-radius:2px; padding:10px 12px;
+    font-family:'Space Grotesk',system-ui,sans-serif; font-size:15px; }
+  .cu-in:focus{ outline:none; border-color:var(--cuc,#F0EDE8); }
+  textarea.cu-in{ min-height:72px; resize:vertical; flex-basis:100%; line-height:1.4; }
+  .cu-fila{ display:flex; gap:10px; align-items:flex-start; padding:12px 0; border-bottom:1px dashed #1A1A1C; }
+  .cu-fila:last-child{ border-bottom:none; }
+  .cu-fila .cu-tx{ flex:1; min-width:0; font-family:'Space Grotesk',system-ui,sans-serif; font-size:15px; line-height:1.4;
+    color:#DDD; white-space:pre-wrap; word-break:break-word; }
+  .cu-fila .cu-meta{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#4A4A4A;
+    text-transform:uppercase; margin-top:4px; }
+  .cu-fila .cu-ops{ display:flex; gap:4px; flex-wrap:wrap; justify-content:flex-end; }
+  .cu-vacio{ text-align:center; color:#3A3A3A; font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px;
+    line-height:2; text-transform:uppercase; padding:36px 16px; border:1px dashed #1A1A1C; border-radius:3px; }
+  .cu-chip{ display:inline-block; font-family:'Space Mono',monospace; font-size:7.5px; letter-spacing:2px; text-transform:uppercase;
+    border:1px solid #2A2A2A; color:#777; padding:3px 7px; border-radius:2px; margin-left:6px; vertical-align:middle; }
+  .cu-chip.app{ border-color:var(--cuc,#F0EDE8); color:var(--cuc,#F0EDE8); }
+  .cu-aviso{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:#FFD200; text-transform:uppercase;
+    padding:10px 12px; border:1px solid #3A3000; border-radius:2px; margin-bottom:12px; line-height:1.7; }
+  .cu-secreto{ font-family:'Space Mono',monospace; font-size:14px; color:#AAFF00; background:#060607; border:1px solid #222;
+    padding:8px 10px; border-radius:2px; word-break:break-all; user-select:all; }
+  .cu-link{ color:var(--cuc,#F0EDE8); text-decoration:none; border-bottom:1px solid rgba(255,255,255,.15); }
+  @media(max-width:640px){ .cu-fila{ flex-direction:column; } .cu-fila .cu-ops{ justify-content:flex-start; } }
+</style>
+
+<button id="cu-fab" type="button">▦ CUARTEL</button>
+
+<div id="cu" role="dialog" aria-modal="true" aria-label="Cuartel del proyecto">
+  <div class="cu-box">
+    <div class="cu-head">
+      <div class="cu-tit"><b id="cu-nombre">—</b><i id="cu-sub">cuartel del proyecto · local en este dispositivo</i></div>
+      <button class="cu-b" id="cu-cerrar" aria-label="cerrar">✕</button>
+    </div>
+    <div class="cu-acciones">
+      <button class="cu-b cu-app" id="cu-app">ABRIR LA APP →</button>
+      <button class="cu-b" id="cu-dash">▦ DASHBOARD</button>
+      <button class="cu-b" id="cu-exportar">⤓ EXPORTAR</button>
+      <button class="cu-b" id="cu-importar">⤒ IMPORTAR</button>
+      <input type="file" id="cu-import-file" accept="application/json,.json" hidden>
+    </div>
+    <div class="cu-tabs" id="cu-tabs">
+      <button class="cu-tab on" data-t="bitacora">BITÁCORA</button>
+      <button class="cu-tab" data-t="archivos">ARCHIVOS</button>
+      <button class="cu-tab" data-t="claves">CLAVES</button>
+      <button class="cu-tab" data-t="links">LINKS</button>
+    </div>
+    <div class="cu-cuerpo" id="cu-cuerpo"></div>
+    <div class="cu-pie" id="cu-pie">—</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ── proyectos: id del mundo abierto → proyecto ─────────────────── */
+  var PROY = {
+    vicegolfer: { nombre:'VICEGOLFER',  color:'#AAFF00', mundo:'#vg' },
+    rugbyvice:  { nombre:'RUGBY VICE',  color:'#00F0FF', mundo:'#rv' },
+    arteworld:  { nombre:'HK23 ART',    color:'#FF3A1F', mundo:'#ar' },
+    cryptovice: { nombre:'CRYPTO VICE', color:'#FFD200', mundo:'#cw' }
+  };
+  /* links sugeridos: artifacts del dueño con ese nombre. Marcados SUGERIDO; se cambian desde LINKS. */
+  var SUGERIDOS = {
+    vicegolfer: { nombre:'VICEGOLFER HUB (artifact)',       url:'https://claude.ai/artifact/KeVopirTp4xjBhmYTFhA9R' },
+    rugbyvice:  { nombre:'Rugby Vice Kick Frames (artifact)', url:'https://claude.ai/artifact/SLXPvX1qRz5163tVYEMtZC' }
+  };
+
+  /* registro de lo que va ENCIMA de los mundos: ellos lo consultan antes de comerse Escape */
+  var ENCIMA = ['#cu.open', '#lam-bib:not([hidden])', '#agents-run.open'];
+  window.HK_ENCIMA = function(){ return !!document.querySelector(ENCIMA.join(',')); };
+  window.HK_ENCIMA.registrar = function(sel){ if(ENCIMA.indexOf(sel) < 0) ENCIMA.push(sel); };
+
+  var DB_NOMBRE = 'hk23_cuartel', STORE = 'items';
+  var proyecto = null, tab = 'bitacora', db = null, dbError = null;
+  var frase = null, fraseTimer = null;            /* la frase vive en memoria 10 min, nunca se guarda */
+
+  function $(id){ return document.getElementById(id); }
+  function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+  function fecha(iso){
+    var d = iso ? new Date(iso) : new Date(); if(isNaN(d)) d = new Date();
+    var p = function(n){ return (n<10?'0':'')+n; };
+    return d.getFullYear()+'.'+p(d.getMonth()+1)+'.'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes());
+  }
+  function tam(n){ if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+  var avisoT;
+  function aviso(msg){
+    var t = $('collect-toast'); if(!t) return;
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(avisoT); avisoT = setTimeout(function(){ t.classList.remove('show'); }, 2400);
+  }
+
+  /* ── IndexedDB ───────────────────────────────────────────────────── */
+  function abrirDB(){
+    return new Promise(function(res, rej){
+      if(db) return res(db);
+      if(!window.indexedDB){ dbError = 'ESTE NAVEGADOR NO TIENE INDEXEDDB'; return rej(dbError); }
+      var rq;
+      try{ rq = indexedDB.open(DB_NOMBRE, 1); }catch(e){ dbError = 'INDEXEDDB BLOQUEADO'; return rej(dbError); }
+      rq.onupgradeneeded = function(){
+        var d = rq.result;
+        if(!d.objectStoreNames.contains(STORE)){
+          var s = d.createObjectStore(STORE, { keyPath:'id' });
+          s.createIndex('proyecto', 'proyecto', { unique:false });
+        }
+      };
+      rq.onsuccess = function(){ db = rq.result; res(db); };
+      rq.onerror = function(){ dbError = 'INDEXEDDB NO ABRIÓ: ' + (rq.error && rq.error.name); rej(dbError); };
+      rq.onblocked = function(){ dbError = 'INDEXEDDB BLOQUEADO POR OTRA PESTAÑA'; rej(dbError); };
+    });
+  }
+  function tx(modo, fn){
+    return abrirDB().then(function(d){
+      return new Promise(function(res, rej){
+        var t = d.transaction(STORE, modo), s = t.objectStore(STORE), out;
+        try{ out = fn(s); }catch(e){ return rej(e); }
+        t.oncomplete = function(){ res(out && out.result !== undefined ? out.result : out); };
+        t.onerror = function(){ rej(t.error); };
+        t.onabort = function(){ rej(t.error || new Error('abortada')); };
+      });
+    });
+  }
+  function poner(item){ return tx('readwrite', function(s){ s.put(item); return item; }); }
+  function quitar(id){ return tx('readwrite', function(s){ s.delete(id); return id; }); }
+  function listar(proy){
+    return abrirDB().then(function(d){
+      return new Promise(function(res, rej){
+        var out = [];
+        var rq = d.transaction(STORE,'readonly').objectStore(STORE).index('proyecto').openCursor(IDBKeyRange.only(proy));
+        rq.onsuccess = function(){ var c = rq.result; if(c){ out.push(c.value); c.continue(); } else res(out); };
+        rq.onerror = function(){ rej(rq.error); };
+      });
+    });
+  }
+
+  /* ── cifrado: PBKDF2 → AES-GCM. La frase nunca se guarda. ───────── */
+  var te = new TextEncoder(), td = new TextDecoder();
+  function b64(buf){ var s='', u=new Uint8Array(buf); for(var i=0;i<u.length;i++) s+=String.fromCharCode(u[i]); return btoa(s); }
+  function unb64(s){ var b=atob(s), u=new Uint8Array(b.length); for(var i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; }
+  function derivar(pass, salt){
+    return crypto.subtle.importKey('raw', te.encode(pass), 'PBKDF2', false, ['deriveKey']).then(function(k){
+      return crypto.subtle.deriveKey({ name:'PBKDF2', salt:salt, iterations:150000, hash:'SHA-256' }, k,
+        { name:'AES-GCM', length:256 }, false, ['encrypt','decrypt']);
+    });
+  }
+  function cifrar(pass, texto){
+    var salt = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+    return derivar(pass, salt).then(function(k){ return crypto.subtle.encrypt({ name:'AES-GCM', iv:iv }, k, te.encode(texto)); })
+      .then(function(ct){ return { salt:b64(salt), iv:b64(iv), ct:b64(ct) }; });
+  }
+  function descifrar(pass, enc){
+    return derivar(pass, unb64(enc.salt)).then(function(k){
+      return crypto.subtle.decrypt({ name:'AES-GCM', iv:unb64(enc.iv) }, k, unb64(enc.ct)); })
+      .then(function(buf){ return td.decode(buf); });
+  }
+  function hayCrypto(){ return !!(window.crypto && crypto.subtle && window.TextEncoder); }
+  function olvidarFrase(){ frase = null; clearTimeout(fraseTimer); if(tab==='claves' && $('cu').classList.contains('open')) pintar(); }
+  function recordarFrase(p){ frase = p; clearTimeout(fraseTimer); fraseTimer = setTimeout(olvidarFrase, 10*60*1000); }
+
+  /* ── abrir / cerrar ──────────────────────────────────────────────── */
+  function abrir(id){
+    if(!PROY[id]) return;
+    proyecto = id;
+    var p = PROY[id];
+    $('cu').style.setProperty('--cuc', p.color);
+    $('cu-fab').style.setProperty('--cuc', p.color);
+    $('cu-nombre').textContent = p.nombre;
+    $('cu').classList.add('open');
+    sembrar(id).then(pintar, pintar);
+  }
+  function cerrar(){ $('cu').classList.remove('open'); }
+  function abierto(){ return $('cu').classList.contains('open'); }
+
+  /* primer uso de un proyecto: dejar el link sugerido de su app (marcado) */
+  function sembrar(id){
+    if(!SUGERIDOS[id]) return Promise.resolve();
+    return listar(id).then(function(items){
+      if(items.some(function(x){ return x.tipo==='link'; })) return;
+      var s = SUGERIDOS[id];
+      return poner({ id:uid(), proyecto:id, tipo:'link', fecha:new Date().toISOString(), nombre:s.nombre, url:s.url, app:true, sugerido:true });
+    }).catch(function(){});
+  }
+
+  /* ── pintar ──────────────────────────────────────────────────────── */
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function boton(txt, fn, cls){ var b = el('button', 'cu-b' + (cls ? ' '+cls : ''), txt); b.type='button'; b.addEventListener('click', fn); return b; }
+
+  function pintar(){
+    var cuerpo = $('cu-cuerpo'); cuerpo.textContent = '';
+    Array.prototype.forEach.call($('cu-tabs').querySelectorAll('.cu-tab'), function(b){ b.classList.toggle('on', b.dataset.t === tab); });
+    if(dbError){
+      cuerpo.appendChild(el('div','cu-aviso', '⚠ ' + dbError + ' — ACÁ NO PUEDO GUARDAR NADA. PROBÁ EN OTRO NAVEGADOR O FUERA DEL MODO PRIVADO.'));
+      $('cu-pie').textContent = 'SIN ALMACENAMIENTO'; return;
+    }
+    listar(proyecto).then(function(items){
+      items.sort(function(a,b){ return (b.fecha||'') < (a.fecha||'') ? -1 : 1; });
+      var links = items.filter(function(x){ return x.tipo==='link'; });
+      var app = links.find(function(x){ return x.app; });
+      var ba = $('cu-app');
+      ba.classList.toggle('sin', !app);
+      ba.textContent = app ? 'ABRIR LA APP →' : 'PONÉ EL LINK DE LA APP';
+      var n = { bitacora:0, archivo:0, clave:0, link:0 }, bytes = 0;
+      items.forEach(function(x){ if(n[x.tipo] != null) n[x.tipo]++; if(x.tipo==='archivo') bytes += (x.tam||0); });
+      $('cu-pie').textContent = 'LOCAL · ' + n.bitacora + ' NOTAS · ' + n.archivo + ' ARCHIVOS (' + tam(bytes) + ') · ' + n.clave + ' CLAVES · ' + n.link + ' LINKS · EXPORTÁ PARA MOVERLO';
+      if(tab==='bitacora') pintarBitacora(cuerpo, items.filter(function(x){ return x.tipo==='bitacora'; }));
+      else if(tab==='archivos') pintarArchivos(cuerpo, items.filter(function(x){ return x.tipo==='archivo'; }));
+      else if(tab==='claves') pintarClaves(cuerpo, items.filter(function(x){ return x.tipo==='clave'; }));
+      else pintarLinks(cuerpo, links);
+    }, function(e){
+      dbError = 'NO PUDE LEER: ' + (e && (e.name||e.message||e)); pintar();
+    });
+  }
+
+  function vacio(cuerpo, txt){ cuerpo.appendChild(el('div','cu-vacio',txt)); }
+
+  /* BITÁCORA */
+  function pintarBitacora(cuerpo, notas){
+    var form = el('div','cu-form');
+    var ta = el('textarea','cu-in'); ta.placeholder = 'Qué cambió hoy en ' + PROY[proyecto].nombre + '… (una nota por cambio)';
+    form.appendChild(ta);
+    form.appendChild(boton('✦ ANOTAR', function(){
+      var t = ta.value.trim(); if(!t) return aviso('⚠ ESCRIBÍ ALGO PRIMERO');
+      poner({ id:uid(), proyecto:proyecto, tipo:'bitacora', fecha:new Date().toISOString(), texto:t })
+        .then(function(){ aviso('✦ ANOTADO'); pintar(); }, function(e){ aviso('⚠ NO SE GUARDÓ: ' + (e && e.name)); });
+    }));
+    cuerpo.appendChild(form);
+    if(!notas.length) return vacio(cuerpo, 'TODAVÍA NO HAY NOTAS — ANOTÁ EL PRIMER CAMBIO');
+    notas.forEach(function(nt){
+      var f = el('div','cu-fila'), c = el('div');
+      c.appendChild(el('div','cu-tx', nt.texto)); c.appendChild(el('div','cu-meta', fecha(nt.fecha)));
+      c.style.flex = '1'; c.style.minWidth = '0'; f.appendChild(c);
+      var ops = el('div','cu-ops'); ops.appendChild(boton('✕', function(){ confirmarBorrar(nt.id); }, 'peligro')); f.appendChild(ops);
+      cuerpo.appendChild(f);
+    });
+  }
+
+  /* ARCHIVOS */
+  function pintarArchivos(cuerpo, archivos){
+    var form = el('div','cu-form');
+    var inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.hidden = true;
+    inp.addEventListener('change', function(){
+      var fs = Array.prototype.slice.call(inp.files || []); if(!fs.length) return;
+      var ps = fs.map(function(f){
+        return poner({ id:uid(), proyecto:proyecto, tipo:'archivo', fecha:new Date().toISOString(),
+          nombre:f.name, mime:f.type || 'application/octet-stream', tam:f.size, blob:f });
+      });
+      Promise.all(ps).then(function(){ aviso('⤒ ' + fs.length + (fs.length===1?' ARCHIVO GUARDADO':' ARCHIVOS GUARDADOS')); pintar(); },
+        function(e){ aviso('⚠ NO SE GUARDÓ: ' + (e && e.name)); pintar(); });
+    });
+    form.appendChild(inp);
+    form.appendChild(boton('⤒ SUBIR ARCHIVOS / INFORMES', function(){ inp.click(); }));
+    var nota = el('div','cu-meta','PDF · IMÁGENES · AUDIO · LO QUE SEA · QUEDA EN ESTE DISPOSITIVO'); nota.style.alignSelf='center';
+    form.appendChild(nota);
+    cuerpo.appendChild(form);
+    if(!archivos.length) return vacio(cuerpo, 'TODAVÍA NO HAY ARCHIVOS — SUBÍ EL PRIMER INFORME');
+    archivos.forEach(function(a){
+      var f = el('div','cu-fila'), c = el('div'); c.style.flex='1'; c.style.minWidth='0';
+      c.appendChild(el('div','cu-tx', a.nombre));
+      c.appendChild(el('div','cu-meta', (a.mime||'') + ' · ' + tam(a.tam||0) + ' · ' + fecha(a.fecha)));
+      f.appendChild(c);
+      var ops = el('div','cu-ops');
+      ops.appendChild(boton('⤓ BAJAR', function(){ bajar(a.nombre, a.blob); }));
+      if(/^image\//.test(a.mime||'')) ops.appendChild(boton('◉ VER', function(){ ver(a); }));
+      ops.appendChild(boton('✕', function(){ confirmarBorrar(a.id); }, 'peligro'));
+      f.appendChild(ops); cuerpo.appendChild(f);
+    });
+  }
+  function ver(a){
+    try{
+      var url = URL.createObjectURL(a.blob);
+      var w = window.open(url, '_blank', 'noopener');
+      if(!w) aviso('⚠ EL NAVEGADOR BLOQUEÓ LA PESTAÑA — USÁ BAJAR');
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+    }catch(e){ aviso('⚠ NO PUDE ABRIRLO ACÁ — USÁ BAJAR'); }
+  }
+
+  /* CLAVES */
+  function pintarClaves(cuerpo, claves){
+    if(!hayCrypto()){ cuerpo.appendChild(el('div','cu-aviso','⚠ ESTE NAVEGADOR NO TIENE CIFRADO (WEBCRYPTO) — NO GUARDO CLAVES SIN CIFRAR. PUNTO.')); return; }
+    var chequeo = claves.find(function(x){ return x.chequeo; });
+    if(!frase){
+      var form = el('div','cu-form');
+      var pw = document.createElement('input'); pw.type='password'; pw.className='cu-in'; pw.autocomplete='off';
+      pw.placeholder = chequeo ? 'Tu frase para este cuartel' : 'Elegí una frase (es la llave de este cuartel — si la perdés, no hay recuperación)';
+      form.appendChild(pw);
+      var ok = boton(chequeo ? '⚿ DESBLOQUEAR' : '⚿ CREAR LLAVE', function(){
+        var p = pw.value; if(!p || p.length < 6) return aviso('⚠ MÍNIMO 6 CARACTERES');
+        if(!chequeo){
+          cifrar(p, 'HK23-OK').then(function(enc){
+            return poner({ id:uid(), proyecto:proyecto, tipo:'clave', fecha:new Date().toISOString(), chequeo:true, enc:enc });
+          }).then(function(){ recordarFrase(p); aviso('⚿ LLAVE CREADA — 10 MIN ABIERTA'); pintar(); },
+            function(e){ aviso('⚠ NO PUDE CIFRAR: ' + (e && e.name)); });
+          return;
+        }
+        descifrar(p, chequeo.enc).then(function(t){
+          if(t !== 'HK23-OK') throw new Error('mal');
+          recordarFrase(p); aviso('⚿ ABIERTO — 10 MIN'); pintar();
+        }, function(){ aviso('⚠ FRASE INCORRECTA'); pw.value=''; pw.focus(); });
+      });
+      form.appendChild(ok); cuerpo.appendChild(form);
+      pw.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); ok.click(); } });
+      cuerpo.appendChild(el('div','cu-aviso','CADA CLAVE SE GUARDA CIFRADA (AES-256, PBKDF2) CON TU FRASE, EN ESTE DISPOSITIVO. LA FRASE NO SE GUARDA EN NINGÚN LADO. SIN LA FRASE NO HAY FORMA DE LEERLAS — NI YO.'));
+      var reales = claves.filter(function(x){ return !x.chequeo; });
+      if(reales.length) cuerpo.appendChild(el('div','cu-vacio', reales.length + (reales.length===1?' CLAVE GUARDADA':' CLAVES GUARDADAS') + ' · DESBLOQUEÁ PARA VERLAS'));
+      return;
+    }
+    /* desbloqueado */
+    var form2 = el('div','cu-form');
+    var nombre = document.createElement('input'); nombre.className='cu-in'; nombre.placeholder='Para qué es (ej: Supabase anon key)'; nombre.autocomplete='off';
+    var valor = document.createElement('input'); valor.className='cu-in'; valor.type='password'; valor.placeholder='La clave'; valor.autocomplete='off';
+    form2.appendChild(nombre); form2.appendChild(valor);
+    form2.appendChild(boton('⚿ GUARDAR CIFRADA', function(){
+      var n = nombre.value.trim(), v = valor.value; if(!n || !v) return aviso('⚠ NOMBRE Y CLAVE');
+      cifrar(frase, v).then(function(enc){
+        return poner({ id:uid(), proyecto:proyecto, tipo:'clave', fecha:new Date().toISOString(), nombre:n, enc:enc });
+      }).then(function(){ aviso('⚿ GUARDADA CIFRADA'); pintar(); }, function(e){ aviso('⚠ NO PUDE CIFRAR: ' + (e && e.name)); });
+    }));
+    form2.appendChild(boton('⚿ BLOQUEAR', olvidarFrase));
+    cuerpo.appendChild(form2);
+    var reales2 = claves.filter(function(x){ return !x.chequeo; });
+    if(!reales2.length) return vacio(cuerpo, 'TODAVÍA NO HAY CLAVES — GUARDÁ LA PRIMERA');
+    reales2.forEach(function(k){
+      var f = el('div','cu-fila'), c = el('div'); c.style.flex='1'; c.style.minWidth='0';
+      c.appendChild(el('div','cu-tx', k.nombre)); c.appendChild(el('div','cu-meta', fecha(k.fecha) + ' · CIFRADA'));
+      var sec = el('div','cu-secreto'); sec.hidden = true; c.appendChild(sec); f.appendChild(c);
+      var ops = el('div','cu-ops');
+      var bv = boton('◉ VER', function(){
+        if(!sec.hidden){ sec.hidden = true; sec.textContent=''; bv.textContent='◉ VER'; return; }
+        descifrar(frase, k.enc).then(function(t){ sec.textContent = t; sec.hidden = false; bv.textContent='◌ OCULTAR'; },
+          function(){ aviso('⚠ ESTA CLAVE NO ABRE CON ESTA FRASE'); });
+      });
+      ops.appendChild(bv);
+      ops.appendChild(boton('⧉ COPIAR', function(){
+        descifrar(frase, k.enc).then(function(t){
+          if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(function(){ aviso('⧉ COPIADA'); }, function(){ aviso('⚠ EL NAVEGADOR NO DEJÓ COPIAR'); });
+          else aviso('⚠ EL NAVEGADOR NO DEJÓ COPIAR');
+        }, function(){ aviso('⚠ ESTA CLAVE NO ABRE CON ESTA FRASE'); });
+      }));
+      ops.appendChild(boton('✕', function(){ confirmarBorrar(k.id); }, 'peligro'));
+      f.appendChild(ops); cuerpo.appendChild(f);
+    });
+  }
+
+  /* LINKS */
+  function pintarLinks(cuerpo, links){
+    var form = el('div','cu-form');
+    var nombre = document.createElement('input'); nombre.className='cu-in'; nombre.placeholder='Nombre (ej: landing, Notion, repo)';
+    var url = document.createElement('input'); url.className='cu-in'; url.type='url'; url.placeholder='https://…'; url.autocomplete='off';
+    form.appendChild(nombre); form.appendChild(url);
+    form.appendChild(boton('+ LINK', function(){
+      var n = nombre.value.trim(), u = url.value.trim(); if(!n || !u) return aviso('⚠ NOMBRE Y URL');
+      if(!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      poner({ id:uid(), proyecto:proyecto, tipo:'link', fecha:new Date().toISOString(), nombre:n, url:u, app:false })
+        .then(function(){ aviso('+ LINK GUARDADO'); pintar(); }, function(e){ aviso('⚠ NO SE GUARDÓ: ' + (e && e.name)); });
+    }));
+    cuerpo.appendChild(form);
+    cuerpo.appendChild(el('div','cu-meta','★ = LA APP DEL PROYECTO (LO QUE ABRE "ABRIR LA APP →")'));
+    if(!links.length) return vacio(cuerpo, 'TODAVÍA NO HAY LINKS — PEGÁ EL DE LA APP');
+    links.forEach(function(l){
+      var f = el('div','cu-fila'), c = el('div'); c.style.flex='1'; c.style.minWidth='0';
+      var t = el('div','cu-tx'); var a = el('a','cu-link', (l.app?'★ ':'') + l.nombre); a.href = l.url; a.target='_blank'; a.rel='noopener'; t.appendChild(a);
+      if(l.sugerido) t.appendChild(el('span','cu-chip','sugerido · cambialo si no es'));
+      if(l.app) t.appendChild(el('span','cu-chip app','app'));
+      c.appendChild(t); c.appendChild(el('div','cu-meta', l.url));
+      f.appendChild(c);
+      var ops = el('div','cu-ops');
+      if(!l.app) ops.appendChild(boton('★ ES LA APP', function(){
+        Promise.all(links.map(function(o){ if(o.app){ o.app=false; return poner(o); } })).then(function(){
+          l.app = true; l.sugerido = false; return poner(l);
+        }).then(function(){ aviso('★ AHORA "ABRIR LA APP" VA AHÍ'); pintar(); });
+      }));
+      ops.appendChild(boton('✕', function(){ confirmarBorrar(l.id); }, 'peligro'));
+      f.appendChild(ops); cuerpo.appendChild(f);
+    });
+  }
+
+  /* borrar: pide dos toques */
+  var porBorrar = null, porBorrarT;
+  function confirmarBorrar(id){
+    if(porBorrar !== id){ porBorrar = id; aviso('⚠ TOCÁ ✕ DE NUEVO PARA BORRAR'); clearTimeout(porBorrarT); porBorrarT = setTimeout(function(){ porBorrar=null; }, 4000); return; }
+    porBorrar = null;
+    quitar(id).then(function(){ aviso('✕ BORRADO'); pintar(); }, function(e){ aviso('⚠ NO PUDE BORRAR: ' + (e && e.name)); });
+  }
+
+  /* ── bajar: artifact → downloads; sitio → link ───────────────────── */
+  function bajar(nombre, blob){
+    if(!blob){ aviso('⚠ NO HAY ARCHIVO'); return; }
+    var porClaude = Promise.resolve(null);
+    if(window.claude && typeof window.claude.use === 'function') porClaude = window.claude.use('downloads').catch(function(){ return null; });
+    porClaude.then(function(d){
+      if(d && typeof d.save === 'function'){
+        return d.save({ filename:nombre, data:blob }).then(function(){ aviso('⤓ GUARDADO'); }, function(err){ if(!(err && err.code==='declined')) porLink(nombre, blob); });
+      }
+      porLink(nombre, blob);
+    });
+  }
+  function porLink(nombre, blob){
+    try{ var u = URL.createObjectURL(blob), a = document.createElement('a'); a.href=u; a.download=nombre; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(u); }, 5000); aviso('⤓ BAJADO'); }
+    catch(e){ aviso('⚠ NO PUDE BAJARLO ACÁ'); }
+  }
+
+  /* ── exportar / importar (JSON; archivos en base64; claves siguen cifradas) ── */
+  function blobABase64(b){ return new Promise(function(res, rej){ var r = new FileReader(); r.onload = function(){ res(String(r.result).split(',')[1] || ''); }; r.onerror = function(){ rej(r.error); }; r.readAsDataURL(b); }); }
+  function exportar(){
+    listar(proyecto).then(function(items){
+      if(!items.length) return aviso('⚠ NO HAY NADA QUE EXPORTAR');
+      return Promise.all(items.map(function(x){
+        var c = {}; for(var k in x) if(k!=='blob') c[k] = x[k];
+        if(x.blob) return blobABase64(x.blob).then(function(b){ c.b64 = b; return c; });
+        return c;
+      })).then(function(lista){
+        var out = { cuartel:'hk23', version:1, proyecto:proyecto, exportado:new Date().toISOString(), items:lista };
+        var blob = new Blob([JSON.stringify(out)], { type:'application/json' });
+        bajar('hk23-cuartel-' + proyecto + '.json', blob);
+      });
+    }).catch(function(e){ aviso('⚠ EXPORTAR FALLÓ: ' + (e && e.name)); });
+  }
+  function importar(file){
+    var r = new FileReader();
+    r.onload = function(){
+      var d; try{ d = JSON.parse(String(r.result)); }catch(e){ return aviso('⚠ ESE ARCHIVO NO ES UN JSON DEL CUARTEL'); }
+      if(!d || d.cuartel !== 'hk23' || !Array.isArray(d.items)) return aviso('⚠ ESE ARCHIVO NO ES UN JSON DEL CUARTEL');
+      var ps = d.items.map(function(x){
+        var c = {}; for(var k in x) if(k!=='b64') c[k] = x[k];
+        c.proyecto = proyecto;
+        if(x.b64){ try{ c.blob = new Blob([unb64(x.b64)], { type:c.mime||'application/octet-stream' }); }catch(e){} }
+        return poner(c);
+      });
+      Promise.all(ps).then(function(){ aviso('⤒ IMPORTADOS ' + ps.length); pintar(); }, function(e){ aviso('⚠ IMPORTAR FALLÓ: ' + (e && e.name)); pintar(); });
+    };
+    r.readAsText(file);
+  }
+
+  /* ── fab: aparece cuando hay un mundo abierto ───────────────────── */
+  function mundoAbierto(){
+    for(var id in PROY){
+      var e = document.querySelector(PROY[id].mundo); if(!e) continue;
+      if(e.classList.contains('open')) return id;
+      if(id==='cryptovice' && e.style.display && e.style.display !== 'none') return id;
+    }
+    return null;
+  }
+  var fabProy = null;
+  function revisarFab(){
+    var fab = $('cu-fab'); if(!fab) return;
+    var id = mundoAbierto();
+    if(id !== fabProy){
+      fabProy = id;
+      if(id){ fab.style.setProperty('--cuc', PROY[id].color); fab.textContent = '▦ CUARTEL ' + PROY[id].nombre; }
+      fab.classList.toggle('on', !!id && !abierto());
+    } else fab.classList.toggle('on', !!id && !abierto());
+  }
+
+  /* ── init ────────────────────────────────────────────────────────── */
+  function init(){
+    $('cu-fab').addEventListener('click', function(){ var id = mundoAbierto() || fabProy; if(id) abrir(id); });
+    $('cu-cerrar').addEventListener('click', cerrar);
+    $('cu').addEventListener('click', function(e){ if(e.target === $('cu')) cerrar(); });
+    $('cu-tabs').addEventListener('click', function(e){ var b = e.target.closest('.cu-tab'); if(!b) return; tab = b.dataset.t; pintar(); });
+    $('cu-app').addEventListener('click', function(){
+      listar(proyecto).then(function(items){
+        var app = items.find(function(x){ return x.tipo==='link' && x.app; });
+        if(!app){ tab='links'; pintar(); aviso('⚠ PEGÁ EL LINK DE LA APP Y MARCALO ★'); return; }
+        var w = window.open(app.url, '_blank', 'noopener');
+        if(!w) aviso('⚠ EL NAVEGADOR BLOQUEÓ LA PESTAÑA — TOCÁ EL LINK EN LINKS');
+      });
+    });
+    $('cu-dash').addEventListener('click', function(){
+      if(window.DASH && typeof DASH.toggle === 'function'){ cerrar(); DASH.toggle(); }
+      else aviso('⚠ EL DASHBOARD NO ESTÁ CARGADO');
+    });
+    $('cu-exportar').addEventListener('click', exportar);
+    $('cu-importar').addEventListener('click', function(){ $('cu-import-file').click(); });
+    $('cu-import-file').addEventListener('change', function(){ var f = this.files && this.files[0]; if(f) importar(f); this.value=''; });
+    /* en window+captura: corre antes que cualquier listener de document (los mundos
+       registran los suyos primero y cerrarían el mundo de atrás en vez del cuartel) */
+    window.addEventListener('keydown', function(e){
+      if(e.key !== 'Escape') return;
+      if(abierto()){ e.stopImmediatePropagation(); e.stopPropagation(); e.preventDefault(); cerrar(); }
+    }, true);
+    new MutationObserver(revisarFab).observe(document.body, { attributes:true, subtree:true, attributeFilter:['class','style'] });
+    revisarFab();
+    abrirDB().catch(function(){});
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  window.Cuartel = { abrir:abrir, cerrar:cerrar, proyectos:Object.keys(PROY), bloquear:olvidarFrase, version:'1' };
 })();
 </script>
 
