@@ -17744,5 +17744,25 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+
+<!-- ═══════════ FONDO BLINDADO — el universo es negro, no se negocia ═══════════
+     Si lo envuelve un runtime con tema claro (artifact de claude.ai en modo claro),
+     ese tema le pisa el fondo y el color al body. Acá gana el universo, desde CSS e inline. -->
+<style id="fondo-blindado">
+  :root{ color-scheme: dark !important; }
+  html{ background:#080808 !important; }
+  body{ background:#080808 !important; color: var(--white, #F0EDE8) !important; }
+</style>
+<script>
+(function(){
+  try{
+    var claro = (getComputedStyle(document.documentElement).getPropertyValue('--white') || '').trim() || '#F0EDE8';
+    document.documentElement.style.setProperty('background', '#080808', 'important');
+    document.body.style.setProperty('background', '#080808', 'important');
+    document.body.style.setProperty('color', claro, 'important');
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
