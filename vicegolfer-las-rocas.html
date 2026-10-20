@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViceGolfer — Las Rocas Yardage Book</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root { --bg:#000; --fg:#fff; --mute:#777; --line:#16161c; --acc:#AAFF00; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { background:var(--bg); color:var(--fg); font-family:'Space Mono',monospace; padding:28px 16px 60px; }
+  .head { text-align:center; margin-bottom:22px; }
+  .logo { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:22px; letter-spacing:1px; }
+  .logo span { color:var(--acc); }
+  .tag { font-size:9px; letter-spacing:4px; color:#555; margin-top:6px; }
+  .book { max-width:560px; margin:0 auto; display:grid; gap:22px; }
+  .page { border:1px solid var(--line); }
+  .photo { position:relative; aspect-ratio:3/4; background:#0a0a0a center/cover no-repeat; }
+  .photo .no { position:absolute; top:12px; left:12px; background:#000c; padding:6px 10px;
+    font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:13px; letter-spacing:2px; }
+  .photo .no b { color:var(--acc); }
+  .body { padding:18px 16px; }
+  .title { font-family:'Space Grotesk',sans-serif; font-weight:900; font-size:20px; text-transform:uppercase; }
+  .sub { font-size:10px; letter-spacing:2px; color:var(--mute); margin-top:4px; }
+  .yards { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:16px 0; }
+  .yards label { border:1px solid var(--line); padding:10px 8px; display:flex; flex-direction:column; gap:4px; }
+  .yards span { font-size:8px; letter-spacing:2px; color:var(--mute); }
+  .yards input { background:none; border:0; color:var(--acc); font:700 18px 'Space Grotesk',sans-serif; width:100%; outline:none; }
+  .note { font-size:12px; line-height:1.6; color:#ccc; border-left:2px solid var(--acc); padding-left:12px; }
+  textarea { width:100%; margin-top:12px; background:#0a0a0a; border:1px solid var(--line); color:var(--fg);
+    font:12px 'Space Mono',monospace; padding:10px; min-height:60px; resize:vertical; }
+  .foot { text-align:center; font-size:9px; letter-spacing:3px; color:#444; margin-top:30px; }
+</style>
+</head>
+<body>
+<div class="head">
+  <div class="logo">VICE<span>GOLFER</span></div>
+  <div class="tag">YARDAGE BOOK · LAS ROCAS</div>
+</div>
+<div class="book" id="book"></div>
+<div class="foot">TOCA UN NÚMERO PARA EDITAR · SE GUARDA EN ESTE DISPOSITIVO</div>
+<script>
+const IMG = 'assets/vicegolfer/las-rocas/';
+const PAGES = [
+  { id:'tee', img:'tee.jpg', hole:'—', title:'Corredor de setos', sub:'TEE · PAR —',
+    note:'Salida encajonada entre setos. Apunta al centro, la sombra del seto derecho esconde el borde. Palo que pongas en juego > distancia.' },
+  { id:'fairway', img:'fairway.jpg', hole:'—', title:'Calle abierta', sub:'SEGUNDO GOLPE',
+    note:'Bunker delante del green a la izquierda. Sol de frente en la tarde: lee la línea antes de pararte sobre la bola.' },
+  { id:'pines-1', img:'pines-1.jpg', hole:'—', title:'Los pinos · entrada', sub:'ROUGH DE PINOCHA',
+    note:'Pinocha suelta, bola sentada arriba. Salida baja por el hueco de los troncos hacia la calle; no busques el green.' },
+  { id:'pines-2', img:'pines-2.jpg', hole:'—', title:'Los pinos · pasillo', sub:'RECUPERACIÓN',
+    note:'Pasillo claro entre troncos hacia la calle izquierda. Hierro largo con bola atrás, punch y que corra.' },
+  { id:'pines-3', img:'pines-3.jpg', hole:'—', title:'Los pinos · copa', sub:'NO SE PASA POR ARRIBA',
+    note:'Copas altas y ramas bajas: altura no es opción. Regla del día: un golpe para salir, nunca dos.' },
+];
+const KEY = 'vg-lasrocas-v1';
+let data = {}; try { data = JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e) {}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(data)); } catch(e) {} };
+const book = document.getElementById('book');
+PAGES.forEach(p => {
+  const d = data[p.id] ||= {};
+  const el = document.createElement('section'); el.className = 'page';
+  el.innerHTML = `
+    <div class="photo" style="background-image:url('${IMG + p.img}')"><div class="no">HOYO <b data-k="hole">${d.hole || p.hole}</b></div></div>
+    <div class="body">
+      <div class="title">${p.title}</div><div class="sub">${p.sub}</div>
+      <div class="yards">
+        ${[['carry','CARRY'],['layup','LAYUP'],['green','AL GREEN']].map(([k,l]) =>
+          `<label><span>${l}</span><input inputmode="numeric" placeholder="—" data-k="${k}" value="${d[k] || ''}"></label>`).join('')}
+      </div>
+      <div class="note">${p.note}</div>
+      <textarea placeholder="Notas: viento, palo usado, resultado…" data-k="notes">${d.notes || ''}</textarea>
+    </div>`;
+  el.querySelectorAll('input,textarea').forEach(i => i.addEventListener('input', () => { d[i.dataset.k] = i.value; save(); }));
+  const h = el.querySelector('[data-k="hole"]');
+  h.parentElement.onclick = () => { const v = prompt('Número de hoyo', d.hole || ''); if (v !== null) { d.hole = v; h.textContent = v || '—'; save(); } };
+  book.appendChild(el);
+});
+</script>
+</body>
+</html>
