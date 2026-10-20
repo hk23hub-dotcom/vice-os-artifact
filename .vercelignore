@@ -17,3 +17,7 @@ prompts/
 
 # El Centro: scripts, pruebas y notas de Shopify (no se sirven)
 centro/
+
+# Freelancers Fundadores: pruebas y guía del dueño; la Edge Function se despliega en Supabase, no aquí
+socios/
+supabase/functions/
