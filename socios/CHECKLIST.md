@@ -45,10 +45,18 @@ Revisa también los textos del catálogo en «Productos de la página»: nombre 
 ## A · Supabase (10 min)
 
 1. Supabase → proyecto `iiqhhglgjsbnuihythko` → SQL Editor → New query.
-2. Pega `supabase/migrations/0013_socios.sql`.
-3. Reemplaza `__SET_ADMIN_TOKEN__` por una clave tuya de mínimo 24 caracteres. En la terminal: `openssl rand -hex 24`. Guárdala en tu gestor de claves.
-4. Run. Se puede correr de nuevo sin perder datos ni ajustes.
+2. Pega `supabase/migrations/0013_socios.sql` tal cual, sin editar nada, y dale Run. Se puede correr de nuevo sin perder datos ni ajustes.
+3. New query otra vez. Pega esto y dale Run. Crea la clave del panel y te la muestra una sola vez en los resultados:
+   ```sql
+   with k as (select replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '') as clave),
+        u as (update public.socios_config set value = encode(sha256(convert_to((select clave from k), 'UTF8')), 'hex')
+               where key = 'admin_token_sha256' returning 1)
+   select clave as tu_clave_del_panel from k, u;
+   ```
+4. Copia la clave que aparece abajo, en «Results», y guárdala en tu gestor de claves. La base guarda solo su huella, así que no se puede volver a ver. Si la pierdes, corre el paso 3 otra vez y te da una nueva.
 5. Entra a `/socios-admin` con esa clave y revisa la sección «Programa».
+
+Alternativa: en vez del paso 3, reemplaza `__SET_ADMIN_TOKEN__` en la línea 797 del archivo por una clave tuya de mínimo 24 caracteres antes de correrlo.
 
 No hay que agregar variables en Vercel ni redeploy: la página habla directo con Supabase.
 
