@@ -16427,5 +16427,638 @@ addEventListener('DOMContentLoaded', function(){
 })();
 </script>
 
+
+<!-- ═══════════ LÁMINAS HK23 — guardar / compartir / imprimir la transmutación ═══════════ -->
+<style id="lam-style">
+  /* barra de acciones dentro del overlay de afirmación */
+  #aff-actions{
+    display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    margin-top:38px; padding:0 16px; max-width:min(760px,94vw);
+    opacity:0; transition:opacity 1s ease; pointer-events:none;
+  }
+  #aff-actions.on{ opacity:1; pointer-events:auto; }
+  .lam-b{
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase;
+    background:transparent; border:1px solid #222; color:#6A6A6A;
+    padding:0 14px; min-height:44px; min-width:44px; border-radius:2px;
+    cursor:pointer; transition:color .15s,background .15s,border-color .15s;
+    display:inline-flex; align-items:center; justify-content:center; gap:6px; white-space:nowrap;
+  }
+  .lam-b:hover,.lam-b:focus-visible{ color:#000; background:var(--lc,#AAFF00); border-color:var(--lc,#AAFF00); outline:none; }
+  .lam-b[disabled]{ opacity:.35; cursor:default; }
+  .lam-b b{ font-weight:700; color:#AAFF00; }
+  .lam-b:hover b{ color:#000; }
+
+  /* biblioteca */
+  #lam-bib{
+    position:fixed; inset:0; z-index:420; background:rgba(4,4,5,.975); backdrop-filter:blur(6px);
+    display:flex; flex-direction:column;
+    padding:max(16px,env(safe-area-inset-top)) 16px max(16px,env(safe-area-inset-bottom));
+  }
+  #lam-bib[hidden]{ display:none !important; }
+  .lam-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    border-bottom:1px solid #1A1A1A; padding-bottom:12px; }
+  .lam-head h3{ font-family:'Space Mono',monospace; font-size:11px; letter-spacing:5px;
+    text-transform:uppercase; color:#AAFF00; font-weight:700; margin:0; }
+  .lam-head .lam-n{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:#555; }
+  .lam-head .lam-sp{ flex:1; }
+  .lam-body{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 0 8px; }
+  .lam-card{ border:1px solid #1A1A1A; background:#0B0B0C; border-radius:3px;
+    padding:16px 16px 12px; margin-bottom:12px; }
+  .lam-card .lam-neg{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:4px;
+    color:#FF3A1F; text-transform:uppercase; text-decoration:line-through;
+    text-decoration-color:rgba(255,58,31,.5); }
+  .lam-card .lam-tx{ font-size:clamp(15px,2.4vw,21px); font-weight:700; line-height:1.25;
+    margin:8px 0 10px; color:#E8E8E8; }
+  .lam-card .lam-meta{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px;
+    color:#444; text-transform:uppercase; margin-bottom:12px; }
+  .lam-row{ display:flex; gap:6px; flex-wrap:wrap; }
+  .lam-vacia{ text-align:center; color:#3A3A3A; font-family:'Space Mono',monospace;
+    font-size:10px; letter-spacing:3px; line-height:2.2; text-transform:uppercase;
+    padding:52px 20px; border:1px dashed #1A1A1A; border-radius:3px; }
+  @media(max-width:768px){
+    .lam-b{ font-size:8px; letter-spacing:2px; padding:0 11px; }
+    #aff-actions{ margin-top:28px; gap:6px; }
+  }
+
+  /* hoja de impresión: papel blanco, tinta negra, firma HK23 */
+  #lam-print{ display:none; }
+  @media print{
+    @page{ margin:0; }
+    html,body{ background:#fff !important; }
+    body>*{ display:none !important; }
+    body>#lam-print{ display:flex !important; }
+    #lam-print{
+      position:static; width:100%; min-height:100vh; box-sizing:border-box; padding:20mm 18mm;
+      flex-direction:column; color:#000; background:#fff;
+      font-family:'Space Grotesk',system-ui,sans-serif;
+    }
+    #lam-print .p-top{ display:flex; justify-content:space-between;
+      font-family:'Space Mono',monospace; font-size:9pt; letter-spacing:3px; color:#777; }
+    #lam-print .p-mid{ flex:1; display:flex; flex-direction:column; justify-content:center; }
+    #lam-print .p-neg{ font-family:'Space Mono',monospace; font-size:11pt; letter-spacing:6px;
+      color:#C0392B; text-decoration:line-through; margin-bottom:10mm; }
+    #lam-print .p-tx{ font-size:30pt; font-weight:700; line-height:1.15; letter-spacing:-.5pt; }
+    #lam-print .p-lvl{ font-family:'Space Mono',monospace; font-size:9pt; letter-spacing:4px;
+      color:#777; margin-top:12mm; padding-top:5mm; border-top:1px solid #DDD; }
+    #lam-print .p-firma{ font-size:22pt; font-weight:700; letter-spacing:-.5pt; margin-top:14mm; }
+    #lam-print .p-pie{ font-family:'Space Mono',monospace; font-size:8pt; letter-spacing:3px;
+      color:#999; margin-top:2mm; }
+  }
+</style>
+
+<div id="lam-bib" hidden>
+  <div class="lam-head">
+    <h3>BIBLIOTECA DE LÁMINAS</h3>
+    <span class="lam-n" id="lam-cuenta">0</span>
+    <span class="lam-sp"></span>
+    <button class="lam-b" id="lam-exportar">⤓ EXPORTAR TODO</button>
+    <button class="lam-b" id="lam-cerrar">✕ CERRAR</button>
+  </div>
+  <div class="lam-body" id="lam-lista"></div>
+</div>
+
+<div id="lam-print" aria-hidden="true"></div>
+
+<script>
+/* ═══ LÁMINAS HK23 ═══════════════════════════════════════════════════════
+   Lo que el agujero negro transmuta ya no se pierde al cerrar el overlay:
+   se guarda, se baja como lámina firmada, se imprime y se comparte.
+   Bloque agregado — no toca nada de lo que ya estaba.
+   ════════════════════════════════════════════════════════════════════════ */
+(function(){
+  'use strict';
+
+  var KEY   = 'hk23_laminas';
+  var SITIO = 'hk23universe.vercel.app/universe-os';
+  var VERDE = '#AAFF00';
+
+  /* ── almacenamiento ──────────────────────────────────────────────── */
+  function leer(){
+    try{ var a = JSON.parse(localStorage.getItem(KEY)); return Array.isArray(a) ? a : []; }
+    catch(e){ return []; }
+  }
+  function escribir(a){
+    try{ localStorage.setItem(KEY, JSON.stringify(a)); return true; }
+    catch(e){ return false; }
+  }
+
+  /* ── aviso (reusa el toast del universo) ─────────────────────────── */
+  var avisoT;
+  function aviso(msg){
+    var t = document.getElementById('collect-toast');
+    if(!t){ return; }
+    var orig = '✦ NUEVO COLECCIONABLE DESBLOQUEADO';
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(avisoT);
+    avisoT = setTimeout(function(){
+      t.classList.remove('show');
+      setTimeout(function(){ t.textContent = orig; }, 400);
+    }, 2400);
+  }
+
+  /* ── fechas ──────────────────────────────────────────────────────── */
+  function fechaCorta(iso){
+    var d = iso ? new Date(iso) : new Date();
+    if(isNaN(d.getTime())) d = new Date();
+    var p = function(n){ return (n<10?'0':'') + n; };
+    return d.getFullYear() + '.' + p(d.getMonth()+1) + '.' + p(d.getDate());
+  }
+
+  /* ── la afirmación que está en pantalla ──────────────────────────── */
+  var actual = null;
+
+  function capturar(){
+    var tx = document.getElementById('aff-text');
+    var ng = document.getElementById('aff-absorb');
+    var lb = document.getElementById('aff-label');
+    if(!tx || !tx.textContent.trim()) return null;
+    var etiqueta = (lb && lb.textContent) || '';
+    var nivel = '';
+    var m = etiqueta.match(/TRANSMUTACIÓN\s*·\s*([^—]+)—/);
+    if(m) nivel = m[1].trim();
+    var col = '';
+    var mc = etiqueta.match(/COLECCIÓN\s+(\d+)/);
+    /* el contador se suma recién cuando aparece la afirmación: esta pieza es la siguiente */
+    if(mc) col = String(parseInt(mc[1], 10) + 1);
+    return {
+      texto:     tx.textContent.trim(),
+      negativo:  (ng && ng.textContent.trim()) || '',
+      nivel:     nivel || 'TRANSMUTACIÓN',
+      coleccion: col,
+      color:     tx.style.color || VERDE,
+      fecha:     new Date().toISOString()
+    };
+  }
+
+  /* ── texto espaciado en canvas (letterSpacing no está en todos lados) ── */
+  function espaciado(x, texto, px, py, sp, align){
+    var chars = String(texto).split('');
+    var total = 0, i;
+    for(i=0;i<chars.length;i++) total += x.measureText(chars[i]).width + sp;
+    total -= sp;
+    var cur = px;
+    if(align === 'center') cur = px - total/2;
+    else if(align === 'right') cur = px - total;
+    var prev = x.textAlign;
+    x.textAlign = 'left';
+    for(i=0;i<chars.length;i++){
+      x.fillText(chars[i], cur, py);
+      cur += x.measureText(chars[i]).width + sp;
+    }
+    x.textAlign = prev;
+    return total;
+  }
+
+  function envolver(x, texto, maxW){
+    var pals = String(texto).split(/\s+/), lineas = [], cur = '';
+    for(var i=0;i<pals.length;i++){
+      var t = cur ? cur + ' ' + pals[i] : pals[i];
+      if(x.measureText(t).width > maxW && cur){ lineas.push(cur); cur = pals[i]; }
+      else cur = t;
+    }
+    if(cur) lineas.push(cur);
+    return lineas;
+  }
+
+  /* ── la lámina: 1080×1350, negra, firmada ────────────────────────── */
+  function dibujar(it){
+    var W = 1080, H = 1350;
+    var c = document.createElement('canvas'); c.width = W; c.height = H;
+    var x = c.getContext('2d');
+    var MG = 84, maxW = W - MG*2;
+
+    x.fillStyle = '#080808'; x.fillRect(0,0,W,H);
+
+    /* halo del color de la afirmación, suave */
+    var g = x.createRadialGradient(W/2, H*0.46, 0, W/2, H*0.46, W*0.78);
+    g.addColorStop(0, 'rgba(255,255,255,0.045)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    x.fillStyle = g; x.fillRect(0,0,W,H);
+
+    /* marco */
+    x.strokeStyle = '#1C1C1C'; x.lineWidth = 2;
+    x.strokeRect(48.5, 48.5, W-97, H-97);
+
+    /* cabecera */
+    x.font = '700 19px "Space Mono", monospace';
+    x.fillStyle = '#4A4A4A'; x.textBaseline = 'alphabetic';
+    espaciado(x, 'UNIVERSO HK23', MG, 118, 4, 'left');
+    espaciado(x, fechaCorta(it.fecha), W-MG, 118, 4, 'right');
+
+    /* lo que entró al agujero negro */
+    var yNeg = 300;
+    if(it.negativo){
+      x.font = '700 26px "Space Mono", monospace';
+      x.fillStyle = '#FF3A1F';
+      var anchoNeg = espaciado(x, it.negativo, W/2, yNeg, 9, 'center');
+      x.strokeStyle = 'rgba(255,58,31,.55)'; x.lineWidth = 2;
+      x.beginPath();
+      x.moveTo(W/2 - anchoNeg/2 - 6, yNeg - 8);
+      x.lineTo(W/2 + anchoNeg/2 + 6, yNeg - 8);
+      x.stroke();
+    }
+
+    /* la transmutación */
+    x.font = '400 20px "Space Mono", monospace';
+    x.fillStyle = '#2E2E2E';
+    espaciado(x, '∅ → ∞', W/2, yNeg + 74, 10, 'center');
+
+    /* la afirmación — se achica sola hasta entrar */
+    var size = 82, lineas;
+    do{
+      x.font = '700 ' + size + 'px "Space Grotesk", system-ui, sans-serif';
+      lineas = envolver(x, it.texto, maxW);
+      if(lineas.length <= 6 && size <= 82) break;
+      size -= 4;
+    } while(size > 30);
+    x.fillStyle = it.color || VERDE;
+    x.textAlign = 'center';
+    var lh = size * 1.16;
+    var yTx = (H*0.50) - ((lineas.length-1) * lh)/2 + size*0.34;
+    for(var i=0;i<lineas.length;i++) x.fillText(lineas[i], W/2, yTx + i*lh);
+    x.textAlign = 'left';
+
+    /* pie: nivel + colección */
+    var yPie = H - 262;
+    x.strokeStyle = '#1C1C1C'; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(MG, yPie); x.lineTo(W-MG, yPie); x.stroke();
+
+    x.font = '700 18px "Space Mono", monospace';
+    x.fillStyle = '#5A5A5A';
+    espaciado(x, it.nivel, MG, yPie + 42, 4, 'left');
+    if(it.coleccion) espaciado(x, 'COLECCIÓN Nº ' + it.coleccion, W-MG, yPie + 42, 4, 'right');
+
+    /* firma */
+    x.font = '700 76px "Space Grotesk", system-ui, sans-serif';
+    x.fillStyle = '#F0EDE8';
+    x.fillText('HK', MG, H - 128);
+    var anchoHK = x.measureText('HK').width;
+    x.fillStyle = '#FF3A1F';
+    x.fillText('23', MG + anchoHK, H - 128);
+
+    x.font = '700 16px "Space Mono", monospace';
+    x.fillStyle = '#3A3A3A';
+    espaciado(x, 'HEYOKA 23 · UNIVERSE OS', MG, H - 92, 4, 'left');
+    espaciado(x, SITIO, W-MG, H - 92, 4, 'right');
+
+    return new Promise(function(res){
+      if(c.toBlob) c.toBlob(function(b){ res(b); }, 'image/png');
+      else res(null);
+    });
+  }
+
+  function listo(){
+    /* si las fuentes no cargan (red cortada, modo avión, bloqueador), no esperamos para siempre:
+       la lámina sale igual con la tipografía de respaldo en vez de quedarse colgada */
+    var tope = new Promise(function(r){ setTimeout(r, 1500); });
+    if(document.fonts && document.fonts.ready){
+      return Promise.race([ document.fonts.ready.catch(function(){}), tope ]);
+    }
+    return Promise.resolve();
+  }
+
+  function nombre(it){
+    var base = (it.texto || 'lamina').toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,52);
+    return 'hk23-' + (base || 'lamina') + '.png';
+  }
+
+  /* ── bajar: usa el guardado del artifact si existe, si no el link ── */
+  function bajar(nom, blob){
+    if(!blob){ aviso('⚠ ESTE NAVEGADOR NO PUDO GENERAR LA LÁMINA'); return; }
+    var porClaude = Promise.resolve(null);
+    if(window.claude && typeof window.claude.use === 'function'){
+      porClaude = window.claude.use('downloads').catch(function(){ return null; });
+    }
+    porClaude.then(function(d){
+      if(d && typeof d.save === 'function'){
+        return d.save({ filename: nom, data: blob }).then(function(){
+          aviso('⤓ LÁMINA GUARDADA');
+        }, function(err){
+          if(err && err.code === 'declined') return;
+          caerAlLink(nom, blob);
+        });
+      }
+      caerAlLink(nom, blob);
+    });
+  }
+  function caerAlLink(nom, blob){
+    try{
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = nom;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 5000);
+      aviso('⤓ LÁMINA BAJADA');
+    }catch(e){
+      aviso('⚠ NO PUDE BAJAR LA LÁMINA ACÁ');
+    }
+  }
+
+  function lamina(it){
+    listo().then(function(){ return dibujar(it); }).then(function(b){ bajar(nombre(it), b); });
+  }
+
+  /* ── compartir ───────────────────────────────────────────────────── */
+  function textoCompartir(it){
+    return it.texto + '\n\n— ' + it.nivel + ' · UNIVERSO HK23\n' + SITIO;
+  }
+  function compartir(it){
+    var txt = textoCompartir(it);
+    listo().then(function(){ return dibujar(it); }).then(function(blob){
+      var archivo = null;
+      try{
+        if(blob && window.File) archivo = new File([blob], nombre(it), {type:'image/png'});
+      }catch(e){}
+      if(archivo && navigator.canShare && navigator.canShare({files:[archivo]}) && navigator.share){
+        return navigator.share({ files:[archivo], text: txt })
+          .then(function(){ aviso('⧉ COMPARTIDA'); }, function(e){ if(!(e && e.name==='AbortError')) sinImagen(txt); });
+      }
+      sinImagen(txt);
+    }, function(){ sinImagen(txt); });
+  }
+  function sinImagen(txt){
+    if(navigator.share){
+      navigator.share({ text: txt }).then(function(){ aviso('⧉ COMPARTIDA'); }, function(e){
+        if(e && e.name === 'AbortError') return;
+        alPortapapeles(txt);
+      });
+      return;
+    }
+    alPortapapeles(txt);
+  }
+  function alPortapapeles(txt){
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){
+        aviso('⧉ COPIADA — PEGALA DONDE QUIERAS');
+      }, function(){ aviso('⚠ NO PUDE COMPARTIR ACÁ — BAJÁ LA LÁMINA'); });
+      return;
+    }
+    aviso('⚠ NO PUDE COMPARTIR ACÁ — BAJÁ LA LÁMINA');
+  }
+
+  /* ── imprimir ────────────────────────────────────────────────────── */
+  function imprimir(it){
+    var hoja = document.getElementById('lam-print');
+    if(!hoja) return;
+    hoja.textContent = '';
+    var mk = function(cls, txt){
+      var d = document.createElement('div'); d.className = cls; d.textContent = txt; return d;
+    };
+    var top = document.createElement('div'); top.className = 'p-top';
+    top.appendChild(mk('', 'UNIVERSO HK23'));
+    top.appendChild(mk('', fechaCorta(it.fecha)));
+    hoja.appendChild(top);
+
+    var mid = document.createElement('div'); mid.className = 'p-mid';
+    if(it.negativo) mid.appendChild(mk('p-neg', it.negativo));
+    mid.appendChild(mk('p-tx', it.texto));
+    mid.appendChild(mk('p-lvl', it.nivel + (it.coleccion ? '   ·   COLECCIÓN Nº ' + it.coleccion : '')));
+    hoja.appendChild(mid);
+
+    hoja.appendChild(mk('p-firma', 'HK23'));
+    hoja.appendChild(mk('p-pie', 'HEYOKA 23 · UNIVERSE OS   ·   ' + SITIO));
+
+    try{ window.print(); }
+    catch(e){ aviso('⚠ ESTE NAVEGADOR NO ABRIÓ LA IMPRESIÓN'); }
+  }
+
+  /* ── guardar ─────────────────────────────────────────────────────── */
+  function guardar(it){
+    if(!it) return;
+    var arr = leer();
+    for(var i=0;i<arr.length;i++){
+      if(arr[i].texto === it.texto){ aviso('✦ YA ESTABA EN TU BIBLIOTECA'); return; }
+    }
+    arr.unshift(it);
+    if(!escribir(arr)){ aviso('⚠ NO PUDE GUARDAR — ALMACENAMIENTO LLENO O BLOQUEADO'); return; }
+    aviso('✦ GUARDADA — ' + arr.length + ' EN TU BIBLIOTECA');
+    pintarCuenta();
+  }
+
+  /* ── biblioteca ──────────────────────────────────────────────────── */
+  function pintarCuenta(){
+    var n = leer().length;
+    var a = document.getElementById('lam-bib-n'); if(a) a.textContent = n;
+    var b = document.getElementById('lam-cuenta'); if(b) b.textContent = n + (n===1 ? ' LÁMINA' : ' LÁMINAS');
+  }
+
+  function pintarLista(){
+    var cont = document.getElementById('lam-lista');
+    if(!cont) return;
+    cont.textContent = '';
+    var arr = leer();
+    if(!arr.length){
+      var v = document.createElement('div'); v.className = 'lam-vacia';
+      v.textContent = 'TU BIBLIOTECA ESTÁ VACÍA — ENTRÁ AL AGUJERO NEGRO, TRANSMUTÁ UNA PALABRA Y APRETÁ GUARDAR';
+      cont.appendChild(v);
+      return;
+    }
+    arr.forEach(function(it, idx){
+      var card = document.createElement('div'); card.className = 'lam-card';
+      if(it.negativo){
+        var ng = document.createElement('div'); ng.className = 'lam-neg';
+        ng.textContent = it.negativo; card.appendChild(ng);
+      }
+      var tx = document.createElement('div'); tx.className = 'lam-tx';
+      tx.textContent = it.texto;
+      if(it.color) tx.style.color = it.color;
+      card.appendChild(tx);
+
+      var mt = document.createElement('div'); mt.className = 'lam-meta';
+      mt.textContent = it.nivel + (it.coleccion ? '  ·  Nº ' + it.coleccion : '') + '  ·  ' + fechaCorta(it.fecha);
+      card.appendChild(mt);
+
+      var row = document.createElement('div'); row.className = 'lam-row';
+      [['⤓ LÁMINA', function(){ lamina(it); }],
+       ['⎙ IMPRIMIR', function(){ imprimir(it); }],
+       ['⧉ COMPARTIR', function(){ compartir(it); }],
+       ['✕ BORRAR', function(){ borrar(idx); }]
+      ].forEach(function(par){
+        var b = document.createElement('button');
+        b.className = 'lam-b'; b.textContent = par[0];
+        b.addEventListener('click', par[1]);
+        row.appendChild(b);
+      });
+      card.appendChild(row);
+      cont.appendChild(card);
+    });
+  }
+
+  var porBorrar = -1;
+  function borrar(idx){
+    if(porBorrar !== idx){
+      porBorrar = idx;
+      aviso('⚠ TOCÁ BORRAR DE NUEVO PARA CONFIRMAR');
+      setTimeout(function(){ if(porBorrar === idx) porBorrar = -1; }, 4000);
+      return;
+    }
+    porBorrar = -1;
+    var arr = leer();
+    arr.splice(idx, 1);
+    escribir(arr);
+    aviso('✕ LÁMINA BORRADA');
+    pintarCuenta(); pintarLista();
+  }
+
+  function abrirBib(){
+    var ov = document.getElementById('lam-bib');
+    if(!ov) return;
+    pintarCuenta(); pintarLista();
+    ov.hidden = false;
+  }
+  function cerrarBib(){
+    var ov = document.getElementById('lam-bib');
+    if(ov) ov.hidden = true;
+    porBorrar = -1;
+  }
+  function bibAbierta(){
+    var ov = document.getElementById('lam-bib');
+    return !!(ov && !ov.hidden);
+  }
+
+  function exportarTodo(){
+    var arr = leer();
+    if(!arr.length){ aviso('⚠ NO HAY NADA QUE EXPORTAR TODAVÍA'); return; }
+    var txt = 'LÁMINAS HK23 — UNIVERSO HK23\n' + SITIO + '\n\n';
+    arr.forEach(function(it, i){
+      txt += (i+1) + '. ' + it.texto + '\n';
+      if(it.negativo) txt += '   transmutado de: ' + it.negativo + '\n';
+      txt += '   ' + it.nivel + (it.coleccion ? ' · Nº ' + it.coleccion : '') + ' · ' + fechaCorta(it.fecha) + '\n\n';
+    });
+    var blob = new Blob([txt], {type:'text/plain'});
+    var nom = 'hk23-laminas.txt';
+    var porClaude = Promise.resolve(null);
+    if(window.claude && typeof window.claude.use === 'function'){
+      porClaude = window.claude.use('downloads').catch(function(){ return null; });
+    }
+    porClaude.then(function(d){
+      if(d && typeof d.save === 'function'){
+        return d.save({filename:nom, data:blob}).then(function(){ aviso('⤓ BIBLIOTECA EXPORTADA'); },
+          function(err){ if(!(err && err.code === 'declined')) caerAlLink(nom, blob); });
+      }
+      caerAlLink(nom, blob);
+    });
+  }
+
+  /* ── barra de acciones en el overlay ─────────────────────────────── */
+  function montarBarra(){
+    var ov = document.getElementById('affirmation-overlay');
+    if(!ov || document.getElementById('aff-actions')) return;
+    var cerrar = document.getElementById('aff-close');
+    var barra = document.createElement('div');
+    barra.id = 'aff-actions';
+    [['✦ GUARDAR',   function(){ guardar(actual); }],
+     ['⤓ LÁMINA',    function(){ if(actual) lamina(actual); }],
+     ['⎙ IMPRIMIR',  function(){ if(actual) imprimir(actual); }],
+     ['⧉ COMPARTIR', function(){ if(actual) compartir(actual); }]
+    ].forEach(function(par){
+      var b = document.createElement('button');
+      b.className = 'lam-b'; b.textContent = par[0];
+      b.addEventListener('click', par[1]);
+      barra.appendChild(b);
+    });
+    var bib = document.createElement('button');
+    bib.className = 'lam-b';
+    bib.appendChild(document.createTextNode('▤ BIBLIOTECA '));
+    var n = document.createElement('b'); n.id = 'lam-bib-n'; n.textContent = '0';
+    bib.appendChild(n);
+    bib.addEventListener('click', abrirBib);
+    barra.appendChild(bib);
+
+    if(cerrar && cerrar.parentNode === ov) ov.insertBefore(barra, cerrar);
+    else ov.appendChild(barra);
+    pintarCuenta();
+  }
+
+  /* ── engancharse a la transmutación sin tocarla ──────────────────── */
+  function enganchar(){
+    if(typeof window.showAffirmation !== 'function' || window.showAffirmation.__lam) return false;
+    var orig = window.showAffirmation;
+    var envuelta = function(){
+      var r = orig.apply(this, arguments);
+      montarBarra();
+      actual = capturar();
+      var barra = document.getElementById('aff-actions');
+      if(barra){
+        barra.classList.remove('on');
+        clearTimeout(envuelta.__t);
+        envuelta.__t = setTimeout(function(){
+          actual = capturar();
+          pintarCuenta();
+          barra.classList.add('on');
+        }, 3800);
+      }
+      return r;
+    };
+    envuelta.__lam = true;
+    window.showAffirmation = envuelta;
+    return true;
+  }
+
+  function engancharCierre(){
+    if(typeof window.closeAffirmation !== 'function' || window.closeAffirmation.__lam) return;
+    var orig = window.closeAffirmation;
+    var envuelta = function(){
+      var barra = document.getElementById('aff-actions');
+      if(barra) barra.classList.remove('on');
+      return orig.apply(this, arguments);
+    };
+    envuelta.__lam = true;
+    window.closeAffirmation = envuelta;
+  }
+
+  /* ── atajo en el dock ────────────────────────────────────────────── */
+  function montarDock(){
+    var dock = document.getElementById('hk-dock');
+    if(!dock || document.getElementById('lam-dk')) return;
+    var b = document.createElement('button');
+    b.className = 'dk'; b.id = 'lam-dk'; b.textContent = '✦ LÁMINAS';
+    b.style.setProperty('--dc', VERDE);
+    b.addEventListener('click', abrirBib);
+    dock.appendChild(b);
+  }
+
+  /* ── arranque ────────────────────────────────────────────────────── */
+  function init(){
+    enganchar();
+    engancharCierre();
+    montarBarra();
+    montarDock();
+    pintarCuenta();
+    var c = document.getElementById('lam-cerrar');
+    if(c) c.addEventListener('click', cerrarBib);
+    var e = document.getElementById('lam-exportar');
+    if(e) e.addEventListener('click', exportarTodo);
+    var ov = document.getElementById('lam-bib');
+    if(ov) ov.addEventListener('click', function(ev){ if(ev.target === ov) cerrarBib(); });
+  }
+
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+  /* por si showAffirmation se define después de este bloque */
+  var intentos = 0;
+  var reintento = setInterval(function(){
+    if(enganchar() || ++intentos > 40) clearInterval(reintento);
+  }, 250);
+
+  /* Escape: la biblioteca se cierra primero, antes que el overlay de abajo */
+  document.addEventListener('keydown', function(e){
+    if(e.key !== 'Escape') return;
+    if(bibAbierta()){ e.stopPropagation(); cerrarBib(); }
+  }, true);
+
+  window.LaminasHK23 = {
+    abrir: abrirBib, cerrar: cerrarBib, guardar: function(){ guardar(actual); },
+    lamina: function(){ if(actual) lamina(actual); },
+    imprimir: function(){ if(actual) imprimir(actual); },
+    compartir: function(){ if(actual) compartir(actual); },
+    todas: leer, actual: function(){ return actual; }
+  };
+})();
+</script>
+
 </body>
 </html>
