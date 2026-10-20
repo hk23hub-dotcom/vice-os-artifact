@@ -6,6 +6,7 @@
   <url><loc>https://hk23universe.vercel.app/cosmos</loc><priority>0.8</priority></url>
   <url><loc>https://hk23universe.vercel.app/mundial</loc><priority>0.7</priority></url>
   <url><loc>https://hk23universe.vercel.app/multiverse</loc><priority>0.6</priority></url>
+  <url><loc>https://hk23universe.vercel.app/autografo</loc><priority>0.7</priority></url>
   <url><loc>https://hk23universe.vercel.app/privacy</loc><priority>0.2</priority></url>
   <url><loc>https://hk23universe.vercel.app/terms</loc><priority>0.2</priority></url>
 </urlset>
