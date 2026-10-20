@@ -17275,6 +17275,13 @@ addEventListener('DOMContentLoaded', function(){
   .cu-secreto{ font-family:'Space Mono',monospace; font-size:14px; color:#AAFF00; background:#060607; border:1px solid #222;
     padding:8px 10px; border-radius:2px; word-break:break-all; user-select:all; }
   .cu-link{ color:var(--cuc,#F0EDE8); text-decoration:none; border-bottom:1px solid rgba(255,255,255,.15); }
+  .cu-totales{ font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--cuc,#F0EDE8);
+    text-transform:uppercase; padding:10px 12px; border:1px solid #1E1E22; border-radius:2px; margin-bottom:12px; }
+  .cu-filtros{ display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+  .cu-filtro{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; text-transform:uppercase;
+    color:#666; background:transparent; border:1px solid #222; border-radius:2px; min-height:36px; padding:0 10px; cursor:pointer; }
+  .cu-filtro.on{ color:#000; background:var(--cuc,#F0EDE8); border-color:var(--cuc,#F0EDE8); }
+  .cu-in.chica{ flex:0 1 150px; }
   @media(max-width:640px){ .cu-fila{ flex-direction:column; } .cu-fila .cu-ops{ justify-content:flex-start; } }
 </style>
 
@@ -17457,7 +17464,7 @@ addEventListener('DOMContentLoaded', function(){
       var n = { bitacora:0, archivo:0, clave:0, link:0 }, bytes = 0;
       items.forEach(function(x){ if(n[x.tipo] != null) n[x.tipo]++; if(x.tipo==='archivo') bytes += (x.tam||0); });
       $('cu-pie').textContent = 'LOCAL · ' + n.bitacora + ' NOTAS · ' + n.archivo + ' ARCHIVOS (' + tam(bytes) + ') · ' + n.clave + ' CLAVES · ' + n.link + ' LINKS · EXPORTÁ PARA MOVERLO';
-      if(tab==='bitacora') pintarBitacora(cuerpo, items.filter(function(x){ return x.tipo==='bitacora'; }));
+      if(tab==='bitacora') pintarBitacora(cuerpo, items.filter(function(x){ return x.tipo==='bitacora'; }), items.filter(function(x){ return x.tipo==='archivo'; }));
       else if(tab==='archivos') pintarArchivos(cuerpo, items.filter(function(x){ return x.tipo==='archivo'; }));
       else if(tab==='claves') pintarClaves(cuerpo, items.filter(function(x){ return x.tipo==='clave'; }));
       else pintarLinks(cuerpo, links);
@@ -17468,29 +17475,62 @@ addEventListener('DOMContentLoaded', function(){
 
   function vacio(cuerpo, txt){ cuerpo.appendChild(el('div','cu-vacio',txt)); }
 
-  /* BITÁCORA */
-  function pintarBitacora(cuerpo, notas){
+  /* BITÁCORA = sesiones de trabajo: qué hice, cuánto tiempo, cuántos tokens, qué salió */
+  function minutosTxt(m){ m = +m || 0; if(!m) return ''; var h = Math.floor(m/60), r = m % 60; return (h ? h + 'h' : '') + (r ? (h ? ' ' : '') + r + 'min' : ''); }
+  function tokensTxt(t){ t = +t || 0; if(!t) return ''; return t >= 1000 ? (t/1000).toFixed(t >= 100000 ? 0 : 1) + 'k' : String(t); }
+  function pintarBitacora(cuerpo, notas, archivos){
+    var totM = 0, totT = 0;
+    notas.forEach(function(n){ totM += (+n.minutos || 0); totT += (+n.tokens || 0); });
+    cuerpo.appendChild(el('div','cu-totales', notas.length + (notas.length === 1 ? ' SESIÓN' : ' SESIONES') +
+      ' · ⏱ ' + (minutosTxt(totM) || '0min') + ' · ⚡ ' + (tokensTxt(totT) || '0') + ' TOKENS'));
     var form = el('div','cu-form');
-    var ta = el('textarea','cu-in'); ta.placeholder = 'Qué cambió hoy en ' + PROY[proyecto].nombre + '… (una nota por cambio)';
+    var ta = el('textarea','cu-in'); ta.placeholder = 'Qué hiciste hoy en ' + PROY[proyecto].nombre + '…';
     form.appendChild(ta);
-    form.appendChild(boton('✦ ANOTAR', function(){
-      var t = ta.value.trim(); if(!t) return aviso('⚠ ESCRIBÍ ALGO PRIMERO');
-      poner({ id:uid(), proyecto:proyecto, tipo:'bitacora', fecha:new Date().toISOString(), texto:t })
-        .then(function(){ aviso('✦ ANOTADO'); pintar(); }, function(e){ aviso('⚠ NO SE GUARDÓ: ' + (e && e.name)); });
+    var mi = document.createElement('input'); mi.type='number'; mi.min='0'; mi.className='cu-in chica'; mi.placeholder='minutos dedicados'; mi.inputMode='numeric';
+    var tk = document.createElement('input'); tk.type='number'; tk.min='0'; tk.className='cu-in chica'; tk.placeholder='tokens usados'; tk.inputMode='numeric';
+    form.appendChild(mi); form.appendChild(tk);
+    form.appendChild(boton('✦ ANOTAR SESIÓN', function(){
+      var t = ta.value.trim(); if(!t) return aviso('⚠ ESCRIBÍ QUÉ HICISTE');
+      poner({ id:uid(), proyecto:proyecto, tipo:'bitacora', fecha:new Date().toISOString(), texto:t,
+              minutos:+mi.value || 0, tokens:+tk.value || 0 })
+        .then(function(){ aviso('✦ SESIÓN ANOTADA'); pintar(); }, function(e){ aviso('⚠ NO SE GUARDÓ: ' + (e && e.name)); });
     }));
     cuerpo.appendChild(form);
-    if(!notas.length) return vacio(cuerpo, 'TODAVÍA NO HAY NOTAS — ANOTÁ EL PRIMER CAMBIO');
+    if(!notas.length) return vacio(cuerpo, 'TODAVÍA NO HAY SESIONES — ANOTÁ LA PRIMERA, O USÁ ⤒ SUBIR DEL DOCK');
     notas.forEach(function(nt){
-      var f = el('div','cu-fila'), c = el('div');
-      c.appendChild(el('div','cu-tx', nt.texto)); c.appendChild(el('div','cu-meta', fecha(nt.fecha)));
-      c.style.flex = '1'; c.style.minWidth = '0'; f.appendChild(c);
+      var f = el('div','cu-fila'), c = el('div'); c.style.flex = '1'; c.style.minWidth = '0';
+      c.appendChild(el('div','cu-tx', nt.texto));
+      var adj = (archivos || []).filter(function(a){ return a.sesion === nt.id; });
+      var meta = fecha(nt.fecha);
+      if(nt.minutos) meta += '  ·  ⏱ ' + minutosTxt(nt.minutos);
+      if(nt.tokens)  meta += '  ·  ⚡ ' + tokensTxt(nt.tokens) + ' tokens';
+      if(adj.length) meta += '  ·  ' + adj.length + (adj.length === 1 ? ' archivo' : ' archivos');
+      c.appendChild(el('div','cu-meta', meta));
+      if(adj.length){
+        var lst = el('div','cu-meta'); lst.style.color = '#666';
+        lst.textContent = adj.map(function(a){ return (a.etiqueta ? a.etiqueta.toUpperCase() + ': ' : '') + a.nombre; }).join('  ·  ');
+        c.appendChild(lst);
+      }
+      f.appendChild(c);
       var ops = el('div','cu-ops'); ops.appendChild(boton('✕', function(){ confirmarBorrar(nt.id); }, 'peligro')); f.appendChild(ops);
       cuerpo.appendChild(f);
     });
   }
 
-  /* ARCHIVOS */
+  /* ARCHIVOS: cada uno con su etiqueta (informe, logo, obra…) y filtro por etiqueta */
+  var ETIQUETAS = ['informe','logo','marca','obra','landing','idea','captura','doc','otro'];
+  var filtroEtq = '';
   function pintarArchivos(cuerpo, archivos){
+    var usadas = []; archivos.forEach(function(a){ var e = a.etiqueta || 'otro'; if(usadas.indexOf(e) < 0) usadas.push(e); });
+    if(usadas.length > 1){
+      var fl = el('div','cu-filtros');
+      [''].concat(usadas).forEach(function(e){
+        var b = el('button','cu-filtro' + (filtroEtq === e ? ' on' : ''), e || 'todo'); b.type = 'button';
+        b.addEventListener('click', function(){ filtroEtq = e; pintar(); }); fl.appendChild(b);
+      });
+      cuerpo.appendChild(fl);
+    }
+    if(filtroEtq) archivos = archivos.filter(function(a){ return (a.etiqueta || 'otro') === filtroEtq; });
     var form = el('div','cu-form');
     var inp = document.createElement('input'); inp.type = 'file'; inp.multiple = true; inp.hidden = true;
     inp.addEventListener('change', function(){
@@ -17510,7 +17550,9 @@ addEventListener('DOMContentLoaded', function(){
     if(!archivos.length) return vacio(cuerpo, 'TODAVÍA NO HAY ARCHIVOS — SUBÍ EL PRIMER INFORME');
     archivos.forEach(function(a){
       var f = el('div','cu-fila'), c = el('div'); c.style.flex='1'; c.style.minWidth='0';
-      c.appendChild(el('div','cu-tx', a.nombre));
+      var tx = el('div','cu-tx', a.nombre);
+      if(a.etiqueta) tx.appendChild(el('span','cu-chip', a.etiqueta));
+      c.appendChild(tx);
       c.appendChild(el('div','cu-meta', (a.mime||'') + ' · ' + tam(a.tam||0) + ' · ' + fecha(a.fecha)));
       f.appendChild(c);
       var ops = el('div','cu-ops');
@@ -17740,7 +17782,24 @@ addEventListener('DOMContentLoaded', function(){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
-  window.Cuartel = { abrir:abrir, cerrar:cerrar, proyectos:Object.keys(PROY), bloquear:olvidarFrase, version:'1' };
+  /* desde afuera (el buzón): guardar un archivo o una sesión entera con sus adjuntos */
+  function guardarArchivo(proy, file, etiqueta, sesionId){
+    if(!PROY[proy] || !file) return Promise.reject(new Error('proyecto o archivo inválido'));
+    return poner({ id:uid(), proyecto:proy, tipo:'archivo', fecha:new Date().toISOString(),
+      nombre:file.name, mime:file.type || 'application/octet-stream', tam:file.size, blob:file,
+      etiqueta:etiqueta || 'otro', sesion:sesionId || null });
+  }
+  function guardarSesion(d){
+    if(!d || !PROY[d.proyecto]) return Promise.reject(new Error('proyecto inválido'));
+    var id = uid();
+    var ses = { id:id, proyecto:d.proyecto, tipo:'bitacora', fecha:d.fecha || new Date().toISOString(),
+      texto:(d.texto || '').trim() || 'Sesión sin descripción', minutos:+d.minutos || 0, tokens:+d.tokens || 0 };
+    return poner(ses).then(function(){
+      return Promise.all((d.archivos || []).map(function(a){ return guardarArchivo(d.proyecto, a.file, a.etiqueta, id); }));
+    }).then(function(r){ return { sesion:id, archivos:r.length }; });
+  }
+  window.Cuartel = { abrir:abrir, cerrar:cerrar, proyectos:Object.keys(PROY), nombres:function(){ var o={}; for(var k in PROY) o[k]={nombre:PROY[k].nombre,color:PROY[k].color}; return o; },
+    etiquetas:ETIQUETAS.slice(), guardarArchivo:guardarArchivo, guardarSesion:guardarSesion, bloquear:olvidarFrase, version:'2' };
 })();
 </script>
 
@@ -17761,6 +17820,233 @@ addEventListener('DOMContentLoaded', function(){
     document.body.style.setProperty('background', '#080808', 'important');
     document.body.style.setProperty('color', claro, 'important');
   }catch(e){}
+})();
+</script>
+
+
+<!-- ═══════════ BUZÓN — subir lo que vas creando, con fecha, tiempo, tokens y destino ═══════════
+     Un solo lugar para subir. Cada subida es una SESIÓN de trabajo: qué hiciste, cuánto
+     tiempo, cuántos tokens, y los archivos que salieron — cada archivo con su etiqueta y
+     su planeta. Todo va al cuartel del planeta (IndexedDB hk23_cuartel). Arrastrá y soltá
+     en escritorio; botón ⤒ SUBIR en el dock en todos lados. -->
+<style id="bz-style">
+  #bz{ position:fixed; inset:0; z-index:770; display:none; align-items:flex-end; justify-content:center;
+    background:rgba(4,4,6,.9); backdrop-filter:blur(6px); }
+  #bz.open{ display:flex; }
+  .bz-box{ width:min(720px,100%); max-height:calc(100% - env(safe-area-inset-top,0px) - 12px); display:flex; flex-direction:column;
+    background:#0B0B0D; border:1px solid #1E1E22; border-radius:6px 6px 0 0; box-shadow:0 -30px 80px rgba(0,0,0,.7);
+    padding-bottom:env(safe-area-inset-bottom,0px); }
+  @media(min-width:900px){ #bz{ align-items:center; } .bz-box{ border-radius:6px; max-height:88vh; } }
+  .bz-head{ display:flex; align-items:center; gap:12px; padding:14px 16px 10px; border-bottom:1px solid #161618; }
+  .bz-head b{ flex:1; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:5px; text-transform:uppercase; color:#F0EDE8; }
+  .bz-cuerpo{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:14px 16px; }
+  .bz-lbl{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:3px; color:#555; text-transform:uppercase; margin:12px 0 6px; }
+  .bz-lbl:first-child{ margin-top:0; }
+  .bz-dest{ display:flex; gap:6px; flex-wrap:wrap; }
+  .bz-dest .cu-b.on{ color:#000; background:var(--bzc,#F0EDE8); border-color:var(--bzc,#F0EDE8); font-weight:700; }
+  .bz-fila{ display:flex; gap:6px; flex-wrap:wrap; }
+  .bz-chips{ display:flex; gap:4px; flex-wrap:wrap; margin-top:6px; }
+  .bz-chip{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#777; background:transparent;
+    border:1px solid #222; border-radius:2px; min-height:36px; padding:0 10px; cursor:pointer; }
+  .bz-chip:hover{ color:#000; background:#F0EDE8; border-color:#F0EDE8; }
+  .bz-drop{ border:1px dashed #2A2A2A; border-radius:3px; padding:18px 14px; text-align:center; cursor:pointer;
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:3px; color:#666; text-transform:uppercase; line-height:1.9; }
+  .bz-drop:hover,.bz-drop.sobre{ border-color:#F0EDE8; color:#F0EDE8; }
+  .bz-arch{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; padding:10px 0; border-bottom:1px dashed #1A1A1C; }
+  .bz-arch .bz-nom{ flex:1 1 160px; min-width:0; font-family:'Space Grotesk',system-ui,sans-serif; font-size:14px; color:#DDD;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .bz-arch .bz-tam{ font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#4A4A4A; }
+  .bz-sel{ min-height:44px; background:#060607; color:#E8E8E8; border:1px solid #222; border-radius:2px; padding:0 10px;
+    font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+  .bz-pie{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; padding:10px 16px 14px; border-top:1px solid #161618; }
+  .bz-pie .bz-res{ flex:1; font-family:'Space Mono',monospace; font-size:8px; letter-spacing:2px; color:#555; text-transform:uppercase; }
+  #bz-guardar{ color:#000; background:var(--bzc,#F0EDE8); border-color:var(--bzc,#F0EDE8); font-weight:700; }
+  /* zona de arrastre global (escritorio) */
+  #bz-zona{ position:fixed; inset:0; z-index:765; display:none; align-items:center; justify-content:center;
+    background:rgba(8,8,8,.86); border:3px dashed #F0EDE8; pointer-events:none;
+    font-family:'Space Mono',monospace; font-size:12px; letter-spacing:6px; text-transform:uppercase; color:#F0EDE8; text-align:center; line-height:2.2; }
+  #bz-zona.on{ display:flex; }
+</style>
+
+<div id="bz-zona" aria-hidden="true">SOLTÁ PARA SUBIR AL UNIVERSO<br><span style="font-size:8px;letter-spacing:3px;color:#777">DESPUÉS ELEGÍS A QUÉ PLANETA VA</span></div>
+
+<div id="bz" role="dialog" aria-modal="true" aria-label="Buzón de subida">
+  <div class="bz-box">
+    <div class="bz-head"><b>⤒ SUBIR AL UNIVERSO</b><button class="cu-b" id="bz-cerrar" aria-label="cerrar">✕</button></div>
+    <div class="bz-cuerpo">
+      <div class="bz-lbl">¿A QUÉ PLANETA VA?</div>
+      <div class="bz-dest" id="bz-dest"></div>
+      <div class="bz-lbl">LA SESIÓN</div>
+      <textarea class="cu-in" id="bz-texto" placeholder="Qué hiciste / qué creaste en esta sesión…"></textarea>
+      <div class="bz-fila" style="margin-top:6px">
+        <input class="cu-in chica" id="bz-fecha" type="date">
+        <input class="cu-in chica" id="bz-min" type="number" min="0" inputmode="numeric" placeholder="minutos dedicados">
+        <input class="cu-in chica" id="bz-tok" type="number" min="0" inputmode="numeric" placeholder="tokens de la sesión">
+      </div>
+      <div class="bz-chips" id="bz-rapidos"></div>
+      <div class="bz-lbl">LO QUE SALIÓ (ARCHIVOS)</div>
+      <div class="bz-drop" id="bz-drop">TOCÁ PARA ELEGIR ARCHIVOS<br><span style="font-size:8px;letter-spacing:2px;color:#444">O ARRASTRALOS ACÁ · PDF · IMÁGENES · LO QUE SEA</span></div>
+      <input type="file" id="bz-file" multiple hidden>
+      <div id="bz-lista"></div>
+    </div>
+    <div class="bz-pie">
+      <span class="bz-res" id="bz-res">—</span>
+      <button class="cu-b" id="bz-guardar">✦ GUARDAR SESIÓN</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  function $(id){ return document.getElementById(id); }
+  var destino = null, archivos = [];   /* archivos: [{file, etiqueta}] */
+  var avisoT;
+  function aviso(msg){ var t = $('collect-toast'); if(!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(avisoT); avisoT = setTimeout(function(){ t.classList.remove('show'); }, 2600); }
+  function tam(n){ if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(1)+' MB'; }
+  function hoy(){ var d=new Date(), p=function(n){return (n<10?'0':'')+n;}; return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+
+  /* adivinar destino y etiqueta — el dueño corrige con un toque */
+  function adivinarPlaneta(nombre){
+    var n = (nombre||'').toLowerCase();
+    if(/vicegolf|golf|putt|caddie|caddy/.test(n)) return 'vicegolfer';
+    if(/rugby|kick|scrum/.test(n)) return 'rugbyvice';
+    if(/crypto|cripto|btc|bitcoin|defi|token|chain/.test(n)) return 'cryptovice';
+    if(/arte|art[-_ .]|obra|ilustr|dise|canvas|madera|escult/.test(n)) return 'arteworld';
+    return null;
+  }
+  function adivinarEtiqueta(file){
+    var n = (file.name||'').toLowerCase(), t = (file.type||'');
+    if(/logo|isotipo|wordmark/.test(n)) return 'logo';
+    if(/marca|brand|identidad|paleta|manual/.test(n)) return 'marca';
+    if(/landing|home|web|site/.test(n)) return 'landing';
+    if(/informe|report|resumen|auditor|analisis|análisis/.test(n) || t==='application/pdf') return 'informe';
+    if(/idea|brainstorm|concepto/.test(n)) return 'idea';
+    if(/screenshot|captura|screen|pantalla|img_\d|photo_\d/.test(n)) return 'captura';
+    if(/^image\//.test(t)) return 'obra';
+    if(/^text\/|document|sheet|presentation|json|markdown/.test(t) || /\.(md|txt|doc|docx|csv|xlsx|pptx)$/.test(n)) return 'doc';
+    return 'otro';
+  }
+  function mundoAbierto(){
+    var m = { vicegolfer:'#vg', rugbyvice:'#rv', arteworld:'#ar', cryptovice:'#cw' };
+    for(var id in m){ var e = document.querySelector(m[id]); if(!e) continue;
+      if(e.classList.contains('open')) return id;
+      if(id==='cryptovice' && e.style.display && e.style.display!=='none') return id; }
+    return null;
+  }
+
+  function pintarDest(){
+    var cont = $('bz-dest'); cont.textContent = '';
+    var nombres = (window.Cuartel && Cuartel.nombres) ? Cuartel.nombres() : {};
+    Object.keys(nombres).forEach(function(id){
+      var b = document.createElement('button'); b.type='button'; b.className = 'cu-b' + (destino===id ? ' on' : '');
+      b.textContent = nombres[id].nombre; b.style.setProperty('--bzc', nombres[id].color);
+      b.addEventListener('click', function(){ destino = id; $('bz').style.setProperty('--bzc', nombres[id].color); pintarDest(); resumen(); });
+      cont.appendChild(b);
+    });
+  }
+  function pintarLista(){
+    var cont = $('bz-lista'); cont.textContent = '';
+    var etqs = (window.Cuartel && Cuartel.etiquetas) || ['informe','logo','marca','obra','landing','idea','captura','doc','otro'];
+    archivos.forEach(function(a, i){
+      var f = document.createElement('div'); f.className = 'bz-arch';
+      var nom = document.createElement('div'); nom.className = 'bz-nom'; nom.textContent = a.file.name; f.appendChild(nom);
+      var tm = document.createElement('span'); tm.className = 'bz-tam'; tm.textContent = tam(a.file.size); f.appendChild(tm);
+      var sel = document.createElement('select'); sel.className = 'bz-sel'; sel.setAttribute('aria-label','etiqueta');
+      etqs.forEach(function(e){ var o = document.createElement('option'); o.value = e; o.textContent = e.toUpperCase(); if(e===a.etiqueta) o.selected = true; sel.appendChild(o); });
+      sel.addEventListener('change', function(){ a.etiqueta = sel.value; });
+      f.appendChild(sel);
+      var x = document.createElement('button'); x.type='button'; x.className='cu-b peligro'; x.textContent='✕'; x.setAttribute('aria-label','quitar');
+      x.addEventListener('click', function(){ archivos.splice(i,1); pintarLista(); resumen(); }); f.appendChild(x);
+      cont.appendChild(f);
+    });
+    resumen();
+  }
+  function resumen(){
+    var nombres = (window.Cuartel && Cuartel.nombres) ? Cuartel.nombres() : {};
+    var d = destino && nombres[destino] ? nombres[destino].nombre : 'SIN PLANETA';
+    var m = +$('bz-min').value || 0, t = +$('bz-tok').value || 0;
+    $('bz-res').textContent = d + ' · ' + archivos.length + (archivos.length===1?' archivo':' archivos') + (m ? ' · ' + m + ' min' : '') + (t ? ' · ' + t + ' tokens' : '');
+  }
+  function agregar(files){
+    var fs = Array.prototype.slice.call(files || []); if(!fs.length) return;
+    fs.forEach(function(f){ archivos.push({ file:f, etiqueta:adivinarEtiqueta(f) }); if(!destino){ destino = adivinarPlaneta(f.name); } });
+    if(!destino) destino = mundoAbierto();
+    pintarDest(); pintarLista();
+  }
+
+  function abrir(files){
+    if(!window.Cuartel){ aviso('⚠ EL CUARTEL NO ESTÁ CARGADO'); return; }
+    if(!destino) destino = mundoAbierto();
+    if(!$('bz-fecha').value) $('bz-fecha').value = hoy();
+    pintarDest(); pintarLista();
+    $('bz').classList.add('open');
+    if(files && files.length) agregar(files);
+    if(destino){ var n = Cuartel.nombres()[destino]; if(n) $('bz').style.setProperty('--bzc', n.color); }
+  }
+  function cerrar(){ $('bz').classList.remove('open'); }
+  function abierto(){ return $('bz').classList.contains('open'); }
+  function limpiar(){ archivos = []; $('bz-texto').value=''; $('bz-min').value=''; $('bz-tok').value=''; $('bz-fecha').value = hoy(); pintarLista(); }
+
+  function guardar(){
+    if(!destino){ aviso('⚠ ELEGÍ A QUÉ PLANETA VA'); return; }
+    var texto = $('bz-texto').value.trim();
+    if(!texto && !archivos.length){ aviso('⚠ ESCRIBÍ QUÉ HICISTE O SUBÍ ALGO'); return; }
+    var fecha = $('bz-fecha').value ? new Date($('bz-fecha').value + 'T12:00:00').toISOString() : new Date().toISOString();
+    var b = $('bz-guardar'); b.disabled = true; b.textContent = 'GUARDANDO…';
+    var proy = destino;
+    Cuartel.guardarSesion({ proyecto:proy, texto:texto, fecha:fecha, minutos:+$('bz-min').value || 0, tokens:+$('bz-tok').value || 0, archivos:archivos })
+      .then(function(r){
+        b.disabled = false; b.textContent = '✦ GUARDAR SESIÓN';
+        aviso('✦ SESIÓN GUARDADA EN ' + Cuartel.nombres()[proy].nombre + ' · ' + r.archivos + (r.archivos===1?' ARCHIVO':' ARCHIVOS'));
+        limpiar(); cerrar();
+        /* abrir el cuartel ahí mismo para verlo */
+        setTimeout(function(){ Cuartel.abrir(proy); }, 250);
+      }, function(e){
+        b.disabled = false; b.textContent = '✦ GUARDAR SESIÓN';
+        aviso('⚠ NO SE GUARDÓ: ' + (e && (e.name || e.message)));
+      });
+  }
+
+  function init(){
+    var dock = document.getElementById('hk-dock');
+    if(dock && !document.getElementById('bz-dk')){
+      var d = document.createElement('button'); d.className='dk'; d.id='bz-dk'; d.textContent='⤒ SUBIR';
+      d.style.setProperty('--dc','#F0EDE8'); d.addEventListener('click', function(){ abrir(); });
+      dock.appendChild(d);
+    }
+    $('bz-cerrar').addEventListener('click', cerrar);
+    $('bz').addEventListener('click', function(e){ if(e.target === $('bz')) cerrar(); });
+    $('bz-drop').addEventListener('click', function(){ $('bz-file').click(); });
+    $('bz-file').addEventListener('change', function(){ agregar(this.files); this.value=''; });
+    $('bz-guardar').addEventListener('click', guardar);
+    ['bz-min','bz-tok'].forEach(function(id){ $(id).addEventListener('input', resumen); });
+    /* chips rápidos de tiempo */
+    var r = $('bz-rapidos');
+    [[15,'15 MIN'],[30,'30 MIN'],[60,'1 H'],[120,'2 H'],[240,'4 H']].forEach(function(p){
+      var c = document.createElement('button'); c.type='button'; c.className='bz-chip'; c.textContent='⏱ '+p[1];
+      c.addEventListener('click', function(){ $('bz-min').value = p[0]; resumen(); }); r.appendChild(c);
+    });
+    /* arrastrar y soltar en toda la página (escritorio) */
+    var dentro = 0;
+    document.addEventListener('dragenter', function(e){ if(!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types,'Files')<0) return; dentro++; $('bz-zona').classList.add('on'); });
+    document.addEventListener('dragleave', function(e){ if(!e.dataTransfer || Array.prototype.indexOf.call(e.dataTransfer.types,'Files')<0) return; dentro = Math.max(0, dentro-1); if(!dentro) $('bz-zona').classList.remove('on'); });
+    document.addEventListener('dragover', function(e){ if(e.dataTransfer && Array.prototype.indexOf.call(e.dataTransfer.types,'Files')>=0) e.preventDefault(); });
+    document.addEventListener('drop', function(e){
+      if(!e.dataTransfer || !e.dataTransfer.files || !e.dataTransfer.files.length) return;
+      e.preventDefault(); dentro = 0; $('bz-zona').classList.remove('on');
+      if(abierto()) agregar(e.dataTransfer.files); else abrir(e.dataTransfer.files);
+    });
+    var dz = $('bz-drop');
+    dz.addEventListener('dragover', function(e){ e.preventDefault(); dz.classList.add('sobre'); });
+    dz.addEventListener('dragleave', function(){ dz.classList.remove('sobre'); });
+    dz.addEventListener('drop', function(e){ e.preventDefault(); e.stopPropagation(); dz.classList.remove('sobre'); dentro=0; $('bz-zona').classList.remove('on'); agregar(e.dataTransfer.files); });
+    /* Escape cierra el buzón antes que nada de abajo */
+    window.addEventListener('keydown', function(e){ if(e.key==='Escape' && abierto()){ e.stopImmediatePropagation(); e.stopPropagation(); e.preventDefault(); cerrar(); } }, true);
+    if(window.HK_ENCIMA && HK_ENCIMA.registrar) HK_ENCIMA.registrar('#bz.open');
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.Buzon = { abrir:abrir, cerrar:cerrar, agregar:agregar, version:'1' };
 })();
 </script>
 
