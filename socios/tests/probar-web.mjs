@@ -188,4 +188,64 @@ const txt = (d, id) => d.getElementById(id).textContent;
   ok((hm === '00:59' || hm === '01:00') && calls.filter((c) => c.fn === 'socios_estado').length === 1,
     'la cuenta regresiva usa la hora del servidor, no la del visitante (' + hm + ')');
 }
+
+// ---------- 8. catálogo de lanzamiento: LeadHunter, DuckCam y la tienda ----------
+const LANZAMIENTO = [
+  { clave: 'leadhunter', nombre: 'LeadHunter', marca: 'LeadHunter', categoria: 'AGENTE IA · VENTAS', descripcion: 'Agente que consigue clientes.', precio: 'US$97',
+    url: 'https://hk23universe.vercel.app/leadhunter', canal: 'directo', costo_pct: 15, estado: 'disponible', color: '#AAFF00', moneda: 'USD', descuenta: true, precio_lista: 97 },
+  { clave: 'duckcam', nombre: 'DuckCam', marca: 'DuckCam', categoria: 'CÁMARA DE AUTO', descripcion: 'Un pato que graba.', precio: '$49.990 CLP · preventa',
+    url: null, canal: 'directo', costo_pct: 80, estado: 'disponible', color: '#FFD200', moneda: 'CLP', descuenta: false, precio_lista: 49990 },
+  { clave: 'tienda-hk23-studio', nombre: 'Tienda HK23 STUDIO', marca: 'Proof of Work', categoria: 'ARTE', descripcion: 'Posters.', precio: 'desde US$3',
+    url: 'https://fcqevq-jr.myshopify.com', canal: 'shopify', costo_pct: 62, estado: 'disponible', color: '#FF3A1F', moneda: 'USD', descuenta: true, precio_lista: null },
+];
+{
+  const { d, errors } = montar({ estados: [{ ...BASE, productos: LANZAMIENTO, abierto: false, abre: futuro(86400e3) }] });
+  await wait(60);
+  ok(/Partimos con LeadHunter, DuckCam y Tienda HK23 STUDIO\./.test(txt(d, 'heroLede')), 'el inicio nombra los 3 productos de lanzamiento: ' + txt(d, 'heroLede'));
+  const partes = [...d.querySelectorAll('#productos .parte')].map((p) => p.textContent);
+  ok(/^US\$35/.test(partes[0]) && /~41%/.test(partes[0]) && /por venta como fundador/.test(partes[0]),
+    'LeadHunter: US$35 por venta para el fundador (US$97 − 10%, costo 15%, 49% de la ganancia) → ' + partes[0]);
+  ok(/^\$4\.800/.test(partes[1]) && /~10%/.test(partes[1]), 'DuckCam: $4.800 por venta (49% de la ganancia con costo 80%), redondeado hacia abajo → ' + partes[1]);
+  ok(/^~15%/.test(partes[2]), 'la tienda, sin precio único, muestra solo el %: ' + partes[2]);
+  const cards = d.querySelectorAll('#productos .producto');
+  ok(cards[0].tagName === 'A' && cards[1].tagName === 'ARTICLE' && /Próximamente/.test(cards[1].textContent), 'DuckCam sin link todavía: se muestra como próximamente');
+  ok(/En LeadHunter y Tienda HK23 STUDIO, tu código además le da 10% de descuento/.test(txt(d, 'pasoCompartes')),
+    'explica en qué productos el código da descuento: ' + txt(d, 'pasoCompartes'));
+  ok(/DuckCam/.test(d.getElementById('preguntas').textContent) && /7 días/.test(d.getElementById('preguntas').textContent),
+    'las preguntas explican cuándo se paga una preventa y la garantía de LeadHunter');
+  ok(errors.length === 0, 'sin errores de JS ' + errors.join(' | '));
+}
+{
+  const LL = 'b'.repeat(32);
+  const productos = LANZAMIENTO.map((p) => p.clave === 'duckcam' ? { ...p, url: 'https://duckcam.example/early-egg' } : p);
+  const panel = { alias: 'Ana P.', nombre: 'Ana Pérez', codigo: 'HK23ANAP', fundador: 1, comision: 49, descuento: 10, tienda: 'https://fcqevq-jr.myshopify.com',
+    ventas: [{ fecha: '2026-11-02T15:00:00Z', origen: 'manual', detalle: 'Pato Corbata', producto: 'DuckCam', monto: 52.07, comision: 5.1, estado: 'valida', moneda: 'CLP', original: 49990 }],
+    totales: { ventas: 1, monto: 52.07, comision: 5.1 } };
+  const { d } = montar({ url: 'https://hk23universe.vercel.app/socios?llave=' + LL,
+    estados: [{ ...BASE, productos, abierto: true, abre: futuro(-1e6) }], rpcs: { socios_mi_panel: () => ({ status: 200, body: panel }) } });
+  await wait(80);
+  ok(/En LeadHunter y Tienda HK23 STUDIO, tu código le da 10% de descuento/.test(txt(d, 'panelLede')), 'el panel dice dónde descuenta su código');
+  const filas = [...d.querySelectorAll('#panelLinks .link-fila')].map((f) => f.textContent);
+  ok(filas[0].includes('https://hk23universe.vercel.app/leadhunter?ref=HK23ANAP') && /se aplica solo al pagar/.test(filas[0]),
+    'LeadHunter: link con ?ref= que la página lleva a Gumroad');
+  ok(filas[1].includes('https://duckcam.example/early-egg?ref=HK23ANAP') && /mándanos el nombre de tu comprador/.test(filas[1]),
+    'DuckCam: link con ?ref= y aviso de reportar al comprador');
+  ok(filas[2].includes('/discount/HK23ANAP?redirect=/'), 'tienda: link que aplica el código');
+  ok(/US\$52,07 · \$49\.990/.test(txt(d, 'panelVentas')), 'la venta en pesos se ve en US$ y en sus pesos originales');
+}
+
+// ---------- 9. la landing de LeadHunter lleva el código del socio a Gumroad ----------
+const LH = fs.readFileSync(process.env.REPO + '/leadhunter/index.html', 'utf8');
+const landing = (url) => new JSDOM(LH, { runScripts: 'dangerously', url }).window.document;
+{
+  let d = landing('https://hk23universe.vercel.app/leadhunter?ref=hk23anap');
+  let hrefs = [...d.querySelectorAll('a.cta')].map((a) => a.href);
+  ok(hrefs.length === 2 && hrefs.every((h) => h === 'https://hk23hub.gumroad.com/l/leadhunter/HK23ANAP'), 'con ?ref= los 2 botones de compra llevan el código a Gumroad');
+  ok(/CÓDIGO HK23ANAP APLICADO/.test(d.querySelector('.under-cta').textContent), 'avisa que el código se aplica al pagar');
+  d = landing('https://hk23universe.vercel.app/leadhunter?ref=%3Cscript%3E');
+  hrefs = [...d.querySelectorAll('a.cta')].map((a) => a.href);
+  ok(hrefs.every((h) => h === 'https://hk23hub.gumroad.com/l/leadhunter'), 'un ref con formato raro no toca los links');
+  d = landing('https://hk23universe.vercel.app/leadhunter');
+  ok([...d.querySelectorAll('a.cta')].every((a) => a.href === 'https://hk23hub.gumroad.com/l/leadhunter'), 'sin ref, la compra queda igual que siempre');
+}
 process.exit(process.exitCode ?? 0);

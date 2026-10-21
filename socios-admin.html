@@ -57,6 +57,8 @@ summary{cursor:pointer;padding:.8rem 1rem;font-family:var(--mono);font-size:.78r
 details .cont{padding:0 1rem 1rem}
 [hidden]{display:none!important}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+label.chk{flex-direction:row;align-items:center;gap:.6rem;min-height:44px}
+label.chk input{min-height:0;width:20px;height:20px;accent-color:var(--lima)}
 </style>
 </head>
 <body>
@@ -83,20 +85,21 @@ details .cont{padding:0 1rem 1rem}
 
     <section style="margin-top:2rem">
       <h2>Socios aprobados</h2>
-      <p class="msg">Cada código tiene que existir en Shopify (Descuentos → Crear descuento → Monto de descuento en pedido → código igual al de aquí). Así la venta se le atribuye sola. El link del panel es privado: envíaselo solo a esa persona.</p>
+      <p class="msg">Cada código tiene que existir en Shopify (Descuentos → Crear descuento → Monto de descuento en pedido → código igual al de aquí) y en Gumroad para LeadHunter (Checkout → Discounts → New discount → mismo código). Así cada venta queda a su nombre. El link del panel es privado: envíaselo solo a esa persona.</p>
       <div id="socios"></div>
     </section>
 
     <section style="margin-top:2rem">
       <h2>Ventas</h2>
       <details>
-        <summary>Registrar una venta hecha fuera de la tienda</summary>
+        <summary>Registrar una venta hecha fuera de la tienda (LeadHunter, DuckCam…)</summary>
         <div class="cont">
-          <p class="msg">Para productos que no pasan por Shopify (apps, libros, ventas directas). La referencia debe ser única: número de transferencia, de pedido o de factura.</p>
+          <p class="msg">Para lo que no pasa por Shopify: ventas de Gumroad con el código del socio, pagos de Mercado Pago que te reportó un socio, transferencias. Anota lo que pagó el cliente, en la moneda en que lo pagó: los pesos se convierten a US$ con el tipo de cambio de «Programa». La referencia debe ser única: el id del pago o del pedido.</p>
           <form id="fVenta" class="grid" novalidate>
             <label>Socio<select id="vSocio" required></select></label>
             <label>Producto<select id="vProducto"></select></label>
-            <label>Monto en US$ (sin impuestos)<input id="vMonto" type="number" min="0.01" step="0.01" required></label>
+            <label>Lo que pagó el cliente <span class="dim">con descuento, sin envío</span><input id="vMonto" type="number" min="0.01" step="0.01" required></label>
+            <label>Moneda<select id="vMoneda"><option value="USD">US$</option><option value="CLP">Pesos chilenos (CLP)</option></select></label>
             <label>Referencia<input id="vRef" type="text" maxlength="80" required></label>
             <label>Detalle<input id="vDetalle" type="text" maxlength="200"></label>
             <label>Comisión % <span class="dim">vacío = la del socio</span><input id="vPct" type="number" min="0" max="90" step="0.5"></label>
@@ -120,12 +123,15 @@ details .cont{padding:0 1rem 1rem}
             <label>Nombre<input id="pNombre" type="text" maxlength="80" required></label>
             <label>Texto grande de la tarjeta<input id="pMarca" type="text" maxlength="40"></label>
             <label>Categoría<input id="pCategoria" type="text" maxlength="30"></label>
-            <label>Precio <span class="dim">ej: US$97 · vacío = al lanzar</span><input id="pPrecio" type="text" maxlength="40"></label>
+            <label>Precio que se muestra <span class="dim">ej: US$97 · vacío = al lanzar</span><input id="pPrecio" type="text" maxlength="40"></label>
+            <label>Precio de lista <span class="dim">número, sin descuento</span><input id="pLista" type="number" min="0" step="0.01"></label>
+            <label>Moneda del cobro<select id="pMoneda"><option value="USD">US$</option><option value="CLP">Pesos chilenos (CLP)</option></select></label>
             <label>Link https<input id="pUrl" type="url" maxlength="300"></label>
             <label>Dónde se vende<select id="pCanal"><option value="directo">Fuera de Shopify (link con ?ref=)</option><option value="shopify">Tienda Shopify (código de descuento)</option></select></label>
+            <label class="chk"><input id="pDescuenta" type="checkbox"> El código del socio da descuento aquí</label>
             <label>Estado<select id="pEstado"><option value="proximamente">Próximamente</option><option value="disponible">Disponible</option><option value="oculto">Oculto</option></select></label>
             <label>Color<select id="pColor"><option value="#FFD200">Amarillo</option><option value="#00F0FF">Cian</option><option value="#B84DFF">Morado</option><option value="#AAFF00">Lima</option><option value="#FF3A1F">Rojo</option></select></label>
-            <label>Costo % <span class="dim">fabricar + enviar + cobrar, sobre el precio</span><input id="pCosto" type="number" min="0" max="95" step="0.5" value="15"></label>
+            <label>Costo % <span class="dim">fabricar + enviar + cobrar + impuestos</span><input id="pCosto" type="number" min="0" max="95" step="0.5" value="15"></label>
             <label>Orden<input id="pOrden" type="number" step="1" value="100"></label>
             <label style="grid-column:1/-1">Descripción<textarea id="pDescripcion" maxlength="300"></textarea></label>
             <div class="row"><button class="ok" type="submit">Guardar producto</button><button type="button" id="pNuevo">Limpiar</button></div>
@@ -144,6 +150,7 @@ details .cont{padding:0 1rem 1rem}
         <label>Comisión fundador % <span class="dim">de la ganancia, menos de 50</span><input id="cFund" type="number" min="0" max="49.99" step="0.01"></label>
         <label>Comisión etapa 2 % <span class="dim">de la ganancia, menos de 50</span><input id="cNormal" type="number" min="0" max="49.99" step="0.01"></label>
         <label>Descuento del código %<input id="cDesc" type="number" min="0" max="90" step="0.5"></label>
+        <label>Pesos chilenos por US$ <span class="dim">para ventas en CLP</span><input id="cTasa" type="number" min="100" max="5000" step="1"></label>
         <label>Mostrar «N anotados» desde<input id="cMostrar" type="number" min="0" step="1"></label>
         <button class="ok" type="submit">Guardar</button>
       </form>
@@ -151,7 +158,7 @@ details .cont{padding:0 1rem 1rem}
       <h2 style="margin-top:1.4rem">¿Cuadra? Por cada US$100 a precio de lista</h2>
       <p class="msg">Se recalcula mientras escribes. La comisión es un % de la ganancia y nunca llega a la mitad: HK23 siempre se queda con más que el socio.</p>
       <div id="cuadra"></div>
-      <p class="nota">Pasar a la etapa 2 publica el ranking con las ventas reales en la página. El descuento solo se muestra en la página: el que vale es el que configures en Shopify para cada código.</p>
+      <p class="nota">Pasar a la etapa 2 publica el ranking con las ventas reales en la página. El descuento solo se muestra en la página: el que vale es el que configures en Shopify y en Gumroad para cada código.</p>
     </section>
 
     <section style="margin-top:2rem">
@@ -176,7 +183,7 @@ details .cont{padding:0 1rem 1rem}
   try { tok = sessionStorage.getItem(KEY) || ''; } catch (e) {}
   var MENSAJES = {
     'socios: clave_invalida': 'Clave inválida.', 'socios: no_esta_en_revision': 'Esa postulación ya no está en revisión.',
-    'socios: codigo_invalido': 'Código inválido: 4 a 24 letras, números o guiones.', 'socios: codigo_en_uso': 'Ese código ya lo tiene otro socio.',
+    'socios: codigo_invalido': 'Código inválido: 4 a 24 letras o números, sin guiones ni espacios (Gumroad no los acepta).', 'socios: codigo_en_uso': 'Ese código ya lo tiene otro socio.',
     'socios: socio_no_aprobado': 'Ese socio no está aprobado.', 'socios: monto_invalido': 'Monto inválido.',
     'socios: falta_referencia': 'Falta la referencia.', 'socios: referencia_repetida': 'Esa referencia ya está registrada.',
     'socios: falta_nombre': 'Falta el nombre.', 'socios: url_invalida': 'El link debe empezar con https://',
@@ -184,9 +191,12 @@ details .cont{padding:0 1rem 1rem}
     'socios: porcentaje_invalido': 'Porcentaje entre 0 y 90.', 'socios: numero_invalido': 'Número inválido.',
     'socios: comision_invalida': 'Comisión entre 0 y 90.', 'socios: no_existe': 'No existe.',
     'socios: comision_sobre_mitad': 'La comisión tiene que ser menor a 50 %: así HK23 siempre se queda con la mayor parte de la ganancia.',
-    'socios: sin_margen': 'Con ese costo y ese descuento no queda ganancia en la tienda. Baja el descuento o revisa el costo.',
+    'socios: sin_margen': 'Con ese costo y ese descuento no queda ganancia en un producto donde el código descuenta. Baja el descuento o revisa el costo.',
     'socios: falta_producto': 'Elige el producto: su costo define la ganancia.',
-    'socios: costo_invalido': 'Costo entre 0 y 95 %.'
+    'socios: costo_invalido': 'Costo entre 0 y 95 %.',
+    'socios: moneda_invalida': 'Moneda: US$ o CLP.', 'socios: precio_invalido': 'Precio de lista inválido.',
+    'socios: falta_tipo_de_cambio': 'Falta el tipo de cambio (pesos por US$) en «Programa».',
+    'socios: tipo_de_cambio_invalido': 'Tipo de cambio entre 100 y 5.000 pesos por US$.'
   };
   var $ = function (id) { return document.getElementById(id); };
   function el(tag, attrs, hijos) {
@@ -203,6 +213,8 @@ details .cont{padding:0 1rem 1rem}
   function vaciar(n) { while (n.firstChild) n.removeChild(n.firstChild); }
   function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
   function usd(v) { return 'US$' + num(v).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  function clp(v) { return '$' + Math.round(num(v)).toLocaleString('es-CL'); }
+  function descuentaEn(p) { return !!p.descuenta || p.canal === 'shopify'; }
   function fecha(iso) { try { return new Date(iso).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return String(iso || ''); } }
   function msg(id, texto, clase) { var m = $(id); m.textContent = texto || ''; m.className = 'msg' + (clase ? ' ' + clase : ''); }
   function copiar(texto, boton) {
@@ -273,7 +285,7 @@ details .cont{padding:0 1rem 1rem}
           var a = await admin('aprobar', { id: p.id, codigo: cod.value.trim() });
           res.className = 'msg good';
           res.textContent = 'Aprobado' + (a.fundador ? ' como fundador #' + a.fundador : ' (sin cupo de fundador)') + ' · ' + a.comision + '% · código ' + a.codigo +
-            '. Crea ese código en Shopify y envíale su link de panel.';
+            '. Crea ese código en Shopify y en Gumroad, y envíale su link de panel.';
           setTimeout(cargar, 900);
         } catch (e) { res.className = 'msg bad'; res.textContent = e.message; bOk.disabled = bNo.disabled = false; }
       });
@@ -328,7 +340,24 @@ details .cont{padding:0 1rem 1rem}
     var vs = $('vSocio'); vaciar(vs);
     lista.forEach(function (s) { vs.appendChild(el('option', { value: String(s.id), texto: (s.alias || s.nombre) + ' · ' + s.codigo })); });
     var vp = $('vProducto'); vaciar(vp);
-    (R.productos || []).forEach(function (p) { vp.appendChild(el('option', { value: String(p.id), texto: p.nombre + ' · costo ' + num(p.costo_pct) + '%' })); });
+    (R.productos || []).filter(function (p) { return p.estado !== 'oculto'; }).concat((R.productos || []).filter(function (p) { return p.estado === 'oculto'; }))
+      .forEach(function (p) {
+        vp.appendChild(el('option', { value: String(p.id), texto: p.nombre + ' · costo ' + num(p.costo_pct) + '%' + (p.estado === 'oculto' ? ' · oculto' : '') }));
+      });
+    elegirProductoVenta();
+  }
+
+  // al elegir el producto de una venta: su moneda, y lo que paga el cliente si tiene precio de lista
+  // (al recargar el panel no pisa un monto ya escrito)
+  function elegirProductoVenta(forzar) {
+    var p = (R.productos || []).find(function (x) { return String(x.id) === $('vProducto').value; });
+    if (!p) return;
+    $('vMoneda').value = p.moneda === 'CLP' ? 'CLP' : 'USD';
+    if (num(p.precio_lista) > 0 && (forzar === true || !$('vMonto').value)) {
+      var d = descuentaEn(p) ? num(R.config.descuento) / 100 : 0;
+      var paga = num(p.precio_lista) * (1 - d);
+      $('vMonto').value = String(p.moneda === 'CLP' ? Math.round(paga) : Math.round(paga * 100) / 100);
+    }
   }
 
   function pintarVentas() {
@@ -351,7 +380,8 @@ details .cont{padding:0 1rem 1rem}
         el('td', { texto: fecha(v.fecha) }),
         el('td', null, [el('b', { texto: v.socio || '' }), el('br'), el('code', { texto: v.codigo || '' })]),
         el('td', { texto: (v.origen === 'shopify' ? 'Shopify ' : 'Manual ') + (v.detalle || v.referencia || '') + (v.producto ? ' · ' + v.producto : '') }),
-        el('td', { clase: 'num', texto: usd(v.monto) + (num(v.reembolsado) > 0 ? ' − ' + usd(v.reembolsado) : '') }),
+        el('td', { clase: 'num', texto: (v.moneda === 'CLP' && v.original != null ? clp(v.original) + ' → ' : '') + usd(v.monto) +
+                                         (num(v.reembolsado) > 0 ? ' − ' + usd(v.reembolsado) : '') }),
         el('td', { clase: 'num', texto: anulada ? '—' : usd(v.ganancia) }),
         el('td', { clase: 'num', texto: anulada ? 'Anulada' : usd(v.comision) + ' (' + num(v.comision_pct) + '%)' }),
         el('td', { clase: 'num', texto: anulada ? '—' : usd(paraHK) }),
@@ -373,7 +403,7 @@ details .cont{padding:0 1rem 1rem}
       tb.appendChild(el('tr', null, [
         el('td', null, [el('span', { clase: 'swatch', estilo: 'background:' + (/^#[0-9A-Fa-f]{6}$/.test(p.color) ? p.color : '#FFD200') }), el('b', { texto: p.nombre })]),
         el('td', { texto: p.estado === 'disponible' ? 'Disponible' : p.estado === 'oculto' ? 'Oculto' : 'Próximamente' }),
-        el('td', { texto: p.canal === 'shopify' ? 'Shopify' : 'Directo' }),
+        el('td', { texto: (p.canal === 'shopify' ? 'Shopify' : 'Directo') + ' · ' + (p.moneda === 'CLP' ? 'CLP' : 'US$') + (descuentaEn(p) ? ' · con código' : '') }),
         el('td', { clase: 'num', texto: num(p.costo_pct) + '%' }),
         el('td', { texto: p.precio || '—' }),
         el('td', null, [p.url ? el('code', { texto: p.url }) : el('span', { clase: 'dim', texto: 'sin link' })]),
@@ -393,7 +423,7 @@ details .cont{padding:0 1rem 1rem}
     var f = leer('cFund', num(R.config.comision_fundador)), n = leer('cNormal', num(R.config.comision_normal)), d = leer('cDesc', num(R.config.descuento));
     var tb = el('tbody'), malas = 0;
     (R.productos || []).filter(function (p) { return p.estado !== 'oculto'; }).forEach(function (p) {
-      var desc = p.canal === 'shopify' ? d : 0;
+      var desc = descuentaEn(p) ? d : 0;
       var paga = 100 - desc, costo = num(p.costo_pct), ganancia = Math.max(paga - costo, 0);
       var socio = ganancia * f / 100, hk = ganancia - socio;
       var cuadra = f < 50 && n < 50 && paga - costo > 0;
@@ -422,6 +452,9 @@ details .cont{padding:0 1rem 1rem}
     $('pPrecio').value = p ? p.precio : ''; $('pUrl').value = p && p.url ? p.url : ''; $('pCanal').value = p ? p.canal : 'directo';
     $('pEstado').value = p ? p.estado : 'proximamente'; $('pOrden').value = p ? String(p.orden) : '100';
     $('pCosto').value = p ? String(num(p.costo_pct)) : '15';
+    $('pLista').value = p && p.precio_lista != null ? String(num(p.precio_lista)) : '';
+    $('pMoneda').value = p && p.moneda === 'CLP' ? 'CLP' : 'USD';
+    $('pDescuenta').checked = !!(p && descuentaEn(p));
     $('pDescripcion').value = p ? p.descripcion : '';
     var col = $('pColor'); col.value = p ? p.color : '#FFD200'; if (col.value === '') col.value = '#FFD200';
     $('pTitulo').textContent = p ? 'Editar: ' + p.nombre : 'Agregar un producto';
@@ -438,7 +471,7 @@ details .cont{padding:0 1rem 1rem}
     var c = R.config || {};
     $('cAbre').value = aLocal(c.abre); $('cEtapa').value = c.etapa || '1'; $('cCupos').value = c.cupos || '';
     $('cFund').value = c.comision_fundador || ''; $('cNormal').value = c.comision_normal || '';
-    $('cDesc').value = c.descuento || ''; $('cMostrar').value = c.mostrar_desde || '';
+    $('cDesc').value = c.descuento || ''; $('cMostrar').value = c.mostrar_desde || ''; $('cTasa').value = c.clp_por_usd || '';
     pintarCuadra();
   }
 
@@ -466,7 +499,8 @@ details .cont{padding:0 1rem 1rem}
     var etapa = $('cEtapa').value;
     if (etapa === '2' && R.config.etapa !== '2' && !window.confirm('La etapa 2 publica el ranking con las ventas reales de los socios. ¿Continuar?')) return;
     var d = { abre: abre.toISOString(), etapa: etapa };
-    [['cupos', 'cCupos'], ['comision_fundador', 'cFund'], ['comision_normal', 'cNormal'], ['descuento', 'cDesc'], ['mostrar_desde', 'cMostrar']]
+    [['cupos', 'cCupos'], ['comision_fundador', 'cFund'], ['comision_normal', 'cNormal'], ['descuento', 'cDesc'], ['mostrar_desde', 'cMostrar'],
+     ['clp_por_usd', 'cTasa']]
       .forEach(function (x) { var v = $(x[1]).value.trim(); if (v !== '') d[x[0]] = v; });
     try { await admin('config', d); msg('cMsg', 'Guardado.', 'good'); cargar(); }
     catch (e) { msg('cMsg', e.message, 'bad'); }
@@ -476,7 +510,8 @@ details .cont{padding:0 1rem 1rem}
     ev.preventDefault();
     var d = { nombre: $('pNombre').value, marca: $('pMarca').value, categoria: $('pCategoria').value, precio: $('pPrecio').value,
               url: $('pUrl').value.trim(), canal: $('pCanal').value, estado: $('pEstado').value, color: $('pColor').value,
-              orden: $('pOrden').value, costo_pct: $('pCosto').value, descripcion: $('pDescripcion').value };
+              orden: $('pOrden').value, costo_pct: $('pCosto').value, descripcion: $('pDescripcion').value,
+              moneda: $('pMoneda').value, descuenta: $('pDescuenta').checked, precio_lista: $('pLista').value.trim() };
     if ($('pId').value) d.id = $('pId').value;
     try { await admin('producto', d); msg('pMsg', 'Producto guardado.', 'good'); editarProducto(null); $('dProducto').open = true; msg('pMsg', 'Producto guardado.', 'good'); cargar(); }
     catch (e) { msg('pMsg', e.message, 'bad'); }
@@ -486,13 +521,14 @@ details .cont{padding:0 1rem 1rem}
 
   $('fVenta').addEventListener('submit', async function (ev) {
     ev.preventDefault();
-    var d = { socio_id: $('vSocio').value, monto: $('vMonto').value, referencia: $('vRef').value, detalle: $('vDetalle').value };
+    var d = { socio_id: $('vSocio').value, monto: $('vMonto').value, moneda: $('vMoneda').value, referencia: $('vRef').value, detalle: $('vDetalle').value };
     if ($('vProducto').value) d.producto_id = $('vProducto').value;
     if ($('vPct').value !== '') d.comision = $('vPct').value;
     if (!d.socio_id) { msg('vMsg', 'Primero aprueba a un socio.', 'bad'); return; }
     try { await admin('venta', d); msg('vMsg', 'Venta registrada.', 'good'); $('vMonto').value = ''; $('vRef').value = ''; $('vDetalle').value = ''; cargar(); }
     catch (e) { msg('vMsg', e.message, 'bad'); }
   });
+  $('vProducto').addEventListener('change', function () { elegirProductoVenta(true); });
 
   $('copiarCorreos').addEventListener('click', function () {
     var correos = (R && R.lista || []).map(function (p) { return p.email; });

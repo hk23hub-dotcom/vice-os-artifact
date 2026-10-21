@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="referrer" content="no-referrer">
 <title>Freelancers Fundadores · HK23</title>
-<meta name="description" content="Vende los productos de HK23 y gana comisión por cada venta. Postulaciones para los primeros freelancers fundadores.">
+<meta name="description" content="Vende LeadHunter, DuckCam y la tienda HK23 STUDIO, y llévate casi la mitad de la ganancia de cada venta. Postulaciones para los primeros freelancers fundadores.">
 <meta property="og:title" content="Freelancers Fundadores · HK23">
-<meta property="og:description" content="Agentes de IA, apps, arte y guías. Sé de los primeros freelancers en vender HK23.">
+<meta property="og:description" content="LeadHunter, DuckCam y la tienda HK23 STUDIO. Sé de los primeros freelancers en vender HK23.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
@@ -221,7 +221,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     <div class="hero-copy">
       <div class="ojo">Programa Freelancers Fundadores · HK23</div>
       <h1 id="titulo">Vende lo que hace HK23. Sé de los primeros.</h1>
-      <p class="lede">Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie: agentes de IA, apps, arte y guías. Los fundadores prueban cada producto primero y ganan más por cada venta.</p>
+      <p class="lede" id="heroLede">Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie. Los fundadores prueban cada producto primero y ganan más por cada venta.</p>
       <div class="sticker" id="heroPct" hidden><b id="heroPctNum">—</b><span id="heroPctTxt">de cada venta para los fundadores</span></div>
       <div class="acciones">
         <a class="btn" href="#postular" id="ctaHero">Quiero ser fundador</a>
@@ -272,8 +272,8 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   <div class="shell">
     <div class="cabeza">
       <div class="ojo">Qué vas a vender</div>
-      <h2 id="catTitulo">Todo lo que HK23 tiene funcionando.</h2>
-      <p class="lede muted">Si está disponible en esta página, lo puedes vender. Lo que dice «Próximamente» se activa aquí mismo cuando esté listo, y aparece en tu panel con tu link.</p>
+      <h2 id="catTitulo">Pocos productos, probados, para vender desde el primer día.</h2>
+      <p class="lede muted">Si está disponible en esta página, lo puedes vender. Cada tarjeta muestra cuánto te llevas por venta. Lo que se sume después aparece aquí y en tu panel, con tu link.</p>
     </div>
     <div class="grilla" id="productos"></div>
   </div>
@@ -287,7 +287,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     </div>
     <div class="pasos">
       <div class="paso" style="background:var(--amarillo)"><b>01</b><h3>Postulas</h3><p>Un formulario corto. Si quedas, recibes tu código personal y un panel privado con tus ventas.</p></div>
-      <div class="paso" style="background:var(--cian)"><b>02</b><h3>Compartes</h3><p id="pasoCompartes">Tu código da un descuento a tus clientes y deja cada venta a tu nombre. En la tienda también funciona como link directo.</p></div>
+      <div class="paso" style="background:var(--cian)"><b>02</b><h3>Compartes</h3><p id="pasoCompartes">Compartes tus links personales. Cada venta queda a tu nombre.</p></div>
       <div class="paso" style="background:var(--morado)"><b>03</b><h3>Cobras</h3><p>Ves cada venta y tu parte de la ganancia en tu panel. Pagamos cada mes lo de las ventas pagadas del mes anterior, descontando devoluciones.</p></div>
     </div>
   </div>
@@ -398,7 +398,8 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     <div class="cabeza"><div class="ojo">Preguntas</div><h2 id="faqTitulo">Lo que todos preguntan.</h2></div>
     <details><summary>¿Necesito experiencia vendiendo?</summary><p>No es obligatorio. Buscamos personas con una audiencia o una red a la que estos productos le sirvan: clientes, comunidad, seguidores o contactos.</p></details>
     <details><summary>¿Cuánto gano?</summary><p id="faqGano">Un porcentaje de cada venta pagada hecha con tu código. Se calcula sobre el precio de los productos, sin envío ni impuestos, y descuenta devoluciones.</p></details>
-    <details><summary>¿Cuándo me pagan?</summary><p>Cada mes pagamos la comisión de las ventas pagadas del mes anterior. En tu panel ves cada venta y lo que llevas ganado.</p></details>
+    <details><summary>¿Cuándo me pagan?</summary><p>Cada mes pagamos la comisión de las ventas del mes anterior que ya pasaron su plazo de devolución (LeadHunter tiene garantía de 7 días). En las preventas, como DuckCam, la pagamos cuando el producto se despacha y pasan los 10 días de retracto. En tu panel ves cada venta y lo que llevas ganado.</p></details>
+    <details><summary>¿Cómo queda cada venta a mi nombre?</summary><p>En tu panel tienes un link por producto. En la tienda y en LeadHunter, tu link aplica tu código al pagar y la venta queda a tu nombre sola. DuckCam se paga por Mercado Pago: cuando vendas uno, mándanos el nombre de tu comprador y lo cruzamos con el pago.</p></details>
     <details><summary>¿Puedo vender lo que dice «Próximamente»?</summary><p>Todavía no. Cuando un producto pasa a disponible aparece en esta página y en tu panel, con tu link listo.</p></details>
     <details><summary>¿Qué datos se publican?</summary><p>En la etapa 2: tu alias, tu número de ventas y el monto vendido. Tu correo, tu teléfono y tus comisiones nunca se publican.</p></details>
   </div>
@@ -458,7 +459,9 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   function vaciar(n) { while (n.firstChild) n.removeChild(n.firstChild); }
   function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
   function usd(v) { return 'US$' + num(v).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  function clp(v) { return '$' + Math.round(num(v)).toLocaleString('es-CL'); }
   function pct(v) { return num(v).toLocaleString('es-CL', { maximumFractionDigits: 2 }) + '%'; }
+  function enLista(xs) { return xs.length < 2 ? (xs[0] || '') : xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1]; }
   function fechaLarga(iso) {
     try {
       var t = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Santiago' }).format(new Date(iso));
@@ -551,12 +554,29 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
         '. Cuando se llenan, el programa sigue con la comisión normal.';
     }
     $('cuposTxt').textContent = num(E.cupos) > 0 ? ('Solo ' + num(E.cupos) + ' cupos.') : 'Cupos limitados.';
-    if (num(E.descuento) > 0) {
-      $('pasoCompartes').textContent = 'Tu código da ' + pct(E.descuento) + ' de descuento a tus clientes y deja cada venta a tu nombre. En la tienda también funciona como link directo.';
+    var conCodigo = conDescuento();
+    if (num(E.descuento) > 0 && conCodigo.length) {
+      $('pasoCompartes').textContent = 'Compartes tus links personales y cada venta queda a tu nombre. En ' + enLista(conCodigo) +
+        ', tu código además le da ' + pct(E.descuento) + ' de descuento a tu cliente.';
     }
-    $('faqGano').textContent = 'Fundadores: ' + pct(E.comision_fundador) + ' de la ganancia de cada venta pagada con tu código. Desde la etapa 2: ' + pct(E.comision_normal) +
-      '. La ganancia es lo que paga el cliente, sin envío ni impuestos, menos lo que cuesta fabricar y cobrar el producto. ' +
-      'En lo digital casi todo es ganancia; en lo impreso, menos. Cada producto muestra cuánto te llevas de lo que paga el cliente. Las devoluciones se descuentan.';
+    $('faqGano').textContent = 'Fundadores: ' + pct(E.comision_fundador) + ' de la ganancia de cada venta. Desde la etapa 2: ' + pct(E.comision_normal) +
+      '. La ganancia es lo que paga el cliente, sin envío, menos lo que cuesta fabricar, despachar, cobrar y pagar los impuestos del producto. ' +
+      'En lo digital casi todo es ganancia; en lo físico, menos. Cada producto muestra cuánto te llevas por venta. Las devoluciones se descuentan.';
+  }
+
+  // productos de la página donde el código del socio le da descuento al cliente
+  function descuentaEn(p) { return !!p.descuenta || p.canal === 'shopify'; }
+  function conDescuento() {
+    return (Array.isArray(E.productos) ? E.productos : []).filter(function (p) { return p.estado === 'disponible' && descuentaEn(p); })
+      .map(function (p) { return p.nombre; });
+  }
+
+  function pintarHero() {
+    var nombres = (Array.isArray(E.productos) ? E.productos : []).filter(function (p) { return p.estado === 'disponible'; })
+      .map(function (p) { return p.nombre; });
+    if (!nombres.length) return;
+    $('heroLede').textContent = 'Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie. Partimos con ' +
+      enLista(nombres) + '. Los fundadores prueban cada producto primero y ganan más por cada venta.';
   }
 
   // tasa que rige hoy para un nuevo socio: fundador mientras haya cupos en la etapa 1
@@ -565,9 +585,16 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   }
   // cuánto se lleva el socio de lo que paga el cliente: su % de la ganancia
   function parteDe(p) {
-    var c = num(p.costo_pct) / 100, d = p.canal === 'shopify' ? num(E.descuento) / 100 : 0;
+    var c = num(p.costo_pct) / 100, d = descuentaEn(p) ? num(E.descuento) / 100 : 0;
     if (d >= 1) return 0;
     return tasaVigente() * Math.max(1 - d - c, 0) / (1 - d);
+  }
+  // lo mismo en plata, en la moneda del producto y redondeado hacia abajo; null si no tiene precio de lista
+  function porVenta(p) {
+    var lista = num(p.precio_lista), d = descuentaEn(p) ? num(E.descuento) / 100 : 0;
+    var x = lista * (1 - d) * parteDe(p) / 100;
+    if (!(x >= 1)) return null;
+    return p.moneda === 'CLP' ? clp(Math.floor(x / 100) * 100) : 'US$' + Math.floor(x).toLocaleString('es-CL');
   }
 
   function tarjetaProducto(p) {
@@ -581,8 +608,12 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       el('span', { clase: 'estado ' + (disponible ? 'si' : 'no'), texto: disponible ? 'Disponible' : 'Próximamente' })
     ]);
     var fundador = !(num(E.etapa) >= 2 || cuposLlenos());
-    var parte = el('div', { clase: 'parte' }, [
-      el('b', { texto: '~' + Math.round(parteDe(p)) + '%' }),
+    var aprox = '~' + Math.round(parteDe(p)) + '%', monto = porVenta(p);
+    var parte = el('div', { clase: 'parte' }, monto ? [
+      el('b', { texto: monto }),
+      el('span', { texto: 'para ti por venta' + (fundador ? ' como fundador' : '') + ' · ' + aprox + ' de lo que paga el cliente' })
+    ] : [
+      el('b', { texto: aprox }),
       el('span', { texto: (fundador ? 'para ti como fundador' : 'para ti') + ', de lo que paga el cliente' })
     ]);
     var cuerpo = el('div', { clase: 'cuerpo' }, [el('h3', { texto: p.nombre }), p.descripcion ? el('p', { texto: p.descripcion }) : null, parte, pie]);
@@ -670,7 +701,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
   }
 
   function pintar() {
-    pintarEstado(); pintarComisiones(); pintarProductos(); pintarEtapas(); pintarRanking(); pintarFormulario();
+    pintarEstado(); pintarComisiones(); pintarHero(); pintarProductos(); pintarEtapas(); pintarRanking(); pintarFormulario();
     if (!abierto() && E.abre && !reloj) reloj = setInterval(tic, 1000);
   }
 
@@ -726,8 +757,9 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
     $('panel').hidden = false;
     $('panelOjo').textContent = P.fundador ? 'Tu panel · Fundador #' + P.fundador : 'Tu panel · Socio';
     $('panelTitulo').textContent = 'Hola, ' + (P.alias || P.nombre) + '.';
-    $('panelLede').textContent = 'Ganas ' + pct(P.comision) + ' de la ganancia de cada venta pagada con tu código.' +
-      (num(P.descuento) > 0 ? ' Tus clientes obtienen ' + pct(P.descuento) + ' de descuento en la tienda.' : '') +
+    var conCodigo = E ? conDescuento() : [];
+    $('panelLede').textContent = 'Ganas ' + pct(P.comision) + ' de la ganancia de cada venta que hagas.' +
+      (num(P.descuento) > 0 && conCodigo.length ? ' En ' + enLista(conCodigo) + ', tu código le da ' + pct(P.descuento) + ' de descuento a tus clientes.' : '') +
       ' Guarda este link: es tu acceso privado.';
     $('panelCodigo').textContent = P.codigo;
     var t = P.totales || {}, cf = $('panelCifras'); vaciar(cf);
@@ -742,7 +774,9 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       if (!l) return;
       var b = el('button', { clase: 'mini', type: 'button', texto: 'Copiar' });
       b.addEventListener('click', function () { copiar(l, b); });
-      links.appendChild(el('div', { clase: 'link-fila' }, [el('div', null, [el('b', { texto: p.nombre }), el('br'), el('code', { texto: l })]), b]));
+      var nota = descuentaEn(p) ? 'Tu código se aplica solo al pagar.' : 'Cuando vendas, mándanos el nombre de tu comprador.';
+      links.appendChild(el('div', { clase: 'link-fila' }, [el('div', null, [el('b', { texto: p.nombre }), el('br'), el('code', { texto: l }), el('br'),
+        el('small', { clase: 'muted', texto: nota })]), b]));
     });
     if (!links.firstChild) links.appendChild(el('p', { clase: 'muted', texto: 'Todavía no hay productos disponibles para vender.' }));
 
@@ -754,7 +788,7 @@ footer nav{display:flex;gap:20px;flex-wrap:wrap}
       tb.appendChild(el('tr', null, [
         el('td', { texto: fechaCorta(v.fecha) }),
         el('td', { texto: v.producto || v.detalle || (v.origen === 'shopify' ? 'Pedido en la tienda' : 'Venta') }),
-        el('td', { clase: 'num', texto: usd(v.monto) }),
+        el('td', { clase: 'num', texto: usd(v.monto) + (v.moneda === 'CLP' && v.original != null ? ' · ' + clp(v.original) : '') }),
         el('td', { clase: 'num', texto: v.estado === 'anulada' ? 'Anulada' : usd(v.comision) })
       ]));
     });

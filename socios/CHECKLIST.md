@@ -1,11 +1,11 @@
-# Freelancers Fundadores — lo que tiene que hacer el dueño
+# Freelancers Fundadores: lo que tiene que hacer el dueño
 
-Todo lo técnico está hecho y probado (185 pruebas: `socios/tests/correr.sh`). Esto es lo que solo tú puedes hacer, en orden.
+Todo lo técnico está hecho y probado: 242 pruebas, que se corren con `socios/tests/correr.sh`. Abajo está lo que solo tú puedes hacer, en orden.
 
 - Página pública: `https://hk23universe.vercel.app/socios`
 - Panel del dueño: `https://hk23universe.vercel.app/socios-admin`
 
-## 0 · Cómo se calcula la comisión: siempre a tu favor
+## 0 · Cómo se calcula la comisión (siempre a tu favor)
 
 La comisión es un % de la **ganancia** de cada venta, no del precio:
 
@@ -17,13 +17,19 @@ HK23     = ganancia − socio           (siempre más que el socio)
 
 La base de datos lo hace cumplir, pongas los números que pongas:
 
-- **Comisión de 50 % o más:** se rechaza.
-- **Descuento que, sumado al costo de la tienda, llegue a 100 %:** se rechaza.
-- **Venta manual sin producto:** se rechaza, porque sin producto no se sabe el costo.
+- Rechaza una comisión de 50 % o más.
+- Rechaza un descuento que, sumado al costo de un producto donde el código descuenta, llegue a 100 %.
+- Rechaza una venta manual sin producto, porque sin producto no se sabe el costo.
 
 Está probado en 900 combinaciones de precio, descuento, costo, comisión y reembolso. En «Programa» del panel, la tabla «¿Cuadra?» muestra el reparto por cada US$100 mientras escribes los números.
 
-Ejemplo real: un poster de US$17,63 vendido con el código. El cliente paga US$15,87 y el costo es US$10,93 (62 % de 17,63). Quedan US$4,94 de ganancia: el fundador se lleva US$2,42 y HK23 US$2,52, más lo que sobra del costo calculado con margen de seguridad.
+Ejemplos con los números de lanzamiento (fundador al 49 %):
+
+| Producto | El cliente paga | Costo | Ganancia | Fundador | HK23 |
+|---|---|---|---|---|---|
+| LeadHunter con el código | US$87,30 (97 − 10 %) | US$14,55 (15 % de 97) | US$72,75 | **US$35,65** | US$37,10 |
+| DuckCam | $49.990 = US$52,07 | 80 % (supuesto) | US$10,41 | **US$5,10** | US$5,31 |
+| Poster con el código | US$15,87 | US$10,93 (62 % de 17,63) | US$4,94 | **US$2,42** | US$2,52 |
 
 ## 1 · Confirma estos números antes de publicar (quedaron como supuestos)
 
@@ -35,18 +41,23 @@ Se cambian en el panel, en «Programa» y en «Productos de la página». No hac
 | Cupos de fundador | 20 | |
 | Comisión fundador | 49 % de la ganancia | Tu decisión: casi a medias, y por eso con cupos |
 | Comisión etapa 2 | 10 % de la ganancia | |
-| Descuento del código | 10 % | Solo se muestra en la página. El real es el que pongas en Shopify a cada código |
-| Costo de la tienda | 62 % del precio | Peor caso real de Printify en Shopify (PROOF OF WORK: 57 %) + 5 % de cobro. Posters de arte 40 %, stickers 33–50 % |
-| Costo de productos digitales | 15 % del precio | Plataforma y medios de pago. Ajusta cada uno cuando sepas dónde se vende |
-| Pago de comisiones | cada mes, ventas pagadas del mes anterior | Está escrito así en la página (sección «Cómo funciona» y preguntas) |
+| Descuento del código | 10 % | Solo se muestra en la página. El real es el que pongas en Shopify y Gumroad a cada código |
+| Pesos por dólar | 960 | El mismo de los packs de LeadHunter ($27.900 = US$29). Con él se convierten las ventas en pesos |
+| Costo LeadHunter | 15 % de US$97 | Gumroad: 10 % + US$0,50, más el cobro ~3 % + US$0,30 ≈ 14 % |
+| **Costo DuckCam** | **80 % de $49.990 (SUPUESTO)** | IVA (16 % de un precio con IVA) + Mercado Pago (~4 %) + ~60 % para fabricar y despachar ($30.000). **Cámbialo por el real** |
+| Costo de la tienda | 62 % del precio | Peor caso real de Printify en Shopify (PROOF OF WORK: 57 %) + 5 % de cobro |
+| Pago de comisiones | cada mes, ventas del mes anterior que ya pasaron su plazo de devolución | LeadHunter: garantía de 7 días. DuckCam: al despachar + 10 días de retracto |
 
-Revisa también los textos del catálogo en «Productos de la página»: nombre de la app de golf, descripciones de Rugby Vice y de los libros, y precios.
+**DuckCam todavía no tiene link.** En «Productos de la página» → DuckCam → Editar, pega el link de su página y su costo real, y guarda. Hasta entonces se ve como «Próximamente» y los socios no tienen link para venderlo.
 
-## A · Supabase (10 min)
+Cómo sacar el costo % de DuckCam: (lo que te cuesta cada pato puesto en la casa del cliente ÷ 49.990 × 100) + 16 (IVA) + 4 (Mercado Pago). Ejemplo: si te cuesta $22.000, el costo es 44 + 16 + 4 = 64 %.
+
+## A · Supabase (5 min)
 
 1. Supabase → proyecto `iiqhhglgjsbnuihythko` → SQL Editor → New query.
-2. Pega `supabase/migrations/0013_socios.sql` tal cual, sin editar nada, y dale Run. Se puede correr de nuevo sin perder datos ni ajustes.
-3. New query otra vez. Pega esto y dale Run. Crea la clave del panel y te la muestra una sola vez en los resultados:
+2. Pega `supabase/migrations/0013_socios.sql` tal cual, sin editar nada, y dale Run.
+   - **Si ya lo habías corrido antes, córrelo otra vez.** Así se instala el catálogo de 3 productos, los pesos chilenos y los códigos sin guion. No se pierde la clave, la configuración, las ventas ni los productos que ya editaste.
+3. Solo la primera vez: New query otra vez. Pega esto y dale Run. Crea la clave del panel y te la muestra una sola vez en los resultados:
    ```sql
    with k as (select replace(gen_random_uuid()::text || gen_random_uuid()::text, '-', '') as clave),
         u as (update public.socios_config set value = encode(sha256(convert_to((select clave from k), 'UTF8')), 'hex')
@@ -54,11 +65,11 @@ Revisa también los textos del catálogo en «Productos de la página»: nombre 
    select clave as tu_clave_del_panel from k, u;
    ```
 4. Copia la clave que aparece abajo, en «Results», y guárdala en tu gestor de claves. La base guarda solo su huella, así que no se puede volver a ver. Si la pierdes, corre el paso 3 otra vez y te da una nueva.
-5. Entra a `/socios-admin` con esa clave y revisa la sección «Programa».
+5. Entra a `/socios-admin` con esa clave y revisa «Programa» y «Productos de la página».
 
-Alternativa: en vez del paso 3, reemplaza `__SET_ADMIN_TOKEN__` en la línea 797 del archivo por una clave tuya de mínimo 24 caracteres antes de correrlo.
+En vez del paso 3 también puedes reemplazar `__SET_ADMIN_TOKEN__` en la línea 881 del archivo por una clave tuya de mínimo 24 caracteres antes de correrlo.
 
-No hay que agregar variables en Vercel ni redeploy: la página habla directo con Supabase.
+No hay que agregar variables en Vercel ni hacer redeploy: la página habla directo con Supabase.
 
 ## B · Ventas automáticas desde Shopify (15 min)
 
@@ -70,38 +81,46 @@ Sin este paso el programa funciona igual, pero las ventas de la tienda las regis
    supabase functions deploy socios-shopify --no-verify-jwt --project-ref iiqhhglgjsbnuihythko
    ```
 3. Shopify HK23 STUDIO → Configuración → Notificaciones → Webhooks → Crear webhook. Crea **tres**, todos en formato JSON y con la misma URL:
-   - Evento «Pago de pedido» (orders/paid)
-   - Evento «Cancelación de pedido» (orders/cancelled)
-   - Evento «Creación de reembolso» (refunds/create)
+   - Evento «Pago de pedido» (orders/paid).
+   - Evento «Cancelación de pedido» (orders/cancelled).
+   - Evento «Creación de reembolso» (refunds/create).
    - URL: `https://iiqhhglgjsbnuihythko.supabase.co/functions/v1/socios-shopify`
 4. En esa misma página Shopify muestra la clave con la que firma los webhooks. Cárgala en Supabase:
    ```
    supabase secrets set SHOPIFY_WEBHOOK_SECRET=<esa clave> --project-ref iiqhhglgjsbnuihythko
    ```
-5. Prueba: botón «Enviar notificación de prueba» en el webhook de pago. En Supabase → Edge Functions → socios-shopify → Logs debe aparecer un 200. El pedido de prueba no trae el código de ningún socio, así que no registra nada, y eso es lo correcto.
+5. Prueba: en el webhook de pago, botón «Enviar notificación de prueba». En Supabase → Edge Functions → socios-shopify → Logs debe aparecer un 200. El pedido de prueba no trae el código de ningún socio, así que no registra nada. Eso es lo correcto.
 
-## C · Por cada freelancer que apruebes (2 min)
+## C · Por cada freelancer que apruebes (4 min)
 
-1. `/socios-admin` → «Postulaciones por revisar» → Aprobar. Puedes escribir el código que quieras o dejar que lo arme solo (ej. `HK23-ANAP`).
-2. Shopify → Descuentos → Crear descuento → «Monto de descuento en el pedido» → Código de descuento = **el mismo código** → porcentaje (10 %) → Guardar.
-3. En «Socios aprobados» → «Copiar link del panel» y mándaselo con este mensaje:
+1. `/socios-admin` → «Postulaciones por revisar» → Aprobar. Puedes escribir el código que quieras o dejar que lo arme solo (ej. `HK23ANAP`). Solo letras y números: Gumroad no acepta guiones.
+2. **Shopify** → Descuentos → Crear descuento → «Monto de descuento en el pedido» → Código de descuento = **el mismo código** → porcentaje (10 %) → Guardar.
+3. **Gumroad** → Checkout → Discounts → New discount → código = **el mismo código** → 10 % → producto LeadHunter → Guardar. La página de LeadHunter lleva el código del socio a Gumroad sola (`hk23hub.gumroad.com/l/leadhunter/CÓDIGO`).
+4. La primera vez, prueba el link de LeadHunter de ese socio y confirma que Gumroad muestra el precio con descuento.
+5. En «Socios aprobados» → «Copiar link del panel» y mándaselo con este mensaje:
 
-> Hola {nombre}: quedaste como Fundador #{N} del programa HK23. Tu código es {CÓDIGO}. Tus clientes obtienen 10 % de descuento en la tienda y cada venta queda a tu nombre. Tu panel privado, no lo compartas: {link}. Ahí están tus links para vender y cada venta con tu comisión. Pagamos cada mes. Cualquier duda, responde este mensaje.
+> Hola {nombre}: quedaste como Fundador #{N} del programa HK23. Tu código es {CÓDIGO}. En tu panel privado están tus links para vender LeadHunter, DuckCam y la tienda, y cada venta con tu comisión. No lo compartas: {link}. Con tu link, tus clientes tienen 10 % de descuento en LeadHunter y en la tienda. Si vendes un DuckCam, mándame el nombre de tu comprador. Pagamos cada mes. Cualquier duda, responde este mensaje.
 
-## D · Lanzamiento
+## D · Ventas que registras tú (2 min cada una)
+
+En `/socios-admin` → «Ventas» → «Registrar una venta hecha fuera de la tienda». Al elegir el producto, el panel propone la moneda y el monto. Corrígelo si el cliente pagó otra cosa.
+
+- **LeadHunter (Gumroad).** Cada venta en Gumroad muestra el código de descuento que se usó. Ese código es el del socio. Registra lo que pagó el cliente en US$ y usa como referencia el id de la venta en Gumroad. Si alguien pide su devolución dentro de los 7 días, toca «Anular» en esa venta.
+- **DuckCam (Mercado Pago).** El socio te manda el nombre de su comprador y tú lo cruzas con el pago en Mercado Pago. Cuando le escribas al comprador para pedir su dirección, confírmalo también con él. Registra el monto en pesos, por ejemplo 49990 en CLP, y usa como referencia el número de operación de Mercado Pago. Si cancela antes del despacho o se retracta, toca «Anular». La comisión se paga cuando despachas y pasan los 10 días de retracto.
+- Antes de registrar ventas en pesos, actualiza «Pesos chilenos por US$» en «Programa» al tipo de cambio del día.
+
+## E · Lanzamiento
 
 1. **Hoy:** publica el anuncio de LinkedIn (texto abajo). Ubicación: Chile. Tipo de empleo: Otro.
-2. **Día de apertura:** la página cambia sola a postulaciones a la hora configurada. En `/socios-admin` → «Copiar todos los correos» y mándales en copia oculta (CCO):
+2. **Día de apertura:** la página pasa sola a recibir postulaciones a la hora configurada. En `/socios-admin` → «Copiar todos los correos» y mándales este correo en copia oculta (CCO):
 
 > Asunto: Abrieron las postulaciones de Freelancers Fundadores HK23
 >
 > Hola: hoy a las 12:00 abrimos las postulaciones. Son {cupos} cupos de fundador y los revisamos uno por uno. Postula aquí: https://hk23universe.vercel.app/socios#postular. Te toma 3 minutos.
 
-3. **Cuando un producto esté listo** (El Centro, Pixel, el universo, las apps, los libros): «Productos de la página» → Editar → Estado «Disponible» + su link. Aparece al tiro en la página y en el panel de cada socio.
-   - Si se vende en la tienda Shopify, elige «Tienda Shopify». El link del socio aplica su código solo.
-   - Si se vende en otro lado, elige «Fuera de Shopify». El link lleva `?ref=CÓDIGO` y esas ventas las registras a mano en «Ventas».
-4. **Cada mes:** en «Socios aprobados» ves lo vendido y la comisión de cada uno. Págales y guarda el comprobante.
-5. **Etapa 2:** cuando quieras mostrar resultados, «Programa» → Etapa 2. La página publica el ranking real: alias, número de ventas y monto. Nunca correos, teléfonos ni comisiones.
+3. **Cuando otro producto esté listo** (El Centro, Pixel, el universo, las apps, los libros): «Productos de la página» → Editar → Estado «Disponible», su link, su precio de lista y su moneda. Marca «El código del socio da descuento aquí» solo si creaste los códigos donde se cobra. Aparece al tiro en la página y en el panel de cada socio.
+4. **Cada mes:** en «Socios aprobados» ves lo vendido y la comisión de cada uno. Págales lo que ya pasó su plazo de devolución y guarda el comprobante.
+5. **Etapa 2:** cuando quieras mostrar resultados, ve a «Programa» → Etapa 2. La página publica el ranking real: alias, número de ventas y monto. Nunca correos, teléfonos ni comisiones.
 
 ## Texto para el anuncio de LinkedIn
 
@@ -112,21 +131,27 @@ Cargo: **Freelancers Fundadores · Programa de ventas HK23**
 > HK23 abre su programa de Freelancers Fundadores: un grupo pequeño de freelancers que venderá los productos de HK23 antes que nadie. Nos repartimos la ganancia de cada venta casi a medias. Es más de lo que nos conviene, y por eso hay solo 20 cupos. Las postulaciones abren el martes 27 de octubre a las 12:00, hora de Chile. Anótate hoy en la lista y te avisamos ese día: https://hk23universe.vercel.app/socios
 >
 > **Sobre HK23**
-> HK23 es un estudio chileno que construye productos con IA. Su ecosistema de agentes publica y opera la tienda HK23 STUDIO, con arte, posters, stickers y ediciones PROOF OF WORK. Además vienen El Centro, un mercado de agentes de IA, el universo HK23, apps de golf y rugby, y libros y guías.
+> HK23 es un estudio chileno que construye productos con IA y los lleva al mercado.
 >
 > **Qué vas a vender**
-> Todo lo que HK23 tenga funcionando y publicado en la página del programa. Hoy está disponible la tienda HK23 STUDIO. El resto se activa a medida que cada producto queda listo.
+> Partimos con tres productos:
+> - **LeadHunter:** un agente de IA que encuentra empresas reales que pueden comprarle a tu cliente y le escribe el mensaje de contacto. Cuesta US$97 y por cada venta te llevas US$35.
+> - **DuckCam:** una cámara de auto con forma de pato, que avisa que estás grabando. Está en preventa.
+> - **Tienda HK23 STUDIO:** posters, stickers y ediciones PROOF OF WORK impresos bajo pedido.
+>
+> En la página del programa, cada producto muestra cuánto te llevas por venta.
 >
 > **Qué harás**
-> - Recomendar los productos a tu audiencia o red con tu código personal.
+> - Recomendar los productos a tu audiencia o red con tus links personales.
 > - Mostrar cada producto con casos reales: a quién le sirve y qué resuelve.
 > - Probar cada producto antes del lanzamiento y contarnos qué dicen tus clientes.
 >
 > **Qué ganas como fundador**
-> - 49 % de la ganancia de cada venta pagada con tu código. La ganancia es lo que paga el cliente menos lo que cuesta fabricar y cobrar el producto. En lo digital es casi todo el precio. Desde la etapa 2, la comisión es 10 %.
+> - 49 % de la ganancia de cada venta que hagas. La ganancia es lo que paga el cliente menos lo que cuesta fabricar, despachar, cobrar y pagar los impuestos del producto. Desde la etapa 2, la comisión es 10 %.
+> - Con tu código, tus clientes tienen 10 % de descuento en LeadHunter y en la tienda.
 > - Acceso anticipado: pruebas cada producto antes de que salga al público.
 > - Sello «Fundador» permanente en el ranking del programa.
-> - Panel privado con cada venta y pago mensual.
+> - Panel privado con cada venta. Te pagamos cada mes.
 > - Sin cuota de entrada, sin exclusividad y sin horario.
 >
 > **Cómo avanza**
@@ -140,4 +165,4 @@ Cargo: **Freelancers Fundadores · Programa de ventas HK23**
 > **Cómo postular**
 > Entra a https://hk23universe.vercel.app/socios, anótate en la lista y postula desde el 27 de octubre.
 
-Si cambias la fecha, los cupos o las comisiones en el panel, cambia también estos números en el anuncio.
+Si cambias la fecha, los cupos, las comisiones o el costo de LeadHunter en el panel, cambia también estos números en el anuncio.

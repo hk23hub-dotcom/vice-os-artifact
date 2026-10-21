@@ -4,23 +4,28 @@
 --
 -- CÓMO APLICAR
 --   1. Supabase → proyecto iiqhhglgjsbnuihythko → SQL Editor → New query.
---   2. Pega este archivo entero.
---   3. ANTES de correr: reemplaza __SET_ADMIN_TOKEN__ (bloque "Clave del panel", al final) por una clave
---      larga tuya: mínimo 24 caracteres (en la terminal: openssl rand -hex 24). Es la que abre /socios-admin.
---      Si lo corres sin reemplazarla, el panel queda cerrado y se conserva la clave que hubiera antes.
---   4. Run.
+--   2. Pega este archivo entero, sin editar nada, y dale Run.
+--   3. La clave de /socios-admin se crea aparte, con la consulta de socios/CHECKLIST.md (paso A.3). También
+--      puedes reemplazar __SET_ADMIN_TOKEN__ (al final) por una clave tuya de mínimo 24 caracteres antes de
+--      correrlo. Sin reemplazarla, se conserva la clave que hubiera antes.
+--   Volver a correrlo es como se instalan las mejoras de este archivo: no pisa la configuración, las ventas,
+--   la clave ni el catálogo que ya editaste.
 --
 -- QUÉ HACE
 --   • Antes de la fecha de apertura (config 'abre') solo se puede anotar en la lista de espera.
 --   • Desde la apertura se postula. Postular exige aceptar que las ventas propias se publiquen
 --     (alias, número de ventas y montos) como datos reales de la etapa 2.
---   • Al aprobar, el socio recibe un código (el mismo que se crea como código de descuento en Shopify),
---     una llave para su panel privado y su comisión: fundador mientras queden cupos en la etapa 1.
+--   • Al aprobar, el socio recibe un código (el mismo que se crea como código de descuento en Shopify y en
+--     Gumroad), una llave para su panel privado y su comisión: fundador mientras queden cupos en la etapa 1.
+--   • Catálogo de lanzamiento: LeadHunter, DuckCam y la tienda HK23 STUDIO. El resto queda oculto hasta
+--     que esté listo y se activa desde el panel.
 --   • Las ventas entran solas desde Shopify (edge function socios-shopify) o las registra el dueño a mano.
+--     Todo se contabiliza en US$. Una venta cobrada en pesos chilenos se convierte al registrarla, con el
+--     tipo de cambio de la config 'clp_por_usd', y se guarda también el monto original.
 --   • Los números siempre cuadran a favor de HK23:
 --       ganancia = lo que pagó el cliente − costo del producto (costo_pct sobre el precio de lista)
 --       comisión = % del socio × ganancia, con el % siempre menor a 50 → HK23 se queda con la mayor parte
---       el descuento del código + el costo de cada producto de la tienda nunca llegan a 100 %
+--       el descuento del código + el costo de cada producto donde el código descuenta nunca llegan a 100 %
 --   • El ranking público se muestra solo en la etapa 2.
 --
 -- MODELO DE SEGURIDAD
@@ -51,6 +56,7 @@ insert into public.socios_config (key, value) values
   ('mostrar_desde',      '10'),                              -- muestra "N interesados" desde este número
   ('tienda',             'https://fcqevq-jr.myshopify.com'), -- tienda Shopify HK23 STUDIO
   ('panel_url',          'https://hk23universe.vercel.app/socios'),
+  ('clp_por_usd',        '960'),                             -- pesos por dólar para ventas cobradas en CLP (el de los packs de LeadHunter)
   ('admin_token_sha256', 'unset')
 on conflict (key) do nothing;
 
@@ -72,32 +78,64 @@ create table if not exists public.socios_productos (
   creado      timestamptz not null default now()
 );
 
--- Catálogo inicial. Solo la tienda está a la venta hoy; el resto se activa desde /socios-admin cuando esté listo.
--- Costos: la tienda usa el peor caso real de Printify en Shopify (posters PROOF OF WORK: 57 % del precio)
--- más 5 % de cobro = 62 %. Los productos digitales llevan 15 % por plataforma y medios de pago.
-insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden) values
-  ('agentes-pixel', 'Ecosistema de agentes Pixel', 'Pixel', 'AGENTES IA',
-   'El equipo de agentes de IA que crea productos, escribe sus fichas y los publica en la tienda. La tienda HK23 STUDIO es su prueba de trabajo.',
-   '', null, 'directo', 15, 'proximamente', '#AAFF00', 10),
+-- Columnas que se sumaron después; se agregan también en una base que ya tenía la tabla.
+--   moneda        en qué se cobra: la tienda y LeadHunter en US$, DuckCam en pesos (Mercado Pago)
+--   descuenta     el código del socio le da al cliente el descuento del programa (Shopify, y Gumroad en LeadHunter)
+--   precio_lista  precio sin descuento, en su moneda: con él la página muestra cuánto gana el socio por venta
+alter table public.socios_productos
+  add column if not exists moneda       text not null default 'USD' check (moneda in ('USD', 'CLP')),
+  add column if not exists descuenta    boolean not null default false,
+  add column if not exists precio_lista numeric(12,2) null check (precio_lista is null or precio_lista > 0);
+
+-- Catálogo. Se lanza con tres productos; el resto queda oculto y se activa desde /socios-admin cuando esté listo.
+-- Costos, como % del precio de lista (fabricar + enviar + cobrar + impuestos):
+--   LeadHunter 15 %  Gumroad cobra 10 % + US$0,50 y el pago ~3 % + US$0,30: ~14 % de US$97.
+--   DuckCam    80 %  SUPUESTO hasta tener el costo real de cada pato: IVA (16 % de un precio con IVA),
+--                    Mercado Pago (~4 %) y ~60 % para fabricar y despachar ($30.000 de $49.990).
+--   Tienda     62 %  peor caso real de Printify en Shopify (posters PROOF OF WORK: 57 %) + 5 % de cobro.
+--   El resto   15 %  productos digitales: plataforma y medios de pago.
+insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden,
+                                     moneda, descuenta, precio_lista) values
+  ('leadhunter', 'LeadHunter', 'LeadHunter', 'AGENTE IA · VENTAS',
+   'Un agente de IA que consigue clientes: busca en la web empresas reales que encajan con lo que vende cada negocio, con la fuente de cada una, y escribe el mensaje de contacto. Sin instalar nada. Se usa con una clave de Claude propia.',
+   'US$97', 'https://hk23universe.vercel.app/leadhunter', 'directo', 15, 'disponible', '#AAFF00', 10, 'USD', true, 97),
+  ('duckcam', 'DuckCam', 'DuckCam', 'CÁMARA DE AUTO',
+   'Un pato para el tablero con cámara: graba con el auto encendido, guarda 48 horas de manejo y avisa que estás grabando. Preventa Early Egg de 100 cupos, despacho en enero de 2027. Tu comisión se paga al despachar, pasados los 10 días de retracto.',
+   '$49.990 CLP · preventa', null, 'directo', 80, 'disponible', '#FFD200', 20, 'CLP', false, 49990),
   ('tienda-hk23-studio', 'Tienda HK23 STUDIO', 'Proof of Work', 'ARTE · OBJETOS',
    'Posters, stickers y ediciones PROOF OF WORK publicados por los agentes. Se imprimen bajo pedido.',
-   'desde US$3', 'https://fcqevq-jr.myshopify.com', 'shopify', 62, 'disponible', '#FF3A1F', 20),
+   'desde US$3', 'https://fcqevq-jr.myshopify.com', 'shopify', 62, 'disponible', '#FF3A1F', 30, 'USD', true, null),
+  ('agentes-pixel', 'Ecosistema de agentes Pixel', 'Pixel', 'AGENTES IA',
+   'El equipo de agentes de IA que crea productos, escribe sus fichas y los publica en la tienda. La tienda HK23 STUDIO es su prueba de trabajo.',
+   '', null, 'directo', 15, 'oculto', '#AAFF00', 40, 'USD', false, null),
   ('el-centro', 'El Centro', 'El Centro', 'MERCADO DE AGENTES',
    'Un mercado de agentes de IA vivos: se usan en el navegador y cualquiera puede postular el suyo.',
-   '', null, 'directo', 15, 'proximamente', '#FFD200', 30),
+   '', null, 'directo', 15, 'oculto', '#FFD200', 50, 'USD', false, null),
   ('universo-hk23', 'Universo HK23', 'HK23 OS', 'SISTEMA',
    'El universo HK23: frameworks, blueprints y agentes para construir y operar proyectos.',
-   '', null, 'directo', 15, 'proximamente', '#00F0FF', 40),
+   '', null, 'directo', 15, 'oculto', '#00F0FF', 60, 'USD', false, null),
   ('app-golf', 'App de golf ViceGolfer', 'Vice Golfer', 'APP · GOLF',
    'La app de golf de HK23.',
-   '', null, 'directo', 15, 'proximamente', '#B84DFF', 50),
+   '', null, 'directo', 15, 'oculto', '#B84DFF', 70, 'USD', false, null),
   ('rugby-vice', 'Rugby Vice', 'Rugby Vice', 'APP · RUGBY',
    'La app de rugby de HK23.',
-   '', null, 'directo', 15, 'proximamente', '#00F0FF', 60),
+   '', null, 'directo', 15, 'oculto', '#00F0FF', 80, 'USD', false, null),
   ('libros-guias', 'Libros y guías HK23', 'Libros', 'LIBROS · GUÍAS',
    'Libros y guías escritos en HK23.',
-   '', null, 'directo', 15, 'proximamente', '#FFD200', 70)
+   '', null, 'directo', 15, 'oculto', '#FFD200', 90, 'USD', false, null)
 on conflict (clave) do nothing;
+
+-- Catálogo de lanzamiento en una base que ya tenía el catálogo anterior: se aplica una sola vez.
+-- Después todo se edita desde /socios-admin y volver a correr este archivo no lo pisa.
+do $$
+begin
+  if not exists (select 1 from public.socios_config where key = 'catalogo_lanzamiento') then
+    update public.socios_productos set estado = 'oculto'
+     where clave in ('agentes-pixel', 'el-centro', 'universo-hk23', 'app-golf', 'rugby-vice', 'libros-guias');
+    update public.socios_productos set descuenta = true, orden = 30 where clave = 'tienda-hk23-studio';
+    insert into public.socios_config (key, value) values ('catalogo_lanzamiento', 'aplicado');
+  end if;
+end $$;
 
 create table if not exists public.socios (
   id          bigint generated always as identity primary key,
@@ -141,6 +179,10 @@ create table if not exists public.socios_ventas (
   unique (origen, referencia)
 );
 create index if not exists socios_ventas_socio_idx on public.socios_ventas (socio_id, fecha desc);
+-- moneda y monto con que se cobró la venta. monto y lista quedan siempre en US$ (convertidos con 'clp_por_usd').
+alter table public.socios_ventas
+  add column if not exists moneda   text not null default 'USD' check (moneda in ('USD', 'CLP')),
+  add column if not exists original numeric(14,2) null check (original is null or original >= 0);
 
 create table if not exists public.socios_cuotas (
   clave text not null,
@@ -286,7 +328,8 @@ begin
       select jsonb_agg(jsonb_build_object(
                'clave', p.clave, 'nombre', p.nombre, 'marca', p.marca, 'categoria', p.categoria,
                'descripcion', p.descripcion, 'precio', p.precio, 'url', p.url, 'canal', p.canal,
-               'costo_pct', p.costo_pct, 'estado', p.estado, 'color', p.color) order by p.orden, p.id)
+               'costo_pct', p.costo_pct, 'estado', p.estado, 'color', p.color, 'moneda', p.moneda,
+               'descuenta', p.descuenta or p.canal = 'shopify', 'precio_lista', p.precio_lista) order by p.orden, p.id)
         from public.socios_productos p where p.estado <> 'oculto'), '[]'::jsonb),
     'ranking', null,
     'totales', null
@@ -395,7 +438,7 @@ begin
   if not found then raise exception 'socios: llave_invalida'; end if;
 
   with v as (
-    select x.fecha, x.origen, x.detalle, p.nombre as producto, x.estado,
+    select x.fecha, x.origen, x.detalle, p.nombre as producto, x.estado, x.moneda, x.original,
            public.socios__neto(x.estado, x.monto, x.reembolsado) as neto,
            public.socios__comision(x.estado, x.monto, x.reembolsado, x.lista, x.costo_pct, x.comision_pct) as comision
       from public.socios_ventas x
@@ -412,7 +455,8 @@ begin
     'tienda',    public.socios__cfg('tienda'),
     'ventas', coalesce((select jsonb_agg(jsonb_build_object(
                           'fecha', v.fecha, 'origen', v.origen, 'detalle', v.detalle, 'producto', v.producto,
-                          'monto', v.neto, 'comision', v.comision, 'estado', v.estado)
+                          'monto', v.neto, 'comision', v.comision, 'estado', v.estado,
+                          'moneda', v.moneda, 'original', v.original)
                           order by v.fecha desc)
                         from (select * from v order by fecha desc limit 200) v), '[]'::jsonb),
     'totales', (select jsonb_build_object(
@@ -462,6 +506,7 @@ as $$
                           'id', v.id, 'fecha', v.fecha, 'origen', v.origen, 'referencia', v.referencia,
                           'detalle', v.detalle, 'socio', public.socios__alias(s.alias, s.nombre), 'codigo', s.codigo,
                           'producto', p.nombre, 'monto', v.monto, 'lista', v.lista, 'reembolsado', v.reembolsado,
+                          'moneda', v.moneda, 'original', v.original,
                           'costo_pct', v.costo_pct, 'comision_pct', v.comision_pct, 'estado', v.estado,
                           'ganancia', public.socios__ganancia(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct),
                           'comision', public.socios__comision(v.estado, v.monto, v.reembolsado, v.lista, v.costo_pct, v.comision_pct))
@@ -487,13 +532,14 @@ begin
   select * into s from public.socios where id = v_id for update;
   if not found or s.estado <> 'postulado' then raise exception 'socios: no_esta_en_revision'; end if;
 
+  -- el mismo código se crea en Shopify y en Gumroad, y Gumroad solo acepta letras y números
   if v_cod <> '' then
-    if v_cod !~ '^[A-Z0-9][A-Z0-9-]{3,23}$' then raise exception 'socios: codigo_invalido'; end if;
+    if v_cod !~ '^[A-Z0-9]{4,24}$' then raise exception 'socios: codigo_invalido'; end if;
     if exists (select 1 from public.socios where codigo = v_cod) then raise exception 'socios: codigo_en_uso'; end if;
   else
-    v_base := 'HK23-' || left(upper(regexp_replace(translate(public.socios__alias(s.alias, s.nombre),
+    v_base := 'HK23' || left(upper(regexp_replace(translate(public.socios__alias(s.alias, s.nombre),
                                 'áéíóúüñÁÉÍÓÚÜÑ', 'aeiouunAEIOUUN'), '[^A-Za-z0-9]', '', 'g')), 12);
-    if v_base = 'HK23-' then v_base := 'HK23-SOCIO'; end if;
+    if v_base = 'HK23' then v_base := 'HK23SOCIO'; end if;
     v_cod := v_base;
     while exists (select 1 from public.socios where codigo = v_cod) loop
       i := i + 1;
@@ -531,6 +577,9 @@ declare
   v_color  text := coalesce(public.socios__txt(d->>'color', 7), '#FFD200');
   v_orden  int  := coalesce(public.socios__num(d->>'orden'), 100)::int;
   v_costo  numeric := coalesce(public.socios__num(d->>'costo_pct'), 15);
+  v_moneda text := upper(coalesce(public.socios__txt(d->>'moneda', 3), 'USD'));
+  v_desc   boolean := lower(coalesce(d->>'descuenta', '')) in ('true', 't', '1', 'si', 'sí');
+  v_plista numeric := public.socios__num(d->>'precio_lista');
   v_clave  text;
   v_base   text;
   i        int := 1;
@@ -542,8 +591,12 @@ begin
   if v_color !~ '^#[0-9A-Fa-f]{6}$' then raise exception 'socios: color_invalido'; end if;
   if v_estado = 'disponible' and v_url is null then raise exception 'socios: falta_url'; end if;
   if v_costo < 0 or v_costo > 95 then raise exception 'socios: costo_invalido'; end if;
-  -- en la tienda el código descuenta: costo + descuento tienen que dejar ganancia
-  if v_canal = 'shopify' and v_estado <> 'oculto'
+  if v_moneda not in ('USD', 'CLP') then raise exception 'socios: moneda_invalida'; end if;
+  if v_plista is not null and (v_plista <= 0 or v_plista > 100000000) then raise exception 'socios: precio_invalido'; end if;
+  -- la tienda cobra en dólares y en ella el código siempre descuenta
+  if v_canal = 'shopify' then v_moneda := 'USD'; v_desc := true; end if;
+  -- donde el código descuenta, costo + descuento tienen que dejar ganancia
+  if v_desc and v_estado <> 'oculto'
      and v_costo + coalesce(public.socios__num(public.socios__cfg('descuento')), 0) >= 100 then
     raise exception 'socios: sin_margen';
   end if;
@@ -556,10 +609,11 @@ begin
       i := i + 1;
       v_clave := v_base || '-' || i::text;
     end loop;
-    insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden)
+    insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden,
+                                         moneda, descuenta, precio_lista)
     values (v_clave, v_nombre, coalesce(public.socios__txt(d->>'marca', 40), ''), coalesce(public.socios__txt(d->>'categoria', 30), ''),
             coalesce(public.socios__txt(d->>'descripcion', 300), ''), coalesce(public.socios__txt(d->>'precio', 40), ''),
-            v_url, v_canal, v_costo, v_estado, v_color, v_orden)
+            v_url, v_canal, v_costo, v_estado, v_color, v_orden, v_moneda, v_desc, round(v_plista, 2))
     returning id into v_id;
   else
     update public.socios_productos
@@ -567,7 +621,8 @@ begin
            categoria = coalesce(public.socios__txt(d->>'categoria', 30), ''),
            descripcion = coalesce(public.socios__txt(d->>'descripcion', 300), ''),
            precio = coalesce(public.socios__txt(d->>'precio', 40), ''),
-           url = v_url, canal = v_canal, costo_pct = v_costo, estado = v_estado, color = v_color, orden = v_orden
+           url = v_url, canal = v_canal, costo_pct = v_costo, estado = v_estado, color = v_color, orden = v_orden,
+           moneda = v_moneda, descuenta = v_desc, precio_lista = round(v_plista, 2)
      where id = v_id;
     if not found then raise exception 'socios: no_existe'; end if;
   end if;
@@ -584,22 +639,46 @@ declare
   v_prod  bigint := public.socios__num(d->>'producto_id')::bigint;
   v_pct   numeric := public.socios__num(d->>'comision');
   v_fecha timestamptz := coalesce(public.socios__ts(d->>'fecha'), now());
+  v_moneda text := upper(public.socios__txt(d->>'moneda', 3));
   v_costo numeric;
+  v_pmon  text;
+  v_desc  boolean;
+  v_orig  numeric;
+  v_tasa  numeric;
+  v_dpct  numeric := 0;
+  v_lista numeric;
   v_id    bigint;
 begin
   select * into s from public.socios where id = public.socios__num(d->>'socio_id')::bigint and estado = 'aprobado';
   if not found then raise exception 'socios: socio_no_aprobado'; end if;
-  if v_monto is null or v_monto <= 0 or v_monto > 1000000 then raise exception 'socios: monto_invalido'; end if;
+  if v_monto is null or v_monto <= 0 or v_monto > 1000000000 then raise exception 'socios: monto_invalido'; end if;
   if v_ref is null then raise exception 'socios: falta_referencia'; end if;
   -- el producto define el costo: sin producto no se sabe la ganancia
   if v_prod is null then raise exception 'socios: falta_producto'; end if;
-  select costo_pct into v_costo from public.socios_productos where id = v_prod;
+  select costo_pct, moneda, descuenta or canal = 'shopify' into v_costo, v_pmon, v_desc
+    from public.socios_productos where id = v_prod;
   if not found then raise exception 'socios: no_existe'; end if;
   if v_pct is not null and (v_pct < 0 or v_pct >= 50) then raise exception 'socios: comision_sobre_mitad'; end if;
 
-  insert into public.socios_ventas (socio_id, origen, referencia, producto_id, detalle, monto, lista, costo_pct, comision_pct, fecha)
+  -- moneda del cobro: la que diga el panel o la del producto. Todo se contabiliza en US$.
+  v_moneda := coalesce(v_moneda, v_pmon);
+  if v_moneda not in ('USD', 'CLP') then raise exception 'socios: moneda_invalida'; end if;
+  v_orig := round(v_monto, 2);
+  if v_moneda = 'CLP' then
+    v_tasa := public.socios__num(public.socios__cfg('clp_por_usd'));
+    if v_tasa is null or v_tasa <= 0 then raise exception 'socios: falta_tipo_de_cambio'; end if;
+    v_monto := v_monto / v_tasa;
+  end if;
+  v_monto := round(v_monto, 2);
+  if v_monto <= 0 or v_monto > 1000000 then raise exception 'socios: monto_invalido'; end if;
+  -- donde el código descuenta, el cliente pagó con descuento: el costo se calcula sobre el precio sin él
+  if v_desc then v_dpct := coalesce(public.socios__num(public.socios__cfg('descuento')), 0); end if;
+  v_lista := case when v_dpct > 0 and v_dpct < 100 then round(v_monto / (1 - v_dpct / 100), 2) else v_monto end;
+
+  insert into public.socios_ventas (socio_id, origen, referencia, producto_id, detalle, monto, lista, costo_pct, comision_pct, fecha,
+                                    moneda, original)
   values (s.id, 'manual', v_ref, v_prod, coalesce(public.socios__txt(d->>'detalle', 200), ''),
-          round(v_monto, 2), round(v_monto, 2), v_costo, coalesce(v_pct, s.comision), v_fecha)
+          v_monto, v_lista, v_costo, coalesce(v_pct, s.comision), v_fecha, v_moneda, v_orig)
   on conflict (origen, referencia) do nothing
   returning id into v_id;
   if v_id is null then raise exception 'socios: referencia_repetida'; end if;
@@ -631,10 +710,15 @@ begin
     elsif k = 'descuento' then
       n := public.socios__num(v);
       if n is null or n < 0 or n > 90 then raise exception 'socios: porcentaje_invalido'; end if;
-      -- el descuento no puede comerse la ganancia de ningún producto de la tienda
-      if n + coalesce((select max(costo_pct) from public.socios_productos where canal = 'shopify' and estado <> 'oculto'), 0) >= 100 then
+      -- el descuento no puede comerse la ganancia de ningún producto donde el código descuenta
+      if n + coalesce((select max(costo_pct) from public.socios_productos
+                        where (descuenta or canal = 'shopify') and estado <> 'oculto'), 0) >= 100 then
         raise exception 'socios: sin_margen';
       end if;
+      v := n::text;
+    elsif k = 'clp_por_usd' then
+      n := public.socios__num(v);
+      if n is null or n < 100 or n > 5000 then raise exception 'socios: tipo_de_cambio_invalido'; end if;
       v := n::text;
     elsif k = 'tienda' then
       if v !~ '^https://[A-Za-z0-9.-]{4,120}$' then raise exception 'socios: url_invalida'; end if;
@@ -673,7 +757,7 @@ begin
     return jsonb_build_object('ok', true);
   elsif p_accion = 'codigo' then
     v_cod := upper(coalesce(public.socios__txt(d->>'codigo', 24), ''));
-    if v_cod !~ '^[A-Z0-9][A-Z0-9-]{3,23}$' then raise exception 'socios: codigo_invalido'; end if;
+    if v_cod !~ '^[A-Z0-9]{4,24}$' then raise exception 'socios: codigo_invalido'; end if;
     if exists (select 1 from public.socios where codigo = v_cod and id <> v_id) then raise exception 'socios: codigo_en_uso'; end if;
     update public.socios set codigo = v_cod where id = v_id and estado = 'aprobado';
     if not found then raise exception 'socios: socio_no_aprobado'; end if;

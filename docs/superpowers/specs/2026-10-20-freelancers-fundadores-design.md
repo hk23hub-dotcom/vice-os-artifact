@@ -3,7 +3,8 @@
 ## Qué pidió el dueño
 
 - Una página donde freelancers se registran y dejan su contacto.
-- En la página, los productos que quiere que vendan: cualquier producto de HK23 que esté funcionando. Hoy la tienda HK23 STUDIO. Después el ecosistema de agentes Pixel, El Centro, el universo HK23, las apps de golf y rugby, libros y guías.
+- En la página, los productos que quiere que vendan: cualquier producto de HK23 que esté funcionando.
+- Lanzamiento con 3 productos: LeadHunter, DuckCam y la tienda HK23 STUDIO. Después se suman el ecosistema de agentes Pixel, El Centro, el universo HK23, las apps de golf y rugby, y libros y guías.
 - Ver en la misma página cuánto venden los freelancers que ya funcionan, sin datos falsos.
 - Abrir postulaciones en una fecha, unos días después del anuncio de LinkedIn, para captar a los primeros.
 - Los primeros (fundadores) reciben algo mejor por probar el producto. Sus ventas son los datos reales de la segunda etapa, y se les explica al postular.
@@ -22,6 +23,12 @@
 | Fundadores | Primeros N aprobados en etapa 1 → número de fundador y comisión mayor (49 %) | «Algo mejor por probar el producto». El dueño apuesta a volumen: «100 ventas regalando 49 % es mejor que 5 de 100 % mías» |
 | Base de la comisión | % de la **ganancia**: lo pagado − costo del producto (costo % × precio de lista). Comisión < 50 %. Descuento + costo de la tienda < 100 % | «Si te doy números, que siempre cuadren a mi favor y haya margen». Con 49 % sobre el precio, los posters PROOF OF WORK (57 % de costo real en Printify) se venderían a pérdida |
 | Catálogo | Tabla editable desde el panel: disponible, próximamente u oculto | «Si está en esta página, lo puede vender» |
+| Lanzamiento | LeadHunter (US$97, Gumroad), DuckCam ($49.990 CLP, preventa por Mercado Pago) y la tienda. El resto oculto. Se aplica una sola vez, también en la base que ya tenía el catálogo anterior | «Solo quiero partir con 3 productos» |
+| Monedas | Todo se contabiliza en US$. Una venta en pesos se convierte al registrarla con `clp_por_usd` (960, el de los packs de LeadHunter) y guarda su monto original | DuckCam se cobra en pesos; el ranking y las comisiones necesitan una sola moneda |
+| Atribución fuera de Shopify | LeadHunter: la landing lleva `?ref=` a un código de descuento de Gumroad (`/l/leadhunter/CÓDIGO`), y la venta muestra el código. DuckCam: el socio reporta al comprador y el dueño lo cruza con el pago | Atribución verificable sin funciones nuevas |
+| Códigos | Solo letras y números | Gumroad no acepta guiones; el mismo código vale en Shopify y Gumroad |
+| Ganancia por venta | La tarjeta muestra lo que gana el socio en plata (precio de lista × su parte), redondeado hacia abajo | Más concreto que un %; nunca promete de más |
+| Pago de comisiones | Pasado el plazo de devolución: LeadHunter 7 días; DuckCam al despachar + 10 días de retracto | Que una devolución no deje una comisión ya pagada |
 
 ## Piezas
 

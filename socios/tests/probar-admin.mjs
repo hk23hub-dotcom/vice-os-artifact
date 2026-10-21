@@ -76,7 +76,8 @@ A.d.getElementById('tok').value = TOKEN;
 click(A.w, A.d.getElementById('entrar'));
 await wait(120);
 ok(!A.d.getElementById('panel').hidden && A.d.getElementById('login').hidden, 'clave buena abre el panel');
-ok(A.d.querySelectorAll('#productos tbody tr').length === 7, 'muestra los 7 productos del catálogo inicial');
+ok(A.d.querySelectorAll('#productos tbody tr').length === 9, 'muestra los 9 productos: 3 a la venta y 6 ocultos');
+ok(A.d.getElementById('cTasa').value === '960', 'el tipo de cambio para ventas en pesos aparece en «Programa»: 960');
 ok(/Nadie en la lista/.test(A.d.getElementById('lista').textContent), 'lista de espera vacía');
 
 // ---------- 2. la página pública antes de abrir ----------
@@ -105,7 +106,12 @@ ok(A.copiado.pop() === 'ana@mail.com', 'copia los correos de la lista para avisa
 const cuadra = () => [...A.d.querySelectorAll('#cuadra tbody tr')].map((tr) => [...tr.children].map((td) => td.textContent));
 let filasC = cuadra();
 const tiendaC = filasC.find((r) => r[0] === 'Tienda HK23 STUDIO');
-ok(filasC.length === 7 && filasC.every((r) => r[6] === 'Cuadra'), '¿Cuadra?: los 7 productos cuadran con los números actuales');
+ok(filasC.length === 3 && filasC.every((r) => r[6] === 'Cuadra'), '¿Cuadra?: los 3 productos a la venta cuadran con los números actuales');
+const lhC = filasC.find((r) => r[0] === 'LeadHunter'), dcC = filasC.find((r) => r[0] === 'DuckCam');
+ok(lhC[1] === 'US$90' && lhC[3] === 'US$75' && lhC[4] === 'US$36,75' && lhC[5] === 'US$38,25',
+  'LeadHunter por US$100: el código descuenta 10, costo 15 → ganancia 75, fundador 36,75, HK23 38,25 → ' + lhC.join(' | '));
+ok(dcC[1] === 'US$100' && dcC[3] === 'US$20' && dcC[4] === 'US$9,8' && dcC[5] === 'US$10,2',
+  'DuckCam por US$100: sin descuento, costo 80 → ganancia 20, fundador 9,8, HK23 10,2 → ' + dcC.join(' | '));
 ok(tiendaC[1] === 'US$90' && tiendaC[3] === 'US$28' && tiendaC[4] === 'US$13,72' && tiendaC[5] === 'US$14,28',
   'tienda por US$100: cliente paga 90, ganancia 28, fundador 13,72, HK23 14,28 → ' + tiendaC.join(' | '));
 A.d.getElementById('cFund').value = '50';
@@ -140,26 +146,30 @@ ok(P.d.getElementById('enviar').textContent === 'Enviar postulación' && P.d.get
 const set = (id, v) => { P.d.getElementById(id).value = v; };
 set('fNombre', 'Ana Pérez'); set('fEmail', 'ana@mail.com'); set('fAlias', 'Ana P.'); set('fCanal', 'Vendo a pymes por LinkedIn');
 set('fPais', 'Chile');
-P.d.querySelector('#fIntereses input[value="agentes-pixel"]').checked = true;
+P.d.querySelector('#fIntereses input[value="leadhunter"]').checked = true;
 P.d.getElementById('fConsiente').checked = true;
 submit(P.w, P.d, 'form');
 await wait(150);
 ok(/Recibimos tu postulación/.test(P.d.getElementById('listoTitulo').textContent), 'la postulación se envía desde la página');
 const ana = await fila(`select * from socios where email='ana@mail.com'`);
-ok(ana.estado === 'postulado' && ana.alias === 'Ana P.' && JSON.stringify(ana.intereses) === '["agentes-pixel"]' && ana.consiente, 'queda postulada con su consentimiento');
+ok(ana.estado === 'postulado' && ana.alias === 'Ana P.' && JSON.stringify(ana.intereses) === '["leadhunter"]' && ana.consiente, 'queda postulada con su consentimiento');
 
 // ---------- 5. aprobar ----------
 click(A.w, A.d.getElementById('entrar'));
 await wait(150);
 const tarjeta = A.d.querySelector('#postulados .it');
-ok(tarjeta && /Ana Pérez/.test(tarjeta.textContent) && /Ecosistema de agentes Pixel/.test(tarjeta.textContent), 'la postulación aparece con sus intereses por nombre');
+ok(tarjeta && /Ana Pérez/.test(tarjeta.textContent) && /Le interesa: LeadHunter/.test(tarjeta.textContent), 'la postulación aparece con sus intereses por nombre');
 tarjeta.querySelector('input').value = 'ana-pixel';
 click(A.w, btn(tarjeta, 'Aprobar'));
 await wait(150);
-ok(/fundador #1/.test(tarjeta.textContent) && /ANA-PIXEL/.test(tarjeta.textContent), 'aprobada como fundadora #1 con el código ANA-PIXEL');
+ok(/sin guiones/.test(tarjeta.textContent), 'un código con guion se rechaza con el motivo (Gumroad no lo acepta)');
+tarjeta.querySelector('input').value = 'anapixel';
+click(A.w, btn(tarjeta, 'Aprobar'));
+await wait(150);
+ok(/fundador #1/.test(tarjeta.textContent) && /ANAPIXEL/.test(tarjeta.textContent), 'aprobada como fundadora #1 con el código ANAPIXEL');
 await wait(1000);
 const anaOk = await fila(`select * from socios where email='ana@mail.com'`);
-ok(anaOk.estado === 'aprobado' && anaOk.codigo === 'ANA-PIXEL' && Number(anaOk.comision) === 49, 'en la base: aprobada, código y 49%');
+ok(anaOk.estado === 'aprobado' && anaOk.codigo === 'ANAPIXEL' && Number(anaOk.comision) === 49, 'en la base: aprobada, código y 49%');
 const bLink = btn(A.d.getElementById('socios'), 'Copiar link del panel');
 click(A.w, bLink);
 await wait(20);
@@ -167,7 +177,7 @@ ok(A.copiado.pop() === 'https://hk23universe.vercel.app/socios?llave=' + anaOk.l
 
 // ---------- 6. una venta real por Shopify + una manual ----------
 await db.exec('set role service_role');
-await db.query(`select socios_registrar_shopify('pagado','5512345678901','#1001',array['ana-pixel'],35.5)`);
+await db.query(`select socios_registrar_shopify('pagado','5512345678901','#1001',array['anapixel'],35.5)`);
 await db.exec('reset role');
 click(A.w, A.d.getElementById('entrar'));
 await wait(150);
@@ -192,11 +202,11 @@ ok(celdas[4] === 'US$102' && /^US\$49,98/.test(celdas[5]) && celdas[6] === 'US$5
 // ---------- 7. panel privado de la socia ----------
 let S = abrir('socios.html', 'https://hk23universe.vercel.app/socios?llave=' + anaOk.llave);
 await wait(200);
-ok(!S.d.getElementById('panel').hidden && S.d.getElementById('panelCodigo').textContent === 'ANA-PIXEL', 'la socia ve su panel con su código');
+ok(!S.d.getElementById('panel').hidden && S.d.getElementById('panelCodigo').textContent === 'ANAPIXEL', 'la socia ve su panel con su código');
 ok(S.d.querySelectorAll('#panelVentas tbody tr').length === 2 && /US\$56,59/.test(S.d.getElementById('panelCifras').textContent),
   've sus 2 ventas y US$56,59: 49% de la ganancia (tienda 35,5 − 62% = 13,49 → 6,61; Pixel 120 − 15% = 102 → 49,98)');
 ok(/de la ganancia/.test(S.d.getElementById('panelLede').textContent), 'su panel le dice que gana sobre la ganancia');
-ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://fcqevq-jr.myshopify.com/discount/ANA-PIXEL?redirect=/'),
+ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://fcqevq-jr.myshopify.com/discount/ANAPIXEL?redirect=/'),
   'tiene su link de la tienda con el código aplicado');
 ok(S.d.getElementById('rankCuerpo').querySelector('table') === null, 'etapa 1: el ranking aún no se publica');
 
@@ -215,6 +225,50 @@ const editar = [...A.d.querySelectorAll('#productos tbody tr')].find((tr) => /Gu
 click(A.w, btn(editar, 'Editar'));
 ok(A.d.getElementById('pNombre').value === 'Guía PROOF OF WORK' && A.d.getElementById('pId').value !== '', 'editar carga el producto en el formulario');
 
+// ---------- 8b. DuckCam: el dueño pone su link y registra una venta en pesos ----------
+const filaProd = (nombre) => [...A.d.querySelectorAll('#productos tbody tr')].find((tr) => tr.querySelector('b').textContent === nombre);
+click(A.w, btn(filaProd('LeadHunter'), 'Editar'));
+ok(A.d.getElementById('pDescuenta').checked && A.d.getElementById('pMoneda').value === 'USD' && A.d.getElementById('pLista').value === '97',
+  'LeadHunter en el formulario: US$, precio de lista 97 y el código descuenta');
+click(A.w, btn(filaProd('DuckCam'), 'Editar'));
+ok(!A.d.getElementById('pDescuenta').checked && A.d.getElementById('pMoneda').value === 'CLP' && A.d.getElementById('pLista').value === '49990',
+  'DuckCam en el formulario: pesos, precio de lista 49.990 y sin código');
+submit(A.w, A.d, 'fProducto');
+await wait(150);
+ok(A.d.getElementById('pMsg').textContent === 'Un producto disponible necesita su link.', 'DuckCam no se publica sin su link');
+A.d.getElementById('pUrl').value = 'https://duckcam.example/early-egg';
+submit(A.w, A.d, 'fProducto');
+await wait(250);
+const dc = await fila(`select url, moneda, precio_lista, descuenta, costo_pct from socios_productos where clave='duckcam'`);
+ok(dc.url === 'https://duckcam.example/early-egg' && dc.moneda === 'CLP' && Number(dc.precio_lista) === 49990 && !dc.descuenta && Number(dc.costo_pct) === 80,
+  'DuckCam guardado con su link, sin perder moneda, precio ni costo');
+await wait(200);
+const vp = A.d.getElementById('vProducto');
+vp.value = String((await fila(`select id from socios_productos where clave='leadhunter'`)).id);
+vp.dispatchEvent(new A.w.Event('change'));
+ok(A.d.getElementById('vMonto').value === '87.3' && A.d.getElementById('vMoneda').value === 'USD', 'venta de LeadHunter: propone US$87,30 (97 con el 10% del código)');
+vp.value = String((await fila(`select id from socios_productos where clave='duckcam'`)).id);
+vp.dispatchEvent(new A.w.Event('change'));
+ok(A.d.getElementById('vMonto').value === '49990' && A.d.getElementById('vMoneda').value === 'CLP', 'venta de DuckCam: propone $49.990 en pesos');
+A.d.getElementById('vRef').value = 'MP 1234567890';
+A.d.getElementById('vDetalle').value = 'Pato Corbata · reportado por Ana';
+submit(A.w, A.d, 'fVenta');
+await wait(250);
+ok(A.d.getElementById('vMsg').textContent === 'Venta registrada.', 'registra la venta de DuckCam');
+const vdc = await fila(`select moneda, original, monto from socios_ventas where referencia='MP 1234567890'`);
+ok(vdc.moneda === 'CLP' && Number(vdc.original) === 49990 && Number(vdc.monto) === 52.07, 'en la base: $49.990 CLP = US$52,07 a 960');
+await wait(200);
+ok([...A.d.querySelectorAll('#ventas tbody tr')].some((tr) => /\$49\.990 → US\$52,07/.test(tr.textContent)), 'la tabla de ventas muestra los pesos y su conversión');
+S.cerrar();
+S = abrir('socios.html', 'https://hk23universe.vercel.app/socios?llave=' + anaOk.llave);
+await wait(250);
+const partesS = [...S.d.querySelectorAll('#productos .parte b')].map((b) => b.textContent);
+ok(partesS[0] === 'US$7' && partesS[1] === '$900' && partesS[2] === '~3%',
+  'pública: con el único cupo de fundador ocupado, cada producto muestra lo que gana un socio nuevo (10%) por venta → ' + partesS.join(', '));
+ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://duckcam.example/early-egg?ref=ANAPIXEL'), 'la socia ya tiene su link de DuckCam');
+ok(/US\$61,69/.test(S.d.getElementById('panelCifras').textContent) && /\$49\.990/.test(S.d.getElementById('panelVentas').textContent),
+  'su panel suma la venta de DuckCam: US$56,59 + 5,10 = US$61,69');
+
 // ---------- 9. etapa 2: ranking público ----------
 A.d.getElementById('cEtapa').value = '2';
 const B = abrir('socios-admin.html', 'https://hk23universe.vercel.app/socios-admin', { confirmar: false });
@@ -232,8 +286,8 @@ P.cerrar();
 P = abrir('socios.html', 'https://hk23universe.vercel.app/socios');
 await wait(200);
 const filas = P.d.querySelectorAll('#rankCuerpo tbody tr');
-ok(filas.length === 1 && /Ana P\./.test(filas[0].textContent) && /Fundador #1/.test(filas[0].textContent) && /US\$155,5/.test(filas[0].textContent),
-  'pública: ranking real con Ana P., fundadora #1, US$155,5');
+ok(filas.length === 1 && /Ana P\./.test(filas[0].textContent) && /Fundador #1/.test(filas[0].textContent) && /US\$207,57/.test(filas[0].textContent),
+  'pública: ranking real con Ana P., fundadora #1, US$207,57 (tienda 35,5 + Pixel 120 + DuckCam 52,07)');
 ok(!P.d.body.textContent.includes('ana@mail.com') && !P.d.body.textContent.includes(anaOk.llave), 'la página pública no muestra correo ni llave');
 ok([A, P, S, B].every((x) => x.errors.length === 0), 'sin errores de JS ' + [A, P, S, B].flatMap((x) => x.errors).join(' | '));
 process.exit(process.exitCode ?? 0);
