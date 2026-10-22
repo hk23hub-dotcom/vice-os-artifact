@@ -2486,6 +2486,7 @@ function animateMap() {
     const isHovered = hoveredNode === n.id;
     const pulse = Math.sin(mapT * 1.5 + n.x * 10) * 2;
     const r = n.size + (isHovered ? 4 : pulse * 0.3);
+    if (window.HK_NEON) HK_NEON.halo(mapCtx, 'g:' + n.id, x, y, r, n.color);
 
     const grd = mapCtx.createRadialGradient(x, y, 0, x, y, r * 3);
     grd.addColorStop(0, n.color + '30');
@@ -2525,6 +2526,7 @@ function animateMap() {
     const isHovered = hoveredProject === p.id;
     const pulse = Math.sin(mapT * 0.9 + p.x * 7) * 3;
     const r = p.size + (isHovered ? 7 : pulse * 0.4);
+    if (window.HK_NEON) HK_NEON.halo(mapCtx, 'p:' + p.id, x, y, r, p.color);
 
     // Far glow
     const farGrd = mapCtx.createRadialGradient(x, y, 0, x, y, r * 7);
@@ -18106,6 +18108,7 @@ addEventListener('DOMContentLoaded', function(){
       <button class="cu-tab" data-t="tipos">TIPOGRAFÍAS</button>
       <button class="cu-tab" data-t="logos">LOGOS</button>
       <button class="cu-tab" data-t="codigo">CÓDIGO</button>
+      <button class="cu-tab" data-t="neon">NEÓN</button>
     </div>
     <div class="ds-cuerpo" id="ds-cuerpo"></div>
     <div class="ds-pie">
@@ -18242,6 +18245,7 @@ addEventListener('DOMContentLoaded', function(){
     if(tab === 'colores') pintarColores(c, d, o);
     else if(tab === 'tipos') pintarTipos(c, d);
     else if(tab === 'logos') pintarLogos(c);
+    else if(tab === 'neon') pintarNeon(c);
     else pintarCodigo(c);
   }
 
@@ -18324,6 +18328,52 @@ addEventListener('DOMContentLoaded', function(){
     if(dk.length) c.appendChild(el('div','ds-nota','GLIFOS DEL DOCK:  ' + dk.join('   ')));
   }
 
+  /* NEÓN: cuánto brilla cada cosa según su uso */
+  var porReiniciar = false;
+  function colorDe(clave){
+    try{
+      if(clave.indexOf('p:') === 0){ var p = PROJECTS.find(function(x){ return 'p:' + x.id === clave; }); if(p) return p.color; }
+      if(clave.indexOf('g:') === 0){ var g = NODES.find(function(x){ return 'g:' + x.id === clave; }); if(g) return g.color; }
+    }catch(e){}
+    var bs = document.querySelectorAll('#hk-dock .dk, .nav-btn');
+    for(var i = 0; i < bs.length; i++){
+      var t = bs[i].textContent.replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü ]+/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase();
+      if(clave === 'dk:' + (bs[i].id || t) || clave === 'nav:' + t) return bs[i].style.getPropertyValue('--dc') || 'var(--electric)';
+    }
+    return 'var(--electric)';
+  }
+  function pintarNeon(c){
+    var N = window.HK_NEON;
+    if(!N){ c.appendChild(el('div','ds-nota','⚠ EL MÓDULO DE NEÓN NO ESTÁ CARGADO')); return; }
+    c.appendChild(el('div','ds-nota','BRILLA SEGÚN CUÁNTO LO USÁS: BOTONES, PLANETAS, GALAXIAS, MUNDOS. SE ENFRÍA SOLO (VIDA MEDIA ' + N.vidaMediaDias + ' DÍAS). LOCAL EN ESTE DISPOSITIVO.'));
+    var f = el('div','nn-fuerza');
+    var lbl = el('b', null, '');
+    var r = document.createElement('input'); r.type = 'range'; r.min = '0'; r.max = '2'; r.step = '0.1'; r.value = String(N.fuerza()); r.setAttribute('aria-label','fuerza del neón');
+    var rotular = function(){ var v = +r.value; lbl.textContent = v === 0 ? 'APAGADO' : 'FUERZA ' + v.toFixed(1) + '×'; };
+    r.addEventListener('input', function(){ N.setFuerza(r.value); rotular(); });
+    r.addEventListener('change', function(){ pintar(); });
+    rotular(); f.appendChild(lbl); f.appendChild(r);
+    f.appendChild(boton(porReiniciar ? '⚠ TOCÁ DE NUEVO' : '↺ REINICIAR USO', function(){
+      if(!porReiniciar){ porReiniciar = true; aviso('⚠ TOCÁ REINICIAR DE NUEVO PARA BORRAR TODO EL USO'); pintar(); setTimeout(function(){ if(porReiniciar){ porReiniciar = false; if(abierto() && tab === 'neon') pintar(); } }, 4000); return; }
+      porReiniciar = false; N.reiniciar(); aviso('↺ USO REINICIADO — TODO VUELVE A CERO'); pintar();
+    }, 'peligro'));
+    c.appendChild(f);
+    var rk = N.ranking();
+    if(!rk.length){ c.appendChild(el('div','cu-vacio','TODAVÍA NO HAY USO REGISTRADO — TOCÁ COSAS DEL UNIVERSO Y VOLVÉ ACÁ')); return; }
+    var max = rk[0].calor || 1;
+    rk.slice(0, 24).forEach(function(x){
+      var fila = el('div','nn-fila');
+      fila.appendChild(el('div','nn-nom', x.etiqueta));
+      var barra = el('div','nn-barra'); var i = document.createElement('i');
+      i.style.width = Math.max(3, Math.round(x.calor / max * 100)) + '%';
+      var col = colorDe(x.clave); i.style.background = col; i.style.boxShadow = x.tier >= 2 ? '0 0 8px ' + col : 'none';
+      barra.appendChild(i); fila.appendChild(barra);
+      fila.appendChild(el('div','nn-n', x.usos + (x.usos === 1 ? ' USO' : ' USOS') + (x.tier ? ' · NEÓN ' + x.tier : '')));
+      c.appendChild(fila);
+    });
+    if(rk.length > 24) c.appendChild(el('div','ds-nota', '+ ' + (rk.length - 24) + ' MÁS CON MENOS USO'));
+  }
+
   function pintarCodigo(c){
     var piezas = [
       ['TOKENS COMO CSS (VALORES ACTUALES)', tokensCSS()],
@@ -18363,6 +18413,281 @@ addEventListener('DOMContentLoaded', function(){
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.Diseno = { abrir:abrir, cerrar:cerrar, tokens:function(){ var d = leerRoot(), o = {}; Object.keys(d).forEach(function(n){ o[n] = actual(n); }); return o; },
     aplicar:function(n, v){ var ov = overrides(); ov[n] = v; guardarOverrides(ov); aplicar(n, v); }, restaurar:restaurar, css:tokensCSS, json:tokensJSON, version:'1' };
+})();
+</script>
+
+
+<!-- ═══════════ NEÓN POR USO — lo que más usás, más brilla ═══════════
+     Cada toque cuenta: botones del dock, la nav de arriba, planetas, galaxias, agujeros negros
+     y los mundos que abrís. El uso se enfría solo (vida media 7 días): lo que dejás de usar se
+     apaga de a poco. Intensidad global y ranking en ◈ DISEÑO → NEÓN. Todo local (hk23_uso). -->
+<style id="neon-style">
+  #hk-dock .dk.neon-1, .nav-btn.neon-1{ border-color:var(--dc, currentColor) !important;
+    box-shadow:0 0 6px -2px var(--dc, currentColor); }
+  #hk-dock .dk.neon-2, .nav-btn.neon-2{ color:var(--dc, currentColor) !important; border-color:var(--dc, currentColor) !important;
+    box-shadow:0 0 10px -2px var(--dc, currentColor), inset 0 0 8px -4px var(--dc, currentColor);
+    text-shadow:0 0 6px var(--dc, currentColor); }
+  #hk-dock .dk.neon-3, .nav-btn.neon-3{ color:#fff !important; border-color:var(--dc, currentColor) !important;
+    box-shadow:0 0 6px var(--dc, currentColor), 0 0 18px var(--dc, currentColor), inset 0 0 10px -3px var(--dc, currentColor);
+    text-shadow:0 0 3px #fff, 0 0 8px var(--dc, currentColor), 0 0 16px var(--dc, currentColor);
+    animation:hkNeon 3.4s ease-in-out infinite; }
+  #hk-dock .dk.neon-2:hover, #hk-dock .dk.neon-3:hover{ color:#000 !important; text-shadow:none; }
+  @keyframes hkNeon{ 0%,100%{ filter:brightness(1); } 46%{ filter:brightness(1.18); } 50%{ filter:brightness(.8); } 54%{ filter:brightness(1.12); } }
+  @media (prefers-reduced-motion: reduce){ #hk-dock .dk.neon-3, .nav-btn.neon-3{ animation:none; } }
+  /* ranking en el panel de diseño */
+  .nn-fila{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px dashed #1A1A1C; }
+  .nn-fila .nn-nom{ flex:0 0 38%; min-width:0; font-family:var(--mono); font-size:10px; letter-spacing:2px; color:var(--white);
+    text-transform:uppercase; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .nn-fila .nn-barra{ flex:1; height:6px; background:#141416; border-radius:3px; overflow:hidden; }
+  .nn-fila .nn-barra i{ display:block; height:100%; border-radius:3px; }
+  .nn-fila .nn-n{ flex:0 0 auto; font-family:var(--mono); font-size:8px; letter-spacing:2px; color:#666; text-transform:uppercase; text-align:right; min-width:92px; }
+  .nn-fuerza{ display:flex; align-items:center; gap:10px; margin:6px 0 14px; flex-wrap:wrap; }
+  .nn-fuerza input[type=range]{ flex:1 1 200px; min-height:44px; accent-color:var(--electric); }
+  .nn-fuerza b{ font-family:var(--mono); font-size:10px; letter-spacing:3px; color:var(--electric); min-width:90px; }
+</style>
+<script>
+(function(){
+  'use strict';
+  var KEY = 'hk23_uso', KF = 'hk23_neon_fuerza';
+  var VIDA = 7 * 24 * 3600 * 1000;          /* vida media del uso: 7 días */
+  var MIN_MAX = 3;                           /* con poco uso total nada llega a neón pleno */
+  var reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  function leer(){ try{ var o = JSON.parse(localStorage.getItem(KEY)); return o && typeof o === 'object' ? o : {}; }catch(e){ return {}; } }
+  function guardar(){ try{ localStorage.setItem(KEY, JSON.stringify(datos)); }catch(e){} }
+  function leerFuerza(){ try{ var v = parseFloat(localStorage.getItem(KF)); return isFinite(v) ? Math.max(0, Math.min(2, v)) : 1; }catch(e){ return 1; } }
+
+  var datos = leer(), fuerza = leerFuerza();
+  var cacheI = {}, maxS = 0;
+
+  function enfriado(d, ahora){ return (+d.s || 0) * Math.pow(0.5, Math.max(0, ahora - (+d.t || ahora)) / VIDA); }
+  function recalcular(){
+    var ahora = Date.now(), k, v = {};
+    maxS = 0;
+    for(k in datos){ v[k] = enfriado(datos[k], ahora); if(v[k] > maxS) maxS = v[k]; }
+    var base = Math.max(maxS, MIN_MAX);
+    cacheI = {};
+    for(k in v) cacheI[k] = Math.max(0, Math.min(1, v[k] / base));
+  }
+  function intensidad(k){ return (cacheI[k] || 0) * fuerza; }
+  function tier(i){ i = Math.min(1, i); return i >= 0.66 ? 3 : i >= 0.33 ? 2 : i >= 0.08 ? 1 : 0; }
+
+  var ultimo = {};
+  function usar(k, etiqueta){
+    if(!k) return;
+    var ahora = Date.now();
+    if(ultimo[k] && ahora - ultimo[k] < 1500) return;      /* un toque que abre un mundo cuenta una vez */
+    ultimo[k] = ahora;
+    var d = datos[k] || { s:0, t:ahora, n:0 };
+    d.s = enfriado(d, ahora) + 1; d.t = ahora; d.n = (+d.n || 0) + 1;
+    if(etiqueta) d.et = String(etiqueta).slice(0, 40);
+    datos[k] = d;
+    guardar(); recalcular(); pintarDOM();
+  }
+
+  /* ── claves de los botones ───────────────────────────────────────── */
+  function norm(t){ return String(t || '').replace(/[^A-Za-zÁÉÍÓÚÑÜáéíóúñü ]+/g, ' ').replace(/\s+/g, ' ').trim().toUpperCase(); }
+  function claveBoton(b){
+    var t = norm(b.textContent);
+    if(b.closest('#hk-dock')) return { k:'dk:' + (b.id || t || b.textContent.trim()), et:t || b.textContent.trim() };
+    return { k:'nav:' + (t || b.textContent.trim()), et:t || b.textContent.trim() };
+  }
+  function hace(t){
+    var s = Math.max(0, (Date.now() - t) / 1000);
+    if(s < 90) return 'recién';
+    if(s < 3600) return 'hace ' + Math.round(s/60) + ' min';
+    if(s < 86400) return 'hace ' + Math.round(s/3600) + ' h';
+    return 'hace ' + Math.round(s/86400) + ' d';
+  }
+
+  /* ── pintar los botones ──────────────────────────────────────────── */
+  function botones(){ return document.querySelectorAll('#hk-dock .dk, .nav-btn'); }
+  function pintarDOM(){
+    Array.prototype.forEach.call(botones(), function(b){
+      var c = claveBoton(b), i = intensidad(c.k), t = tier(i);
+      if(!b.style.getPropertyValue('--dc')){
+        var col = getComputedStyle(b).color;
+        if(col) b.style.setProperty('--dc', col);
+      }
+      b.classList.remove('neon-1', 'neon-2', 'neon-3');
+      if(t) b.classList.add('neon-' + t);
+      if(b.dataset.titulo0 === undefined) b.dataset.titulo0 = b.getAttribute('title') || '';
+      var d = datos[c.k];
+      b.title = (b.dataset.titulo0 ? b.dataset.titulo0 + ' · ' : '') +
+        (d ? 'usado ' + d.n + (d.n === 1 ? ' vez' : ' veces') + ' · ' + hace(d.t) : 'sin uso todavía');
+    });
+  }
+
+  /* ── el halo del canvas (lo llama el loop del mapa) ──────────────── */
+  var rgbCache = {};
+  function rgba(col, a){
+    var c = rgbCache[col];
+    if(!c){
+      var m = /^#?([0-9a-f]{6})/i.exec(col || '');
+      if(m){ var n = parseInt(m[1], 16); c = [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+      else c = [240, 237, 232];
+      rgbCache[col] = c;
+    }
+    return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + Math.max(0, Math.min(1, a)).toFixed(3) + ')';
+  }
+  function halo(ctx, k, x, y, r, color){
+    var i = Math.min(1.6, intensidad(k));
+    if(i < 0.05 || !ctx) return;
+    var vib = reduce ? 1 : 0.88 + 0.12 * Math.sin(performance.now() / 1000 * 2.2 + x * 0.013);
+    ctx.save();
+    var R = r * (2.2 + 2.4 * i);
+    var g = ctx.createRadialGradient(x, y, r * 0.9, x, y, R);
+    g.addColorStop(0, rgba(color, 0.38 * i * vib));
+    g.addColorStop(0.45, rgba(color, 0.13 * i * vib));
+    g.addColorStop(1, rgba(color, 0));
+    ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+    ctx.shadowColor = color; ctx.shadowBlur = 10 + 20 * i;
+    ctx.strokeStyle = rgba(color, Math.min(1, 0.45 + 0.4 * i) * vib);
+    ctx.lineWidth = 1 + 1.6 * i;
+    ctx.beginPath(); ctx.arc(x, y, r + 5 + 3 * i, 0, Math.PI * 2); ctx.stroke();
+    if(i >= 0.66){ ctx.shadowBlur = 4; ctx.strokeStyle = 'rgba(255,255,255,' + (0.55 * vib).toFixed(3) + ')'; ctx.lineWidth = 0.8; ctx.stroke(); }
+    ctx.restore();
+  }
+
+  /* ── qué cuenta como uso ─────────────────────────────────────────── */
+  document.addEventListener('click', function(e){
+    var b = e.target && e.target.closest && e.target.closest('#hk-dock .dk, .nav-btn');
+    if(b){ var c = claveBoton(b); usar(c.k, c.et); }
+  }, true);
+
+  function etiquetaDe(lista, id){
+    try{ var x = (lista || []).find(function(o){ return o.id === id; }); return x ? String(x.label || id).replace(/\n/g, ' ') : id; }catch(e){ return id; }
+  }
+  function engancharMapa(){
+    var mc = document.getElementById('map-canvas');
+    if(!mc || mc.__neon) return !!mc;
+    mc.__neon = true;
+    mc.addEventListener('click', function(){
+      /* hoveredProject / hoveredNode / hoveredBlackHole son let de nivel superior del mapa */
+      try{ if(hoveredProject){ usar('p:' + hoveredProject, etiquetaDe(PROJECTS, hoveredProject)); return; } }catch(e){}
+      try{ if(hoveredNode){ usar('g:' + hoveredNode, etiquetaDe(NODES, hoveredNode)); return; } }catch(e){}
+      try{ if(hoveredBlackHole){ usar('bh:' + hoveredBlackHole, 'AGUJERO NEGRO'); } }catch(e){}
+    }, true);
+    return true;
+  }
+
+  /* los mundos cuentan aunque los abras desde el dock, un atajo o el cuartel */
+  var MUNDOS = { vg:'vicegolfer', rv:'rugbyvice', ar:'arteworld', cw:'cryptovice' };
+  function engancharMundos(){
+    Object.keys(MUNDOS).forEach(function(id){
+      var el = document.getElementById(id);
+      if(!el || el.__neon) return;
+      el.__neon = true;
+      var antes = false;
+      var abierto = function(){ return el.classList.contains('open') || (id === 'cw' && el.style.display && el.style.display !== 'none'); };
+      new MutationObserver(function(){
+        var ahora = abierto();
+        if(ahora && !antes){ var pid = MUNDOS[id]; var lista = []; try{ lista = PROJECTS; }catch(e){} usar('p:' + pid, etiquetaDe(lista, pid)); }
+        antes = ahora;
+      }).observe(el, { attributes:true, attributeFilter:['class', 'style'] });
+    });
+  }
+
+  /* ── panel: ranking y fuerza (lo usa ◈ DISEÑO) ───────────────────── */
+  function ranking(){
+    var ahora = Date.now();
+    return Object.keys(datos).map(function(k){
+      var d = datos[k];
+      return { clave:k, etiqueta:d.et || k, usos:d.n || 0, ultima:d.t, calor:enfriado(d, ahora), intensidad:Math.min(1, intensidad(k)), tier:tier(intensidad(k)) };
+    }).sort(function(a, b){ return b.calor - a.calor; });
+  }
+  function setFuerza(v){
+    fuerza = Math.max(0, Math.min(2, +v || 0));
+    try{ localStorage.setItem(KF, String(fuerza)); }catch(e){}
+    pintarDOM();
+  }
+  function reiniciar(){ datos = {}; ultimo = {}; guardar(); recalcular(); pintarDOM(); }
+
+  /* ── arranque ────────────────────────────────────────────────────── */
+  recalcular();
+  function init(){
+    engancharMapa(); engancharMundos(); pintarDOM();
+    var dock = document.getElementById('hk-dock');
+    if(dock) new MutationObserver(function(){ pintarDOM(); }).observe(dock, { childList:true });
+    /* los botones que otros bloques agregan tarde también se pintan */
+    var n = 0, t = setInterval(function(){ engancharMapa(); engancharMundos(); pintarDOM(); if(++n >= 10) clearInterval(t); }, 1000);
+    /* el uso se enfría: repintar cada minuto */
+    setInterval(function(){ recalcular(); pintarDOM(); }, 60000);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+  window.HK_NEON = { halo:halo, usar:usar, intensidad:intensidad, ranking:ranking,
+    fuerza:function(){ return fuerza; }, setFuerza:setFuerza, reiniciar:reiniciar, vidaMediaDias:7, version:'1' };
+})();
+</script>
+
+
+<!-- ═══════════ SIN SÁBANA GRIS — el video de fondo solo se ve si de verdad está vivo ═══════════
+     Cuando YouTube no carga (bloqueado dentro del artifact de claude.ai, sin red, video caído) el
+     navegador pinta su página de error gris rgb(221,221,221) a pantalla completa encima del mapa.
+     El seguro anterior esperaba el evento 'load', que Chrome dispara también para la página de
+     error. Ahora el iframe de YouTube nace invisible y se muestra recién cuando el reproductor
+     responde por postMessage (onReady / initialDelivery). Si no responde en 9 s, se apaga. -->
+<style id="sin-sabana-style">
+  #media-stage iframe.yt-esperando{ opacity:0 !important; }
+  #media-stage iframe.yt-vivo{ opacity:1; transition:opacity .9s ease; }
+  #media-stage iframe.yt-muerto{ display:none !important; }
+</style>
+<script>
+(function(){
+  'use strict';
+  var ES_YT = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com)\/embed\//i;
+  var ORIGEN_YT = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com)$/i;
+  var vigilados = [];
+
+  function preparar(f){
+    if(!f || f.__sinSabana || !ES_YT.test(f.src || '')) return;
+    f.__sinSabana = true;
+    f.classList.add('yt-esperando');
+    /* la API del reproductor solo habla si la pedimos: enablejsapi + origin */
+    if(!/[?&]enablejsapi=1/.test(f.src)){
+      var sep = f.src.indexOf('?') >= 0 ? '&' : '?';
+      var origen = (location.origin && location.origin !== 'null') ? '&origin=' + encodeURIComponent(location.origin) : '';
+      f.src = f.src + sep + 'enablejsapi=1' + origen;
+    }
+    var v = { f:f, vivo:false, intentos:0 };
+    vigilados.push(v);
+    var saludar = function(){
+      if(v.vivo || !f.contentWindow) return;
+      try{ f.contentWindow.postMessage(JSON.stringify({ event:'listening', id:vigilados.indexOf(v) + 1, channel:'widget' }), '*'); }catch(e){}
+    };
+    f.addEventListener('load', function(){ v.intentos = 0; saludar(); });
+    var t = setInterval(function(){
+      if(v.vivo){ clearInterval(t); return; }
+      if(++v.intentos > 18){                     /* ~9 s sin señal: no está vivo */
+        clearInterval(t);
+        f.classList.remove('yt-esperando'); f.classList.add('yt-muerto');
+        return;
+      }
+      saludar();
+    }, 500);
+  }
+
+  window.addEventListener('message', function(e){
+    if(!ORIGEN_YT.test(e.origin || '')) return;
+    var d = e.data; if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(x){ return; } }
+    if(!d || typeof d !== 'object') return;
+    var v = vigilados.find(function(x){ return x.f.contentWindow === e.source; });
+    if(!v) return;
+    if(d.event === 'onError'){ v.vivo = false; v.f.classList.remove('yt-esperando', 'yt-vivo'); v.f.classList.add('yt-muerto'); return; }
+    if(d.event === 'onReady' || d.event === 'initialDelivery' || d.event === 'infoDelivery' || d.event === 'onStateChange'){
+      if(!v.vivo){ v.vivo = true; v.f.classList.remove('yt-esperando', 'yt-muerto'); v.f.classList.add('yt-vivo'); }
+    }
+  });
+
+  function barrer(){ Array.prototype.forEach.call(document.querySelectorAll('#media-stage iframe'), preparar); }
+  function init(){
+    barrer();
+    var st = document.getElementById('media-stage');
+    if(st) new MutationObserver(barrer).observe(st, { childList:true, subtree:true, attributes:true, attributeFilter:['src'] });
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.SinSabana = { estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className }; }); }, version:'1' };
 })();
 </script>
 
