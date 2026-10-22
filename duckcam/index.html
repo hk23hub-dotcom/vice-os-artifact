@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DuckCam · Es un pato. Tiene cámara. Y avisa.</title>
+<meta name="description" content="DuckCam es un pato con cámara para tu auto. Avisa que estás grabando. Graba con el auto encendido. Guarda hasta 48 horas de manejo. Solo hay 100 cupos Early Egg.">
+<meta property="og:title" content="DuckCam · Es un pato. Tiene cámara. Y avisa.">
+<meta property="og:description" content="Preventa Early Egg: 100 cupos a $49.990. Despacho en enero de 2027 o te devolvemos todo.">
+<meta property="og:image" content="https://hk23universe.vercel.app/duckcam/img/corbata.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#FFD21F">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%86%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Instrument+Sans:wght@400;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --duck:#FFD21F; --duck-deep:#F5B800; --ink:#16150F; --bone:#FBF8EE; --muted:#5E5A4B; --line:#E6E0CB;
+  --night:#0F0F0C; --night-2:#1C1B16; --night-text:#EDEADF; --rec:#E5322D; --beak:#E8742A;
+  --surface:var(--bone); --text:var(--ink); --sub:var(--muted);
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Instrument Sans",ui-sans-serif,system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--surface:#14130F;--text:#F2EFE3;--sub:#ABA592;--line:#2E2C24;color-scheme:dark}}
+:root[data-theme="dark"]{--surface:#14130F;--text:#F2EFE3;--sub:#ABA592;--line:#2E2C24;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{background:var(--surface);color:var(--text);font:17px/1.6 var(--body)}
+.g{padding-inline:20px}
+.in{max-width:1120px;margin:0 auto}
+a{color:inherit}
+.btn{display:inline-flex;align-items:center;gap:10px;background:var(--ink);color:var(--duck);font:700 17px/1 var(--body);padding:18px 26px;border-radius:999px;text-decoration:none;border:2px solid var(--ink);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn:focus-visible,a:focus-visible{outline:3px solid var(--rec);outline-offset:3px}
+.btn.ghost{background:transparent;color:var(--ink)}
+.mono{font-family:var(--mono)}
+
+/* HERO — el viewfinder */
+.hero{background:var(--duck);color:var(--ink);padding-block:18px 64px}
+nav{display:flex;justify-content:space-between;align-items:center;padding-block:6px 28px}
+.logo{font:800 22px/1 var(--display);letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo i{width:12px;height:12px;border-radius:50%;background:var(--rec);display:inline-block}
+nav a.small{font:600 14px var(--body);text-decoration:none;border-bottom:2px solid var(--ink)}
+.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero h1{font:800 clamp(52px,9vw,112px)/.88 var(--display);letter-spacing:-.035em;margin:0 0 22px;text-wrap:balance}
+.hero h1 em{font-style:normal;display:block;color:var(--duck);-webkit-text-stroke:0;background:var(--ink);padding:.04em .14em .1em;border-radius:12px;width:max-content;max-width:100%;margin-top:.08em}
+.hero p.lede{font-size:20px;max-width:46ch;margin:0 0 30px}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.price-note{font:500 13px var(--mono);margin-top:16px}
+.vf{position:relative;border-radius:22px;overflow:hidden;background:var(--night);aspect-ratio:4/5;max-width:100%;box-shadow:0 30px 60px -30px rgba(22,21,15,.55)}
+.vf img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05) contrast(1.05)}
+.vf .hud{position:absolute;inset:0;padding:18px;color:#fff;font:700 13px/1.2 var(--mono);text-shadow:0 1px 2px rgba(0,0,0,.6);pointer-events:none}
+.vf .hud .top{display:flex;justify-content:space-between}
+.vf .hud .bot{position:absolute;left:18px;right:18px;bottom:18px;display:flex;justify-content:space-between;align-items:flex-end}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--rec);margin-right:7px;vertical-align:-1px;animation:blink 1.2s steps(2,start) infinite}
+@keyframes blink{to{visibility:hidden}}
+.corner{position:absolute;width:34px;height:34px;border:3px solid rgba(255,255,255,.85)}
+.c1{top:14px;left:14px;border-right:0;border-bottom:0;border-radius:8px 0 0 0}
+.c2{top:14px;right:14px;border-left:0;border-bottom:0;border-radius:0 8px 0 0}
+.c3{bottom:14px;left:14px;border-right:0;border-top:0;border-radius:0 0 0 8px}
+.c4{bottom:14px;right:14px;border-left:0;border-top:0;border-radius:0 0 8px 0}
+.vf .hud .top{padding:10px 14px 0}
+.vf .hud .bot{padding:0 14px 10px}
+
+/* strip */
+.strip{background:var(--ink);color:var(--duck);font:700 15px var(--mono);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;white-space:nowrap}
+.strip .track{display:inline-block;padding-block:14px;animation:slide 28s linear infinite}
+.strip span{margin-right:48px}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+section{padding-block:88px}
+.kicker{font:700 12px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:14px}
+h2{font:800 clamp(36px,5.2vw,60px)/1 var(--display);letter-spacing:-.025em;margin:0 0 18px;text-wrap:balance;max-width:18ch}
+.sub{color:var(--sub);max-width:56ch;font-size:18px;margin:0}
+
+/* problema */
+.stakes{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.stakes blockquote{margin:0;font:500 22px/1.45 var(--body);border-left:4px solid var(--duck-deep);padding-left:20px;max-width:38ch}
+
+/* cómo funciona */
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:40px}
+.step{border-top:3px solid var(--text);padding-top:18px}
+.step .t{font:700 13px var(--mono);color:var(--sub);margin-bottom:10px}
+.step h3{font:800 26px/1.1 var(--display);margin:0 0 8px;letter-spacing:-.01em}
+.step p{margin:0;color:var(--sub)}
+
+/* night section */
+.night{background:var(--night);color:var(--night-text)}
+.night .kicker{color:#9C9784}
+.night .sub{color:#B9B4A2}
+.specs{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#2A2922;border:1px solid #2A2922;border-radius:18px;overflow:hidden;margin-top:44px}
+.specs div{background:var(--night-2);padding:24px 20px}
+.specs b{display:block;font:800 26px/1.1 var(--display);color:var(--duck);margin-bottom:8px;letter-spacing:-.02em}
+.specs span{font-size:15px;color:#B9B4A2;display:block}
+.specs span .l+.l{margin-top:.15em}
+.timeline{margin-top:44px;border:1px solid #2A2922;border-radius:18px;padding:22px;background:var(--night-2)}
+.timeline .row{display:flex;justify-content:space-between;font:500 12px var(--mono);color:#8A8574;margin-top:10px}
+.bar{height:34px;border-radius:8px;background:repeating-linear-gradient(90deg,#34322A 0 6px,#2B2A23 6px 12px);position:relative;overflow:hidden}
+.bar .ev{position:absolute;top:0;bottom:0;width:6px;background:var(--rec);border-radius:2px}
+.bar .now{position:absolute;right:0;top:0;bottom:0;width:3px;background:var(--duck)}
+.timeline .lbl{display:flex;justify-content:space-between;align-items:center;font:700 13px var(--mono);margin-bottom:12px;color:var(--night-text)}
+
+/* disuasión */
+.sticker-wrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:center}
+.sticker{aspect-ratio:1;max-width:360px;width:100%;border-radius:50%;background:var(--duck);color:var(--ink);display:grid;place-items:center;text-align:center;border:6px solid var(--ink);transform:rotate(-8deg);box-shadow:10px 12px 0 var(--ink)}
+.sticker div{font:800 clamp(30px,4.2vw,44px)/.95 var(--display);letter-spacing:-.02em;padding:24px}
+.sticker small{display:block;font:700 13px var(--mono);letter-spacing:.1em;margin-top:14px}
+
+/* Early Egg */
+.eb{background:var(--duck);color:var(--ink)}
+.eb .kicker{color:#5B4A00}
+.eb-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+.ticket{background:var(--bone);color:var(--ink);border:2px solid var(--ink);border-radius:22px;padding:28px}
+.ticket .p{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.ticket .now{font:800 64px/1 var(--display);letter-spacing:-.03em}
+.ticket .was{font:600 15px/1.45 var(--body);color:var(--muted);margin:10px 0 0}
+.ticket ul{padding:0;margin:20px 0 24px;list-style:none;display:grid;gap:10px}
+.ticket li{padding-left:28px;position:relative}
+.ticket li::before{content:"";position:absolute;left:0;top:.45em;width:14px;height:14px;border-radius:50%;background:var(--duck);border:2px solid var(--ink)}
+.ticket .btn{width:100%;justify-content:center}
+.pick{display:grid;gap:10px}
+.pick .btn{justify-content:flex-start;padding:10px 20px 10px 10px}
+.pick img{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid var(--duck)}
+.ticket .socio{font:600 14px/1.45 var(--body);background:var(--duck);border:2px solid var(--ink);border-radius:14px;padding:12px 14px;margin:14px 0 0}
+.ticket .socio b{font-family:var(--mono)}
+.ticket .fine{font:500 12.5px/1.5 var(--mono);color:var(--muted);margin-top:14px}
+.eb-left .sub{color:#3B3300}
+.eb-left img{border-radius:18px;margin-top:28px;border:2px solid var(--ink);max-width:100%;aspect-ratio:4/3;object-fit:cover;width:100%}
+
+/* faq */
+details{border-top:1px solid var(--line);padding-block:18px}
+details:last-of-type{border-bottom:1px solid var(--line)}
+summary{font:700 20px var(--display);cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::after{content:"+";font-family:var(--mono)}
+details[open] summary::after{content:"–"}
+details p{color:var(--sub);margin:10px 0 0;max-width:62ch}
+.faq{display:grid;grid-template-columns:.8fr 1.2fr;gap:48px}
+
+footer{background:var(--ink);color:#BDB7A2;padding-block:40px;font:500 13px var(--mono)}
+footer .in{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+footer b{color:var(--duck)}
+
+@media (max-width:860px){
+  .hero-grid,.stakes,.sticker-wrap,.eb-grid,.faq{grid-template-columns:1fr}
+  .how{grid-template-columns:1fr}
+  .specs{grid-template-columns:1fr 1fr}
+  .sticker{margin:0 auto;max-width:min(360px,82%)}
+  section{padding-block:64px}
+}
+.coll .lineup{margin:36px 0 0;border-radius:22px;overflow:hidden;background:var(--night)}
+.coll .lineup img{display:block;width:100%;aspect-ratio:12/5;object-fit:cover}
+.models{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:18px}
+.model{display:flex;flex-direction:column;gap:4px}
+.model img{border-radius:14px;aspect-ratio:1;object-fit:cover;width:100%;margin-bottom:8px;background:var(--night)}
+.model b{font:800 20px/1.1 var(--display)}
+.model span{font-size:14px;color:var(--sub)}
+.model em{font:700 11px var(--mono);letter-spacing:.08em;text-transform:uppercase;font-style:normal;color:var(--sub);margin-top:4px}
+.model em.lot{color:var(--rec)}
+.ref{font:500 12px var(--mono);color:var(--sub);margin-top:18px}
+.nightshot{margin:0 0 48px}
+.nightshot img{display:block;width:100%;aspect-ratio:21/9;object-fit:cover;border-radius:22px}
+.nightshot figcaption{font:500 12px var(--mono);color:#9C9784;margin-top:10px}
+.proto-cap{font:600 13px var(--mono);margin:10px 0 0;color:#3B3300}
+@media (max-width:860px){.models{grid-template-columns:repeat(2,1fr)}.nightshot img{aspect-ratio:16/10}}
+@media (prefers-reduced-motion:reduce){.dot,.strip .track{animation:none}.btn{transition:none}}
+.l{display:block;text-wrap:balance}
+p,blockquote,li,summary{text-wrap:pretty}
+h1,h2,h3{text-wrap:balance}
+.lede .l+.l,.sub .l+.l,.step p .l+.l{margin-top:.15em}
+h2{max-width:none!important}
+.stakes h2,.eb h2{font-size:clamp(32px,3.6vw,50px)}
+@media (min-width:861px){h1 .l,h2 .l{white-space:nowrap}}
+@media (max-width:860px){h2{font-size:clamp(30px,8.4vw,40px)}}
+@media (max-width:1180px){.specs{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){.specs{grid-template-columns:1fr}}
+@media (max-width:560px){.ticket{padding:22px 18px}}
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<header class="hero g">
+  <div class="in">
+    <nav>
+      <div class="logo"><i></i>DuckCam</div>
+      <a class="small" href="#reservar">Early Egg</a>
+    </nav>
+    <div class="hero-grid">
+      <div>
+        <h1><span class="l">Es un pato.</span><span class="l">Tiene cámara.</span><em>Y avisa.</em></h1>
+        <p class="lede"><span class="l">Va en el tablero de tu auto.</span><span class="l">Lleva una cámara en la corbata.</span><span class="l">Avisa que estás grabando.</span><span class="l" style="margin-top:.6em">Graba con el auto encendido.</span><span class="l">Guarda hasta 48 horas de manejo.</span><span class="l">Bajas el video a tu celular.</span></p>
+        <div class="cta-row">
+          <a class="btn" href="#reservar">Quiero ser Early Egg →</a>
+          <a class="btn ghost" href="#como">Cómo funciona</a>
+        </div>
+        <div class="price-note"><span class="l">Solo hay 100 cupos Early Egg.</span><span class="l">Cada cupo cuesta $49.990.</span><span class="l">Incluye tu acceso al Nido.</span></div>
+      </div>
+      <div>
+      <div class="vf">
+        <img src="/duckcam/img/corbata.jpg" alt="DuckCam Corbata: pato amarillo con corbata negra y la cámara en el alfiler de la corbata">
+        <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
+        <div class="hud">
+          <div class="top"><span><span class="dot"></span>REC</span><span>1080P · 25FPS</span></div>
+          <div class="bot"><span id="clock">23-09-2026 03:14:07</span><span>DUCKCAM</span></div>
+        </div>
+      </div>
+      <p class="proto-cap">Imagen ilustrativa generada con IA.</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="strip" aria-hidden="true"><div class="track">
+  <span>● Este pato graba.</span><span>Te estoy filmando.</span><span>Graba con el auto encendido.</span><span>Guarda hasta 48 horas de manejo.</span><span>Ve con poca luz.</span><span>Detecta golpes.</span><span>Bajas el video al celular.</span>
+  <span>● Este pato graba.</span><span>Te estoy filmando.</span><span>Graba con el auto encendido.</span><span>Guarda hasta 48 horas de manejo.</span><span>Ve con poca luz.</span><span>Detecta golpes.</span><span>Bajas el video al celular.</span>
+</div></div>
+
+<section class="g">
+  <div class="in stakes">
+    <div>
+      <div class="kicker">Por qué existe</div>
+      <h2><span class="l">Te van a preguntar.</span><span class="l">¿Tienes video?</span></h2>
+    </div>
+    <div>
+      <blockquote><span class="l">Te chocan en un semáforo.</span><span class="l">Te chocan y se van.</span><span class="l">Te hacen un portonazo.</span><span class="l" style="margin-top:.7em">Carabineros te lo pregunta.</span><span class="l">Tu seguro también te lo pide.</span></blockquote>
+      <p class="sub" style="margin-top:22px"><span class="l">Tu pato graba mientras manejas.</span><span class="l">Si pasa algo, tienes el video.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="g" id="como" style="padding-top:0">
+  <div class="in">
+    <div class="kicker">Cómo funciona</div>
+    <h2><span class="l">Lo pegas.</span><span class="l">Lo enchufas.</span><span class="l">Y listo.</span></h2>
+    <div class="how">
+      <div class="step"><div class="t">30 segundos</div><h3>Pégalo al centro</h3><p><span class="l">Pega tu pato al centro del tablero.</span><span class="l">Va en la base del parabrisas.</span><span class="l">Déjalo mirando hacia la calle.</span><span class="l">Trae su base adhesiva.</span></p></div>
+      <div class="step"><div class="t">Con el auto encendido</div><h3>Graba solo</h3><p><span class="l">Se enciende con el auto.</span><span class="l">Graba sin que hagas nada.</span><span class="l">Guarda hasta 48 horas de manejo.</span><span class="l">Lo más antiguo se borra solo.</span><span class="l">Protege el video de cada golpe.</span></p></div>
+      <div class="step"><div class="t">Cuando pasa algo</div><h3>Bájalo a la app</h3><p><span class="l">¿Un choque o un portonazo?</span><span class="l">Abres la app DuckCam.</span><span class="l">Eliges el momento exacto.</span><span class="l">Lo bajas a tu celular.</span><span class="l">Sirve para tu denuncia o tu seguro.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="g coll">
+  <div class="in">
+    <div class="kicker">La colección</div>
+    <h2><span class="l">Elige tu pato.</span></h2>
+    <p class="sub"><span class="l">Cada pato tiene su propio estilo.</span><span class="l">Su cámara va en un detalle distinto.</span></p>
+    <figure class="lineup"><img src="/duckcam/img/coleccion.jpg" alt="Seis patos DuckCam en fila: corbata, negro, agente, minero, terno y huaso"></figure>
+    <div class="models">
+      <div class="model"><img src="/duckcam/img/corbata.jpg" alt="Pato Corbata"><b>Corbata</b><span>Graba desde el alfiler.</span><em class="lot">Primer lote</em></div>
+      <div class="model"><img src="/duckcam/img/negro.jpg" alt="Pato Negro en el tablero de un auto"><b>Negro</b><span>Graba desde el pecho.</span><em class="lot">Primer lote</em></div>
+      <div class="model"><img src="/duckcam/img/agente.jpg" alt="Pato Agente con lentes de sol"><b>Agente</b><span>Graba desde los lentes.</span><em>Próximamente</em></div>
+      <div class="model"><img src="/duckcam/img/terno.jpg" alt="Pato con terno y humita"><b>Terno</b><span>Graba desde la humita.</span><em>Próximamente</em></div>
+      <div class="model"><img src="/duckcam/img/huaso.jpg" alt="Pato Huaso con chupalla y manta"><b>Huaso</b><span>Graba desde la manta.</span><em>Próximamente</em></div>
+    </div>
+    <p class="ref"><span class="l">Imágenes referenciales generadas con IA.</span><span class="l">El producto final puede tener diferencias.</span></p>
+  </div>
+</section>
+
+<section class="night g">
+  <div class="in">
+    <figure class="nightshot"><img src="/duckcam/img/santiago.jpg" alt="Pato negro en el tablero de un auto, de noche en Santiago, con lluvia"><figcaption>Imagen ilustrativa generada con IA.</figcaption></figure>
+    <div class="kicker">Lo que hay adentro</div>
+    <h2><span class="l">Tiene ficha técnica.</span></h2>
+    <p class="sub"><span class="l">Por dentro, es una cámara de auto.</span><span class="l">También ve con poca luz.</span></p>
+    <div class="specs">
+      <div><b>Imagen nítida</b><span><span class="l">Graba en alta definición.</span><span class="l">Lente gran angular de 140°.</span><span class="l">Ve la calle completa.</span></span></div>
+      <div><b>48 horas</b><span><span class="l">Guarda hasta 48 horas de manejo.</span><span class="l">Lo más antiguo se borra solo.</span><span class="l">Incluye microSD de 64 GB.</span></span></div>
+      <div><b>Sensor de poca luz</b><span><span class="l">Ve con poca luz.</span><span class="l">Sirve en calles poco iluminadas.</span></span></div>
+      <div><b>Sensor de golpes</b><span><span class="l">Detecta los golpes.</span><span class="l">Guarda ese momento aparte.</span><span class="l">Ese video no se borra.</span></span></div>
+    </div>
+    <div class="timeline" aria-label="Ejemplo de la línea de tiempo de la app, con dos eventos">
+      <div class="lbl"><span style="white-space:nowrap">Tus viajes grabados</span><span style="color:var(--rec);white-space:nowrap">● 2&nbsp;eventos</span></div>
+      <div class="bar"><span class="ev" style="left:31%"></span><span class="ev" style="left:78%"></span><span class="now"></span></div>
+      <div class="row"><span>lunes</span><span>martes</span><span>ahora</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="g">
+  <div class="in sticker-wrap">
+    <div class="sticker"><div><span class="l">Este pato</span><span class="l">graba</span></div></div>
+    <div>
+      <div class="kicker">La idea de fondo</div>
+      <h2><span class="l">Este pato graba.</span><span class="l">Y lo avisa.</span></h2>
+      <p class="sub"><span class="l">Una casa con alarma pone una placa.</span><span class="l">Tu pato hace lo mismo en tu auto.</span><span class="l" style="font-weight:600">Avisa que estás grabando.</span><span class="l" style="margin-top:.6em">Además, trae este sticker.</span><span class="l">Pégalo en el pato o en su base.</span><span class="l">Nunca lo pegues en el parabrisas.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="eb g" id="reservar">
+  <div class="in eb-grid">
+    <div class="eb-left">
+      <div class="kicker">Early Egg · primer lote</div>
+      <h2><span class="l">Solo hay 100 cupos.</span><span class="l">Cuestan $49.990.</span></h2>
+      <p class="sub"><span class="l">Es el precio de preventa.</span><span class="l">Después de la preventa,</span><span class="l">el precio previsto es $69.990.</span><span class="l" style="margin-top:.6em">Entras al Nido.</span><span class="l">Sigues la fabricación de tu pato.</span><span class="l">Usas la app antes que nadie.</span><span class="l">Activas el Modo Escolta.</span><span class="l">Ese modo es solo para fundadores.</span><span class="l" style="margin-top:.6em;font-weight:600">Si no despachamos en enero&nbsp;de&nbsp;2027,</span><span class="l" style="font-weight:600">te devolvemos todo.</span></p>
+      <img src="/duckcam/img/scale.jpg" alt="Prototipo casero de DuckCam junto a una pelota de golf"><p class="proto-cap"><span class="l">El prototipo real se hizo en casa.</span><span class="l">Así empezó.</span></p>
+    </div>
+    <div class="ticket">
+      <div class="kicker" style="color:var(--muted)">DuckCam Early Egg</div>
+      <div class="p"><span class="now">$49.990</span></div>
+      <p class="was"><span class="l">Es el precio de preventa.</span><span class="l">Después de la preventa,</span><span class="l">el precio previsto es $69.990.</span></p>
+      <ul>
+        <li>Eliges el Corbata o el Negro.</li>
+        <li>Viene con microSD de 64 GB.</li>
+        <li>Trae un cable USB-C de 3 m.</li>
+        <li>Trae un cargador para el auto.</li>
+        <li>Incluye el sticker de aviso.</li>
+        <li>Entras al Nido.</li>
+        <li>Activas el Modo Escolta.</li>
+        <li>Vas al muro de fundadores.</li>
+      </ul>
+      <div class="pick"><a class="btn js-mp" data-model="corbata" href="https://mpago.la/2T4NuSp" target="_blank" rel="noopener"><img src="/duckcam/img/corbata.jpg" alt="">Quiero el Corbata →</a><a class="btn js-mp" data-model="negro" href="https://mpago.la/2AXwVwo" target="_blank" rel="noopener"><img src="/duckcam/img/negro.jpg" alt="">Quiero el Negro →</a></div>
+      <p class="socio" id="socio" hidden aria-live="polite"></p>
+      <p class="fine"><span class="l">Es un pago único de $49.990.</span><span class="l">Pagas con Mercado Pago.</span><span class="l">Después de la preventa,</span><span class="l">el precio previsto es $69.990.</span><span class="l">Después del pago te escribimos</span><span class="l">para pedir tu dirección.</span><span class="l">Despacho del primer lote: enero&nbsp;2027.</span><span class="l">Si no cumplimos la fecha,</span><span class="l">te devolvemos el 100%.</span><span class="l">Puedes cancelar antes del despacho</span><span class="l">con devolución del 100%.</span><span class="l">Y tienes 10 días</span><span class="l">desde que recibes tu pato</span><span class="l">para retractarte.</span></p>
+    </div>
+  </div>
+</section>
+
+<section class="g">
+  <div class="in faq">
+    <div>
+      <div class="kicker">Preguntas</div>
+      <h2><span class="l">Antes de comprar.</span></h2>
+    </div>
+    <div>
+      <details open><summary>¿Necesita batería o cargarlo?</summary><p><span class="l">No necesita batería ni carga.</span><span class="l">Se conecta al USB o al encendedor.</span><span class="l">Se prende solo con el auto.</span><span class="l">Con el auto apagado, no graba.</span><span class="l" style="margin-top:.6em">Para eso hay un kit opcional.</span><span class="l">Se vende aparte.</span><span class="l">Va conectado a la caja de fusibles.</span><span class="l">Se apaga a los 11,8 V.</span><span class="l">Así no vacía la batería de tu auto.</span></p></details>
+      <details><summary>¿Cómo bajo el video?</summary><p><span class="l">Abres la app DuckCam.</span><span class="l">Tu celular encuentra el pato.</span><span class="l">Se conecta a la red Wi-Fi del pato.</span><span class="l">Así la descarga es rápida.</span><span class="l">¿10 minutos de video?</span><span class="l">Bajan en cerca de un minuto.</span></p></details>
+      <details><summary>¿Graba audio?</summary><p><span class="l">El audio viene apagado.</span><span class="l">Así, solo graba imagen.</span><span class="l">Si lo prendes,</span><span class="l">avisa a quien suba a tu auto.</span><span class="l">Cada video lleva fecha y hora.</span></p></details>
+      <details><summary>¿Es legal grabar desde mi auto?</summary><p><span class="l">Grabar la calle no está prohibido.</span><span class="l">El pato mira hacia la calle,</span><span class="l">no hacia adentro.</span><span class="l">El audio viene apagado.</span><span class="l">Usa tus videos solo como prueba.</span><span class="l">¿Aparecen personas en tu video?</span><span class="l">No lo subas a redes sociales.</span></p></details>
+      <details><summary>¿Por qué un pato?</summary><p><span class="l">Un pato en el tablero se nota.</span><span class="l">Avisa que estás grabando.</span><span class="l">Es como la placa de una alarma.</span></p></details>
+      <details><summary>¿Y si se roban el pato?</summary><p><span class="l">La app baja los videos de golpes.</span><span class="l">Lo hace cuando te subes al auto.</span><span class="l">Lo importante queda en tu celular.</span><span class="l">No queda solo en el pato.</span></p></details>
+      <details><summary>¿Puedo cancelar mi compra?</summary><p><span class="l">Puedes cancelar antes del despacho</span><span class="l">con devolución del 100%.</span><span class="l">Y tienes 10 días</span><span class="l">desde que recibes tu pato</span><span class="l">para retractarte.</span></p></details>
+      <details><summary>¿Y si no llega a tiempo?</summary><p><span class="l">Si no despachamos en enero&nbsp;de&nbsp;2027,</span><span class="l">te devolvemos el 100%.</span><span class="l">Sin preguntas.</span><span class="l">Mientras esperas, entras al Nido.</span></p></details>
+      <details><summary>¿Cuándo llega?</summary><p><span class="l">Despachamos en enero&nbsp;de&nbsp;2027.</span><span class="l">Los Early Egg lo reciben primero.</span><span class="l">Te avisamos cada avance del lote.</span></p></details>
+    </div>
+  </div>
+</section>
+
+<footer class="g"><div class="in"><span><b>DuckCam</b> · diseñado en Chile por <a href="/hk23-universe">HK23</a></span><span><a href="/socios">¿Quieres vender DuckCam? Programa de socios</a></span><span>Este pato graba.</span></div></footer>
+
+<script>
+// Links de pago Mercado Pago Early Egg ($49.990): Corbata 2T4NuSp · Negro 2AXwVwo
+(function () {
+  var el = document.getElementById('clock');
+  var p = function (n) { return String(n).padStart(2, '0'); };
+  function tick() { var d = new Date(); el.textContent = p(d.getDate()) + '-' + p(d.getMonth() + 1) + '-' + d.getFullYear() + ' ' + p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()); }
+  tick(); setInterval(tick, 1000);
+})();
+
+// Freelancers Fundadores HK23: quien llega con el link de un socio (?ref=CÓDIGO) ve su código junto al pago.
+// Mercado Pago no recibe el código, así que el comprador lo dice cuando le escribimos para pedir su dirección.
+// El código se recuerda 30 días en este navegador (igual que en la página de LeadHunter).
+(function () {
+  var FORMATO = /^[A-Z0-9]{4,24}$/, KEY = 'hk23-ref', DIAS = 30, cod = null;
+  try { cod = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase(); } catch (e) {}
+  if (cod && FORMATO.test(cod)) {
+    try { localStorage.setItem(KEY, JSON.stringify({ c: cod, t: Date.now() })); } catch (e) {}
+  } else {
+    cod = null;
+    try {
+      var g = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (g && FORMATO.test(g.c) && Date.now() - g.t < DIAS * 864e5) cod = g.c;
+    } catch (e) {}
+  }
+  if (!cod) return;
+  var s = document.getElementById('socio');
+  var b = document.createElement('b');
+  b.textContent = cod;
+  s.appendChild(document.createTextNode('Te recomendó un socio HK23. Su código es '));
+  s.appendChild(b);
+  s.appendChild(document.createTextNode('. Cuando te escribamos para pedir tu dirección, dinos este código.'));
+  s.hidden = false;
+})();
+</script>
+</body>
+</html>

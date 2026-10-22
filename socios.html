@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Freelancers Fundadores · HK23</title>
+<meta name="description" content="Vende LeadHunter, DuckCam y la tienda HK23 STUDIO, y llévate casi la mitad de la ganancia de cada venta. Postulaciones para los primeros freelancers fundadores.">
+<meta property="og:title" content="Freelancers Fundadores · HK23">
+<meta property="og:description" content="LeadHunter, DuckCam y la tienda HK23 STUDIO. Sé de los primeros freelancers en vender HK23.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --crema:#F0EDE8;--tinta:#0A0A0A;--gris:#3A3A3A;--blanco:#FFFFFF;
+  --amarillo:#FFD200;--cian:#00F0FF;--morado:#B84DFF;--lima:#AAFF00;--rojo:#FF3A1F;
+  --ok:#0B6B2E;--mal:#B3200C;
+  --sans:'Space Grotesk',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Space Mono',ui-monospace,Menlo,Consolas,monospace;
+  --borde:2px solid var(--tinta);--r:6px;
+  --shell:min(1280px, 100% - 32px);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--crema);color:var(--tinta);font-family:var(--sans);font-size:17px;line-height:1.5;overflow-x:hidden}
+a{color:var(--tinta)}a:hover{color:var(--gris)}
+.shell{width:var(--shell);margin-inline:auto}
+h1,h2,h3{margin:0;font-weight:700;text-wrap:balance}
+h1{font-size:clamp(2.6rem,7vw,6.4rem);line-height:.92;letter-spacing:-.045em}
+h2{font-size:clamp(2rem,4.4vw,3.6rem);line-height:.96;letter-spacing:-.035em}
+h3{font-size:1.35rem;line-height:1.15}
+p{margin:0}
+.ojo{font-family:var(--mono);font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.lede{font-size:clamp(1.05rem,1.6vw,1.3rem);line-height:1.45;max-width:62ch}
+.muted{color:var(--gris)}
+section{border-bottom:var(--borde)}
+.pad{padding-block:clamp(48px,7vw,88px)}
+:focus-visible{outline:3px solid var(--tinta);outline-offset:3px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+[hidden]{display:none!important}
+
+/* botones */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:0 26px;
+  background:var(--tinta);color:var(--blanco);border:var(--borde);border-radius:4px;font:700 1.08rem var(--sans);
+  text-decoration:none;cursor:pointer;box-shadow:5px 5px 0 var(--blanco);transition:transform .12s,box-shadow .12s}
+.btn:hover{color:var(--blanco);transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--blanco)}
+.btn.alt{background:var(--blanco);color:var(--tinta);box-shadow:5px 5px 0 var(--tinta)}
+.btn.alt:hover{color:var(--tinta);box-shadow:7px 7px 0 var(--tinta)}
+.btn.lima{background:var(--lima);color:var(--tinta);border-color:var(--lima);box-shadow:none}
+.btn:disabled{opacity:.55;cursor:wait;transform:none}
+.mini{min-height:44px;padding:0 14px;font:700 .9rem var(--sans);border:var(--borde);border-radius:4px;background:var(--blanco);color:var(--tinta);cursor:pointer}
+.mini:hover{background:var(--amarillo)}
+
+/* cabecera */
+header.top{border-bottom:var(--borde);background:var(--crema)}
+.top .shell{min-height:76px;display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding-block:10px}
+.logo{font-size:1.75rem;font-weight:700;letter-spacing:-.04em;text-decoration:none;display:flex;align-items:center;gap:8px}
+.punto{display:inline-block;width:26px;height:26px;background:var(--amarillo);border:var(--borde);border-radius:50%}
+.top nav{display:flex;gap:22px;margin-left:auto;flex-wrap:wrap}
+.top nav a{text-decoration:none;font-weight:500}
+.top nav a:hover{text-decoration:underline}
+
+/* hero */
+.hero{background:var(--amarillo)}
+.hero .shell{display:grid;grid-template-columns:minmax(0,1fr) 440px;gap:clamp(28px,4vw,56px);align-items:center}
+@media(max-width:980px){.hero .shell{grid-template-columns:1fr}}
+.hero-copy{display:flex;flex-direction:column;gap:26px}
+.acciones{display:flex;gap:16px;flex-wrap:wrap}
+.sticker{align-self:flex-start;display:inline-flex;align-items:baseline;gap:12px;flex-wrap:wrap;background:var(--lima);border:var(--borde);
+  border-radius:var(--r);box-shadow:6px 6px 0 var(--tinta);padding:12px 18px;transform:rotate(-2deg)}
+.sticker b{font-size:clamp(2.6rem,5.4vw,4rem);line-height:.9;letter-spacing:-.05em}
+.sticker span{font:700 .82rem var(--mono);letter-spacing:.05em;text-transform:uppercase;max-width:22ch}
+.tarjeta-estado{background:var(--blanco);border:var(--borde);border-radius:var(--r);box-shadow:8px 8px 0 var(--tinta);padding:28px;display:flex;flex-direction:column;gap:16px}
+.chip{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;font:700 .78rem var(--mono);letter-spacing:.06em;text-transform:uppercase;
+  border:var(--borde);border-radius:999px;padding:5px 12px;background:var(--crema)}
+.chip i{width:9px;height:9px;border-radius:50%;background:var(--tinta)}
+.chip.vivo{background:var(--lima)}
+.chip.vivo i{animation:latido 1.6s ease-in-out infinite}
+@keyframes latido{50%{opacity:.25}}
+.fecha{font-size:1.5rem;font-weight:700;line-height:1.15}
+.cuenta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cuenta div{border:var(--borde);border-radius:4px;background:var(--crema);text-align:center;padding:10px 4px}
+.cuenta b{display:block;font:700 2rem var(--mono);line-height:1}
+.cuenta span{font:700 .62rem var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.cifras{display:flex;gap:22px;flex-wrap:wrap}
+.cifras div{display:flex;flex-direction:column}
+.cifras b{font-size:2rem;line-height:1;letter-spacing:-.03em}
+.cifras span{font:700 .7rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--gris)}
+.aviso{border:var(--borde);border-radius:4px;padding:12px 14px;background:var(--crema);font-size:.95rem}
+.aviso.mal{background:#FFE3DE;border-color:var(--mal);color:var(--mal)}
+
+/* panel del socio */
+.panel-socio{background:var(--lima)}
+.panel-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:32px;align-items:start}
+@media(max-width:900px){.panel-grid{grid-template-columns:1fr}}
+.codigo{font:700 clamp(2rem,5vw,3.4rem) var(--mono);letter-spacing:-.02em;word-break:break-all;background:var(--blanco);border:var(--borde);
+  border-radius:var(--r);box-shadow:6px 6px 0 var(--tinta);padding:16px 20px}
+.links{display:flex;flex-direction:column;gap:10px}
+.link-fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--blanco);border:var(--borde);border-radius:4px;padding:10px 12px}
+.link-fila code{font:400 .8rem var(--mono);word-break:break-all;color:var(--gris)}
+
+/* catálogo */
+.cabeza{display:flex;flex-direction:column;gap:14px;margin-bottom:36px}
+.grilla{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px}
+.producto{display:flex;flex-direction:column;background:var(--blanco);border:var(--borde);border-radius:var(--r);overflow:hidden;color:var(--tinta);text-decoration:none}
+a.producto:hover{color:var(--tinta);box-shadow:6px 6px 0 var(--tinta);transform:translate(-2px,-2px)}
+a.producto{transition:transform .12s,box-shadow .12s}
+.bloque{min-height:220px;padding:18px;display:flex;flex-direction:column;justify-content:space-between;border-bottom:var(--borde);color:var(--tinta)}
+.bloque .marca{font-size:clamp(2.1rem,3.4vw,2.8rem);line-height:.92;letter-spacing:-.05em;font-weight:700;overflow-wrap:anywhere}
+.cuerpo{padding:16px 18px 18px;display:flex;flex-direction:column;gap:10px;flex-grow:1}
+.cuerpo h3{font-size:1.2rem}
+.cuerpo p{font-size:.95rem;color:var(--gris);line-height:1.45}
+.pie{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding-top:6px}
+.precio{background:var(--amarillo);border:var(--borde);border-radius:999px;padding:3px 12px;font-weight:700;font-size:.95rem}
+.estado{font:700 .72rem var(--mono);letter-spacing:.05em;text-transform:uppercase;border:var(--borde);border-radius:999px;padding:4px 10px}
+.estado.si{background:var(--tinta);color:var(--blanco)}
+.estado.no{background:var(--blanco);border-style:dashed}
+.parte{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;border-top:2px dashed var(--tinta);padding-top:10px;margin-top:2px}
+.parte b{font-size:1.6rem;letter-spacing:-.04em;line-height:1}
+.parte span{font:700 .72rem var(--mono);letter-spacing:.04em;text-transform:uppercase;color:var(--gris)}
+
+/* cómo funciona */
+.negro{background:var(--tinta);color:var(--crema)}
+.negro .ojo{color:var(--lima)}
+.negro .lede{color:#D6D2CB}
+.pasos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:40px}
+@media(max-width:820px){.pasos{grid-template-columns:1fr}}
+.paso{color:var(--tinta);border:2px solid var(--crema);border-radius:var(--r);padding:26px;display:flex;flex-direction:column;gap:14px}
+.paso b{font:700 2.4rem var(--mono);line-height:1}
+.paso h3{font-size:1.55rem}
+.paso p{font-size:1rem;line-height:1.45}
+
+/* fundador vs etapa 2 */
+.comparar{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+@media(max-width:820px){.comparar{grid-template-columns:1fr}}
+.plan{background:var(--blanco);border:var(--borde);border-radius:var(--r);padding:28px;display:flex;flex-direction:column;gap:18px}
+.plan.destaca{background:var(--cian);box-shadow:8px 8px 0 var(--tinta)}
+.plan .pct{font-size:clamp(3.2rem,6vw,4.6rem);font-weight:700;letter-spacing:-.05em;line-height:.9}
+.plan ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.plan li{display:grid;grid-template-columns:22px 1fr;gap:10px;line-height:1.4}
+.plan li svg{margin-top:3px}
+
+/* etapas */
+.etapas-sec{background:var(--morado)}
+.etapas{list-style:none;margin:36px 0 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+@media(max-width:900px){.etapas{grid-template-columns:1fr}}
+.etapas li{background:var(--blanco);border:var(--borde);border-radius:var(--r);padding:24px;display:flex;flex-direction:column;gap:10px}
+.etapas li.ahora{box-shadow:8px 8px 0 var(--tinta)}
+.etapas .n{font:700 .8rem var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.verdad{margin-top:28px;background:var(--tinta);color:var(--crema);border-radius:var(--r);padding:26px 28px;display:flex;flex-direction:column;gap:10px;max-width:880px}
+.verdad h3{color:var(--lima)}
+
+/* ranking */
+.caja-tabla{overflow-x:auto;border:var(--borde);border-radius:var(--r);background:var(--blanco)}
+table{width:100%;border-collapse:collapse;min-width:520px}
+th,td{text-align:left;padding:14px 16px;border-bottom:var(--borde)}
+th{font:700 .75rem var(--mono);letter-spacing:.06em;text-transform:uppercase;background:var(--crema)}
+tr:last-child td{border-bottom:0}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.sello{display:inline-block;margin-left:8px;font:700 .68rem var(--mono);background:var(--amarillo);border:var(--borde);border-radius:999px;padding:1px 8px;vertical-align:middle}
+.vacio{border:2px dashed var(--tinta);border-radius:var(--r);padding:28px;display:flex;flex-direction:column;gap:12px;background:var(--blanco)}
+
+/* formulario */
+.form-sec{background:var(--rojo)}
+.form-grid{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:clamp(28px,4vw,56px);align-items:start}
+@media(max-width:900px){.form-grid{grid-template-columns:1fr}}
+form{background:var(--crema);border:var(--borde);border-radius:var(--r);box-shadow:8px 8px 0 var(--tinta);padding:clamp(20px,3vw,32px);display:flex;flex-direction:column;gap:16px}
+.campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+@media(max-width:640px){.campos{grid-template-columns:1fr}}
+.campo{display:flex;flex-direction:column;gap:6px}
+.campo.ancho{grid-column:1/-1}
+label{font-weight:700}
+label small{font-weight:400;color:var(--gris)}
+input[type=text],input[type=email],input[type=tel],textarea{width:100%;min-height:52px;border:var(--borde);border-radius:4px;padding:12px 14px;font:400 1rem var(--sans);background:var(--blanco);color:var(--tinta)}
+textarea{min-height:110px;resize:vertical}
+.ayuda{font-size:.85rem;color:var(--gris)}
+fieldset{border:var(--borde);border-radius:4px;padding:12px 14px;margin:0;background:var(--blanco)}
+legend{font-weight:700;padding:0 6px}
+.checks{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:4px 14px}
+.check{display:flex;gap:10px;align-items:flex-start;font-weight:400;min-height:44px;padding-top:10px}
+.check input{width:22px;height:22px;margin:0;flex:none;accent-color:var(--tinta)}
+.consiente{background:var(--amarillo);border:var(--borde);border-radius:4px;padding:6px 14px 12px}
+.trampa{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.listo{background:var(--lima);border:var(--borde);border-radius:var(--r);box-shadow:8px 8px 0 var(--tinta);padding:28px;display:flex;flex-direction:column;gap:10px}
+
+/* preguntas */
+details{border:var(--borde);border-radius:4px;background:var(--blanco)}
+details+details{margin-top:12px}
+summary{cursor:pointer;padding:16px 18px;font-weight:700;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between;gap:12px;min-height:44px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font:700 1.3rem var(--mono)}
+details[open] summary::after{content:"−"}
+details p{padding:0 18px 18px;color:var(--gris);max-width:75ch}
+
+footer{padding-block:44px}
+footer .shell{display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;align-items:center}
+footer nav{display:flex;gap:20px;flex-wrap:wrap}
+
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}html{scroll-behavior:auto}}
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="shell">
+    <a class="logo" href="/hk23-universe"><span class="punto" aria-hidden="true"></span>HK23</a>
+    <nav aria-label="Secciones">
+      <a href="#catalogo">Qué vendes</a>
+      <a href="#como">Cómo funciona</a>
+      <a href="#etapas">Etapas</a>
+      <a href="#postular">Postular</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<section class="hero pad" aria-labelledby="titulo">
+  <div class="shell">
+    <div class="hero-copy">
+      <div class="ojo">Programa Freelancers Fundadores · HK23</div>
+      <h1 id="titulo">Vende lo que hace HK23. Sé de los primeros.</h1>
+      <p class="lede" id="heroLede">Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie. Los fundadores prueban cada producto primero y ganan más por cada venta.</p>
+      <div class="sticker" id="heroPct" hidden><b id="heroPctNum">—</b><span id="heroPctTxt">de cada venta para los fundadores</span></div>
+      <div class="acciones">
+        <a class="btn" href="#postular" id="ctaHero">Quiero ser fundador</a>
+        <a class="btn alt" href="#catalogo">Ver qué vendes</a>
+      </div>
+    </div>
+    <aside class="tarjeta-estado" aria-labelledby="estadoTitulo">
+      <span class="chip" id="estadoChip"><i aria-hidden="true"></i><span id="estadoChipTxt">Cargando…</span></span>
+      <div>
+        <div class="ojo muted" id="estadoTitulo">Postulaciones</div>
+        <div class="fecha" id="estadoFecha">—</div>
+      </div>
+      <div class="cuenta" id="cuenta" role="timer" aria-label="Tiempo que falta para abrir las postulaciones" hidden>
+        <div><b id="cD">0</b><span>días</span></div>
+        <div><b id="cH">0</b><span>horas</span></div>
+        <div><b id="cM">0</b><span>min</span></div>
+        <div><b id="cS">0</b><span>seg</span></div>
+      </div>
+      <div class="cifras" id="cifras"></div>
+      <div class="aviso mal" id="estadoError" hidden>No pudimos cargar los datos del programa. Recarga la página en un momento.</div>
+      <a class="btn" href="#postular" id="ctaEstado">Anotarme</a>
+    </aside>
+  </div>
+</section>
+
+<section class="panel-socio pad" id="panel" hidden aria-labelledby="panelTitulo">
+  <div class="shell panel-grid">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="ojo" id="panelOjo">Tu panel</div>
+      <h2 id="panelTitulo">Hola</h2>
+      <p class="lede" id="panelLede"></p>
+      <div>
+        <div class="ojo" style="margin-bottom:8px">Tu código</div>
+        <div class="codigo" id="panelCodigo">—</div>
+      </div>
+      <div class="cifras" id="panelCifras"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <h3>Tus links para vender</h3>
+      <div class="links" id="panelLinks"></div>
+      <h3>Tus ventas</h3>
+      <div id="panelVentas"></div>
+    </div>
+  </div>
+</section>
+
+<section class="pad" id="catalogo" aria-labelledby="catTitulo">
+  <div class="shell">
+    <div class="cabeza">
+      <div class="ojo">Qué vas a vender</div>
+      <h2 id="catTitulo">Pocos productos, probados, para vender desde el primer día.</h2>
+      <p class="lede muted">Si está disponible en esta página, lo puedes vender. Cada tarjeta muestra cuánto te llevas por venta. Lo que se sume después aparece aquí y en tu panel, con tu link.</p>
+    </div>
+    <div class="grilla" id="productos"></div>
+  </div>
+</section>
+
+<section class="negro pad" id="como" aria-labelledby="comoTitulo">
+  <div class="shell">
+    <div class="cabeza">
+      <div class="ojo">Cómo funciona</div>
+      <h2 id="comoTitulo">Tres pasos. Sin inventario ni atención al cliente.</h2>
+    </div>
+    <div class="pasos">
+      <div class="paso" style="background:var(--amarillo)"><b>01</b><h3>Postulas</h3><p>Un formulario corto. Si quedas, recibes tu código personal y un panel privado con tus ventas.</p></div>
+      <div class="paso" style="background:var(--cian)"><b>02</b><h3>Compartes</h3><p id="pasoCompartes">Compartes tus links personales. Cada venta queda a tu nombre.</p></div>
+      <div class="paso" style="background:var(--morado)"><b>03</b><h3>Cobras</h3><p>Ves cada venta y tu parte de la ganancia en tu panel. Pagamos cada mes lo de las ventas pagadas del mes anterior, descontando devoluciones.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="pad" id="fundador" aria-labelledby="fundTitulo">
+  <div class="shell">
+    <div class="cabeza">
+      <div class="ojo">Por qué entrar ahora</div>
+      <h2 id="fundTitulo">Los primeros se llevan más.</h2>
+      <p class="lede muted" id="fundLede">Los fundadores prueban el producto antes que nadie y por eso ganan más. Cuando se llenan los cupos, el programa sigue con la comisión normal.</p>
+    </div>
+    <div class="comparar">
+      <div class="plan destaca">
+        <div class="ojo">Fundador · etapa 1</div>
+        <div class="pct" id="pctFundador">—</div>
+        <div class="muted" style="color:var(--tinta)">de la ganancia de cada venta</div>
+        <ul>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Pruebas cada producto antes de que salga al público.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Sello «Fundador #N» para siempre en el ranking.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Línea directa: lo que nos cuentes de tus clientes cambia lo que sale después.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span id="cuposTxt">Cupos limitados.</span></li>
+        </ul>
+      </div>
+      <div class="plan">
+        <div class="ojo">Socio · etapa 2</div>
+        <div class="pct" id="pctNormal">—</div>
+        <div class="muted">de la ganancia de cada venta</div>
+        <ul>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Abierto a más freelancers cuando terminan los cupos de fundador.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Entra viendo el ranking con las ventas reales de los fundadores.</span></li>
+          <li><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l5 5L20 6"/></svg><span>Mismo código personal y mismo panel.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="etapas-sec pad" id="etapas" aria-labelledby="etapasTitulo">
+  <div class="shell">
+    <div class="cabeza" style="margin-bottom:0">
+      <div class="ojo">Cómo avanza el programa</div>
+      <h2 id="etapasTitulo">Primero los fundadores. Después, sus resultados reales.</h2>
+    </div>
+    <ol class="etapas" id="listaEtapas">
+      <li data-etapa="0"><span class="n">Ahora</span><h3>Lista de espera</h3><p id="etapa0Txt">Te anotas y te avisamos el día que abren las postulaciones.</p></li>
+      <li data-etapa="1"><span class="n">Etapa 1</span><h3>Fundadores</h3><p id="etapa1Txt">Elegimos a los fundadores. Empiezan a vender con su código y su comisión de fundador.</p></li>
+      <li data-etapa="2"><span class="n">Etapa 2</span><h3>Ranking público</h3><p>Publicamos aquí las ventas reales de los fundadores y abrimos el programa a más freelancers.</p></li>
+    </ol>
+    <div class="verdad">
+      <h3>Datos reales. Nada inventado.</h3>
+      <p>Las ventas que hagas como fundador son los datos de la etapa 2. Publicamos tu alias, tu número de ventas y el monto vendido. Tu correo, tu teléfono y tus comisiones no se publican. Al postular aceptas esto.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pad" id="ranking" aria-labelledby="rankTitulo">
+  <div class="shell">
+    <div class="cabeza">
+      <div class="ojo">Ranking</div>
+      <h2 id="rankTitulo">Cuánto venden los freelancers que ya están funcionando.</h2>
+      <p class="lede muted" id="rankLede"></p>
+    </div>
+    <div id="rankCuerpo"></div>
+  </div>
+</section>
+
+<section class="form-sec pad" id="postular" aria-labelledby="formTitulo">
+  <div class="shell form-grid">
+    <div style="display:flex;flex-direction:column;gap:18px">
+      <div class="ojo" id="formOjo">Lista de espera</div>
+      <h2 id="formTitulo">Anótate y te avisamos.</h2>
+      <p class="lede" id="formLede">Las postulaciones abren pronto. Te escribimos ese día.</p>
+    </div>
+    <div>
+      <form id="form" novalidate>
+        <div class="campos">
+          <div class="campo"><label for="fNombre">Nombre</label><input id="fNombre" name="nombre" type="text" autocomplete="name" maxlength="80" required></div>
+          <div class="campo"><label for="fEmail">Correo</label><input id="fEmail" name="email" type="email" autocomplete="email" maxlength="120" required></div>
+          <div class="campo" data-modo="postular"><label for="fAlias">Alias público <small>así apareces en el ranking</small></label><input id="fAlias" name="alias" type="text" maxlength="32"></div>
+          <div class="campo"><label for="fWhatsapp">WhatsApp <small>opcional</small></label><input id="fWhatsapp" name="whatsapp" type="tel" autocomplete="tel" maxlength="30"></div>
+          <div class="campo" data-modo="postular"><label for="fPais">País</label><input id="fPais" name="pais" type="text" autocomplete="country-name" maxlength="40"></div>
+          <div class="campo" data-modo="postular"><label for="fRed">LinkedIn, Instagram o web <small>opcional</small></label><input id="fRed" name="red" type="text" maxlength="160"></div>
+          <div class="campo ancho" data-modo="postular"><label for="fCanal">¿A quién le venderías y cómo?</label>
+            <textarea id="fCanal" name="canal" maxlength="500" aria-describedby="fCanalAyuda"></textarea>
+            <span class="ayuda" id="fCanalAyuda">Ejemplo: «Tengo 3.000 seguidores emprendedores en LinkedIn y una lista de clientes de diseño».</span></div>
+          <fieldset class="campo ancho" data-modo="postular"><legend>Productos que te interesan</legend><div class="checks" id="fIntereses"></div></fieldset>
+          <div class="campo ancho consiente" data-modo="postular">
+            <label class="check" for="fConsiente"><input id="fConsiente" name="consiente" type="checkbox">
+              <span>Acepto que, si quedo, mis ventas (alias, número de ventas y monto vendido) se publiquen en esta página como datos reales de la etapa 2.</span></label>
+          </div>
+          <div class="trampa" aria-hidden="true"><label for="fWeb">No llenar</label><input id="fWeb" name="web" type="text" tabindex="-1" autocomplete="off"></div>
+        </div>
+        <div class="aviso mal" id="formError" role="alert" hidden></div>
+        <button class="btn" id="enviar" type="submit" style="box-shadow:5px 5px 0 var(--tinta)">Anotarme</button>
+        <p class="ayuda">Usamos tus datos solo para este programa: para escribirte y, si quedas, para pagarte. No los vendemos ni los publicamos. Lo único público, en la etapa 2 y si postulas, es tu alias con tus ventas.</p>
+      </form>
+      <div class="listo" id="listo" hidden tabindex="-1" aria-live="polite">
+        <h3 id="listoTitulo">Listo.</h3>
+        <p id="listoTxt"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pad" id="preguntas" aria-labelledby="faqTitulo">
+  <div class="shell" style="max-width:920px">
+    <div class="cabeza"><div class="ojo">Preguntas</div><h2 id="faqTitulo">Lo que todos preguntan.</h2></div>
+    <details><summary>¿Necesito experiencia vendiendo?</summary><p>No es obligatorio. Buscamos personas con una audiencia o una red a la que estos productos le sirvan: clientes, comunidad, seguidores o contactos.</p></details>
+    <details><summary>¿Cuánto gano?</summary><p id="faqGano">Un porcentaje de cada venta pagada hecha con tu código. Se calcula sobre el precio de los productos, sin envío ni impuestos, y descuenta devoluciones.</p></details>
+    <details><summary>¿Cuándo me pagan?</summary><p>Cada mes pagamos la comisión de las ventas del mes anterior que ya pasaron su plazo de devolución (LeadHunter tiene garantía de 7 días). En las preventas, como DuckCam, la pagamos cuando el producto se despacha y pasan los 10 días de retracto. En tu panel ves cada venta y lo que llevas ganado.</p></details>
+    <details><summary>¿Cómo queda cada venta a mi nombre?</summary><p>En tu panel tienes un link por producto. En la tienda y en LeadHunter, tu link aplica tu código al pagar y la venta queda a tu nombre sola. DuckCam se paga por Mercado Pago: cuando vendas uno, mándanos el nombre de tu comprador y lo cruzamos con el pago.</p></details>
+    <details><summary>¿Puedo vender lo que dice «Próximamente»?</summary><p>Todavía no. Cuando un producto pasa a disponible aparece en esta página y en tu panel, con tu link listo.</p></details>
+    <details><summary>¿Qué datos se publican?</summary><p>En la etapa 2: tu alias, tu número de ventas y el monto vendido. Tu correo, tu teléfono y tus comisiones nunca se publican.</p></details>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="shell">
+    <a class="logo" href="/hk23-universe"><span class="punto" aria-hidden="true"></span>HK23</a>
+    <nav aria-label="Enlaces">
+      <a href="/hk23-universe">Universo HK23</a>
+      <a href="https://fcqevq-jr.myshopify.com" rel="noopener noreferrer" target="_blank">Tienda HK23 STUDIO</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+  var SB_ANON = 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+  var SB_URL = (function () {
+    var base = 'https://iiqhhglgjsbnuihythko.supabase.co';
+    if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return base; // ?sb= solo para pruebas locales
+    var o = null;
+    try { o = new URLSearchParams(location.search).get('sb'); } catch (e) {}
+    return (o && /^https?:\/\/\S+$/.test(o)) ? o.replace(/\/+$/, '') : base;
+  })();
+  var ERRORES = {
+    'socios: falta_nombre': 'Escribe tu nombre.',
+    'socios: correo_invalido': 'Revisa tu correo: parece que le falta algo.',
+    'socios: falta_alias': 'Elige un alias de al menos 2 letras.',
+    'socios: falta_canal': 'Cuéntanos en una o dos frases a quién le venderías y cómo.',
+    'socios: falta_consentimiento': 'Para postular tienes que aceptar que tus ventas se publiquen en la etapa 2.',
+    'socios: ya_postulaste': 'Ese correo ya tiene una postulación. Te escribimos apenas la revisemos.',
+    'socios: aun_no_abre': 'Las postulaciones todavía no abren. Mientras tanto, anótate en la lista.',
+    'socios: muchos_envios': 'Llegaron muchos envíos desde tu conexión hoy. Inténtalo mañana.',
+    'socios: cupo_diario': 'Hoy llegaron muchas postulaciones. Inténtalo mañana.',
+    'socios: llave_invalida': 'Ese link de panel no es válido. Pídenos uno nuevo.'
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var E = null;          // estado del programa
+  var desfase = 0;       // reloj del servidor − reloj local
+  var modo = 'anotar';   // anotar | postular
+  var reloj = null;
+
+  function el(tag, attrs, hijos) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'texto') n.textContent = attrs[k];
+      else if (k === 'clase') n.className = attrs[k];
+      else if (k === 'estilo') n.setAttribute('style', attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    });
+    (hijos || []).forEach(function (h) { if (h != null) n.appendChild(typeof h === 'string' ? document.createTextNode(h) : h); });
+    return n;
+  }
+  function vaciar(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
+  function usd(v) { return 'US$' + num(v).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  function clp(v) { return '$' + Math.round(num(v)).toLocaleString('es-CL'); }
+  function pct(v) { return num(v).toLocaleString('es-CL', { maximumFractionDigits: 2 }) + '%'; }
+  function enLista(xs) { return xs.length < 2 ? (xs[0] || '') : xs.slice(0, -1).join(', ') + ' y ' + xs[xs.length - 1]; }
+  function fechaLarga(iso) {
+    try {
+      var t = new Intl.DateTimeFormat('es-CL', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Santiago' }).format(new Date(iso));
+      var h = new Intl.DateTimeFormat('es-CL', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Santiago' }).format(new Date(iso));
+      return t.charAt(0).toUpperCase() + t.slice(1) + ' · ' + h + ' (hora de Chile)';
+    } catch (e) { return String(iso); }
+  }
+  function fechaCorta(iso) {
+    try { return new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'long', timeZone: 'America/Santiago' }).format(new Date(iso)); }
+    catch (e) { return String(iso); }
+  }
+  function color(c) { return /^#[0-9A-Fa-f]{6}$/.test(String(c || '')) ? c : '#FFD200'; }
+  function seguro(url) { try { var u = new URL(url); return u.protocol === 'https:' ? u.toString() : null; } catch (e) { return null; } }
+
+  async function rpc(fn, args) {
+    var res;
+    try {
+      res = await fetch(SB_URL + '/rest/v1/rpc/' + fn, {
+        method: 'POST',
+        headers: { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON, 'content-type': 'application/json' },
+        body: JSON.stringify(args || {})
+      });
+    } catch (e) { throw new Error('red'); }
+    var data = null;
+    try { data = await res.json(); } catch (e) {}
+    if (!res.ok) throw new Error((data && typeof data.message === 'string' && data.message) || 'red');
+    return data;
+  }
+
+  // ---------- estado del programa ----------
+  function abierto() { return E && E.abierto; }
+  function cuposLlenos() { return E && num(E.cupos) > 0 && num(E.fundadores) >= num(E.cupos); }
+
+  function pintarEstado() {
+    var chip = $('estadoChip'), txt = $('estadoChipTxt');
+    var cupos = num(E.cupos), fund = num(E.fundadores);
+    chip.className = 'chip' + (abierto() ? ' vivo' : '');
+    if (!abierto()) {
+      txt.textContent = 'Próximamente';
+      $('estadoTitulo').textContent = 'Las postulaciones abren el';
+      $('estadoFecha').textContent = E.abre ? fechaLarga(E.abre) : 'Muy pronto';
+      $('cuenta').hidden = !E.abre;
+      $('ctaEstado').textContent = 'Anotarme en la lista';
+      $('ctaHero').textContent = 'Anotarme en la lista';
+    } else {
+      $('cuenta').hidden = true;
+      if (cuposLlenos() || num(E.etapa) >= 2) {
+        txt.textContent = 'Postulaciones abiertas';
+        $('estadoTitulo').textContent = 'Cupos de fundador';
+        $('estadoFecha').textContent = 'Completos. Postula para la etapa 2.';
+      } else {
+        txt.textContent = 'Postulaciones abiertas';
+        $('estadoTitulo').textContent = 'Cupos de fundador';
+        $('estadoFecha').textContent = 'Quedan ' + (cupos - fund) + ' de ' + cupos + '.';
+      }
+      $('ctaEstado').textContent = 'Postular ahora';
+      $('ctaHero').textContent = 'Quiero ser fundador';
+    }
+    var cifras = $('cifras'); vaciar(cifras);
+    if (cupos > 0) cifras.appendChild(el('div', null, [el('b', { texto: String(cupos) }), el('span', { texto: 'cupos de fundador' })]));
+    if (num(E.interesados) >= Math.max(1, num(E.mostrar_desde))) {
+      cifras.appendChild(el('div', null, [el('b', { texto: String(num(E.interesados)) }), el('span', { texto: 'personas anotadas' })]));
+    }
+    if (abierto()) cifras.appendChild(el('div', null, [el('b', { texto: String(fund) }), el('span', { texto: 'fundadores elegidos' })]));
+    tic();
+  }
+
+  function tic() {
+    if (!E || abierto() || !E.abre) return;
+    var falta = Date.parse(E.abre) - (Date.now() + desfase);
+    if (falta <= 0) { clearInterval(reloj); reloj = null; cargar(); return; }
+    var s = Math.floor(falta / 1000);
+    $('cD').textContent = String(Math.floor(s / 86400));
+    $('cH').textContent = String(Math.floor(s % 86400 / 3600)).padStart(2, '0');
+    $('cM').textContent = String(Math.floor(s % 3600 / 60)).padStart(2, '0');
+    $('cS').textContent = String(s % 60).padStart(2, '0');
+  }
+
+  function pintarComisiones() {
+    var f = num(E.comision_fundador);
+    $('pctFundador').textContent = pct(f);
+    $('pctNormal').textContent = pct(E.comision_normal);
+    var mitad = f >= 45 && f < 50;
+    if (f > 0) {
+      $('heroPct').hidden = false;
+      $('heroPctNum').textContent = pct(f);
+      $('heroPctTxt').textContent = (mitad ? 'Casi la mitad de la ganancia de cada venta, ' : 'De la ganancia de cada venta, ') + 'para los fundadores';
+      $('fundLede').textContent = 'Los fundadores se llevan ' + pct(f) + ' de la ganancia de cada venta' + (mitad ? ': nos la repartimos casi a medias. ' : '. ') +
+        'Es más de lo que nos conviene, y por eso solo hay ' + (num(E.cupos) > 0 ? num(E.cupos) + ' cupos' : 'cupos limitados') +
+        '. Cuando se llenan, el programa sigue con la comisión normal.';
+    }
+    $('cuposTxt').textContent = num(E.cupos) > 0 ? ('Solo ' + num(E.cupos) + ' cupos.') : 'Cupos limitados.';
+    var conCodigo = conDescuento();
+    if (num(E.descuento) > 0 && conCodigo.length) {
+      $('pasoCompartes').textContent = 'Compartes tus links personales y cada venta queda a tu nombre. En ' + enLista(conCodigo) +
+        ', tu código además le da ' + pct(E.descuento) + ' de descuento a tu cliente.';
+    }
+    $('faqGano').textContent = 'Fundadores: ' + pct(E.comision_fundador) + ' de la ganancia de cada venta. Desde la etapa 2: ' + pct(E.comision_normal) +
+      '. La ganancia es lo que paga el cliente, sin envío, menos lo que cuesta fabricar, despachar, cobrar y pagar los impuestos del producto. ' +
+      'En lo digital casi todo es ganancia; en lo físico, menos. Cada producto muestra cuánto te llevas por venta. Las devoluciones se descuentan.';
+  }
+
+  // productos de la página donde el código del socio le da descuento al cliente
+  function descuentaEn(p) { return !!p.descuenta || p.canal === 'shopify'; }
+  function conDescuento() {
+    return (Array.isArray(E.productos) ? E.productos : []).filter(function (p) { return p.estado === 'disponible' && descuentaEn(p); })
+      .map(function (p) { return p.nombre; });
+  }
+
+  function pintarHero() {
+    var nombres = (Array.isArray(E.productos) ? E.productos : []).filter(function (p) { return p.estado === 'disponible'; })
+      .map(function (p) { return p.nombre; });
+    if (!nombres.length) return;
+    $('heroLede').textContent = 'Buscamos un grupo pequeño de freelancers para vender los productos de HK23 antes que nadie. Partimos con ' +
+      enLista(nombres) + '. Los fundadores prueban cada producto primero y ganan más por cada venta.';
+  }
+
+  // tasa que rige hoy para un nuevo socio: fundador mientras haya cupos en la etapa 1
+  function tasaVigente() {
+    return (num(E.etapa) >= 2 || cuposLlenos()) ? num(E.comision_normal) : num(E.comision_fundador);
+  }
+  // cuánto se lleva el socio de lo que paga el cliente: su % de la ganancia
+  function parteDe(p) {
+    var c = num(p.costo_pct) / 100, d = descuentaEn(p) ? num(E.descuento) / 100 : 0;
+    if (d >= 1) return 0;
+    return tasaVigente() * Math.max(1 - d - c, 0) / (1 - d);
+  }
+  // lo mismo en plata, en la moneda del producto y redondeado hacia abajo; null si no tiene precio de lista
+  function porVenta(p) {
+    var lista = num(p.precio_lista), d = descuentaEn(p) ? num(E.descuento) / 100 : 0;
+    var x = lista * (1 - d) * parteDe(p) / 100;
+    if (!(x >= 1)) return null;
+    return p.moneda === 'CLP' ? clp(Math.floor(x / 100) * 100) : 'US$' + Math.floor(x).toLocaleString('es-CL');
+  }
+
+  function tarjetaProducto(p) {
+    var disponible = p.estado === 'disponible' && seguro(p.url);
+    var bloque = el('div', { clase: 'bloque', estilo: 'background:' + color(p.color) }, [
+      el('div', { clase: 'ojo', texto: p.categoria || '' }),
+      el('div', { clase: 'marca', texto: p.marca || p.nombre })
+    ]);
+    var pie = el('div', { clase: 'pie' }, [
+      el('span', { clase: 'precio', texto: p.precio || 'Precio al lanzar' }),
+      el('span', { clase: 'estado ' + (disponible ? 'si' : 'no'), texto: disponible ? 'Disponible' : 'Próximamente' })
+    ]);
+    var fundador = !(num(E.etapa) >= 2 || cuposLlenos());
+    var aprox = '~' + Math.round(parteDe(p)) + '%', monto = porVenta(p);
+    var parte = el('div', { clase: 'parte' }, monto ? [
+      el('b', { texto: monto }),
+      el('span', { texto: 'para ti por venta' + (fundador ? ' como fundador' : '') + ' · ' + aprox + ' de lo que paga el cliente' })
+    ] : [
+      el('b', { texto: aprox }),
+      el('span', { texto: (fundador ? 'para ti como fundador' : 'para ti') + ', de lo que paga el cliente' })
+    ]);
+    var cuerpo = el('div', { clase: 'cuerpo' }, [el('h3', { texto: p.nombre }), p.descripcion ? el('p', { texto: p.descripcion }) : null, parte, pie]);
+    if (disponible) {
+      return el('a', { clase: 'producto', href: seguro(p.url), target: '_blank', rel: 'noopener noreferrer',
+                       'aria-label': p.nombre + ': disponible. Abre el producto en otra pestaña.' }, [bloque, cuerpo]);
+    }
+    return el('article', { clase: 'producto', 'aria-label': p.nombre + ': próximamente' }, [bloque, cuerpo]);
+  }
+
+  function pintarProductos() {
+    var g = $('productos'); vaciar(g);
+    var lista = Array.isArray(E.productos) ? E.productos : [];
+    lista.forEach(function (p) { g.appendChild(tarjetaProducto(p)); });
+    var ch = $('fIntereses'); vaciar(ch);
+    lista.forEach(function (p, i) {
+      var id = 'int' + i;
+      ch.appendChild(el('label', { clase: 'check', for: id }, [el('input', { id: id, type: 'checkbox', value: p.clave }), el('span', { texto: p.nombre })]));
+    });
+  }
+
+  function pintarEtapas() {
+    var etapa = abierto() ? Math.max(1, num(E.etapa)) : 0;
+    Array.prototype.forEach.call(document.querySelectorAll('#listaEtapas li'), function (li) {
+      var n = Number(li.getAttribute('data-etapa'));
+      li.classList.toggle('ahora', n === etapa);
+      var tag = li.querySelector('.n');
+      tag.textContent = n === etapa ? 'Ahora' : (n === 0 ? 'Antes' : 'Etapa ' + n);
+    });
+    if (E.abre) $('etapa0Txt').textContent = 'Te anotas y te avisamos el ' + fechaCorta(E.abre) + ', el día que abren las postulaciones.';
+    if (num(E.cupos) > 0) $('etapa1Txt').textContent = 'Elegimos ' + num(E.cupos) + ' fundadores. Empiezan a vender con su código y su comisión de fundador.';
+  }
+
+  function pintarRanking() {
+    var c = $('rankCuerpo'); vaciar(c);
+    if (num(E.etapa) < 2 || !Array.isArray(E.ranking)) {
+      $('rankLede').textContent = 'El ranking se publica en la etapa 2, con las ventas reales de los fundadores. Hasta entonces no mostramos números.';
+      c.appendChild(el('div', { clase: 'vacio' }, [
+        el('div', { clase: 'ojo', texto: 'Etapa 2' }),
+        el('h3', { texto: abierto() ? ('Fundadores elegidos: ' + num(E.fundadores) + (num(E.cupos) > 0 ? ' de ' + num(E.cupos) : '')) : 'Aún no hay fundadores.' }),
+        el('p', { clase: 'muted', texto: 'Aquí verás el alias de cada freelancer, cuántas ventas hizo y cuánto vendió. Datos reales, sin ejemplos ni números de muestra.' })
+      ]));
+      return;
+    }
+    var t = E.totales || {};
+    $('rankLede').textContent = num(t.socios) + ' freelancers · ' + num(t.ventas) + ' ventas · ' + usd(t.monto) + ' vendidos. Datos reales, actualizados con cada venta.';
+    if (!E.ranking.length) {
+      c.appendChild(el('div', { clase: 'vacio' }, [el('h3', { texto: 'Todavía no hay ventas registradas.' })]));
+      return;
+    }
+    var tbody = el('tbody');
+    E.ranking.forEach(function (r, i) {
+      var quien = el('td', null, [el('span', { texto: r.alias || '—' })]);
+      if (r.fundador) quien.appendChild(el('span', { clase: 'sello', texto: 'Fundador #' + r.fundador }));
+      tbody.appendChild(el('tr', null, [el('td', { clase: 'num', texto: String(i + 1) }), quien,
+        el('td', { clase: 'num', texto: String(num(r.ventas)) }), el('td', { clase: 'num', texto: usd(r.monto) })]));
+    });
+    c.appendChild(el('div', { clase: 'caja-tabla' }, [el('table', null, [
+      el('caption', { clase: 'sr', texto: 'Ranking de freelancers por monto vendido' }),
+      el('thead', null, [el('tr', null, [el('th', { clase: 'num', scope: 'col', texto: '#' }), el('th', { scope: 'col', texto: 'Freelancer' }),
+        el('th', { clase: 'num', scope: 'col', texto: 'Ventas' }), el('th', { clase: 'num', scope: 'col', texto: 'Vendido' })])]),
+      tbody])]));
+  }
+
+  function pintarFormulario() {
+    var nuevo = abierto() ? 'postular' : 'anotar';
+    modo = nuevo;
+    Array.prototype.forEach.call(document.querySelectorAll('[data-modo="postular"]'), function (n) { n.hidden = modo !== 'postular'; });
+    if (modo === 'postular') {
+      var fundador = !cuposLlenos() && num(E.etapa) < 2;
+      $('formOjo').textContent = fundador ? 'Postulaciones abiertas' : 'Etapa 2';
+      $('formTitulo').textContent = fundador ? 'Postula para ser fundador.' : 'Postula al programa.';
+      $('formLede').textContent = fundador
+        ? 'Quedan ' + (num(E.cupos) - num(E.fundadores)) + ' cupos de fundador. Revisamos cada postulación a mano y te escribimos.'
+        : 'Los cupos de fundador están completos. Postula igual: entras con la comisión de la etapa 2.';
+      $('enviar').textContent = 'Enviar postulación';
+    } else {
+      $('formOjo').textContent = 'Lista de espera';
+      $('formTitulo').textContent = 'Anótate y te avisamos.';
+      $('formLede').textContent = E.abre
+        ? 'Las postulaciones abren el ' + fechaLarga(E.abre) + '. Te escribimos ese día para que seas de los primeros.'
+        : 'Las postulaciones abren pronto. Te escribimos ese día.';
+      $('enviar').textContent = 'Anotarme';
+    }
+  }
+
+  function pintar() {
+    pintarEstado(); pintarComisiones(); pintarHero(); pintarProductos(); pintarEtapas(); pintarRanking(); pintarFormulario();
+    if (!abierto() && E.abre && !reloj) reloj = setInterval(tic, 1000);
+  }
+
+  async function cargar() {
+    try {
+      E = await rpc('socios_estado', {});
+      desfase = E.ahora ? Date.parse(E.ahora) - Date.now() : 0;
+      $('estadoError').hidden = true;
+      pintar();
+      if (panelPendiente) cargarPanel();
+    } catch (e) {
+      $('estadoError').hidden = false;
+      $('estadoChipTxt').textContent = 'Sin conexión';
+    }
+  }
+
+  // ---------- panel privado del socio (?llave=) ----------
+  var llave = null, panelPendiente = false;
+  try { llave = new URLSearchParams(location.search).get('llave'); } catch (e) {}
+  if (llave && !/^[0-9a-f]{32}$/.test(llave)) llave = null;
+  panelPendiente = !!llave;
+
+  function linkSocio(p, codigo, tienda) {
+    var url = seguro(p.url);
+    if (!url) return null;
+    try {
+      var u = new URL(url);
+      if (p.canal === 'shopify' && seguro(tienda)) {
+        var t = new URL(tienda);
+        var ruta = u.host === t.host ? u.pathname : '/';
+        return t.origin + '/discount/' + encodeURIComponent(codigo) + '?redirect=' + (ruta || '/');
+      }
+      u.searchParams.set('ref', codigo);
+      return u.toString();
+    } catch (e) { return null; }
+  }
+
+  function copiar(texto, boton) {
+    var hecho = function () { var o = boton.textContent; boton.textContent = 'Copiado'; setTimeout(function () { boton.textContent = o; }, 1600); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(texto).then(hecho, function () {});
+  }
+
+  async function cargarPanel() {
+    panelPendiente = false;
+    var P;
+    try { P = await rpc('socios_mi_panel', { p_llave: llave }); }
+    catch (e) {
+      $('panel').hidden = false;
+      $('panelTitulo').textContent = 'No encontramos tu panel.';
+      $('panelLede').textContent = ERRORES[e.message] || 'No pudimos cargar tu panel. Recarga la página.';
+      return;
+    }
+    $('panel').hidden = false;
+    $('panelOjo').textContent = P.fundador ? 'Tu panel · Fundador #' + P.fundador : 'Tu panel · Socio';
+    $('panelTitulo').textContent = 'Hola, ' + (P.alias || P.nombre) + '.';
+    var conCodigo = E ? conDescuento() : [];
+    $('panelLede').textContent = 'Ganas ' + pct(P.comision) + ' de la ganancia de cada venta que hagas.' +
+      (num(P.descuento) > 0 && conCodigo.length ? ' En ' + enLista(conCodigo) + ', tu código le da ' + pct(P.descuento) + ' de descuento a tus clientes.' : '') +
+      ' Guarda este link: es tu acceso privado.';
+    $('panelCodigo').textContent = P.codigo;
+    var t = P.totales || {}, cf = $('panelCifras'); vaciar(cf);
+    cf.appendChild(el('div', null, [el('b', { texto: String(num(t.ventas)) }), el('span', { texto: 'ventas' })]));
+    cf.appendChild(el('div', null, [el('b', { texto: usd(t.monto) }), el('span', { texto: 'vendido' })]));
+    cf.appendChild(el('div', null, [el('b', { texto: usd(t.comision) }), el('span', { texto: 'tu comisión' })]));
+
+    var links = $('panelLinks'); vaciar(links);
+    var disp = (E && Array.isArray(E.productos) ? E.productos : []).filter(function (p) { return p.estado === 'disponible'; });
+    disp.forEach(function (p) {
+      var l = linkSocio(p, P.codigo, P.tienda || (E && E.tienda));
+      if (!l) return;
+      var b = el('button', { clase: 'mini', type: 'button', texto: 'Copiar' });
+      b.addEventListener('click', function () { copiar(l, b); });
+      var nota = descuentaEn(p) ? 'Tu código se aplica solo al pagar.' : 'Cuando vendas, mándanos el nombre de tu comprador.';
+      links.appendChild(el('div', { clase: 'link-fila' }, [el('div', null, [el('b', { texto: p.nombre }), el('br'), el('code', { texto: l }), el('br'),
+        el('small', { clase: 'muted', texto: nota })]), b]));
+    });
+    if (!links.firstChild) links.appendChild(el('p', { clase: 'muted', texto: 'Todavía no hay productos disponibles para vender.' }));
+
+    var vs = $('panelVentas'); vaciar(vs);
+    var ventas = Array.isArray(P.ventas) ? P.ventas : [];
+    if (!ventas.length) { vs.appendChild(el('p', { clase: 'muted', texto: 'Aún no hay ventas con tu código. La primera aparece aquí apenas se pague.' })); return; }
+    var tb = el('tbody');
+    ventas.forEach(function (v) {
+      tb.appendChild(el('tr', null, [
+        el('td', { texto: fechaCorta(v.fecha) }),
+        el('td', { texto: v.producto || v.detalle || (v.origen === 'shopify' ? 'Pedido en la tienda' : 'Venta') }),
+        el('td', { clase: 'num', texto: usd(v.monto) + (v.moneda === 'CLP' && v.original != null ? ' · ' + clp(v.original) : '') }),
+        el('td', { clase: 'num', texto: v.estado === 'anulada' ? 'Anulada' : usd(v.comision) })
+      ]));
+    });
+    vs.appendChild(el('div', { clase: 'caja-tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, [el('th', { scope: 'col', texto: 'Fecha' }), el('th', { scope: 'col', texto: 'Qué' }),
+        el('th', { clase: 'num', scope: 'col', texto: 'Monto' }), el('th', { clase: 'num', scope: 'col', texto: 'Comisión' })])]), tb])]));
+  }
+
+  // ---------- formulario ----------
+  function error(msg) { var b = $('formError'); b.textContent = msg; b.hidden = !msg; }
+
+  $('form').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    error('');
+    var v = function (id) { return ($(id).value || '').trim(); };
+    var nombre = v('fNombre'), email = v('fEmail').toLowerCase(), whatsapp = v('fWhatsapp');
+    if ($('fWeb').value) { mostrarListo(nombre, email); return; } // trampa para bots
+    if (nombre.length < 2) { error(ERRORES['socios: falta_nombre']); $('fNombre').focus(); return; }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { error(ERRORES['socios: correo_invalido']); $('fEmail').focus(); return; }
+    var fn, args;
+    if (modo === 'postular') {
+      var alias = v('fAlias'), canal = v('fCanal');
+      if (alias.length < 2) { error(ERRORES['socios: falta_alias']); $('fAlias').focus(); return; }
+      if (canal.length < 10) { error(ERRORES['socios: falta_canal']); $('fCanal').focus(); return; }
+      if (!$('fConsiente').checked) { error(ERRORES['socios: falta_consentimiento']); $('fConsiente').focus(); return; }
+      var intereses = Array.prototype.map.call(document.querySelectorAll('#fIntereses input:checked'), function (i) { return i.value; });
+      fn = 'socios_postular';
+      args = { p_nombre: nombre, p_email: email, p_alias: alias, p_canal: canal, p_whatsapp: whatsapp || null,
+               p_pais: v('fPais') || null, p_red: v('fRed') || null, p_intereses: intereses, p_consiente: true };
+    } else {
+      fn = 'socios_anotar';
+      args = { p_nombre: nombre, p_email: email, p_whatsapp: whatsapp || null };
+    }
+    var b = $('enviar'), txt = b.textContent;
+    b.disabled = true; b.textContent = 'Enviando…';
+    try {
+      await rpc(fn, args);
+      mostrarListo(nombre, email);
+    } catch (e) {
+      if (e.message === 'socios: aun_no_abre') { await cargar(); }
+      error(ERRORES[e.message] || 'No se pudo enviar. Revisa tu conexión e inténtalo de nuevo.');
+    } finally {
+      b.disabled = false; b.textContent = txt;
+    }
+  });
+
+  function mostrarListo(nombre, email) {
+    $('form').hidden = true;
+    var l = $('listo'); l.hidden = false;
+    var primero = nombre.split(' ')[0] || nombre;
+    if (modo === 'postular') {
+      $('listoTitulo').textContent = 'Listo, ' + primero + '. Recibimos tu postulación.';
+      $('listoTxt').textContent = 'La revisamos a mano y te escribimos a ' + email + '. Si quedas, recibes tu código y tu panel.';
+    } else {
+      $('listoTitulo').textContent = 'Listo, ' + primero + '. Estás en la lista.';
+      $('listoTxt').textContent = 'Te escribimos a ' + email + (E && E.abre ? ' el ' + fechaCorta(E.abre) : '') + ', el día que abren las postulaciones.';
+    }
+    l.focus();
+  }
+
+  cargar();
+})();
+</script>
+</body>
+</html>

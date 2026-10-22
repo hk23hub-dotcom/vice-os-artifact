@@ -334,5 +334,29 @@
   Producto digital de descarga inmediata. Requiere una clave API de Claude (Anthropic) propia, con costo de uso según tarifas de Anthropic (aprox. US$0,20 por búsqueda).<br>Para entregar empresas reales con fuente, tu cuenta de Anthropic necesita la búsqueda web activada. Si no la tienes, el agente sigue funcionando y te entrega objetivos de búsqueda afilados con la consulta lista para copiar.
 </footer>
 
+<script>
+// Freelancers Fundadores HK23: quien llega con el link de un socio (?ref=CÓDIGO) compra con su código en Gumroad
+// (hk23hub.gumroad.com/l/leadhunter/CÓDIGO): la venta queda a nombre del socio y el cliente recibe su descuento.
+// El código se recuerda 30 días en este navegador.
+(function () {
+  var FORMATO = /^[A-Z0-9]{4,24}$/, KEY = 'hk23-ref', DIAS = 30, cod = null;
+  try { cod = (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase(); } catch (e) {}
+  if (cod && FORMATO.test(cod)) {
+    try { localStorage.setItem(KEY, JSON.stringify({ c: cod, t: Date.now() })); } catch (e) {}
+  } else {
+    cod = null;
+    try {
+      var g = JSON.parse(localStorage.getItem(KEY) || 'null');
+      if (g && FORMATO.test(g.c) && Date.now() - g.t < DIAS * 864e5) cod = g.c;
+    } catch (e) {}
+  }
+  if (!cod) return;
+  Array.prototype.forEach.call(document.querySelectorAll('a.cta[href="https://hk23hub.gumroad.com/l/leadhunter"]'), function (a) {
+    a.href = 'https://hk23hub.gumroad.com/l/leadhunter/' + cod;
+  });
+  var nota = document.querySelector('.under-cta');
+  if (nota) nota.textContent = 'CÓDIGO ' + cod + ' APLICADO AL PAGAR · ACCESO INMEDIATO · GARANTÍA 7 DÍAS';
+})();
+</script>
 </body>
 </html>

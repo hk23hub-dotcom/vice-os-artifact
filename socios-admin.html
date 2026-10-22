@@ -1,0 +1,544 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Freelancers Fundadores · panel del dueño</title>
+<style>
+:root{--ground:#0A0A0B;--surface:#131316;--line:#2A2A30;--rojo:#FF3A1F;--amarillo:#FFD200;--cian:#56D8EE;--lima:#AAFF00;
+  --ink:#F1EEEB;--ink-mid:#B5ADA6;--ink-dim:#8A827B;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;--body:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5}
+main{width:min(1080px,100% - 32px);margin:0 auto;padding:2rem 0 4rem;display:flex;flex-direction:column;gap:2rem}
+h1{margin:0;font-size:1.6rem}
+h2{margin:0 0 .7rem;font-size:1rem;font-family:var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--amarillo)}
+p{margin:.3rem 0}
+a{color:var(--cian)}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+input,select,textarea{background:#0C0C0E;border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:.85rem;padding:.6rem .7rem;min-height:44px}
+textarea{min-height:70px;width:100%;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--amarillo);outline-offset:2px}
+label{display:flex;flex-direction:column;gap:.25rem;font-size:.8rem;color:var(--ink-mid)}
+button{font-family:var(--mono);font-size:.72rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:.6rem .9rem;min-height:44px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink-mid)}
+button:hover{border-color:var(--amarillo);color:var(--amarillo)}
+button.ok{background:var(--lima);border-color:var(--lima);color:#0A0A0B}
+button.hot{background:var(--amarillo);border-color:var(--amarillo);color:#0A0A0B}
+button.mal{border-color:rgba(255,58,31,.6);color:var(--rojo)}
+button:disabled{opacity:.4;cursor:wait}
+.msg{font-family:var(--mono);font-size:.78rem;color:var(--ink-mid)}
+.msg.bad{color:var(--rojo)}
+.msg.good{color:var(--lima)}
+.cifras{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+.cifras div{background:var(--surface);padding:.9rem 1rem}
+.cifras b{display:block;font-size:1.6rem;font-variant-numeric:tabular-nums}
+.cifras span{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;align-items:end}
+.list{display:flex;flex-direction:column;gap:1px;background:var(--line);border:1px solid var(--line)}
+.it{background:var(--ground);padding:1rem;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem;align-items:start}
+@media(max-width:700px){.it{grid-template-columns:1fr}}
+.it b{font-size:1.05rem}
+.it small,.dim{font-family:var(--mono);font-size:.72rem;color:var(--ink-dim)}
+.it .acc{display:flex;flex-direction:column;gap:.5rem;min-width:220px}
+.empty{padding:1rem;color:var(--ink-dim);font-family:var(--mono);font-size:.78rem;background:var(--ground)}
+.tabla{overflow-x:auto;border:1px solid var(--line)}
+table{width:100%;border-collapse:collapse;min-width:720px}
+th,td{text-align:left;padding:.6rem .7rem;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);background:var(--surface)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+code{font-family:var(--mono);color:var(--lima);word-break:break-all}
+.nota{border:1px dashed var(--line);padding:.8rem 1rem;color:var(--ink-mid);font-size:.88rem}
+.swatch{display:inline-block;width:14px;height:14px;border:1px solid var(--line);vertical-align:middle;margin-right:6px}
+details{border:1px solid var(--line);background:var(--surface)}
+summary{cursor:pointer;padding:.8rem 1rem;font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;min-height:44px}
+details .cont{padding:0 1rem 1rem}
+[hidden]{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+label.chk{flex-direction:row;align-items:center;gap:.6rem;min-height:44px}
+label.chk input{min-height:0;width:20px;height:20px;accent-color:var(--lima)}
+</style>
+</head>
+<body>
+<main>
+  <div class="row" style="justify-content:space-between">
+    <h1>Freelancers Fundadores · panel del dueño</h1>
+    <a href="/socios" target="_blank" rel="noopener">Ver la página pública</a>
+  </div>
+
+  <section class="row" id="login">
+    <label for="tok" class="sr">Clave del panel</label>
+    <input id="tok" type="password" autocomplete="off" placeholder="Pega aquí la clave que te dio Supabase en «Results»" style="flex:1;min-width:260px">
+    <button class="hot" id="entrar" type="button">Entrar</button>
+    <span class="msg" id="lmsg" aria-live="polite"></span>
+  </section>
+
+  <div id="panel" hidden>
+    <section><div class="cifras" id="cifras"></div></section>
+
+    <section style="margin-top:2rem">
+      <h2>Postulaciones por revisar</h2>
+      <div class="list" id="postulados"></div>
+    </section>
+
+    <section style="margin-top:2rem">
+      <h2>Socios aprobados</h2>
+      <p class="msg">Cada código tiene que existir en Shopify (Descuentos → Crear descuento → Monto de descuento en pedido → código igual al de aquí) y en Gumroad para LeadHunter (Checkout → Discounts → New discount → mismo código). Así cada venta queda a su nombre. El link del panel es privado: envíaselo solo a esa persona.</p>
+      <div id="socios"></div>
+    </section>
+
+    <section style="margin-top:2rem">
+      <h2>Ventas</h2>
+      <details>
+        <summary>Registrar una venta hecha fuera de la tienda (LeadHunter, DuckCam…)</summary>
+        <div class="cont">
+          <p class="msg">Para lo que no pasa por Shopify: ventas de Gumroad con el código del socio, pagos de Mercado Pago que te reportó un socio, transferencias. Anota lo que pagó el cliente, en la moneda en que lo pagó: los pesos se convierten a US$ con el tipo de cambio de «Programa». La referencia debe ser única: el id del pago o del pedido.</p>
+          <form id="fVenta" class="grid" novalidate>
+            <label>Socio<select id="vSocio" required></select></label>
+            <label>Producto<select id="vProducto"></select></label>
+            <label>Lo que pagó el cliente <span class="dim">con descuento, sin envío</span><input id="vMonto" type="number" min="0.01" step="0.01" required></label>
+            <label>Moneda<select id="vMoneda"><option value="USD">US$</option><option value="CLP">Pesos chilenos (CLP)</option></select></label>
+            <label>Referencia<input id="vRef" type="text" maxlength="80" required></label>
+            <label>Detalle<input id="vDetalle" type="text" maxlength="200"></label>
+            <label>Comisión % <span class="dim">vacío = la del socio</span><input id="vPct" type="number" min="0" max="90" step="0.5"></label>
+            <button class="ok" type="submit">Registrar venta</button>
+          </form>
+          <p class="msg" id="vMsg" aria-live="polite"></p>
+        </div>
+      </details>
+      <div id="ventas" style="margin-top:1rem"></div>
+    </section>
+
+    <section style="margin-top:2rem">
+      <h2>Productos de la página</h2>
+      <p class="msg">Solo lo «disponible» se puede vender y tiene link en el panel de cada socio. «Próximamente» se muestra sin link. «Oculto» no aparece.</p>
+      <div id="productos"></div>
+      <details style="margin-top:1rem" id="dProducto">
+        <summary id="pTitulo">Agregar un producto</summary>
+        <div class="cont">
+          <form id="fProducto" class="grid" novalidate>
+            <input id="pId" type="hidden">
+            <label>Nombre<input id="pNombre" type="text" maxlength="80" required></label>
+            <label>Texto grande de la tarjeta<input id="pMarca" type="text" maxlength="40"></label>
+            <label>Categoría<input id="pCategoria" type="text" maxlength="30"></label>
+            <label>Precio que se muestra <span class="dim">ej: US$97 · vacío = al lanzar</span><input id="pPrecio" type="text" maxlength="40"></label>
+            <label>Precio de lista <span class="dim">número, sin descuento</span><input id="pLista" type="number" min="0" step="0.01"></label>
+            <label>Moneda del cobro<select id="pMoneda"><option value="USD">US$</option><option value="CLP">Pesos chilenos (CLP)</option></select></label>
+            <label>Link https<input id="pUrl" type="url" maxlength="300"></label>
+            <label>Dónde se vende<select id="pCanal"><option value="directo">Fuera de Shopify (link con ?ref=)</option><option value="shopify">Tienda Shopify (código de descuento)</option></select></label>
+            <label class="chk"><input id="pDescuenta" type="checkbox"> El código del socio da descuento aquí</label>
+            <label>Estado<select id="pEstado"><option value="proximamente">Próximamente</option><option value="disponible">Disponible</option><option value="oculto">Oculto</option></select></label>
+            <label>Color<select id="pColor"><option value="#FFD200">Amarillo</option><option value="#00F0FF">Cian</option><option value="#B84DFF">Morado</option><option value="#AAFF00">Lima</option><option value="#FF3A1F">Rojo</option></select></label>
+            <label>Costo % <span class="dim">fabricar + enviar + cobrar + impuestos</span><input id="pCosto" type="number" min="0" max="95" step="0.5" value="15"></label>
+            <label>Orden<input id="pOrden" type="number" step="1" value="100"></label>
+            <label style="grid-column:1/-1">Descripción<textarea id="pDescripcion" maxlength="300"></textarea></label>
+            <div class="row"><button class="ok" type="submit">Guardar producto</button><button type="button" id="pNuevo">Limpiar</button></div>
+          </form>
+          <p class="msg" id="pMsg" aria-live="polite"></p>
+        </div>
+      </details>
+    </section>
+
+    <section style="margin-top:2rem">
+      <h2>Programa</h2>
+      <form id="fConfig" class="grid" novalidate>
+        <label>Apertura de postulaciones (tu hora local)<input id="cAbre" type="datetime-local" required></label>
+        <label>Etapa<select id="cEtapa"><option value="1">1 · Fundadores</option><option value="2">2 · Ranking público</option></select></label>
+        <label>Cupos de fundador<input id="cCupos" type="number" min="0" step="1"></label>
+        <label>Comisión fundador % <span class="dim">de la ganancia, menos de 50</span><input id="cFund" type="number" min="0" max="49.99" step="0.01"></label>
+        <label>Comisión etapa 2 % <span class="dim">de la ganancia, menos de 50</span><input id="cNormal" type="number" min="0" max="49.99" step="0.01"></label>
+        <label>Descuento del código %<input id="cDesc" type="number" min="0" max="90" step="0.5"></label>
+        <label>Pesos chilenos por US$ <span class="dim">para ventas en CLP</span><input id="cTasa" type="number" min="100" max="5000" step="1"></label>
+        <label>Mostrar «N anotados» desde<input id="cMostrar" type="number" min="0" step="1"></label>
+        <button class="ok" type="submit">Guardar</button>
+      </form>
+      <p class="msg" id="cMsg" aria-live="polite"></p>
+      <h2 style="margin-top:1.4rem">¿Cuadra? Por cada US$100 a precio de lista</h2>
+      <p class="msg">Se recalcula mientras escribes. La comisión es un % de la ganancia y nunca llega a la mitad: HK23 siempre se queda con más que el socio.</p>
+      <div id="cuadra"></div>
+      <p class="nota">Pasar a la etapa 2 publica el ranking con las ventas reales en la página. El descuento solo se muestra en la página: el que vale es el que configures en Shopify y en Gumroad para cada código.</p>
+    </section>
+
+    <section style="margin-top:2rem">
+      <h2>Lista de espera</h2>
+      <div class="row"><button type="button" id="copiarCorreos">Copiar todos los correos</button><span class="msg" id="lMsg" aria-live="polite"></span></div>
+      <div id="lista" style="margin-top:.8rem"></div>
+    </section>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+  var SB_ANON = 'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
+  var SB_URL = (function () {
+    var base = 'https://iiqhhglgjsbnuihythko.supabase.co';
+    if (!/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) return base;
+    var o = null; try { o = new URLSearchParams(location.search).get('sb'); } catch (e) {}
+    return (o && /^https?:\/\/\S+$/.test(o)) ? o.replace(/\/+$/, '') : base;
+  })();
+  var KEY = 'socios-admin', tok = '', R = null;
+  try { tok = sessionStorage.getItem(KEY) || ''; } catch (e) {}
+  var MENSAJES = {
+    'socios: clave_invalida': 'Clave inválida.', 'socios: no_esta_en_revision': 'Esa postulación ya no está en revisión.',
+    'socios: codigo_invalido': 'Código inválido: 4 a 24 letras o números, sin guiones ni espacios (Gumroad no los acepta).', 'socios: codigo_en_uso': 'Ese código ya lo tiene otro socio.',
+    'socios: socio_no_aprobado': 'Ese socio no está aprobado.', 'socios: monto_invalido': 'Monto inválido.',
+    'socios: falta_referencia': 'Falta la referencia.', 'socios: referencia_repetida': 'Esa referencia ya está registrada.',
+    'socios: falta_nombre': 'Falta el nombre.', 'socios: url_invalida': 'El link debe empezar con https://',
+    'socios: falta_url': 'Un producto disponible necesita su link.', 'socios: fecha_invalida': 'Fecha inválida.',
+    'socios: porcentaje_invalido': 'Porcentaje entre 0 y 90.', 'socios: numero_invalido': 'Número inválido.',
+    'socios: comision_invalida': 'Comisión entre 0 y 90.', 'socios: no_existe': 'No existe.',
+    'socios: comision_sobre_mitad': 'La comisión tiene que ser menor a 50 %: así HK23 siempre se queda con la mayor parte de la ganancia.',
+    'socios: sin_margen': 'Con ese costo y ese descuento no queda ganancia en un producto donde el código descuenta. Baja el descuento o revisa el costo.',
+    'socios: falta_producto': 'Elige el producto: su costo define la ganancia.',
+    'socios: costo_invalido': 'Costo entre 0 y 95 %.',
+    'socios: moneda_invalida': 'Moneda: US$ o CLP.', 'socios: precio_invalido': 'Precio de lista inválido.',
+    'socios: falta_tipo_de_cambio': 'Falta el tipo de cambio (pesos por US$) en «Programa».',
+    'socios: tipo_de_cambio_invalido': 'Tipo de cambio entre 100 y 5.000 pesos por US$.'
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, attrs, hijos) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) {
+      if (k === 'texto') n.textContent = attrs[k];
+      else if (k === 'clase') n.className = attrs[k];
+      else if (k === 'estilo') n.setAttribute('style', attrs[k]);
+      else n.setAttribute(k, attrs[k]);
+    });
+    (hijos || []).forEach(function (h) { if (h != null) n.appendChild(typeof h === 'string' ? document.createTextNode(h) : h); });
+    return n;
+  }
+  function vaciar(n) { while (n.firstChild) n.removeChild(n.firstChild); }
+  function num(v) { var n = Number(v); return isFinite(n) ? n : 0; }
+  function usd(v) { return 'US$' + num(v).toLocaleString('es-CL', { minimumFractionDigits: 0, maximumFractionDigits: 2 }); }
+  function clp(v) { return '$' + Math.round(num(v)).toLocaleString('es-CL'); }
+  function descuentaEn(p) { return !!p.descuenta || p.canal === 'shopify'; }
+  function fecha(iso) { try { return new Date(iso).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }); } catch (e) { return String(iso || ''); } }
+  function msg(id, texto, clase) { var m = $(id); m.textContent = texto || ''; m.className = 'msg' + (clase ? ' ' + clase : ''); }
+  function copiar(texto, boton) {
+    if (!navigator.clipboard || !navigator.clipboard.writeText) return;
+    navigator.clipboard.writeText(texto).then(function () { var o = boton.textContent; boton.textContent = 'Copiado'; setTimeout(function () { boton.textContent = o; }, 1500); }, function () {});
+  }
+
+  async function admin(accion, datos) {
+    var res;
+    try {
+      res = await fetch(SB_URL + '/rest/v1/rpc/socios_admin', {
+        method: 'POST',
+        headers: { apikey: SB_ANON, Authorization: 'Bearer ' + SB_ANON, 'content-type': 'application/json' },
+        body: JSON.stringify({ p_token: tok, p_accion: accion, p_datos: datos || {} })
+      });
+    } catch (e) { throw new Error('Sin conexión con Supabase.'); }
+    var data = null; try { data = await res.json(); } catch (e) {}
+    if (!res.ok) {
+      var m = (data && data.message) || 'Error ' + res.status;
+      var err = new Error(MENSAJES[m] || m); err.code = m; throw err;
+    }
+    return data;
+  }
+
+  async function cargar() {
+    msg('lmsg', 'Cargando…');
+    try { R = await admin('resumen'); }
+    catch (e) {
+      msg('lmsg', e.message, 'bad');
+      if (e.code === 'socios: clave_invalida') { tok = ''; try { sessionStorage.removeItem(KEY); } catch (x) {} $('panel').hidden = true; $('login').hidden = false; }
+      return;
+    }
+    try { sessionStorage.setItem(KEY, tok); } catch (e) {}
+    $('login').hidden = true; $('panel').hidden = false; msg('lmsg', '');
+    pintar();
+  }
+
+  function nombreProducto(clave) {
+    var p = (R.productos || []).find(function (x) { return x.clave === clave; });
+    return p ? p.nombre : clave;
+  }
+  function panelUrl(llave) { return ((R.config && R.config.panel_url) || (location.origin + '/socios')) + '?llave=' + llave; }
+
+  function pintar() {
+    var c = R.conteo || {}, socios = R.socios || [];
+    var vendido = socios.reduce(function (s, x) { return s + num(x.monto); }, 0);
+    var ganado = socios.reduce(function (s, x) { return s + num(x.ganado); }, 0);
+    var cf = $('cifras'); vaciar(cf);
+    [[c.lista, 'en lista'], [c.postulados, 'por revisar'], [c.aprobados, 'aprobados'], [c.rechazados, 'rechazados'],
+     [usd(vendido), 'vendido'], [usd(ganado), 'comisiones generadas']].forEach(function (x) {
+      cf.appendChild(el('div', null, [el('b', { texto: String(x[0] == null ? 0 : x[0]) }), el('span', { texto: x[1] })]));
+    });
+    pintarPostulados(); pintarSocios(); pintarVentas(); pintarProductos(); pintarConfig(); pintarLista();
+  }
+
+  function pintarPostulados() {
+    var box = $('postulados'); vaciar(box);
+    var lista = R.postulados || [];
+    if (!lista.length) { box.appendChild(el('div', { clase: 'empty', texto: 'No hay postulaciones por revisar.' })); return; }
+    lista.forEach(function (p) {
+      var cod = el('input', { type: 'text', placeholder: 'Código (opcional)', maxlength: '24', 'aria-label': 'Código para ' + p.nombre });
+      var res = el('p', { clase: 'msg', 'aria-live': 'polite' });
+      var bOk = el('button', { clase: 'ok', type: 'button', texto: 'Aprobar' });
+      var bNo = el('button', { clase: 'mal', type: 'button', texto: 'Rechazar' });
+      bOk.addEventListener('click', async function () {
+        bOk.disabled = bNo.disabled = true;
+        try {
+          var a = await admin('aprobar', { id: p.id, codigo: cod.value.trim() });
+          res.className = 'msg good';
+          res.textContent = 'Aprobado' + (a.fundador ? ' como fundador #' + a.fundador : ' (sin cupo de fundador)') + ' · ' + a.comision + '% · código ' + a.codigo +
+            '. Crea ese código en Shopify y en Gumroad, y envíale su link de panel.';
+          setTimeout(cargar, 900);
+        } catch (e) { res.className = 'msg bad'; res.textContent = e.message; bOk.disabled = bNo.disabled = false; }
+      });
+      bNo.addEventListener('click', async function () {
+        bOk.disabled = bNo.disabled = true;
+        try { await admin('rechazar', { id: p.id }); cargar(); }
+        catch (e) { res.className = 'msg bad'; res.textContent = e.message; bOk.disabled = bNo.disabled = false; }
+      });
+      var info = el('div', null, [
+        el('b', { texto: p.nombre + (p.alias ? ' · «' + p.alias + '»' : '') }),
+        el('p', { texto: p.canal || '' }),
+        el('small', { texto: [p.email, p.whatsapp, p.pais, p.red].filter(Boolean).join(' · ') }),
+        (p.intereses && p.intereses.length) ? el('p', { clase: 'dim', texto: 'Le interesa: ' + p.intereses.map(nombreProducto).join(', ') }) : null,
+        el('p', { clase: 'dim', texto: 'Postuló: ' + fecha(p.postulado) }),
+        res
+      ]);
+      box.appendChild(el('div', { clase: 'it' }, [info, el('div', { clase: 'acc' }, [cod, el('div', { clase: 'row' }, [bOk, bNo])])]));
+    });
+  }
+
+  function pintarSocios() {
+    var box = $('socios'); vaciar(box);
+    var lista = R.socios || [];
+    if (!lista.length) { box.appendChild(el('div', { clase: 'empty', texto: 'Todavía no hay socios aprobados.' })); return; }
+    var tb = el('tbody');
+    lista.forEach(function (s) {
+      var bLink = el('button', { type: 'button', texto: 'Copiar link del panel' });
+      bLink.addEventListener('click', function () { copiar(panelUrl(s.llave), bLink); });
+      var nuevo = el('input', { type: 'text', maxlength: '24', placeholder: 'Nuevo código', 'aria-label': 'Nuevo código para ' + s.nombre, estilo: 'width:150px' });
+      var bCod = el('button', { type: 'button', texto: 'Cambiar' });
+      var m = el('span', { clase: 'msg', 'aria-live': 'polite' });
+      bCod.addEventListener('click', async function () {
+        if (!nuevo.value.trim()) return;
+        try { await admin('codigo', { id: s.id, codigo: nuevo.value.trim() }); cargar(); }
+        catch (e) { m.className = 'msg bad'; m.textContent = e.message; }
+      });
+      tb.appendChild(el('tr', null, [
+        el('td', { texto: s.fundador ? '#' + s.fundador : '—' }),
+        el('td', null, [el('b', { texto: s.alias || s.nombre }), el('br'), el('small', { clase: 'dim', texto: s.nombre + ' · ' + s.email + (s.whatsapp ? ' · ' + s.whatsapp : '') })]),
+        el('td', null, [el('code', { texto: s.codigo })]),
+        el('td', { clase: 'num', texto: String(num(s.ventas)) }),
+        el('td', { clase: 'num', texto: usd(s.monto) }),
+        el('td', { clase: 'num', texto: usd(s.ganado) + ' (' + s.comision + '%)' }),
+        el('td', null, [el('div', { clase: 'row' }, [bLink]), el('div', { clase: 'row', estilo: 'margin-top:.4rem' }, [nuevo, bCod]), m])
+      ]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Fundador', 'Socio', 'Código', 'Ventas', 'Vendido', 'Comisión', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: (i >= 3 && i <= 5) ? 'num' : '', texto: h });
+      }))]), tb])]));
+
+    var vs = $('vSocio'); vaciar(vs);
+    lista.forEach(function (s) { vs.appendChild(el('option', { value: String(s.id), texto: (s.alias || s.nombre) + ' · ' + s.codigo })); });
+    var vp = $('vProducto'); vaciar(vp);
+    (R.productos || []).filter(function (p) { return p.estado !== 'oculto'; }).concat((R.productos || []).filter(function (p) { return p.estado === 'oculto'; }))
+      .forEach(function (p) {
+        vp.appendChild(el('option', { value: String(p.id), texto: p.nombre + ' · costo ' + num(p.costo_pct) + '%' + (p.estado === 'oculto' ? ' · oculto' : '') }));
+      });
+    elegirProductoVenta();
+  }
+
+  // al elegir el producto de una venta: su moneda, y lo que paga el cliente si tiene precio de lista
+  // (al recargar el panel no pisa un monto ya escrito)
+  function elegirProductoVenta(forzar) {
+    var p = (R.productos || []).find(function (x) { return String(x.id) === $('vProducto').value; });
+    if (!p) return;
+    $('vMoneda').value = p.moneda === 'CLP' ? 'CLP' : 'USD';
+    if (num(p.precio_lista) > 0 && (forzar === true || !$('vMonto').value)) {
+      var d = descuentaEn(p) ? num(R.config.descuento) / 100 : 0;
+      var paga = num(p.precio_lista) * (1 - d);
+      $('vMonto').value = String(p.moneda === 'CLP' ? Math.round(paga) : Math.round(paga * 100) / 100);
+    }
+  }
+
+  function pintarVentas() {
+    var box = $('ventas'); vaciar(box);
+    var lista = R.ventas || [];
+    if (!lista.length) { box.appendChild(el('div', { clase: 'empty', texto: 'Todavía no hay ventas.' })); return; }
+    var tb = el('tbody');
+    lista.forEach(function (v) {
+      var acc = null;
+      if (v.estado === 'valida') {
+        acc = el('button', { clase: 'mal', type: 'button', texto: 'Anular' });
+        acc.addEventListener('click', async function () {
+          acc.disabled = true;
+          try { await admin('anular', { id: v.id }); cargar(); } catch (e) { acc.disabled = false; acc.textContent = e.message; }
+        });
+      }
+      var anulada = v.estado === 'anulada';
+      var paraHK = Math.max(num(v.ganancia) - num(v.comision), 0);
+      tb.appendChild(el('tr', null, [
+        el('td', { texto: fecha(v.fecha) }),
+        el('td', null, [el('b', { texto: v.socio || '' }), el('br'), el('code', { texto: v.codigo || '' })]),
+        el('td', { texto: (v.origen === 'shopify' ? 'Shopify ' : 'Manual ') + (v.detalle || v.referencia || '') + (v.producto ? ' · ' + v.producto : '') }),
+        el('td', { clase: 'num', texto: (v.moneda === 'CLP' && v.original != null ? clp(v.original) + ' → ' : '') + usd(v.monto) +
+                                         (num(v.reembolsado) > 0 ? ' − ' + usd(v.reembolsado) : '') }),
+        el('td', { clase: 'num', texto: anulada ? '—' : usd(v.ganancia) }),
+        el('td', { clase: 'num', texto: anulada ? 'Anulada' : usd(v.comision) + ' (' + num(v.comision_pct) + '%)' }),
+        el('td', { clase: 'num', texto: anulada ? '—' : usd(paraHK) }),
+        el('td', null, [acc])
+      ]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Fecha', 'Socio', 'Qué', 'Pagó el cliente', 'Ganancia', 'Socio', 'HK23', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: (i >= 3 && i <= 6) ? 'num' : '', texto: h });
+      }))]), tb])]));
+  }
+
+  function pintarProductos() {
+    var box = $('productos'); vaciar(box);
+    var tb = el('tbody');
+    (R.productos || []).forEach(function (p) {
+      var b = el('button', { type: 'button', texto: 'Editar' });
+      b.addEventListener('click', function () { editarProducto(p); });
+      tb.appendChild(el('tr', null, [
+        el('td', null, [el('span', { clase: 'swatch', estilo: 'background:' + (/^#[0-9A-Fa-f]{6}$/.test(p.color) ? p.color : '#FFD200') }), el('b', { texto: p.nombre })]),
+        el('td', { texto: p.estado === 'disponible' ? 'Disponible' : p.estado === 'oculto' ? 'Oculto' : 'Próximamente' }),
+        el('td', { texto: (p.canal === 'shopify' ? 'Shopify' : 'Directo') + ' · ' + (p.moneda === 'CLP' ? 'CLP' : 'US$') + (descuentaEn(p) ? ' · con código' : '') }),
+        el('td', { clase: 'num', texto: num(p.costo_pct) + '%' }),
+        el('td', { texto: p.precio || '—' }),
+        el('td', null, [p.url ? el('code', { texto: p.url }) : el('span', { clase: 'dim', texto: 'sin link' })]),
+        el('td', null, [b])
+      ]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Producto', 'Estado', 'Canal', 'Costo', 'Precio', 'Link', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: i === 3 ? 'num' : '', texto: h });
+      }))]), tb])]));
+  }
+
+  // ¿Cuadra? Por cada US$100 a precio de lista de cada producto, con los números que hay en el formulario.
+  function pintarCuadra() {
+    var box = $('cuadra'); if (!box || !R) return; vaciar(box);
+    var leer = function (id, def) { var v = Number($(id).value); return isFinite(v) && $(id).value !== '' ? v : def; };
+    var f = leer('cFund', num(R.config.comision_fundador)), n = leer('cNormal', num(R.config.comision_normal)), d = leer('cDesc', num(R.config.descuento));
+    var tb = el('tbody'), malas = 0;
+    (R.productos || []).filter(function (p) { return p.estado !== 'oculto'; }).forEach(function (p) {
+      var desc = descuentaEn(p) ? d : 0;
+      var paga = 100 - desc, costo = num(p.costo_pct), ganancia = Math.max(paga - costo, 0);
+      var socio = ganancia * f / 100, hk = ganancia - socio;
+      var cuadra = f < 50 && n < 50 && paga - costo > 0;
+      if (!cuadra) malas++;
+      tb.appendChild(el('tr', null, [
+        el('td', { texto: p.nombre }),
+        el('td', { clase: 'num', texto: usd(paga) }),
+        el('td', { clase: 'num', texto: '− ' + usd(costo) }),
+        el('td', { clase: 'num', texto: usd(ganancia) }),
+        el('td', { clase: 'num', texto: usd(socio) }),
+        el('td', { clase: 'num', texto: usd(hk) }),
+        el('td', { texto: cuadra ? 'Cuadra' : 'No cuadra', estilo: 'color:' + (cuadra ? 'var(--lima)' : 'var(--rojo)') + ';font-family:var(--mono)' })
+      ]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Producto', 'Cliente paga', 'Costo', 'Ganancia', 'Fundador', 'HK23', ''].map(function (h, i) {
+        return el('th', { scope: 'col', clase: (i >= 1 && i <= 5) ? 'num' : '', texto: h });
+      }))]), tb])]));
+    if (f >= 50 || n >= 50) box.appendChild(el('p', { clase: 'msg bad', texto: MENSAJES['socios: comision_sobre_mitad'] }));
+    else if (malas) box.appendChild(el('p', { clase: 'msg bad', texto: MENSAJES['socios: sin_margen'] }));
+  }
+
+  function editarProducto(p) {
+    $('pId').value = p ? String(p.id) : '';
+    $('pNombre').value = p ? p.nombre : ''; $('pMarca').value = p ? p.marca : ''; $('pCategoria').value = p ? p.categoria : '';
+    $('pPrecio').value = p ? p.precio : ''; $('pUrl').value = p && p.url ? p.url : ''; $('pCanal').value = p ? p.canal : 'directo';
+    $('pEstado').value = p ? p.estado : 'proximamente'; $('pOrden').value = p ? String(p.orden) : '100';
+    $('pCosto').value = p ? String(num(p.costo_pct)) : '15';
+    $('pLista').value = p && p.precio_lista != null ? String(num(p.precio_lista)) : '';
+    $('pMoneda').value = p && p.moneda === 'CLP' ? 'CLP' : 'USD';
+    $('pDescuenta').checked = !!(p && descuentaEn(p));
+    $('pDescripcion').value = p ? p.descripcion : '';
+    var col = $('pColor'); col.value = p ? p.color : '#FFD200'; if (col.value === '') col.value = '#FFD200';
+    $('pTitulo').textContent = p ? 'Editar: ' + p.nombre : 'Agregar un producto';
+    $('dProducto').open = true; msg('pMsg', '');
+    $('pNombre').focus();
+  }
+
+  function aLocal(iso) {
+    var d = new Date(iso); if (isNaN(d)) return '';
+    var z = function (n) { return String(n).padStart(2, '0'); };
+    return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes());
+  }
+  function pintarConfig() {
+    var c = R.config || {};
+    $('cAbre').value = aLocal(c.abre); $('cEtapa').value = c.etapa || '1'; $('cCupos').value = c.cupos || '';
+    $('cFund').value = c.comision_fundador || ''; $('cNormal').value = c.comision_normal || '';
+    $('cDesc').value = c.descuento || ''; $('cMostrar').value = c.mostrar_desde || ''; $('cTasa').value = c.clp_por_usd || '';
+    pintarCuadra();
+  }
+
+  function pintarLista() {
+    var box = $('lista'); vaciar(box);
+    var lista = R.lista || [];
+    if (!lista.length) { box.appendChild(el('div', { clase: 'empty', texto: 'Nadie en la lista de espera todavía.' })); return; }
+    var tb = el('tbody');
+    lista.forEach(function (p) {
+      tb.appendChild(el('tr', null, [el('td', { texto: p.nombre }), el('td', { texto: p.email }), el('td', { texto: p.whatsapp || '—' }), el('td', { texto: fecha(p.creado) })]));
+    });
+    box.appendChild(el('div', { clase: 'tabla' }, [el('table', null, [
+      el('thead', null, [el('tr', null, ['Nombre', 'Correo', 'WhatsApp', 'Se anotó'].map(function (h) { return el('th', { scope: 'col', texto: h }); }))]), tb])]));
+  }
+
+  // ---------- eventos ----------
+  function entrar() { tok = $('tok').value.trim(); if (tok) cargar(); }
+  $('entrar').addEventListener('click', entrar);
+  $('tok').addEventListener('keydown', function (e) { if (e.key === 'Enter') entrar(); });
+
+  $('fConfig').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var abre = new Date($('cAbre').value);
+    if (isNaN(abre)) { msg('cMsg', 'Fecha inválida.', 'bad'); return; }
+    var etapa = $('cEtapa').value;
+    if (etapa === '2' && R.config.etapa !== '2' && !window.confirm('La etapa 2 publica el ranking con las ventas reales de los socios. ¿Continuar?')) return;
+    var d = { abre: abre.toISOString(), etapa: etapa };
+    [['cupos', 'cCupos'], ['comision_fundador', 'cFund'], ['comision_normal', 'cNormal'], ['descuento', 'cDesc'], ['mostrar_desde', 'cMostrar'],
+     ['clp_por_usd', 'cTasa']]
+      .forEach(function (x) { var v = $(x[1]).value.trim(); if (v !== '') d[x[0]] = v; });
+    try { await admin('config', d); msg('cMsg', 'Guardado.', 'good'); cargar(); }
+    catch (e) { msg('cMsg', e.message, 'bad'); }
+  });
+
+  $('fProducto').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var d = { nombre: $('pNombre').value, marca: $('pMarca').value, categoria: $('pCategoria').value, precio: $('pPrecio').value,
+              url: $('pUrl').value.trim(), canal: $('pCanal').value, estado: $('pEstado').value, color: $('pColor').value,
+              orden: $('pOrden').value, costo_pct: $('pCosto').value, descripcion: $('pDescripcion').value,
+              moneda: $('pMoneda').value, descuenta: $('pDescuenta').checked, precio_lista: $('pLista').value.trim() };
+    if ($('pId').value) d.id = $('pId').value;
+    try { await admin('producto', d); msg('pMsg', 'Producto guardado.', 'good'); editarProducto(null); $('dProducto').open = true; msg('pMsg', 'Producto guardado.', 'good'); cargar(); }
+    catch (e) { msg('pMsg', e.message, 'bad'); }
+  });
+  $('pNuevo').addEventListener('click', function () { editarProducto(null); });
+  ['cFund', 'cNormal', 'cDesc'].forEach(function (id) { $(id).addEventListener('input', pintarCuadra); });
+
+  $('fVenta').addEventListener('submit', async function (ev) {
+    ev.preventDefault();
+    var d = { socio_id: $('vSocio').value, monto: $('vMonto').value, moneda: $('vMoneda').value, referencia: $('vRef').value, detalle: $('vDetalle').value };
+    if ($('vProducto').value) d.producto_id = $('vProducto').value;
+    if ($('vPct').value !== '') d.comision = $('vPct').value;
+    if (!d.socio_id) { msg('vMsg', 'Primero aprueba a un socio.', 'bad'); return; }
+    try { await admin('venta', d); msg('vMsg', 'Venta registrada.', 'good'); $('vMonto').value = ''; $('vRef').value = ''; $('vDetalle').value = ''; cargar(); }
+    catch (e) { msg('vMsg', e.message, 'bad'); }
+  });
+  $('vProducto').addEventListener('change', function () { elegirProductoVenta(true); });
+
+  $('copiarCorreos').addEventListener('click', function () {
+    var correos = (R && R.lista || []).map(function (p) { return p.email; });
+    if (!correos.length) { msg('lMsg', 'No hay correos.'); return; }
+    copiar(correos.join(', '), $('copiarCorreos'));
+    msg('lMsg', correos.length + ' correos copiados. Pégalos en CCO (copia oculta).', 'good');
+  });
+
+  if (tok) cargar();
+})();
+</script>
+</body>
+</html>
