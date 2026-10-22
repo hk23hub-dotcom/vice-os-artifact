@@ -194,7 +194,7 @@ const LANZAMIENTO = [
   { clave: 'leadhunter', nombre: 'LeadHunter', marca: 'LeadHunter', categoria: 'AGENTE IA · VENTAS', descripcion: 'Agente que consigue clientes.', precio: 'US$97',
     url: 'https://hk23universe.vercel.app/leadhunter', canal: 'directo', costo_pct: 15, estado: 'disponible', color: '#AAFF00', moneda: 'USD', descuenta: true, precio_lista: 97 },
   { clave: 'duckcam', nombre: 'DuckCam', marca: 'DuckCam', categoria: 'CÁMARA DE AUTO', descripcion: 'Un pato que graba.', precio: '$49.990 CLP · preventa',
-    url: null, canal: 'directo', costo_pct: 80, estado: 'disponible', color: '#FFD200', moneda: 'CLP', descuenta: false, precio_lista: 49990 },
+    url: 'https://hk23universe.vercel.app/duckcam', canal: 'directo', costo_pct: 95, estado: 'disponible', color: '#FFD200', moneda: 'CLP', descuenta: false, precio_lista: 49990 },
   { clave: 'tienda-hk23-studio', nombre: 'Tienda HK23 STUDIO', marca: 'Proof of Work', categoria: 'ARTE', descripcion: 'Posters.', precio: 'desde US$3',
     url: 'https://fcqevq-jr.myshopify.com', canal: 'shopify', costo_pct: 62, estado: 'disponible', color: '#FF3A1F', moneda: 'USD', descuenta: true, precio_lista: null },
 ];
@@ -205,10 +205,10 @@ const LANZAMIENTO = [
   const partes = [...d.querySelectorAll('#productos .parte')].map((p) => p.textContent);
   ok(/^US\$35/.test(partes[0]) && /~41%/.test(partes[0]) && /por venta como fundador/.test(partes[0]),
     'LeadHunter: US$35 por venta para el fundador (US$97 − 10%, costo 15%, 49% de la ganancia) → ' + partes[0]);
-  ok(/^\$4\.800/.test(partes[1]) && /~10%/.test(partes[1]), 'DuckCam: $4.800 por venta (49% de la ganancia con costo 80%), redondeado hacia abajo → ' + partes[1]);
+  ok(/^\$1\.200/.test(partes[1]) && /~2%/.test(partes[1]), 'DuckCam: $1.200 por venta (49% de la ganancia con costo 95%), redondeado hacia abajo → ' + partes[1]);
   ok(/^~15%/.test(partes[2]), 'la tienda, sin precio único, muestra solo el %: ' + partes[2]);
   const cards = d.querySelectorAll('#productos .producto');
-  ok(cards[0].tagName === 'A' && cards[1].tagName === 'ARTICLE' && /Próximamente/.test(cards[1].textContent), 'DuckCam sin link todavía: se muestra como próximamente');
+  ok(cards[0].tagName === 'A' && cards[1].tagName === 'A' && cards[1].href === 'https://hk23universe.vercel.app/duckcam', 'DuckCam: la tarjeta lleva a su página /duckcam');
   ok(/En LeadHunter y Tienda HK23 STUDIO, tu código además le da 10% de descuento/.test(txt(d, 'pasoCompartes')),
     'explica en qué productos el código da descuento: ' + txt(d, 'pasoCompartes'));
   ok(/DuckCam/.test(d.getElementById('preguntas').textContent) && /7 días/.test(d.getElementById('preguntas').textContent),
@@ -217,7 +217,7 @@ const LANZAMIENTO = [
 }
 {
   const LL = 'b'.repeat(32);
-  const productos = LANZAMIENTO.map((p) => p.clave === 'duckcam' ? { ...p, url: 'https://duckcam.example/early-egg' } : p);
+  const productos = LANZAMIENTO;
   const panel = { alias: 'Ana P.', nombre: 'Ana Pérez', codigo: 'HK23ANAP', fundador: 1, comision: 49, descuento: 10, tienda: 'https://fcqevq-jr.myshopify.com',
     ventas: [{ fecha: '2026-11-02T15:00:00Z', origen: 'manual', detalle: 'Pato Corbata', producto: 'DuckCam', monto: 52.07, comision: 5.1, estado: 'valida', moneda: 'CLP', original: 49990 }],
     totales: { ventas: 1, monto: 52.07, comision: 5.1 } };
@@ -228,7 +228,7 @@ const LANZAMIENTO = [
   const filas = [...d.querySelectorAll('#panelLinks .link-fila')].map((f) => f.textContent);
   ok(filas[0].includes('https://hk23universe.vercel.app/leadhunter?ref=HK23ANAP') && /se aplica solo al pagar/.test(filas[0]),
     'LeadHunter: link con ?ref= que la página lleva a Gumroad');
-  ok(filas[1].includes('https://duckcam.example/early-egg?ref=HK23ANAP') && /mándanos el nombre de tu comprador/.test(filas[1]),
+  ok(filas[1].includes('https://hk23universe.vercel.app/duckcam?ref=HK23ANAP') && /mándanos el nombre de tu comprador/.test(filas[1]),
     'DuckCam: link con ?ref= y aviso de reportar al comprador');
   ok(filas[2].includes('/discount/HK23ANAP?redirect=/'), 'tienda: link que aplica el código');
   ok(/US\$52,07 · \$49\.990/.test(txt(d, 'panelVentas')), 'la venta en pesos se ve en US$ y en sus pesos originales');
@@ -247,5 +247,24 @@ const landing = (url) => new JSDOM(LH, { runScripts: 'dangerously', url }).windo
   ok(hrefs.every((h) => h === 'https://hk23hub.gumroad.com/l/leadhunter'), 'un ref con formato raro no toca los links');
   d = landing('https://hk23universe.vercel.app/leadhunter');
   ok([...d.querySelectorAll('a.cta')].every((a) => a.href === 'https://hk23hub.gumroad.com/l/leadhunter'), 'sin ref, la compra queda igual que siempre');
+}
+// ---------- 10. la página de DuckCam ----------
+const DC = fs.readFileSync(process.env.REPO + '/duckcam/index.html', 'utf8');
+const pato = (url) => new JSDOM(DC, { runScripts: 'dangerously', url }).window.document;
+{
+  let d = pato('https://hk23universe.vercel.app/duckcam?ref=hk23anap');
+  const pagos = [...d.querySelectorAll('a.js-mp')].map((a) => a.href);
+  ok(JSON.stringify(pagos) === JSON.stringify(['https://mpago.la/2T4NuSp', 'https://mpago.la/2AXwVwo']), 'los botones de compra van a los links reales de Mercado Pago (Corbata y Negro)');
+  const socio = d.getElementById('socio');
+  ok(!socio.hidden && socio.textContent.includes('HK23ANAP') && /dinos este código/.test(socio.textContent), 'con ?ref= muestra el código del socio junto al pago');
+  const imgs = [...d.querySelectorAll('img')].map((i) => i.getAttribute('src'));
+  ok(imgs.length === 11 && imgs.every((s) => s.startsWith('/duckcam/img/')), 'las 11 imágenes usan rutas absolutas (/duckcam sin barra final no las rompe)');
+  ok(imgs.every((s) => fs.existsSync(process.env.REPO + s)), 'todas las imágenes existen en el repo');
+  ok(d.documentElement.lang === 'es' && /DuckCam/.test(d.title) && d.querySelector('meta[property="og:image"]'), 'tiene idioma, título y vista previa para compartir');
+  ok(d.querySelector('footer a[href="/socios"]'), 'el pie invita al programa de socios');
+  d = pato('https://hk23universe.vercel.app/duckcam?ref=%3Cimg%20src%3Dx%3E');
+  ok(d.getElementById('socio').hidden && !d.querySelector('#socio img'), 'un ref con formato raro no se muestra');
+  d = pato('https://hk23universe.vercel.app/duckcam');
+  ok(d.getElementById('socio').hidden, 'sin ref no aparece el aviso del socio');
 }
 process.exit(process.exitCode ?? 0);

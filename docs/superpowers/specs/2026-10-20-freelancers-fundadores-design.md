@@ -25,9 +25,10 @@
 | Catálogo | Tabla editable desde el panel: disponible, próximamente u oculto | «Si está en esta página, lo puede vender» |
 | Lanzamiento | LeadHunter (US$97, Gumroad), DuckCam ($49.990 CLP, preventa por Mercado Pago) y la tienda. El resto oculto. Se aplica una sola vez, también en la base que ya tenía el catálogo anterior | «Solo quiero partir con 3 productos» |
 | Monedas | Todo se contabiliza en US$. Una venta en pesos se convierte al registrarla con `clp_por_usd` (960, el de los packs de LeadHunter) y guarda su monto original | DuckCam se cobra en pesos; el ranking y las comisiones necesitan una sola moneda |
-| Atribución fuera de Shopify | LeadHunter: la landing lleva `?ref=` a un código de descuento de Gumroad (`/l/leadhunter/CÓDIGO`), y la venta muestra el código. DuckCam: el socio reporta al comprador y el dueño lo cruza con el pago | Atribución verificable sin funciones nuevas |
+| Atribución fuera de Shopify | LeadHunter: la landing lleva `?ref=` a un código de descuento de Gumroad (`/l/leadhunter/CÓDIGO`), y la venta muestra el código. DuckCam: su página (`/duckcam`) muestra el código del socio junto al pago para que el comprador lo diga, y el socio reporta al comprador; el dueño lo cruza con el pago | Atribución verificable sin funciones nuevas |
 | Códigos | Solo letras y números | Gumroad no acepta guiones; el mismo código vale en Shopify y Gumroad |
 | Ganancia por venta | La tarjeta muestra lo que gana el socio en plata (precio de lista × su parte), redondeado hacia abajo | Más concreto que un %; nunca promete de más |
+| DuckCam | Página del artifact «DuckCam» publicada en `/duckcam` (imágenes comprimidas, rutas absolutas). Costo 95 %: el Build Dossier estima ~$38.500 por pato, que con IVA y Mercado Pago es ~97 % de $49.990 | «No está creado, hay que lanzarlo»; los números a favor de HK23 |
 | Pago de comisiones | Pasado el plazo de devolución: LeadHunter 7 días; DuckCam al despachar + 10 días de retracto | Que una devolución no deje una comisión ya pagada |
 
 ## Piezas

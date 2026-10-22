@@ -90,8 +90,9 @@ alter table public.socios_productos
 -- Catálogo. Se lanza con tres productos; el resto queda oculto y se activa desde /socios-admin cuando esté listo.
 -- Costos, como % del precio de lista (fabricar + enviar + cobrar + impuestos):
 --   LeadHunter 15 %  Gumroad cobra 10 % + US$0,50 y el pago ~3 % + US$0,30: ~14 % de US$97.
---   DuckCam    80 %  SUPUESTO hasta tener el costo real de cada pato: IVA (16 % de un precio con IVA),
---                    Mercado Pago (~4 %) y ~60 % para fabricar y despachar ($30.000 de $49.990).
+--   DuckCam    95 %  el máximo. Build Dossier: ~$38.500 por pato puesto en Chile (rango $31.700–45.400) =
+--                    77 % de $49.990, + IVA (16 % de un precio con IVA) + Mercado Pago (~4 %) ≈ 97 %.
+--                    Al pasar a $69.990 queda en ~75 %: se cambia desde el panel.
 --   Tienda     62 %  peor caso real de Printify en Shopify (posters PROOF OF WORK: 57 %) + 5 % de cobro.
 --   El resto   15 %  productos digitales: plataforma y medios de pago.
 insert into public.socios_productos (clave, nombre, marca, categoria, descripcion, precio, url, canal, costo_pct, estado, color, orden,
@@ -101,7 +102,7 @@ insert into public.socios_productos (clave, nombre, marca, categoria, descripcio
    'US$97', 'https://hk23universe.vercel.app/leadhunter', 'directo', 15, 'disponible', '#AAFF00', 10, 'USD', true, 97),
   ('duckcam', 'DuckCam', 'DuckCam', 'CÁMARA DE AUTO',
    'Un pato para el tablero con cámara: graba con el auto encendido, guarda 48 horas de manejo y avisa que estás grabando. Preventa Early Egg de 100 cupos, despacho en enero de 2027. Tu comisión se paga al despachar, pasados los 10 días de retracto.',
-   '$49.990 CLP · preventa', null, 'directo', 80, 'disponible', '#FFD200', 20, 'CLP', false, 49990),
+   '$49.990 CLP · preventa', 'https://hk23universe.vercel.app/duckcam', 'directo', 95, 'disponible', '#FFD200', 20, 'CLP', false, 49990),
   ('tienda-hk23-studio', 'Tienda HK23 STUDIO', 'Proof of Work', 'ARTE · OBJETOS',
    'Posters, stickers y ediciones PROOF OF WORK publicados por los agentes. Se imprimen bajo pedido.',
    'desde US$3', 'https://fcqevq-jr.myshopify.com', 'shopify', 62, 'disponible', '#FF3A1F', 30, 'USD', true, null),
@@ -136,6 +137,12 @@ begin
     insert into public.socios_config (key, value) values ('catalogo_lanzamiento', 'aplicado');
   end if;
 end $$;
+
+-- DuckCam quedó sin link en la versión anterior de este archivo: se completa con su página y su costo real,
+-- solo si el dueño todavía no le puso un link.
+update public.socios_productos
+   set url = 'https://hk23universe.vercel.app/duckcam', costo_pct = 95
+ where clave = 'duckcam' and url is null;
 
 create table if not exists public.socios (
   id          bigint generated always as identity primary key,

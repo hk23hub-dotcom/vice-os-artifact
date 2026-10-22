@@ -42,6 +42,17 @@ await db.exec(base);
 const pisado = (await db.query(`select string_agg(clave || ':' || estado || ':' || costo_pct::int, ',' order by clave) c from socios_productos where clave in ('el-centro', 'leadhunter')`)).rows[0].c;
 ok(pisado === 'el-centro:proximamente:15,leadhunter:disponible:20', 'volver a correr el archivo no pisa el catálogo que editó el dueño');
 await db.exec(`update socios_productos set estado = 'oculto' where clave = 'el-centro'; update socios_productos set costo_pct = 15 where clave = 'leadhunter'`);
+// DuckCam sin link (como lo dejó la versión anterior): se completa con su página y su costo real
+await db.exec(`update socios_productos set url = null, costo_pct = 80 where clave = 'duckcam'`);
+await db.exec(base);
+let dcFila = (await db.query(`select url, costo_pct from socios_productos where clave = 'duckcam'`)).rows[0];
+ok(dcFila.url === 'https://hk23universe.vercel.app/duckcam' && Number(dcFila.costo_pct) === 95,
+  'DuckCam sin link se completa con /duckcam y costo 95 % (Build Dossier)');
+await db.exec(`update socios_productos set url = 'https://otra.example/pato', costo_pct = 70 where clave = 'duckcam'`);
+await db.exec(base);
+dcFila = (await db.query(`select url, costo_pct from socios_productos where clave = 'duckcam'`)).rows[0];
+ok(dcFila.url === 'https://otra.example/pato' && Number(dcFila.costo_pct) === 70, 'si el dueño ya le puso link y costo a DuckCam, no se pisan');
+await db.exec(`update socios_productos set url = 'https://hk23universe.vercel.app/duckcam', costo_pct = 95 where clave = 'duckcam'`);
 
 // helpers: llamar como anon (lo que hace el navegador) o como service_role (edge function)
 async function como(rol, sql, params = []) {
@@ -80,8 +91,8 @@ ok(e.productos.length === 3 && e.productos.every((p) => p.estado === 'disponible
 const [lh, dc, td] = e.productos;
 ok(lh.descuenta === true && lh.moneda === 'USD' && Number(lh.precio_lista) === 97 && lh.url === 'https://hk23universe.vercel.app/leadhunter',
   'LeadHunter: US$97 en Gumroad, el código descuenta');
-ok(dc.descuenta === false && dc.moneda === 'CLP' && Number(dc.precio_lista) === 49990 && dc.url === null && Number(dc.costo_pct) === 80,
-  'DuckCam: $49.990 CLP, sin código, costo supuesto 80 % y sin link hasta que el dueño lo ponga');
+ok(dc.descuenta === false && dc.moneda === 'CLP' && Number(dc.precio_lista) === 49990 && dc.url === 'https://hk23universe.vercel.app/duckcam'
+  && Number(dc.costo_pct) === 95, 'DuckCam: $49.990 CLP, sin código, su página /duckcam y costo 95 % (Build Dossier)');
 ok(td.descuenta === true && td.canal === 'shopify', 'en la tienda el código siempre descuenta');
 ok(!JSON.stringify(e).includes('@'), 'el estado público no trae correos');
 await como('anon', `select socios_anotar('Ana Pérez','  ANA@Mail.com ','+56 9 1111 2222') r`);
@@ -258,7 +269,7 @@ await admin('venta', { socio_id: anaId, producto_id: await pid('duckcam'), monto
 vv = await venta('mp-001');
 ok(vv.moneda === 'CLP' && Number(vv.original) === 49990 && Number(vv.monto) === 52.07 && Number(vv.lista) === 52.07,
   'DuckCam en pesos: $49.990 se guardan y se contabilizan como US$52,07 (960 por US$), sin descuento');
-ok(Number(vv.g) === 10.41 && Number(vv.c) === 5.1, 'DuckCam: ganancia 52,07 × 20% = 10,41; Ana (49%) US$5,10');
+ok(Number(vv.g) === 2.6 && Number(vv.c) === 1.27, 'DuckCam: ganancia 52,07 × 5% = 2,60; Ana (49%) US$1,27');
 await admin('venta', { socio_id: anaId, producto_id: await pid('duckcam'), monto: '52', moneda: 'usd', referencia: 'mp-002' });
 ok((await venta('mp-002')).moneda === 'USD' && Number((await venta('mp-002')).monto) === 52, 'el panel puede registrar en US$ un producto que cobra en pesos');
 ok(/moneda_invalida/.test(await err('anon', `select socios_admin($1,'venta',$2::jsonb)`, [TOKEN, JSON.stringify({ socio_id: anaId, producto_id: await pid('duckcam'), monto: 10, moneda: 'EUR', referencia: 'eur' })]) || ''),
@@ -279,9 +290,9 @@ await admin('producto', { ...lhRow, costo_pct: 15 });
 ok(/sin_margen/.test(await err('anon', `select socios_admin($1,'producto',$2::jsonb)`, [TOKEN, JSON.stringify({ ...lhRow, costo_pct: 95 })]) || ''),
   'LeadHunter con costo de 95%: rechazado, con el descuento no queda ganancia');
 const dcRow = (await db.query(`select * from socios_productos where clave='duckcam'`)).rows[0];
-ok(/falta_url/.test(await err('anon', `select socios_admin($1,'producto',$2::jsonb)`, [TOKEN, JSON.stringify(dcRow)]) || ''),
+ok(/falta_url/.test(await err('anon', `select socios_admin($1,'producto',$2::jsonb)`, [TOKEN, JSON.stringify({ ...dcRow, url: null })]) || ''),
   'DuckCam no se puede guardar como disponible sin su link');
-await admin('producto', { ...dcRow, url: 'https://duckcam.example/early-egg', costo_pct: 95 });
+await admin('producto', { ...dcRow, costo_pct: 95 });
 ok(Number((await db.query(`select costo_pct from socios_productos where clave='duckcam'`)).rows[0].costo_pct) === 95,
   'sin código no hay descuento: DuckCam acepta costo de 95%');
 ok(/moneda_invalida/.test(await err('anon', `select socios_admin($1,'producto',$2::jsonb)`, [TOKEN, JSON.stringify({ ...dcRow, url: 'https://duckcam.example/x', moneda: 'ARS' })]) || ''),

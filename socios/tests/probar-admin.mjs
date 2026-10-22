@@ -110,8 +110,8 @@ ok(filasC.length === 3 && filasC.every((r) => r[6] === 'Cuadra'), '¿Cuadra?: lo
 const lhC = filasC.find((r) => r[0] === 'LeadHunter'), dcC = filasC.find((r) => r[0] === 'DuckCam');
 ok(lhC[1] === 'US$90' && lhC[3] === 'US$75' && lhC[4] === 'US$36,75' && lhC[5] === 'US$38,25',
   'LeadHunter por US$100: el código descuenta 10, costo 15 → ganancia 75, fundador 36,75, HK23 38,25 → ' + lhC.join(' | '));
-ok(dcC[1] === 'US$100' && dcC[3] === 'US$20' && dcC[4] === 'US$9,8' && dcC[5] === 'US$10,2',
-  'DuckCam por US$100: sin descuento, costo 80 → ganancia 20, fundador 9,8, HK23 10,2 → ' + dcC.join(' | '));
+ok(dcC[1] === 'US$100' && dcC[3] === 'US$5' && dcC[4] === 'US$2,45' && dcC[5] === 'US$2,55',
+  'DuckCam por US$100: sin descuento, costo 95 → ganancia 5, fundador 2,45, HK23 2,55 → ' + dcC.join(' | '));
 ok(tiendaC[1] === 'US$90' && tiendaC[3] === 'US$28' && tiendaC[4] === 'US$13,72' && tiendaC[5] === 'US$14,28',
   'tienda por US$100: cliente paga 90, ganancia 28, fundador 13,72, HK23 14,28 → ' + tiendaC.join(' | '));
 A.d.getElementById('cFund').value = '50';
@@ -225,22 +225,24 @@ const editar = [...A.d.querySelectorAll('#productos tbody tr')].find((tr) => /Gu
 click(A.w, btn(editar, 'Editar'));
 ok(A.d.getElementById('pNombre').value === 'Guía PROOF OF WORK' && A.d.getElementById('pId').value !== '', 'editar carga el producto en el formulario');
 
-// ---------- 8b. DuckCam: el dueño pone su link y registra una venta en pesos ----------
+// ---------- 8b. DuckCam: su link y una venta en pesos ----------
 const filaProd = (nombre) => [...A.d.querySelectorAll('#productos tbody tr')].find((tr) => tr.querySelector('b').textContent === nombre);
 click(A.w, btn(filaProd('LeadHunter'), 'Editar'));
 ok(A.d.getElementById('pDescuenta').checked && A.d.getElementById('pMoneda').value === 'USD' && A.d.getElementById('pLista').value === '97',
   'LeadHunter en el formulario: US$, precio de lista 97 y el código descuenta');
 click(A.w, btn(filaProd('DuckCam'), 'Editar'));
-ok(!A.d.getElementById('pDescuenta').checked && A.d.getElementById('pMoneda').value === 'CLP' && A.d.getElementById('pLista').value === '49990',
-  'DuckCam en el formulario: pesos, precio de lista 49.990 y sin código');
+ok(!A.d.getElementById('pDescuenta').checked && A.d.getElementById('pMoneda').value === 'CLP' && A.d.getElementById('pLista').value === '49990'
+  && A.d.getElementById('pUrl').value === 'https://hk23universe.vercel.app/duckcam' && A.d.getElementById('pCosto').value === '95',
+  'DuckCam en el formulario: pesos, precio de lista 49.990, sin código, su página /duckcam y costo 95%');
+A.d.getElementById('pUrl').value = '';
 submit(A.w, A.d, 'fProducto');
 await wait(150);
 ok(A.d.getElementById('pMsg').textContent === 'Un producto disponible necesita su link.', 'DuckCam no se publica sin su link');
-A.d.getElementById('pUrl').value = 'https://duckcam.example/early-egg';
+A.d.getElementById('pUrl').value = 'https://hk23universe.vercel.app/duckcam';
 submit(A.w, A.d, 'fProducto');
 await wait(250);
 const dc = await fila(`select url, moneda, precio_lista, descuenta, costo_pct from socios_productos where clave='duckcam'`);
-ok(dc.url === 'https://duckcam.example/early-egg' && dc.moneda === 'CLP' && Number(dc.precio_lista) === 49990 && !dc.descuenta && Number(dc.costo_pct) === 80,
+ok(dc.url === 'https://hk23universe.vercel.app/duckcam' && dc.moneda === 'CLP' && Number(dc.precio_lista) === 49990 && !dc.descuenta && Number(dc.costo_pct) === 95,
   'DuckCam guardado con su link, sin perder moneda, precio ni costo');
 await wait(200);
 const vp = A.d.getElementById('vProducto');
@@ -263,11 +265,11 @@ S.cerrar();
 S = abrir('socios.html', 'https://hk23universe.vercel.app/socios?llave=' + anaOk.llave);
 await wait(250);
 const partesS = [...S.d.querySelectorAll('#productos .parte b')].map((b) => b.textContent);
-ok(partesS[0] === 'US$7' && partesS[1] === '$900' && partesS[2] === '~3%',
+ok(partesS[0] === 'US$7' && partesS[1] === '$200' && partesS[2] === '~3%',
   'pública: con el único cupo de fundador ocupado, cada producto muestra lo que gana un socio nuevo (10%) por venta → ' + partesS.join(', '));
-ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://duckcam.example/early-egg?ref=ANAPIXEL'), 'la socia ya tiene su link de DuckCam');
-ok(/US\$61,69/.test(S.d.getElementById('panelCifras').textContent) && /\$49\.990/.test(S.d.getElementById('panelVentas').textContent),
-  'su panel suma la venta de DuckCam: US$56,59 + 5,10 = US$61,69');
+ok([...S.d.querySelectorAll('#panelLinks code')].some((c) => c.textContent === 'https://hk23universe.vercel.app/duckcam?ref=ANAPIXEL'), 'la socia ya tiene su link de DuckCam');
+ok(/US\$57,86/.test(S.d.getElementById('panelCifras').textContent) && /\$49\.990/.test(S.d.getElementById('panelVentas').textContent),
+  'su panel suma la venta de DuckCam: US$56,59 + 1,27 = US$57,86');
 
 // ---------- 9. etapa 2: ranking público ----------
 A.d.getElementById('cEtapa').value = '2';

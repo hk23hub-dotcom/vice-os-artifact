@@ -1,9 +1,10 @@
 # Freelancers Fundadores: lo que tiene que hacer el dueño
 
-Todo lo técnico está hecho y probado: 242 pruebas, que se corren con `socios/tests/correr.sh`. Abajo está lo que solo tú puedes hacer, en orden.
+Todo lo técnico está hecho y probado: 252 pruebas, que se corren con `socios/tests/correr.sh`. Abajo está lo que solo tú puedes hacer, en orden.
 
 - Página pública: `https://hk23universe.vercel.app/socios`
 - Panel del dueño: `https://hk23universe.vercel.app/socios-admin`
+- Página de DuckCam: `https://hk23universe.vercel.app/duckcam` (es la del artifact «DuckCam», con tus links de Mercado Pago)
 
 ## 0 · Cómo se calcula la comisión (siempre a tu favor)
 
@@ -28,7 +29,7 @@ Ejemplos con los números de lanzamiento (fundador al 49 %):
 | Producto | El cliente paga | Costo | Ganancia | Fundador | HK23 |
 |---|---|---|---|---|---|
 | LeadHunter con el código | US$87,30 (97 − 10 %) | US$14,55 (15 % de 97) | US$72,75 | **US$35,65** | US$37,10 |
-| DuckCam | $49.990 = US$52,07 | 80 % (supuesto) | US$10,41 | **US$5,10** | US$5,31 |
+| DuckCam (Early Egg) | $49.990 = US$52,07 | 95 % (Build Dossier) | US$2,60 | **US$1,27** | US$1,33 |
 | Poster con el código | US$15,87 | US$10,93 (62 % de 17,63) | US$4,94 | **US$2,42** | US$2,52 |
 
 ## 1 · Confirma estos números antes de publicar (quedaron como supuestos)
@@ -44,13 +45,13 @@ Se cambian en el panel, en «Programa» y en «Productos de la página». No hac
 | Descuento del código | 10 % | Solo se muestra en la página. El real es el que pongas en Shopify y Gumroad a cada código |
 | Pesos por dólar | 960 | El mismo de los packs de LeadHunter ($27.900 = US$29). Con él se convierten las ventas en pesos |
 | Costo LeadHunter | 15 % de US$97 | Gumroad: 10 % + US$0,50, más el cobro ~3 % + US$0,30 ≈ 14 % |
-| **Costo DuckCam** | **80 % de $49.990 (SUPUESTO)** | IVA (16 % de un precio con IVA) + Mercado Pago (~4 %) + ~60 % para fabricar y despachar ($30.000). **Cámbialo por el real** |
+| **Costo DuckCam** | **95 % de $49.990 (el máximo)** | Tu Build Dossier: ~$38.500 por pato puesto en Chile (77 %), + IVA (16 % de un precio con IVA) + Mercado Pago (~4 %) ≈ 97 %. El Early Egg casi no deja margen |
 | Costo de la tienda | 62 % del precio | Peor caso real de Printify en Shopify (PROOF OF WORK: 57 %) + 5 % de cobro |
 | Pago de comisiones | cada mes, ventas del mes anterior que ya pasaron su plazo de devolución | LeadHunter: garantía de 7 días. DuckCam: al despachar + 10 días de retracto |
 
-**DuckCam todavía no tiene link.** En «Productos de la página» → DuckCam → Editar, pega el link de su página y su costo real, y guarda. Hasta entonces se ve como «Próximamente» y los socios no tienen link para venderlo.
+**DuckCam en el Early Egg deja ~$1.200 al fundador por pato.** Es lo honesto con tus números: a $49.990 el pato casi no tiene ganancia. Sirve para llenar los 100 cupos, no para hacerse rico vendiendo patos. Cuando pase a $69.990: «Productos de la página» → DuckCam → Editar → precio de lista 69990, precio «$69.990 CLP» y costo 75 % ($38.500 + IVA + Mercado Pago). Ahí el fundador gana ~$8.500 por pato.
 
-Cómo sacar el costo % de DuckCam: (lo que te cuesta cada pato puesto en la casa del cliente ÷ 49.990 × 100) + 16 (IVA) + 4 (Mercado Pago). Ejemplo: si te cuesta $22.000, el costo es 44 + 16 + 4 = 64 %.
+Cómo recalcular el costo % de DuckCam si cambia la cotización: (lo que te cuesta cada pato puesto en la casa del cliente ÷ precio × 100) + 16 (IVA) + 4 (Mercado Pago).
 
 ## A · Supabase (5 min)
 
@@ -106,21 +107,22 @@ Sin este paso el programa funciona igual, pero las ventas de la tienda las regis
 En `/socios-admin` → «Ventas» → «Registrar una venta hecha fuera de la tienda». Al elegir el producto, el panel propone la moneda y el monto. Corrígelo si el cliente pagó otra cosa.
 
 - **LeadHunter (Gumroad).** Cada venta en Gumroad muestra el código de descuento que se usó. Ese código es el del socio. Registra lo que pagó el cliente en US$ y usa como referencia el id de la venta en Gumroad. Si alguien pide su devolución dentro de los 7 días, toca «Anular» en esa venta.
-- **DuckCam (Mercado Pago).** El socio te manda el nombre de su comprador y tú lo cruzas con el pago en Mercado Pago. Cuando le escribas al comprador para pedir su dirección, confírmalo también con él. Registra el monto en pesos, por ejemplo 49990 en CLP, y usa como referencia el número de operación de Mercado Pago. Si cancela antes del despacho o se retracta, toca «Anular». La comisión se paga cuando despachas y pasan los 10 días de retracto.
+- **DuckCam (Mercado Pago).** Quien entra con el link de un socio ve su código junto al botón de pago, con la indicación de decirlo cuando le pidas la dirección. El socio también te manda el nombre de su comprador. Cruza las dos cosas con el pago en Mercado Pago. Registra el monto en pesos, por ejemplo 49990 en CLP, y usa como referencia el número de operación de Mercado Pago. Si cancela antes del despacho o se retracta, toca «Anular». La comisión se paga cuando despachas y pasan los 10 días de retracto.
 - Antes de registrar ventas en pesos, actualiza «Pesos chilenos por US$» en «Programa» al tipo de cambio del día.
 
 ## E · Lanzamiento
 
-1. **Hoy:** publica el anuncio de LinkedIn (texto abajo). Ubicación: Chile. Tipo de empleo: Otro.
-2. **Día de apertura:** la página pasa sola a recibir postulaciones a la hora configurada. En `/socios-admin` → «Copiar todos los correos» y mándales este correo en copia oculta (CCO):
+1. **Merge del PR:** deja públicas `/duckcam`, `/socios` y `/socios-admin`. La página de DuckCam no depende de Supabase: vende desde el primer minuto. Abre los dos botones de compra y revisa que Mercado Pago cobre $49.990 por el modelo correcto.
+2. **Hoy:** publica el anuncio de LinkedIn (texto abajo). Ubicación: Chile. Tipo de empleo: Otro.
+3. **Día de apertura:** la página pasa sola a recibir postulaciones a la hora configurada. En `/socios-admin` → «Copiar todos los correos» y mándales este correo en copia oculta (CCO):
 
 > Asunto: Abrieron las postulaciones de Freelancers Fundadores HK23
 >
 > Hola: hoy a las 12:00 abrimos las postulaciones. Son {cupos} cupos de fundador y los revisamos uno por uno. Postula aquí: https://hk23universe.vercel.app/socios#postular. Te toma 3 minutos.
 
-3. **Cuando otro producto esté listo** (El Centro, Pixel, el universo, las apps, los libros): «Productos de la página» → Editar → Estado «Disponible», su link, su precio de lista y su moneda. Marca «El código del socio da descuento aquí» solo si creaste los códigos donde se cobra. Aparece al tiro en la página y en el panel de cada socio.
-4. **Cada mes:** en «Socios aprobados» ves lo vendido y la comisión de cada uno. Págales lo que ya pasó su plazo de devolución y guarda el comprobante.
-5. **Etapa 2:** cuando quieras mostrar resultados, ve a «Programa» → Etapa 2. La página publica el ranking real: alias, número de ventas y monto. Nunca correos, teléfonos ni comisiones.
+4. **Cuando otro producto esté listo** (El Centro, Pixel, el universo, las apps, los libros): «Productos de la página» → Editar → Estado «Disponible», su link, su precio de lista y su moneda. Marca «El código del socio da descuento aquí» solo si creaste los códigos donde se cobra. Aparece al tiro en la página y en el panel de cada socio.
+5. **Cada mes:** en «Socios aprobados» ves lo vendido y la comisión de cada uno. Págales lo que ya pasó su plazo de devolución y guarda el comprobante.
+6. **Etapa 2:** cuando quieras mostrar resultados, ve a «Programa» → Etapa 2. La página publica el ranking real: alias, número de ventas y monto. Nunca correos, teléfonos ni comisiones.
 
 ## Texto para el anuncio de LinkedIn
 
