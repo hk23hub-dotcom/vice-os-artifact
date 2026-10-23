@@ -1,0 +1,9 @@
+{
+  "titulo": "Guías interactivas HK23",
+  "lema": "Una pregunta por pantalla. Al final, el spec de diseño de tu agente, listo para el Builder.",
+  "guias": ["gerente-general"],
+  "proximas": [
+    { "titulo": "Tu Jefe de Ventas IA", "lema": "Pipeline, cierres y seguimiento sin que se te caiga un trato." },
+    { "titulo": "Tu Jefe de Obra IA", "lema": "Avance, hitos y riesgos por obra, con semáforo." }
+  ]
+}

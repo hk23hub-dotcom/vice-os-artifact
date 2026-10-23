@@ -1,6 +1,10 @@
 {
   "name": "hk23-universe",
   "private": true,
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "plugin:pack": "cd gerente-general && rm -f ../gerente-general.plugin && zip -qr ../gerente-general.plugin . -x '*.DS_Store' && cd .. && ls -la gerente-general.plugin"
+  },
   "dependencies": {
     "ai": "^6.0.0",
     "@ai-sdk/gateway": "^3.0.0",
