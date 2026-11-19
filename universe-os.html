@@ -13459,11 +13459,15 @@ addEventListener('DOMContentLoaded', function(){
   const mv=document.querySelector('meta[name=viewport]');
   if(mv) mv.setAttribute('content','width=device-width, initial-scale=1, viewport-fit=cover');
 
-  // 2 · en el teléfono, fuera el video de fondo.
-  //     Pesa, gasta batería, y si no carga tapa el universo entero de gris.
-  //     El fondo de verdad es la nebulosa dibujada, que siempre está.
+  // 2 · en el teléfono, el video de fondo solo se apaga si el dueño pidió ahorro.
+  //     Antes se apagaba siempre: pesaba y, si no cargaba, tapaba todo de gris. La sábana gris
+  //     ya no existe (SIN SÁBANA GRIS, más abajo) y el video se pausa con la pestaña oculta,
+  //     así que ahora solo manda el ahorro de datos o el "menos movimiento" del sistema.
   function sacarVideo(){
     if(!chico()) return;
+    const ahorro = (navigator.connection && navigator.connection.saveData) ||
+                   (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if(!ahorro) return;
     let n=0;
     document.querySelectorAll('#media-stage iframe').forEach(f=>{ 
       const l=f.closest('.media-layer')||f.parentElement;
@@ -18623,11 +18627,13 @@ addEventListener('DOMContentLoaded', function(){
 
 
 <!-- ═══════════ SIN SÁBANA GRIS — el video de fondo solo se ve si de verdad está vivo ═══════════
-     Cuando YouTube no carga (bloqueado dentro del artifact de claude.ai, sin red, video caído) el
-     navegador pinta su página de error gris rgb(221,221,221) a pantalla completa encima del mapa.
-     El seguro anterior esperaba el evento 'load', que Chrome dispara también para la página de
-     error. Ahora el iframe de YouTube nace invisible y se muestra recién cuando el reproductor
-     responde por postMessage (onReady / initialDelivery). Si no responde en 9 s, se apaga. -->
+     Cuando YouTube no carga (bloqueado dentro del artifact de claude.ai, sin red, video sin permiso
+     de embed) el navegador pinta su página de error gris rgb(221,221,221) encima del mapa. El seguro
+     viejo esperaba el evento 'load', que Chrome dispara también para la página de error.
+     Ahora cada iframe de YouTube nace invisible y se muestra recién cuando el reproductor responde
+     por postMessage (onReady / initialDelivery). Si no responde en 9 s, o responde onError, se apaga
+     y avisa por qué. v2: vuelve a esperar cuando el motor le cambia el src (silenciar / activar
+     sonido) y pausa el video cuando la pestaña no se ve (batería del teléfono). -->
 <style id="sin-sabana-style">
   #media-stage iframe.yt-esperando{ opacity:0 !important; }
   #media-stage iframe.yt-vivo{ opacity:1; transition:opacity .9s ease; }
@@ -18640,44 +18646,84 @@ addEventListener('DOMContentLoaded', function(){
   var ORIGEN_YT = /^https:\/\/(www\.)?(youtube\.com|youtube-nocookie\.com)$/i;
   var vigilados = [];
 
-  function preparar(f){
-    if(!f || f.__sinSabana || !ES_YT.test(f.src || '')) return;
-    f.__sinSabana = true;
-    f.classList.add('yt-esperando');
-    /* la API del reproductor solo habla si la pedimos: enablejsapi + origin */
-    if(!/[?&]enablejsapi=1/.test(f.src)){
-      var sep = f.src.indexOf('?') >= 0 ? '&' : '?';
-      var origen = (location.origin && location.origin !== 'null') ? '&origin=' + encodeURIComponent(location.origin) : '';
-      f.src = f.src + sep + 'enablejsapi=1' + origen;
-    }
-    var v = { f:f, vivo:false, intentos:0 };
-    vigilados.push(v);
-    var saludar = function(){
-      if(v.vivo || !f.contentWindow) return;
-      try{ f.contentWindow.postMessage(JSON.stringify({ event:'listening', id:vigilados.indexOf(v) + 1, channel:'widget' }), '*'); }catch(e){}
-    };
-    f.addEventListener('load', function(){ v.intentos = 0; saludar(); });
-    var t = setInterval(function(){
-      if(v.vivo){ clearInterval(t); return; }
-      if(++v.intentos > 18){                     /* ~9 s sin señal: no está vivo */
-        clearInterval(t);
-        f.classList.remove('yt-esperando'); f.classList.add('yt-muerto');
-        return;
-      }
-      saludar();
+  /* la API del reproductor solo habla si se la pide: enablejsapi + origin */
+  function conApi(src){
+    if(/[?&]enablejsapi=1/.test(src)) return src;
+    var sep = src.indexOf('?') >= 0 ? '&' : '?';
+    var origen = (location.origin && location.origin !== 'null') ? '&origin=' + encodeURIComponent(location.origin) : '';
+    return src + sep + 'enablejsapi=1' + origen;
+  }
+  function registro(f){ for(var i = 0; i < vigilados.length; i++) if(vigilados[i].f === f) return vigilados[i]; return null; }
+  function saludar(v){
+    if(v.vivo || !v.f.contentWindow) return;
+    try{ v.f.contentWindow.postMessage(JSON.stringify({ event:'listening', id:v.id, channel:'widget' }), '*'); }catch(e){}
+  }
+  function comando(v, func){
+    try{ v.f.contentWindow.postMessage(JSON.stringify({ event:'command', func:func, args:'' }), '*'); }catch(e){}
+  }
+  function esperar(v){
+    v.vivo = false; v.intentos = 0;
+    v.f.classList.remove('yt-vivo', 'yt-muerto'); v.f.classList.add('yt-esperando');
+    clearInterval(v.t);
+    v.t = setInterval(function(){
+      if(v.vivo){ clearInterval(v.t); return; }
+      if(++v.intentos > 18){ morir(v, 'silencio'); return; }      /* ~9 s sin señal: no está vivo */
+      saludar(v);
     }, 500);
+  }
+  function vivir(v){
+    if(v.vivo) return;
+    v.vivo = true; clearInterval(v.t);
+    v.f.classList.remove('yt-esperando', 'yt-muerto'); v.f.classList.add('yt-vivo');
+    if(document.hidden) comando(v, 'pauseVideo');
+  }
+  function morir(v, porque){
+    v.vivo = false; clearInterval(v.t);
+    v.f.classList.remove('yt-esperando', 'yt-vivo'); v.f.classList.add('yt-muerto');
+    v.porque = porque;
+    avisar(porque);
+  }
+
+  /* decir por qué no hay video, una vez por sesión */
+  function avisar(porque){
+    try{ if(sessionStorage.getItem('hk23_yt_avisado')) return; sessionStorage.setItem('hk23_yt_avisado', '1'); }catch(e){}
+    var t = document.getElementById('collect-toast'); if(!t) return;
+    var h = location.hostname;
+    var enSitio = /vercel\.app$/.test(h) || h === 'localhost' || h === '127.0.0.1';
+    t.textContent = !enSitio ? '▶ ESTE ESPEJO NO DEJA CARGAR YOUTUBE — EL VIDEO DE FONDO SE VE EN hk23universe.vercel.app'
+      : porque === 'error' ? '▶ YOUTUBE NO DEJA PONER ESE VIDEO DE FONDO (PRIVADO O SIN PERMISO DE EMBED) — PROBÁ OTRO LINK EN ▶ MEDIA'
+      : '▶ YOUTUBE NO RESPONDIÓ — EL VIDEO DE FONDO QUEDA APAGADO HASTA QUE HAYA RED';
+    t.classList.add('show');
+    setTimeout(function(){ t.classList.remove('show'); }, 6000);
+  }
+
+  function preparar(f){
+    if(!f || !ES_YT.test(f.src || '')) return;
+    var src = conApi(f.src);
+    if(src !== f.src) f.src = src;              /* el motor puede volver a ponerle un src sin la API */
+    var v = registro(f);
+    if(!v){
+      v = { f:f, id:vigilados.length + 1, vivo:false, intentos:0, t:null, src:'' };
+      vigilados.push(v);
+      f.addEventListener('load', function(){ v.intentos = 0; saludar(v); });
+    }
+    if(v.src !== f.src){ v.src = f.src; esperar(v); }   /* src nuevo = reproductor nuevo: esperar su señal */
   }
 
   window.addEventListener('message', function(e){
     if(!ORIGEN_YT.test(e.origin || '')) return;
     var d = e.data; if(typeof d === 'string'){ try{ d = JSON.parse(d); }catch(x){ return; } }
     if(!d || typeof d !== 'object') return;
-    var v = vigilados.find(function(x){ return x.f.contentWindow === e.source; });
+    var v = null;
+    for(var i = 0; i < vigilados.length; i++) if(vigilados[i].f.contentWindow === e.source){ v = vigilados[i]; break; }
     if(!v) return;
-    if(d.event === 'onError'){ v.vivo = false; v.f.classList.remove('yt-esperando', 'yt-vivo'); v.f.classList.add('yt-muerto'); return; }
-    if(d.event === 'onReady' || d.event === 'initialDelivery' || d.event === 'infoDelivery' || d.event === 'onStateChange'){
-      if(!v.vivo){ v.vivo = true; v.f.classList.remove('yt-esperando', 'yt-muerto'); v.f.classList.add('yt-vivo'); }
-    }
+    if(d.event === 'onError'){ morir(v, 'error'); return; }
+    if(d.event === 'onReady' || d.event === 'initialDelivery' || d.event === 'infoDelivery' || d.event === 'onStateChange') vivir(v);
+  });
+
+  /* pestaña oculta = video en pausa (batería); vuelve = sigue */
+  document.addEventListener('visibilitychange', function(){
+    vigilados.forEach(function(v){ if(v.vivo) comando(v, document.hidden ? 'pauseVideo' : 'playVideo'); });
   });
 
   function barrer(){ Array.prototype.forEach.call(document.querySelectorAll('#media-stage iframe'), preparar); }
@@ -18687,7 +18733,7 @@ addEventListener('DOMContentLoaded', function(){
     if(st) new MutationObserver(barrer).observe(st, { childList:true, subtree:true, attributes:true, attributeFilter:['src'] });
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-  window.SinSabana = { estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className }; }); }, version:'1' };
+  window.SinSabana = { estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className, porque:v.porque || null }; }); }, version:'2' };
 })();
 </script>
 
