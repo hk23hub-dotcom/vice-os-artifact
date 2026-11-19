@@ -3,6 +3,8 @@
 // we verify server-side (source of truth = Gumroad), so tiers can't be faked.
 // While a permalink is 'PENDING' that tier simply isn't purchasable yet and
 // the client keeps today's behavior.
+// GET answers which plans are on sale (and their permalink) so the plan picker in
+// universe-os.html can say PRONTO for a 'PENDING' plan instead of a dead buy button.
 import { parseBody, applyCors, maskEmail } from './_lib.js';
 
 const PERMALINKS = {
@@ -39,20 +41,27 @@ async function saveTierToAccount(req, tier) {
 }
 
 export default async function handler(req, res) {
-  applyCors(req, res, 'POST, OPTIONS');
+  applyCors(req, res, 'GET, POST, OPTIONS');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
-  if (req.method !== 'POST') { res.status(405).json({ error: 'POST only' }); return; }
+  if (req.method === 'GET') {
+    const planes = {};
+    for (const [k, v] of Object.entries(PERMALINKS)) planes[k] = v === 'PENDING' ? { venta: false } : { venta: true, permalink: v };
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
+    res.status(200).json({ ok: true, planes });
+    return;
+  }
+  if (req.method !== 'POST') { res.status(405).json({ error: 'GET or POST only' }); return; }
 
   const parsed = parseBody(req);
   if (!parsed.ok) { res.status(400).json({ ok: false, error: 'JSON inválido' }); return; }
   const body = parsed.body;
   const tier = (body.tier || '').toString();
   const permalink = PERMALINKS[tier];
-  if (!permalink) { res.status(400).json({ ok: false, error: 'tier inválido' }); return; }
-  if (permalink === 'PENDING') { res.status(503).json({ ok: false, error: 'Este tier aún no está a la venta.' }); return; }
+  if (!permalink) { res.status(400).json({ ok: false, error: 'plan inválido' }); return; }
+  if (permalink === 'PENDING') { res.status(503).json({ ok: false, error: 'Este plan aún no está a la venta.' }); return; }
 
   const key = (body.license_key || '').toString().trim();
-  if (!key || key.length < 8) { res.status(400).json({ ok: false, error: 'license key inválida' }); return; }
+  if (!key || key.length < 8) { res.status(400).json({ ok: false, error: 'licencia inválida' }); return; }
 
   try {
     const form = new URLSearchParams();
@@ -67,15 +76,15 @@ export default async function handler(req, res) {
       body: form.toString(),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.success) { res.status(200).json({ ok: false, error: 'License key no válida para este tier.' }); return; }
+    if (!r.ok || !j.success) { res.status(200).json({ ok: false, error: 'Licencia no válida para este plan.' }); return; }
     const p = j.purchase || {};
     if (p.refunded || p.chargebacked || p.disputed) { res.status(200).json({ ok: false, error: 'Esta compra fue reembolsada o disputada.' }); return; }
     if (p.subscription_cancelled_at || p.subscription_failed_at) { res.status(200).json({ ok: false, error: 'Esta suscripción está cancelada o con pago fallido.' }); return; }
-    if (typeof j.uses === 'number' && j.uses > MAX_SEATS) { res.status(200).json({ ok: false, error: 'Esta license key ya se usó en demasiados dispositivos.' }); return; }
+    if (typeof j.uses === 'number' && j.uses > MAX_SEATS) { res.status(200).json({ ok: false, error: 'Esta licencia ya se usó en demasiados dispositivos.' }); return; }
     // only real tiers persist to the account — templates are products, not access levels
     const savedToAccount = (tier === 'premium' || tier === 'full') ? await saveTierToAccount(req, tier) : false;
     res.status(200).json({ ok: true, tier, savedToAccount, uses: j.uses ?? null, email: maskEmail(p.email) });
   } catch (e) {
-    res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — probá de nuevo.' });
+    res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — prueba de nuevo.' });
   }
 }

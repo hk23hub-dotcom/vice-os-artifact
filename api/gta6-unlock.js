@@ -16,7 +16,7 @@ export default async function handler(req, res) {
   const parsed = parseBody(req);
   if (!parsed.ok) { res.status(400).json({ ok: false, error: 'JSON inválido' }); return; }
   const key = (parsed.body.license_key || '').toString().trim();
-  if (!key || key.length < 8) { res.status(400).json({ ok: false, error: 'license key inválida' }); return; }
+  if (!key || key.length < 8) { res.status(400).json({ ok: false, error: 'licencia inválida' }); return; }
 
   try {
     const form = new URLSearchParams();
@@ -29,12 +29,12 @@ export default async function handler(req, res) {
       body: form.toString(),
     });
     const j = await r.json().catch(() => ({}));
-    if (!r.ok || !j.success) { res.status(200).json({ ok: false, error: 'License key no válida para este producto.' }); return; }
+    if (!r.ok || !j.success) { res.status(200).json({ ok: false, error: 'Licencia no válida para este producto.' }); return; }
     const p = j.purchase || {};
     if (p.refunded || p.chargebacked || p.disputed) { res.status(200).json({ ok: false, error: 'Esta compra fue reembolsada o disputada.' }); return; }
-    if (typeof j.uses === 'number' && j.uses > MAX_SEATS) { res.status(200).json({ ok: false, error: 'Esta license key ya se usó en demasiados dispositivos.' }); return; }
+    if (typeof j.uses === 'number' && j.uses > MAX_SEATS) { res.status(200).json({ ok: false, error: 'Esta licencia ya se usó en demasiados dispositivos.' }); return; }
     res.status(200).json({ ok: true, pro: true, uses: j.uses ?? null, email: maskEmail(p.email) });
   } catch (e) {
-    res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — probá de nuevo.' });
+    res.status(500).json({ ok: false, error: 'No se pudo verificar ahora — prueba de nuevo.' });
   }
 }

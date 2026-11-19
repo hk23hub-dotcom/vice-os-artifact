@@ -30,6 +30,6 @@ export default async function handler(req, res) {
     const totalSales = products.reduce((a, p) => a + (p.sales_count || 0), 0);
     res.status(200).json({ ok: true, totalSales, totalRevenue, products, recentSales: sales, at: new Date().toISOString() });
   } catch (e) {
-    res.status(500).json({ ok: false, error: 'No pude hablar con Gumroad — probá de nuevo.' });
+    res.status(500).json({ ok: false, error: 'No pude hablar con Gumroad — prueba de nuevo.' });
   }
 }
