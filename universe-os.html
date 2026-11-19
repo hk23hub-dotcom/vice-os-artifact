@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="HK23"/>
 <meta name="theme-color" content="#080808"/>
-<link rel="apple-touch-icon" href="./apple-touch-icon.png"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png"/>
 <title>HK23 — HEYOKA UNIVERSE</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
@@ -903,11 +903,13 @@
   /* ── STAGE (sits behind the UI, above the star canvas) ── */
   #media-stage{ position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
   .media-layer{ position:absolute; inset:0; overflow:hidden; opacity:1;
-    transition:opacity .4s ease, filter .3s ease; background:#000; }
+    transition:opacity .4s ease, filter .3s ease; }
   .media-layer .ml-inner{ position:absolute; inset:0; width:100%; height:100%; }
   .media-layer .ml-inner iframe{
     position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
     width:100vw; height:56.25vw; min-height:100%; min-width:177.78vh; border:0; }
+  /* Shorts (9:16): cubren la pantalla recortando, no quedan como una franja al medio */
+  .media-layer .ml-inner.ml-vertical iframe{ width:max(100vw,56.25vh); height:max(100vh,177.78vw); min-width:0; min-height:0; }
   .media-layer .ml-inner video,
   .media-layer .ml-inner img{ position:absolute; inset:0; width:100%; height:100%;
     object-fit:cover; display:block; }
@@ -3788,8 +3790,10 @@ animateBg();
       else if(u.pathname.startsWith('/live/'))   id = u.pathname.split('/')[2];
       else id = u.searchParams.get('v') || '';
       id = (id || '').split(/[?&/]/)[0];
-      if(id) return { kind:'iframe', label:'YOUTUBE', color:'#FF3A1F',
-        base:`https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3`,
+      // enablejsapi+origin desde el primer pedido: SIN SÁBANA ya no reescribe el src (una navegación, no dos)
+      const yo = (location.origin && location.origin !== 'null') ? '&origin=' + encodeURIComponent(location.origin) : '';
+      if(id) return { kind:'iframe', label:'YOUTUBE', color:'#FF3A1F', vertical: u.pathname.startsWith('/shorts/'),
+        base:`https://www.youtube.com/embed/${id}?autoplay=1&loop=1&playlist=${id}&controls=0&playsinline=1&modestbranding=1&rel=0&iv_load_policy=3&enablejsapi=1${yo}`,
         muteParam:'mute' };
     }
     if(host.endsWith('vimeo.com')){
@@ -3856,15 +3860,9 @@ animateBg();
       card.innerHTML = '<div class="eq"><span></span><span></span><span></span><span></span><span></span><span></span></div><div class="lbl">'+(m.label||'AUDIO')+'</div>';
       const a = document.createElement('audio'); a.src = m.src; a.autoplay = true; a.loop = true; a.muted = layer.muted;
       a.play&&a.play().catch(()=>{}); layer.el = a; card.appendChild(a); inner.appendChild(card);
-    } else if (window.HK_PREVIEW) {
-      // sandbox del preview: los embeds externos no cargan (CSP) — tarjeta honesta, nunca blanco
-      const card = document.createElement('div'); card.className = 'ml-audiocard';
-      card.innerHTML = '<div class="eq"><span></span><span></span><span></span><span></span><span></span><span></span></div>'+
-        '<div class="lbl">'+(m.label||'EMBED')+' · CAPA ACTIVA</div>'+
-        '<div style="font-family:\'Space Mono\',monospace;font-size:8px;letter-spacing:2px;color:#333;margin-top:6px;text-align:center">EL PREVIEW BLOQUEA EMBEDS EXTERNOS<br>EN TU VERCEL SE VE EL VIDEO REAL</div>';
-      inner.appendChild(card);
     } else { // iframe
       const f = document.createElement('iframe');
+      if(m.vertical) inner.classList.add('ml-vertical');
       f.src = embedSrc(m, layer.muted);
       f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write; gyroscope; accelerometer';
       f.setAttribute('allowfullscreen',''); f.setAttribute('scrolling','no');
@@ -3919,6 +3917,19 @@ animateBg();
   }
 
   // ── add / remove / render ────────────────────────────────
+  // ── tus fondos se guardan (solo lo que entra por MEDIA o por ★): al recargar vuelven ──
+  const FONDOS_KEY = 'hk23_fondos';
+  function guardarFondos(){
+    try{ localStorage.setItem(FONDOS_KEY, JSON.stringify(layers.filter(l=>l.mio).map(l=>({ u:l.raw, mode:l.mode, op:l.opacity, blend:l.blend, muted:l.muted })))); }catch(e){}
+  }
+  function leerFondos(){ try{ const a = JSON.parse(localStorage.getItem(FONDOS_KEY)); return Array.isArray(a) ? a.filter(x=>x && typeof x.u === 'string' && x.u.trim()) : []; }catch(e){ return []; } }
+  function agregarMio(rawUrl){
+    const layer = addLayer(rawUrl); if(!layer) return null;
+    layer.mio = true;
+    // el fondo de muestra deja lugar al tuyo
+    layers.filter(l=>l.semilla && l !== layer).forEach(l=>removeLayer(l.id));
+    guardarFondos(); return layer;
+  }
   function addLayer(rawUrl){
     const media = parseMedia(rawUrl);
     if(!media){ flash(urlIn); return null; }
@@ -3934,7 +3945,9 @@ animateBg();
   }
   function removeLayer(id){
     const i = layers.findIndex(l=>l.id===id); if(i<0) return;
+    const mio = layers[i].mio;
     layers[i].dom.remove(); layers.splice(i,1); renderPanel();
+    if(mio) guardarFondos();
   }
   function reorder(id, dir){
     const i = layers.findIndex(l=>l.id===id); if(i<0) return;
@@ -3980,13 +3993,14 @@ animateBg();
       card.querySelectorAll('.mlc-mode').forEach(b=> b.onclick=()=>{
         layer.mode=b.dataset.mode;
         if(layer.mode==='ghost'){ layer.blend='screen'; if(layer.opacity>75) layer.opacity=70; }
-        styleLayer(layer); renderPanel();
+        styleLayer(layer); renderPanel(); if(layer.mio) guardarFondos();
       });
       card.querySelector('[data-act=del]').onclick=()=>removeLayer(layer.id);
       card.querySelector('[data-act=opac]').oninput=e=>{ layer.opacity=+e.target.value; styleLayer(layer); };
-      card.querySelector('[data-act=blend]').onchange=e=>{ layer.blend=e.target.value; styleLayer(layer); };
+      card.querySelector('[data-act=opac]').onchange=()=>{ if(layer.mio) guardarFondos(); };
+      card.querySelector('[data-act=blend]').onchange=e=>{ layer.blend=e.target.value; styleLayer(layer); if(layer.mio) guardarFondos(); };
       const mb=card.querySelector('[data-act=mute]');
-      if(mb && !mb.disabled) mb.onclick=()=>{ layer.muted=!layer.muted; applyMute(layer); renderPanel(); };
+      if(mb && !mb.disabled) mb.onclick=()=>{ layer.muted=!layer.muted; applyMute(layer); renderPanel(); if(layer.mio) guardarFondos(); };
       const fb=card.querySelector('[data-act=fav]');
       if(fb) fb.onclick=()=>favToggle(layer);
       const up=card.querySelector('[data-act=up]'); if(up&&!up.disabled) up.onclick=()=>reorder(layer.id,1);
@@ -3996,7 +4010,7 @@ animateBg();
   }
 
   // ── wiring ───────────────────────────────────────────────
-  function submit(){ const v=urlIn.value; if(v.trim()){ addLayer(v); urlIn.value=''; } }
+  function submit(){ const v=urlIn.value; if(v.trim()){ if(agregarMio(v)) urlIn.value=''; } }
   document.getElementById('me-add-btn').onclick = submit;
   urlIn.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); submit(); } });
   document.getElementById('me-launch').onclick = ()=> panel.classList.toggle('open');
@@ -4015,9 +4029,10 @@ animateBg();
     const media = parseMedia(url);
     if(!media) return null;
     const layer = { media, muted:true };
-    const inner = buildInner(layer);        // reusa parseo, embeds, fallback de preview
-    inner.style.position='absolute'; inner.style.inset='0';
-    return inner;
+    // mismo envoltorio que una capa del motor: hereda la regla de cobertura (.media-layer .ml-inner iframe)
+    const wrap = document.createElement('div'); wrap.className = 'media-layer m-full';
+    wrap.appendChild(buildInner(layer));    // reusa parseo, embeds y el aviso si no carga
+    return wrap;
   }
   // ── FAVORITOS: guardá tus links (YouTube o lo que sea) y volvé a ellos siempre ──
   const favGet=()=>{ try{ return JSON.parse(localStorage.getItem('hk23_favoritos'))||[]; }catch(e){ return []; } };
@@ -4038,14 +4053,25 @@ animateBg();
         '<span style="flex:1;font-family:\'Space Mono\',monospace;font-size:8px;color:#555;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+x.url+'">'+x.url.replace(/^https?:\/\/(www\.)?/,'')+'</span>'+
         '<button data-fp="'+i+'" style="font-family:\'Space Mono\',monospace;font-size:8px;background:#AAFF00;color:#000;border:none;border-radius:2px;padding:4px 9px;cursor:pointer;font-weight:700">▶</button>'+
         '<button data-fx="'+i+'" style="background:none;border:none;color:#3A3A3A;cursor:pointer;font-size:10px">✕</button></div>').join('');
-    wrap.querySelectorAll('[data-fp]').forEach(b=>b.onclick=()=>addLayer(favGet()[+b.dataset.fp].url));
+    wrap.querySelectorAll('[data-fp]').forEach(b=>b.onclick=()=>agregarMio(favGet()[+b.dataset.fp].url));
     wrap.querySelectorAll('[data-fx]').forEach(b=>b.onclick=()=>{ const f2=favGet(); f2.splice(+b.dataset.fx,1); favSet(f2); renderFavs(); renderPanel(); });
   }
   renderFavs();
-  window.MediaEngine = { add:addLayer, clear:()=>layers.slice().forEach(l=>removeLayer(l.id)), layers, bgElement, favs:favGet };
+  window.MediaEngine = { add:addLayer, remove:(capa)=>{ if(capa) removeLayer(capa.id); }, clear:()=>layers.slice().forEach(l=>removeLayer(l.id)),
+    layers, bgElement, favs:favGet, guardados:leerFondos };
 
-  // ── seed: the short you dropped in, running as a live bg ──
-  addLayer('https://www.youtube.com/shorts/k0cVxCm5B8k');
+  // ── al cargar: tus fondos guardados; si no hay, el de muestra ──
+  const guardados = leerFondos();
+  if(guardados.length){
+    guardados.forEach(g=>{ const l = addLayer(g.u); if(!l) return; l.mio = true;
+      if(g.mode) l.mode = g.mode; if(g.op) l.opacity = +g.op; if(g.blend) l.blend = g.blend;
+      if(g.muted === false && canMute(l)){ l.muted = false; applyMute(l); }
+      styleLayer(l); });
+    renderPanel();
+  } else {
+    const semilla = addLayer('https://www.youtube.com/shorts/k0cVxCm5B8k');
+    if(semilla) semilla.semilla = true;
+  }
 })();
 </script>
 
@@ -6524,7 +6550,6 @@ var qrcode = function() {
   const qr = { active:false, mods:null, n:0, entities:[], form:0, style:'light' };
 
   function buildMatrix(text, ecl){
-    if(!window.qrcode){ return null; }
     let q=null;
     // auto-fit smallest type that holds the data
     for(let t=1;t<=40;t++){
@@ -6554,7 +6579,6 @@ var qrcode = function() {
 
   function formQR(url, ecl, style){
     url=(url||state.qr.url||'').trim(); if(!url) return agentSay('QR: falta el destino.');
-    if(!window.qrcode) return agentSay('QR lib offline — reconectá a internet para generar el código.');
     const res=buildMatrix(url, ecl||state.qr.ecl||'M');
     if(!res) return agentSay('QR: no se pudo codificar ese destino.');
     qr.mods=res.m; qr.n=res.n; qr.style=style||state.qr.style||'light';
@@ -6856,6 +6880,22 @@ var qrcode = function() {
   }
   const affTotal=(typeof collectedSet!=='undefined')? collectedSet.size : 0;
   { const el=document.getElementById('collect-num'); if(el) el.textContent=total+affTotal; }
+  // un solo escritor de hk23_universe_state: el LAB y los artefactos sueltan piezas por acá.
+  // Antes escribían su propia copia y el próximo guardado de ATLAS les borraba las piezas.
+  window.HK_IDEAS = {
+    soltar(n){
+      const open=state.ideas.filter(i=>i.collected<i.pieces).sort((a,b)=>(b.collected/b.pieces)-(a.collected/a.pieces));
+      if(!open.length) return null;
+      let ultima=null;
+      for(let k=0;k<(n||1);k++){ const idea=open[k%open.length], antes=idea.collected;
+        idea.collected=Math.min(idea.pieces, idea.collected+1); ultima=idea;
+        if(antes<idea.pieces && idea.collected>=idea.pieces) igniteIdea(idea); }
+      save(); rebuildIdeaEnts(); renderIdeas();
+      const el=document.getElementById('collect-num'); if(el) el.textContent=state.ideas.reduce((s,i)=>s+i.collected,0)+affTotal;
+      return ultima;
+    },
+    estado(){ return JSON.parse(JSON.stringify(state.ideas)); }
+  };
   requestAnimationFrame(loop);
 })();
 </script>
@@ -7072,7 +7112,7 @@ var qrcode = function() {
   try{
     const sp=new URLSearchParams(location.search);
     const code=(sp.get('code')||'').toUpperCase();
-    if(sp.get('ref') && !GATE.hasAccess()){ GATE.tier='referido'; store.set('hk23_tier','referido'); store.set('hk23_ref',sp.get('ref')); }
+    if(sp.get('ref') && !GATE.hasAccess()){ GATE.tier='referido'; store.set('hk23_tier','referido'); }
     if(CODES[code]) { GATE.tier=CODES[code]; store.set('hk23_tier',CODES[code]); }
   }catch(e){}
   function paintBadge(){
@@ -7179,7 +7219,7 @@ var qrcode = function() {
   ];
   BIB_FALLBACK.push(...HARD_TRUTHS);
   let BIB=BIB_FALLBACK;
-  fetch('./biblioteca.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+  fetch((location.protocol==='file:'?'./':'/')+'biblioteca.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
     if(j&&j.books&&j.books.length){
       const byId=new Map(BIB_FALLBACK.map(b=>[b.id,b]));
       j.books.forEach(b=>byId.set(b.id, {...(byId.get(b.id)||{}), ...b, md:b.md||(byId.get(b.id)||{}).md||''}));
@@ -7311,7 +7351,6 @@ var qrcode = function() {
       artefactos.push(art);
       el.addEventListener('click',()=>execArtefact(art));
     });
-    store.set('hk23_artefactos', artefactos.map(a=>({id:a.id,title:a.title,mission:a.mission})));
   }
   function execArtefact(art){
     const meta=MISSION_META[art.mission];
@@ -7327,9 +7366,11 @@ var qrcode = function() {
         if(!GATE.hasAccess()){ GATE.strike('coleccionable de artefacto'); return; }
         // suelta una pieza de la idea más cercana a completarse
         try{
-          const st=store.get('hk23_universe_state',null);
-          if(st&&st.ideas){ const open=st.ideas.filter(x=>x.collected<x.pieces).sort((a,b)=>(b.collected/b.pieces)-(a.collected/a.pieces));
-            if(open[0]){ open[0].collected++; store.set('hk23_universe_state',st); toast('✦ PIEZA SOLTADA → '+open[0].name+' ('+open[0].collected+'/'+open[0].pieces+')'); } }
+          if(window.HK_IDEAS){ const idea=window.HK_IDEAS.soltar(1);
+            if(idea) toast('✦ PIEZA SOLTADA → '+idea.name+' ('+idea.collected+'/'+idea.pieces+')'); }
+          else { const st=store.get('hk23_universe_state',null);
+            if(st&&st.ideas){ const open=st.ideas.filter(x=>x.collected<x.pieces).sort((a,b)=>(b.collected/b.pieces)-(a.collected/a.pieces));
+              if(open[0]){ open[0].collected++; store.set('hk23_universe_state',st); toast('✦ PIEZA SOLTADA → '+open[0].name+' ('+open[0].collected+'/'+open[0].pieces+')'); } } }
         }catch(e){}
       }
       else if(art.mission==='portal'){ Backrooms.enter('portal'); }
@@ -7596,7 +7637,7 @@ var qrcode = function() {
       if(inp) inp.value=galOpen.bg;
       const el = window.MediaEngine && window.MediaEngine.bgElement
         ? window.MediaEngine.bgElement(galOpen.bg) : null;
-      if(el){ holder.appendChild(el); }
+      if(el){ holder.appendChild(el); if(window.SinSabana && window.SinSabana.barrer) window.SinSabana.barrer(); }
       if(stage) stage.style.background='#000';
       // el canvas de biomas flota semitransparente sobre el video
       if(cvg) cvg.style.opacity='0.55';
@@ -7963,7 +8004,7 @@ var qrcode = function() {
     const ev=store.get('hk23_eventos',[]);
     const leads=store.get('hk23_leads',[]);
     const sug=store.get('hk23_sugerencias',[]);
-    const arts=store.get('hk23_artefactos',[]);
+    const arts=artefactos;
     const gal=store.get('hk23_galaxias',[]);
     const media=(window.MediaEngine&&window.MediaEngine.layers)||[];
     const qrCfg=(st.qr)||{};
@@ -8063,7 +8104,7 @@ var qrcode = function() {
       dl('oracle-reporte.json', JSON.stringify({generado:new Date().toISOString(), tier:GATE.tier,
         eventos:store.get('hk23_eventos',[]), leads:store.get('hk23_leads',[]),
         sugerencias:store.get('hk23_sugerencias',[]), galaxias:store.get('hk23_galaxias',[]),
-        artefactos:store.get('hk23_artefactos',[]), estado:store.get('hk23_universe_state',{}) },null,2), 'application/json'); };
+        artefactos:artefactos.map(a=>({id:a.id,title:a.title,mission:a.mission})), estado:store.get('hk23_universe_state',{}) },null,2), 'application/json'); };
     $('or-copy').onclick=()=>{ if(!lastReport) genReport();
       navigator.clipboard&&navigator.clipboard.writeText(lastReport).then(()=>toast('⧉ REPORTE COPIADO — ENTREGÁSELO A TU AGENTE')); };
     $('bib-open-btn').onclick=()=>{ renderBib(); $('ov-bib').classList.add('open'); };
@@ -8334,7 +8375,6 @@ var qrcode = function() {
   #nebula-canvas{ position:fixed; inset:0; z-index:-1; pointer-events:none; }
   /* la zona AGENTS se vuelve base alienígena */
   #screen-agents{ position:relative; }
-  #alien-base-canvas{ position:absolute; inset:0; z-index:0; pointer-events:none; }
   #screen-agents .zone-body{ position:relative; z-index:1; }
   #screen-agents .zone-header{ border-bottom-color:rgba(170,255,0,.25); }
   #screen-agents .agent-card{
@@ -8670,7 +8710,7 @@ var qrcode = function() {
   });
 
   // ═══ LEYENDA DE ESQUINA — fantasma: un ⌨ que ni se nota hasta que lo tocás ═══
-  const savedOp=parseFloat(localStorage.getItem('hk23_sc_opacity')||'0.35');
+  let savedOp=0.35; try{ savedOp=parseFloat(localStorage.getItem('hk23_sc_opacity')||'0.35'); }catch(e){}
   const savedMin=true; // siempre nace plegada
   const corner=document.createElement('div'); corner.id='sc-corner';
   corner.style.cssText='position:fixed;left:16px;bottom:110px;z-index:512;width:auto;'+
@@ -8698,11 +8738,11 @@ var qrcode = function() {
   document.body.appendChild(corner);
   corner.style.opacity=savedOp;
   const op=document.getElementById('sc-op');
-  op.oninput=()=>{ const v=op.value/100; corner.style.opacity=v; localStorage.setItem('hk23_sc_opacity',v); };
+  op.oninput=()=>{ const v=op.value/100; corner.style.opacity=v; try{ localStorage.setItem('hk23_sc_opacity',v); }catch(e){} };
   // que el slider se pueda usar aunque esté casi transparente
   // fantasma → panel completo solo con hover
   function expandSC(v){
-    corner.style.opacity = v ? 1 : parseFloat(localStorage.getItem('hk23_sc_opacity')||'0.35');
+    corner.style.opacity = v ? 1 : (()=>{ try{ return parseFloat(localStorage.getItem('hk23_sc_opacity')||'0.35'); }catch(e){ return 0.35; } })();
     corner.style.background = v ? 'rgba(6,6,8,.94)' : 'transparent';
     corner.style.borderColor = v ? '#1C1C1C' : 'transparent';
     corner.style.width = v ? '196px' : 'auto';
@@ -9062,6 +9102,7 @@ addEventListener('DOMContentLoaded', function(){
   });
   // soltar piezas de idea reales (mismo estado que el campo de ideas)
   function dropPieces(px,py,n){
+    if(window.HK_IDEAS){ if(window.HK_IDEAS.soltar(n||2)) toast('✦ PIEZAS LIBERADAS — MIRÁ TUS IDEAS (I)'); return; }
     const st=store.get('hk23_universe_state',null);
     if(st&&st.ideas){
       const open=st.ideas.filter(i=>i.collected<i.pieces)
@@ -10350,7 +10391,6 @@ addEventListener('DOMContentLoaded', function(){
   .mvb-seller a{ font-size:8px; letter-spacing:2px; color:var(--purple); text-decoration:none; border:1px solid #B84DFF55;
     padding:5px 9px; border-radius:2px; white-space:nowrap; }
   .mvb-demo{ font-size:6px; letter-spacing:2px; color:#000; background:var(--gold); padding:2px 5px; border-radius:2px; }
-  #mvb-scan{ padding:4px 0; }
   .mvb-scanline{ font-size:9px; letter-spacing:1px; color:#4A5470; padding:7px 4px; border-bottom:1px solid #0D1120; }
   #mvb-addbar{ margin-bottom:14px; }
   #mvb-addform{ display:none; border:1px solid #2A1030; border-radius:2px; background:#0C0710; padding:14px 16px; margin-top:8px; }
@@ -10546,7 +10586,7 @@ addEventListener('DOMContentLoaded', function(){
   }
   EVENTS=EVENTS.map(sane).filter(Boolean);
   // eventos reales del momento: mvb-eventos.json pisa el seed (merge por campo, dedupe por id)
-  fetch('./mvb-eventos.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+  fetch((location.protocol==='file:'?'./':'/')+'mvb-eventos.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
     if(!j) return;
     if(Array.isArray(j.events)&&j.events.length){
       const m=new Map(EVENTS.map(e=>[e.id,e])); let dropped=0;
@@ -10857,36 +10897,6 @@ addEventListener('DOMContentLoaded', function(){
 
 <!-- ═══════════ INQUILINOS — galaxias de usuarios dentro de la tuya (galaxia + landing + productos) ═══════════ -->
 <style id="inq-style">
-  /* ── galaxia del inquilino ── */
-  #inq{ position:fixed; inset:0; z-index:775; display:none; flex-direction:column; overflow:hidden;
-    background:#04050A; font-family:var(--mono); }
-  #inq.open{ display:flex; }
-  #inq-head{ flex:none; display:flex; align-items:center; gap:10px; padding:14px 18px; flex-wrap:wrap;
-    border-bottom:1px solid var(--iq-line,#1A1A2A); background:rgba(4,5,10,.94); }
-  #inq-name{ font-size:12px; letter-spacing:4px; color:var(--iq,var(--purple)); }
-  #inq-name small{ display:block; font-size:7px; letter-spacing:3px; color:#3A3A5A; margin-top:3px; }
-  #inq-x{ margin-left:auto; font-size:9px; letter-spacing:3px; color:#000; background:var(--iq,var(--purple));
-    border:none; border-radius:2px; padding:8px 14px; cursor:pointer; }
-  #inq-body{ flex:1; min-height:0; display:flex; }
-  #inq-canvaswrap{ flex:1.2; position:relative; min-width:0; border-right:1px solid var(--iq-line,#1A1A2A); }
-  #inq-cv{ position:absolute; inset:0; width:100%; height:100%; }
-  #inq-side{ flex:1; max-width:420px; overflow-y:auto; padding:18px; scrollbar-width:thin; }
-  .iq-h{ font-size:8px; letter-spacing:4px; color:#3A3A5A; margin:16px 0 10px; }
-  .iq-h:first-child{ margin-top:0; }
-  .iq-bio{ font-size:11px; line-height:1.8; color:#B8C0D8; margin-bottom:14px; white-space:pre-wrap; }
-  .iq-ag{ display:flex; align-items:center; gap:9px; padding:9px 11px; border:1px solid var(--iq-line,#1A1A2A);
-    border-radius:2px; margin-bottom:6px; background:#080910; cursor:pointer; }
-  .iq-ag:hover{ border-color:var(--iq,var(--purple)); }
-  .iq-ag .d{ width:6px; height:6px; border-radius:50%; background:var(--iq,var(--purple)); animation:pulse 2s infinite; flex-shrink:0; }
-  .iq-ag b{ font-size:10px; color:#E8ECF8; flex:1; }
-  .iq-ag i{ font-size:7px; letter-spacing:2px; color:#4A5470; font-style:normal; }
-  .iq-prod{ border:1px solid var(--iq-line,#1A1A2A); border-left:3px solid var(--iq,var(--purple)); border-radius:2px;
-    background:#080910; padding:12px 14px; margin-bottom:8px; }
-  .iq-prod .pt{ font-size:11px; font-weight:700; color:#E8ECF8; margin-bottom:3px; }
-  .iq-prod .pk{ font-size:7px; letter-spacing:2px; color:var(--iq,var(--purple)); margin-bottom:5px; }
-  .iq-prod .pd{ font-size:9.5px; line-height:1.7; color:#7A86A8; margin-bottom:8px; }
-  .iq-prod a{ font-size:8px; letter-spacing:2px; color:#000; background:var(--iq,var(--purple)); padding:6px 10px;
-    border-radius:2px; text-decoration:none; display:inline-block; }
   .iq-empty{ font-size:9px; color:#3A3A5A; line-height:1.8; }
   /* ── landing pública ── */
   #inq-land{ position:fixed; inset:0; z-index:960; display:none; overflow-y:auto; background:#050508;
@@ -10954,31 +10964,7 @@ addEventListener('DOMContentLoaded', function(){
     border:1px solid #22222E; background:transparent; color:#7A86A8; }
   .ia-chip.on{ background:var(--gold); border-color:var(--gold); color:#000; font-weight:700; }
   .ia-msg{ font-size:9px; line-height:1.8; margin-top:8px; }
-  @media(max-width:860px){
-    #inq-body{ flex-direction:column; }
-    #inq-canvaswrap{ flex:none; height:32vh; border-right:none; border-bottom:1px solid var(--iq-line,#1A1A2A); }
-    #inq-side{ max-width:none; }
-  }
 </style>
-
-<div id="inq">
-  <div id="inq-head">
-    <div id="inq-name">GALAXIA<small>INQUILINO</small></div>
-    <button class="mvb-btn" id="inq-land-btn" style="border-color:#22222E">🌐 SU LANDING</button>
-    <button id="inq-x">✕ VOLVER (X)</button>
-  </div>
-  <div id="inq-body">
-    <div id="inq-canvaswrap"><canvas id="inq-cv"></canvas></div>
-    <div id="inq-side">
-      <div class="iq-h">◈ QUIÉN ES</div>
-      <div class="iq-bio" id="inq-bio"></div>
-      <div class="iq-h">◈ AGENTES PRESTADOS — CORREN EN EL UNIVERSO MADRE</div>
-      <div id="inq-agents"></div>
-      <div class="iq-h">◈ SUS PRODUCTOS</div>
-      <div id="inq-prods"></div>
-    </div>
-  </div>
-</div>
 
 <div id="inq-land"><div class="il-wrap">
   <div class="il-eyebrow" id="il-eyebrow">GALAXIA INQUILINA · HK23 UNIVERSE</div>
@@ -11085,76 +11071,14 @@ addEventListener('DOMContentLoaded', function(){
   const bySlug=s=>TEN.find(t=>t.slug===s);
   const byCode=c=>TEN.find(t=>(t.code||'').toUpperCase()===String(c||'').toUpperCase()&&t.active!==false);
 
-  // ── la galaxia del inquilino ──
-  let cur=null, raf=null;
-  const cv=$('inq-cv'), ctx=cv.getContext('2d');
-  function draw(t){
-    if(!cur) return;
-    const w=cv.clientWidth, h=cv.clientHeight; if(!w||!h) return;
-    if(cv.width!==w*2||cv.height!==h*2){ cv.width=w*2; cv.height=h*2; }
-    const W=w*2, H=h*2, col=cur.color||'#B84DFF';
-    ctx.clearRect(0,0,W,H);
-    ctx.globalCompositeOperation='lighter';
-    const cx=W/2, cy=H/2, rot=t/9000;
-    if(cur.form==='asteroides'){
-      for(let i=0;i<130;i++){ const a=i*2.399+rot*2, r=(0.1+((i*37)%100)/100*0.36)*Math.min(W,H);
-        ctx.beginPath(); ctx.arc(cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.82, 1+((i*13)%5)/2, 0, 7);
-        ctx.fillStyle=col+'99'; ctx.fill(); }
-    } else if(cur.form==='nebulosa'){
-      for(let i=0;i<44;i++){ const a=i*0.71+rot, r=(0.06+i/44*0.34)*Math.min(W,H);
-        const g=ctx.createRadialGradient(cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.8, 0, cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.8, 60+i);
-        g.addColorStop(0,col+'44'); g.addColorStop(1,'transparent');
-        ctx.fillStyle=g; ctx.fillRect(0,0,W,H); }
-    } else if(cur.form==='estacion'){
-      ctx.strokeStyle=col+'88'; ctx.lineWidth=3;
-      for(let k=1;k<=3;k++){ ctx.beginPath(); ctx.ellipse(cx,cy,Math.min(W,H)*0.1*k,Math.min(W,H)*0.035*k,rot*k,0,7); ctx.stroke(); }
-      ctx.fillStyle=col; ctx.beginPath(); ctx.arc(cx,cy,16,0,7); ctx.fill();
-    } else { // espiral / cometa
-      const arms=cur.form==='cometa'?1:3;
-      for(let a=0;a<arms;a++) for(let i=0;i<200;i++){
-        const th=i/200*5.6+a*(6.28/arms)+rot, r=Math.pow(i/200,0.72)*Math.min(W,H)*0.42;
-        ctx.beginPath(); ctx.arc(cx+Math.cos(th)*r, cy+Math.sin(th)*r*0.72, 1.6-i/200, 0, 7);
-        ctx.fillStyle=col+'AA'; ctx.fill(); }
-    }
-    ctx.globalCompositeOperation='source-over';
-    ctx.font='700 15px "Space Mono",monospace'; ctx.fillStyle=col+'66'; ctx.textAlign='center';
-    ctx.fillText((FORM_ICO[cur.form]||'✧')+' '+String(cur.form||'').toUpperCase(), cx, H-26);
-  }
-  function loop(t){ if(!$('inq').classList.contains('open')){ raf=null; return; } draw(t||0); raf=requestAnimationFrame(loop); }
-
-  function paintGal(){
-    if(!cur) return;
-    document.documentElement.style.setProperty('--iq',cur.color||'#B84DFF');
-    $('inq').style.setProperty('--iq',cur.color||'#B84DFF');
-    $('inq').style.setProperty('--iq-line',(cur.color||'#B84DFF')+'28');
-    $('inq-name').innerHTML=esc(cur.name)+'<small>'+esc(cur.sub||'GALAXIA INQUILINA')+'</small>';
-    $('inq-bio').textContent=cur.bio||'Su historia todavía no está escrita. Escribila vos desde ◈ INQUILINOS, o pedísela a él.';
-    const ab=$('inq-agents');
-    ab.innerHTML=(cur.agents||[]).filter(k=>AGENTS[k]).map(k=>
-      '<div class="iq-ag" data-ag="'+esc(k)+'"><span class="d"></span><b>'+esc(AGENTS[k].n)+'</b><i>'+esc(AGENTS[k].d)+'</i></div>').join('')
-      ||'<div class="iq-empty">Todavía no le prestaste ningún agente.</div>';
-    ab.querySelectorAll('[data-ag]').forEach(el=>el.onclick=()=>{
-      const a=AGENTS[el.dataset.ag]; if(!a) return;
-      log('inquilino', cur.slug+' usó '+a.n); $('inq').classList.remove('open'); a.fn(); });
-    const pb=$('inq-prods'); const ps=prodsOf(cur.slug);
-    pb.innerHTML=ps.map(p=>'<div class="iq-prod"><div class="pk">'+esc((p.kind||'PRODUCTO').toUpperCase())+'</div>'+
-      '<div class="pt">'+esc(p.name)+'</div><div class="pd">'+esc(p.desc||'')+'</div>'+
-      (safeUrl(p.url)?'<a href="'+esc(safeUrl(p.url))+'" target="_blank" rel="noopener noreferrer">VER →</a>':'')+'</div>').join('')
-      ||'<div class="iq-empty">Sus productos van acá. Cargalos desde ◈ INQUILINOS.</div>';
-    if(cur.bg&&window.MediaEngine&&window.MediaEngine.add){ try{ window.MediaEngine.add(cur.bg); }catch(e){} }
-  }
+  let cur=null;
   function openGal(slug){
     const t=bySlug(slug); if(!t) return false;
     if(t.active===false){ (window.hkLog||function(){})('inquilino','acceso cerrado: '+slug); return false; }
     // si está cargado el universo completo del inquilino, ese manda (portal + mapa propio + edición)
-    if(window.InqUniverse&&window.InqUniverse.open){ cur=t; $('inq-land').classList.remove('open');
-      $('inq').classList.remove('open'); return window.InqUniverse.open(t); }
-    cur=t; $('inq-land').classList.remove('open'); $('inq').classList.add('open');
-    paintGal(); if(!raf) raf=requestAnimationFrame(loop);
-    log('inquilino','entró a la galaxia de '+t.name); return true;
+    cur=t; $('inq-land').classList.remove('open');
+    return !!(window.InqUniverse&&window.InqUniverse.open&&window.InqUniverse.open(t));
   }
-  $('inq-x').onclick=()=>$('inq').classList.remove('open');
-  $('inq-land-btn').onclick=()=>{ if(cur) openLand(cur.slug); };
 
   // ── su landing pública: la misma data, cara de página propia ──
   function openLand(slug){
@@ -11317,7 +11241,7 @@ addEventListener('DOMContentLoaded', function(){
     if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement||{}).tagName||'')) return;
     if((e.key==='u'||e.key==='U')) openAdmin();
     if((e.key==='x'||e.key==='X'||e.key==='Escape')){
-      ['inq','inq-land','inq-admin'].forEach(id=>{ const el=$(id); if(el) el.classList.remove('open'); });
+      ['inq-land','inq-admin'].forEach(id=>{ const el=$(id); if(el) el.classList.remove('open'); });
     }
   });
   const cmd=$('ag-cmd');
@@ -11528,7 +11452,7 @@ addEventListener('DOMContentLoaded', function(){
   .iu-reg-b[data-empty="1"] .t{ color:#6E7E96; }
   @media(max-width:860px){ #iu-reg{ position:static; width:auto; margin:10px 16px 0; } }
   @media(prefers-reduced-motion:reduce){
-    #iu *, #inq *, #inq-land *, #pl-panel *{ animation:none !important; transition:none !important; }
+    #iu *, #inq-land *, #pl-panel *{ animation:none !important; transition:none !important; }
   }
   /* ── LA PLATINA — consola de DJ, late con el beat ── */
   #fq-deck{ position:absolute; left:2.6%; bottom:3%; z-index:9; display:none; align-items:center; gap:18px;
@@ -11835,7 +11759,6 @@ addEventListener('DOMContentLoaded', function(){
       master.gain.setTargetAtTime(0.16, AC.currentTime, 0.25); }catch(e){} }
     else if(AC){ try{ master.gain.setTargetAtTime(0.0001, AC.currentTime, 0.15); }catch(e){} }
     const b=$('iu-sound'); if(b){ b.classList.toggle('on',audioOn); b.textContent=audioOn?'◉ SONIDO':'◌ SONIDO'; }
-    try{ localStorage.setItem('hk23_freq_audio', audioOn?'1':'0'); }catch(e){}
     log('inquilino','sonido '+(audioOn?'ON':'OFF'));
   }
   window.FreqAudio={ set:setAudio, toggle:()=>setAudio(!audioOn), on:()=>audioOn };
@@ -12577,9 +12500,14 @@ addEventListener('DOMContentLoaded', function(){
     paintSide(); if(!raf) raf=requestAnimationFrame(draw);
     const dk=$('fq-deck'); if(dk) dk.style.display=canEdit()?'flex':'none';
     if(canEdit()&&!knob._done){ knob(); knob._done=true; }
-    if(T&&T.bg&&window.MediaEngine&&window.MediaEngine.add){ try{ window.MediaEngine.add(T.bg); }catch(e){} }
+    if(T&&T.bg&&window.MediaEngine&&window.MediaEngine.add){ try{
+      const ME=window.MediaEngine, mismo=capaBg && ME.layers.indexOf(capaBg)>=0 && capaBg.raw===String(T.bg).trim();
+      if(!mismo){ sacarBg(); capaBg=ME.add(T.bg); } }catch(e){} }
   };
-  function close(){ $('iu').classList.remove('open'); if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  // el fondo del inquilino tiene un solo dueño: este universo. Al salir se saca (antes se apilaba en el madre)
+  let capaBg=null;
+  function sacarBg(){ try{ if(capaBg && window.MediaEngine && window.MediaEngine.remove) window.MediaEngine.remove(capaBg); }catch(e){} capaBg=null; }
+  function close(){ $('iu').classList.remove('open'); if(raf){ cancelAnimationFrame(raf); raf=null; } sacarBg(); }
   $('iu-sound').onclick=()=>setAudio(!audioOn);
   addEventListener('keydown',e=>{ if((e.key==='x'||e.key==='X'||e.key==='Escape')&&$('pl-panel').classList.contains('open')){
     e.stopImmediatePropagation(); closePlanet(); } }, true);
@@ -12635,7 +12563,7 @@ addEventListener('DOMContentLoaded', function(){
     const prev=window.Inquilinos.galaxy;
     window.Inquilinos.galaxy=function(slug){
       const t=(window.Inquilinos.list()||[]).find(x=>x.slug===slug);
-      if(t){ const old=document.getElementById('inq'); if(old) old.classList.remove('open');
+      if(t){ 
         return open(t); }
       return prev?prev(slug):false;
     };
@@ -12776,7 +12704,7 @@ addEventListener('DOMContentLoaded', function(){
       '--wa-acc':'#E6E4DE','--wa-glow':'#E6E4DE44','--wa-scr':'#0A0A10','--wa-vis':'#06060A','--wa-btn2':'#1C1C26',
       '--wa-txt':'#C8C6BE','--wa-dim':'#6E6E7E' } }
   };
-  let skin=localStorage.getItem('wa_skin')||'clasico';
+  let skin='clasico'; try{ skin=localStorage.getItem('wa_skin')||'clasico'; }catch(e){}
   function applySkin(k){ if(!SKINS[k]) k='clasico'; skin=k;
     const v=SKINS[k].v; for(const p in v) $('wa').style.setProperty(p,v[p]);
     try{ localStorage.setItem('wa_skin',k); }catch(e){}
@@ -13030,11 +12958,11 @@ addEventListener('DOMContentLoaded', function(){
       ['🧪','LAB','jugá con las entidades','#AAFF00',()=>call(window.EntityLab&&window.EntityLab.on)],
       ['₿','CRYPTO','señales con su porqué','#FFD200',()=>call(window.CryptoSignals&&window.CryptoSignals.open)],
       ['▚','FABLE','fondo de entidades','#B84DFF',()=>call(window.FableFX&&window.FableFX.toggle)],
-      ['🔊','FUSIÓN','parlantes · onda · tornamesa','#FF3A1F',()=>call(window.Fusion&&window.Fusion.next)],
+      ['🔊','FUSIÓN','parlantes · onda · tornamesa','#FF3A1F',()=>call(()=>window.Fusion&&window.Fusion.next())],
     ]],
     ['✧ EL COSMOS', [
       ['✧','GALAXIA','creá una galaxia nueva','#B84DFF',()=>call(window.hkGalaxia)],
-      ['🌌','COSMOS','vista del universo entero','#5FA8D3',()=>call((window.WarpJump&&window.WarpJump.open)||(window.CosmosView&&window.CosmosView.open))],
+      ['🌌','COSMOS','vista del universo entero','#5FA8D3',()=>call(window.CosmosView&&window.CosmosView.open)],
       ['◈','AGENTES','ATLAS · ORACLE · CURATOR','#00F0FF',()=>openPanel('ag-panel')],
       ['📡','ORACLE','reporte del universo','#00F0FF',()=>call(window.hkOracle)],
       ['🛡','DEFENSA','MEGA-HEYOKA','#FF3A1F',()=>call(window.hkDefensa)],
@@ -13075,7 +13003,7 @@ addEventListener('DOMContentLoaded', function(){
 (function(){ const d=document.getElementById("hk-dock");
   if(d){ const b=document.createElement("button"); b.className="dk"; b.textContent="🏛 MADRE";
     b.style.setProperty("--dc","#FFD200"); b.style.color="#FFD200CC";
-    b.onclick=()=>location.href="./hk23-universe"; d.insertBefore(b, d.firstChild); } })();
+    b.onclick=()=>location.href="/universe-os"; d.insertBefore(b, d.firstChild); } })();
 </script>
 
 <!-- ═══════════ ATLAS 23 — OPERADOR DEL UNIVERSO ═══════════
@@ -13458,7 +13386,6 @@ addEventListener('DOMContentLoaded', function(){
 
     /* 4 · nada se sale de la pantalla */
     .portal-quote{ max-width:calc(100vw - 32px) !important; font-size:11px !important; line-height:1.7 !important; }
-    #media-stage iframe{ max-width:100vw !important; }
   }
 </style>
 <script>
@@ -13485,23 +13412,12 @@ addEventListener('DOMContentLoaded', function(){
       const l=f.closest('.media-layer')||f.parentElement;
       if(l) l.style.display='none'; else f.style.display='none';
       n++; });
-    const st=document.getElementById('media-stage');
-    if(st) st.style.background='#05070E';
     return n;
   }
   sacarVideo();
   // el motor de fondos puede montar capas después: las vigilo
   const st=document.getElementById('media-stage');
   if(st && window.MutationObserver) new MutationObserver(()=>sacarVideo()).observe(st,{childList:true,subtree:true});
-
-  // 3 · red de seguridad: si algo igual pinta claro, lo oscurezco.
-  //     Se mide el píxel real del fondo, no se asume.
-  function noQuedarEnBlanco(){
-    const b=getComputedStyle(document.body).backgroundColor;
-    document.documentElement.style.background='#05070E';
-    if(!/rgba?\(\s*(\d+)/.test(b)) document.body.style.background='#05070E';
-  }
-  noQuedarEnBlanco();
 
   window.Movil={ esChico:chico, sacarVideo, version:'1' };
 })();
@@ -13630,7 +13546,7 @@ addEventListener('DOMContentLoaded', function(){
   const leer=()=>{ try{ return JSON.parse(localStorage.getItem(K))||[]; }catch(e){ return []; } };
   const guardar=t=>{ try{ localStorage.setItem(K,JSON.stringify(t)); return true; }catch(e){ return false; } };
   let TEMAS=leer();
-  fetch('./musica.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
+  fetch((location.protocol==='file:'?'./':'/')+'musica.json',{cache:'no-store'}).then(r=>r.ok?r.json():null).then(j=>{
     if(!j) return; const arr=Array.isArray(j)?j:(j.temas||j.tracks||[]);
     if(!arr.length) return;
     const m=new Map(TEMAS.map(t=>[t.id,t]));
@@ -13992,15 +13908,17 @@ addEventListener('DOMContentLoaded', function(){
 </div></div>
 <script>
 (function(){
-  const SB = (window.__nhCloud && window.__nhCloud.SB) || { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
-  const toast = (m)=>{ try{ (window.__nhToast||function(){})(m); }catch(e){} };
+  const SB = { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
+  const toast = (m)=>{ try{ const t=document.getElementById('collect-toast'); if(!t) return; t.textContent=m; t.classList.add('show');
+    clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2600); }catch(e){} };
   function H(rep){ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json','Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; }
   async function readKind(kind){ try{ const r=await fetch(SB.url+'/entities?select=id,name,summary,meta&meta->>nh=eq.1&meta->>kind=eq.'+kind+'&order=created_at.desc',{headers:H()}); if(!r.ok) return []; return await r.json(); }catch(e){ return []; } }
   async function countEntities(){ try{ const r=await fetch(SB.url+'/entities?select=id',{headers:Object.assign({Prefer:'count=exact','Range-Unit':'items',Range:'0-0'},H())}); const cr=r.headers.get('content-range')||''; const tot=cr.split('/')[1]; return tot&&tot!=='*'?parseInt(tot,10):'—'; }catch(e){ return '—'; } }
   async function add(kind, fields){ try{ const body=Object.assign({level:'node',kind:'system'},fields); body.meta=Object.assign({nh:'1',kind:kind}, fields.meta||{}); const r=await fetch(SB.url+'/entities',{method:'POST',headers:H(true),body:JSON.stringify(body)}); if(!r.ok) return null; const j=await r.json(); return j[0]||null; }catch(e){ return null; } }
   async function patch(id, fields){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'PATCH',headers:H(false),body:JSON.stringify(fields)}); return r.ok; }catch(e){ return false; } }
   async function del(id){ try{ const r=await fetch(SB.url+'/entities?id=eq.'+id,{method:'DELETE',headers:H()}); return r.ok; }catch(e){ return false; } }
-  const esc=(s)=>String(s==null?'':s).replace(/</g,'&lt;');
+  const esc=(s)=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const idq=(s)=>String(s==null?'':s).replace(/[^\w-]/g,'');   // ids dentro de onclick: solo letras, números, _ y -
 
   const WORLDS=[
     {id:'rugby-vice',label:'Rugby Vice',sub:'cartas · kick tracker',status:'build',url:'',roadmap:'Se integra como mundo en el incremento 3.',
@@ -14028,7 +13946,7 @@ addEventListener('DOMContentLoaded', function(){
   if(!UDEST['proj:projects_pl']) UDEST['proj:projects_pl']={type:'dashboard',value:'projects'};
   const PROJ_STATUS={idea:{c:'#b06bff',label:'IDEA'},construyendo:{c:'#FFD200',label:'CONSTRUYENDO'},vivo:{c:'#2bd66a',label:'VIVO'},hecho:{c:'#39d0ff',label:'HECHO'}};
   const PROJ_NEXT={idea:'construyendo',construyendo:'vivo',vivo:'hecho',hecho:'idea'};
-  const saveDest=()=>localStorage.setItem(UDEST_KEY,JSON.stringify(UDEST));
+  const saveDest=()=>{ try{ localStorage.setItem(UDEST_KEY,JSON.stringify(UDEST)); }catch(e){} };
   const DEST_TYPES=[['door','Puerta (info/idea)'],['url','Abrir link/mundo'],['dashboard','Pestaña dashboard'],['fractal','Red neural (vieja)'],['zone','Zona original']];
   const DEST_SHORT={door:'puerta',url:'link',dashboard:'dashboard',fractal:'red neural',zone:'zona'};
   function destLabel(d){ if(!d||!d.type) return 'puerta (default)'; return (DEST_SHORT[d.type]||d.type)+(d.value?(' · '+d.value):''); }
@@ -14054,7 +13972,7 @@ addEventListener('DOMContentLoaded', function(){
     if(!tasks.length){ el.innerHTML='<div style="color:#6a6a78;font-size:11px">Sin tareas todavía.</div>'; return; }
     let h=''; ['alta','media','baja'].forEach(p=>{ const grp=tasks.filter(t=>((t.meta&&t.meta.priority)||'baja')===p); if(!grp.length) return; const pc=PRIO[p];
       h+=`<div style="margin:14px 0 4px;font-size:10px;letter-spacing:2px;color:${pc.c}">${pc.label} · ${grp.length}</div>`;
-      h+=grp.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card" style="border-left:3px solid ${pc.c}"><span class="d-del" onclick="DASH.del('task','${t.id}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${t.id}')">${st} ↻</span> <span class="d-pill" style="margin-top:7px;margin-left:5px;color:${pc.c};background:${pc.bg}" onclick="DASH.bump('${t.id}')">${pc.label} ↑</span></div>`; }).join(''); });
+      h+=grp.map(t=>{ const st=(t.meta&&t.meta.status)||'pendiente'; const c=STATUS[st]||STATUS.pendiente; return `<div class="d-card" style="border-left:3px solid ${pc.c}"><span class="d-del" onclick="DASH.del('task','${idq(t.id)}')">✕</span>${esc(t.name)}<br><span class="d-pill" style="margin-top:7px;color:${c.c};background:${c.bg}" onclick="DASH.cycle('${idq(t.id)}')">${esc(st)} ↻</span> <span class="d-pill" style="margin-top:7px;margin-left:5px;color:${pc.c};background:${pc.bg}" onclick="DASH.bump('${idq(t.id)}')">${pc.label} ↑</span></div>`; }).join(''); });
     el.innerHTML=h; }
   let state={notes:[],tasks:[]};
 
@@ -14084,7 +14002,7 @@ addEventListener('DOMContentLoaded', function(){
       if(tab==='notes'){ b.innerHTML=`<textarea id="d-note" placeholder="Escribe una nota… (se guarda en Supabase)"></textarea>
           <button class="d-btn" onclick="DASH.addNote()">＋ Guardar nota</button><div id="d-notelist" style="margin-top:14px"><div style="color:#6a6a78;font-size:11px">Cargando…</div></div>`;
         const notes=await readKind('note'); if(tab!=='notes') return; state.notes=notes;
-        document.getElementById('d-notelist').innerHTML = notes.length? notes.map(n=>`<div class="d-card"><span class="d-del" onclick="DASH.del('note','${n.id}')">✕</span>${esc(n.summary||n.name)}</div>`).join('') : '<div style="color:#6a6a78;font-size:11px">Sin notas todavía.</div>';
+        document.getElementById('d-notelist').innerHTML = notes.length? notes.map(n=>`<div class="d-card"><span class="d-del" onclick="DASH.del('note','${idq(n.id)}')">✕</span>${esc(n.summary||n.name)}</div>`).join('') : '<div style="color:#6a6a78;font-size:11px">Sin notas todavía.</div>';
         return; }
       if(tab==='tasks'){ b.innerHTML=`
           <div class="d-sub">Agente de prioridades</div>
@@ -14162,14 +14080,15 @@ addEventListener('DOMContentLoaded', function(){
     async projCycle(pid){ const r=state.projRows&&state.projRows[pid]; if(!r) return; await DASH.saveProj(pid,r.label,PROJ_NEXT[r.status]||'construyendo',r.progress); },
     async projProg(pid,d){ const r=state.projRows&&state.projRows[pid]; if(!r) return; const np=Math.max(0,Math.min(100,r.progress+d)); await DASH.saveProj(pid,r.label,np>=100?'hecho':r.status,np); },
     async projAdd(){ const el=document.getElementById('d-proj'); const v=(el.value||'').trim(); if(!v) return; el.value=''; const pid='c:'+Date.now(); state.projRows=state.projRows||{}; state.projRows[pid]={pid,label:v,status:'idea',progress:0,id:null}; await DASH.saveProj(pid,v,'idea',0); },
+    raiz(u){ return (/^[a-z]+:/i.test(u||'') || location.protocol==='file:') ? u : '/'+String(u||'').replace(/^\.?\//,''); },
     openWorld(id){ const w=WORLDS.find(x=>x.id===id); if(!w) return;
-      if(w.status==='live'&&w.url&&!w.gated){ window.open(w.url,'_blank','noopener'); return; }
+      if(w.status==='live'&&w.url&&!w.gated){ window.open(DASH.raiz(w.url),'_blank','noopener'); return; }
       DASH.showWorld(w); },
     showWorld(w){ const s=WSTATUS[w.status]||WSTATUS.idea; const st=document.getElementById('wv-status');
       st.textContent=s.label; st.style.color=s.c; st.style.background=s.c+'22'; st.style.border='1px solid '+s.c+'55';
       document.getElementById('wv-title').textContent=w.label; document.getElementById('wv-sub').textContent=w.sub;
       document.getElementById('wv-why').textContent=w.why||''; const _rd=document.getElementById('wv-road'); _rd.style.display=''; _rd.textContent=w.roadmap||'Aún sin fecha — es una idea viva en el universo.';
-      document.getElementById('wv-actions').innerHTML = (w.url? `<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open('${w.url}','_blank','noopener')">Entrar →</button>`:'') + `<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>`;
+      document.getElementById('wv-actions').innerHTML = (w.url? `<button class="wv-btn" style="background:#39d0ff;color:#06121a" onclick="window.open('${DASH.raiz(w.url)}','_blank','noopener')">Entrar →</button>`:'') + `<button class="wv-btn" style="background:transparent;border:1px solid #2a2a36;color:#aab" onclick="DASH.closeWorld()">Volver al universo</button>`;
       document.getElementById('world-view').classList.add('open'); },
     closeWorld(){ document.getElementById('world-view').classList.remove('open'); },
     setDest(id){ const ts=document.getElementById('ad-t-'+id), vs=document.getElementById('ad-v-'+id); if(!ts) return;
@@ -14250,14 +14169,12 @@ addEventListener('DOMContentLoaded', function(){
       const text=(j.text||'').trim(); const title=(text.split(/—|:|-/)[0]||'IDEA').trim().slice(0,26); const desc=text.slice(0,220);
       if(typeof IDEAS_PLANET!=='undefined' && IDEAS_PLANET.ideas){ IDEAS_PLANET.ideas.push({ label:title.toUpperCase().slice(0,16), mr:48+Math.random()*34, ma:Math.random()*6.28, ms:(Math.random()>.5?1:-1)*0.0018, sz:5, col:'#ffffff', px:0, py:0, detail:{ title:title, desc:desc } }); }
       t('⌘ WHITE HOLE → idea: '+title, '#ffffff');
-      if(window.__nhCloud && window.__nhCloud.sbEntity) window.__nhCloud.sbEntity('idea:'+Date.now(),{name:title,slug:'wh-idea',level:'node',kind:'system',summary:desc,meta:{nh:'1',kind:'idea',source:'whitehole'}});
     }catch(e){ t('⌘ error de red','#ff5b6b'); }
   };
   // ── PUERTAS: interceptar clicks de planetas (sin red neural por default) y galaxias ──
   try{
     if(typeof openFractalUniverse==='function'){ DASH._origFractal=openFractalUniverse; window.openFractalUniverse=function(project){ routeNode('proj:'+project.id, project); }; }
     if(typeof goTo==='function'){ DASH._origGoTo=goTo; window.goTo=function(id){ if(id==='agents'){ RUNNER.open(); return; } if(UDEST['gal:'+id]){ const g=(typeof NODES!=='undefined')?NODES.find(n=>n.id===id):null; routeNode('gal:'+id, g); return; } return DASH._origGoTo(id); }; }
-    if(typeof openAgentBasePanel==='function'){ window.openAgentBasePanel=function(){ RUNNER.open(); }; }
   }catch(e){}
   // ── QUE TODO FUNCIONE: orbitadores + lunas flotantes → abren su puerta (no más clicks muertos) ──
   try{
@@ -14311,7 +14228,7 @@ addEventListener('DOMContentLoaded', function(){
     const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
       .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
-    const SB=(window.__nhCloud&&window.__nhCloud.SB)||
+    const SB=
       { url:'https://iiqhhglgjsbnuihythko.supabase.co/rest/v1', key:'sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM' };
     const H=rep=>{ const h={apikey:SB.key,Authorization:'Bearer '+SB.key,'Content-Type':'application/json',
       'Content-Profile':'hk23','Accept-Profile':'hk23'}; if(rep) h.Prefer='return=representation'; return h; };
@@ -14391,7 +14308,7 @@ addEventListener('DOMContentLoaded', function(){
       b.innerHTML='<div class="dx-h">VENDER · CARGANDO…</div>';
       const [notas,tareas,prods]=await Promise.all([leer('note'),leer('task'),leer('product')]);
       if(mio!=='vender') return;
-      const ref=(localStorage.getItem('hk23_mi_ref')||'').trim();
+      const ref=(()=>{ try{ return localStorage.getItem('hk23_mi_ref')||''; }catch(e){ return ''; } })().trim();
       const item=(o,tipo)=>'<div class="dx-it"><b>'+esc(o.name||o.summary||'—')+'</b>'+
         '<i>'+esc(tipo)+'</i><div class="dx-row">'+
         '<input class="dx-in" style="flex:1;min-width:90px;margin:0" placeholder="precio" data-p="'+esc(o.id)+'">'+
@@ -14434,7 +14351,7 @@ addEventListener('DOMContentLoaded', function(){
       b.innerHTML='<div class="dx-h">REFERIDOS · CARGANDO…</div>';
       const [refs,prods]=await Promise.all([leer('referido'),leer('product')]);
       if(mio!=='referidos') return;
-      const mio_=(localStorage.getItem('hk23_mi_ref')||'');
+      const mio_=(()=>{ try{ return localStorage.getItem('hk23_mi_ref')||''; }catch(e){ return ''; } })();
       b.innerHTML=
         '<div class="dx-h">MI CÓDIGO</div>'+
         '<div class="dx-row"><input class="dx-in" id="dx-miref" style="flex:1;margin:0" '+
@@ -14462,7 +14379,7 @@ addEventListener('DOMContentLoaded', function(){
       document.getElementById('dx-miref-ok').onclick=()=>{
         const v=(document.getElementById('dx-miref').value||'').trim();
         try{ localStorage.setItem('hk23_mi_ref',v); }catch(e){}
-        const leido=(localStorage.getItem('hk23_mi_ref')||'');
+        const leido=(()=>{ try{ return localStorage.getItem('hk23_mi_ref')||''; }catch(e){ return ''; } })();
         document.getElementById('dx-miref-ok').textContent = leido===v? '✓ GUARDADO' : '✕ NO SE GUARDÓ';
         setTimeout(()=>{ const e=document.getElementById('dx-miref-ok'); if(e) e.textContent='GUARDAR'; },1800); };
       document.getElementById('dx-radd').onclick=async()=>{
@@ -15546,7 +15463,7 @@ addEventListener('DOMContentLoaded', function(){
   .vp-card i{ display:block; font-style:normal; font-family:'JetBrains Mono',monospace; font-size:9px;
     letter-spacing:1px; color:#5a5a66; margin-bottom:6px; }
   .vp-card p{ margin:0; font-size:12.5px; line-height:1.7; color:#a0a0aa; }
-  .vp-in,.vp-ta,.vp-sel{ width:100%; background:#0e0f14; border:1px solid #2a2a32; border-radius:4px;
+  .vp-in,.vp-ta{ width:100%; background:#0e0f14; border:1px solid #2a2a32; border-radius:4px;
     color:#e8e8ec; font:400 13px 'JetBrains Mono',monospace; padding:12px; min-height:46px; margin-bottom:9px; }
   .vp-ta{ min-height:80px; line-height:1.7; resize:vertical; font-family:'Montserrat',sans-serif; }
   .vp-in:focus-visible,.vp-ta:focus-visible{ outline:2px solid #C6A15B; outline-offset:1px; }
@@ -16509,7 +16426,6 @@ addEventListener('DOMContentLoaded', function(){
   #lam-print{ display:none; }
   @media print{
     @page{ margin:0; }
-    html,body{ background:#fff !important; }
     body>*{ display:none !important; }
     body>#lam-print{ display:flex !important; }
     #lam-print{
@@ -18733,9 +18649,9 @@ addEventListener('DOMContentLoaded', function(){
      y avisa por qué. v2: vuelve a esperar cuando el motor le cambia el src (silenciar / activar
      sonido) y pausa el video cuando la pestaña no se ve (batería del teléfono). -->
 <style id="sin-sabana-style">
-  #media-stage iframe.yt-esperando{ opacity:0 !important; }
-  #media-stage iframe.yt-vivo{ opacity:1; transition:opacity .9s ease; }
-  #media-stage iframe.yt-muerto{ display:none !important; }
+  #media-stage iframe.yt-esperando, #gal-bg iframe.yt-esperando{ opacity:0 !important; }
+  #media-stage iframe.yt-vivo, #gal-bg iframe.yt-vivo{ opacity:1; transition:opacity .9s ease; }
+  #media-stage iframe.yt-muerto, #gal-bg iframe.yt-muerto{ display:none !important; }
 </style>
 <script>
 (function(){
@@ -18779,17 +18695,20 @@ addEventListener('DOMContentLoaded', function(){
     v.vivo = false; clearInterval(v.t);
     v.f.classList.remove('yt-esperando', 'yt-vivo'); v.f.classList.add('yt-muerto');
     v.porque = porque;
-    avisar(porque);
+    avisar(porque, v);
   }
 
-  /* decir por qué no hay video, una vez por sesión */
-  function avisar(porque){
-    try{ if(sessionStorage.getItem('hk23_yt_avisado')) return; sessionStorage.setItem('hk23_yt_avisado', '1'); }catch(e){}
+  /* decir por qué no hay video: una vez por video y motivo (no una sola vez por sesión) */
+  function avisar(porque, v){
+    var clave = ((v && v.f && (v.f.src.match(/\/embed\/([^?&#]+)/) || [])[1]) || '?') + ':' + porque;
+    try{ var ya = JSON.parse(sessionStorage.getItem('hk23_yt_avisado') || '[]'); if(!Array.isArray(ya)) ya = [];
+      if(ya.indexOf(clave) >= 0) return; ya.push(clave); sessionStorage.setItem('hk23_yt_avisado', JSON.stringify(ya.slice(-30))); }catch(e){}
+    var dondeLink = (v && v.f && v.f.closest && v.f.closest('#gal-bg')) ? 'FONDO →' : '▶ MEDIA';
     var t = document.getElementById('collect-toast'); if(!t) return;
     var h = location.hostname;
     var enSitio = /vercel\.app$/.test(h) || h === 'localhost' || h === '127.0.0.1';
     t.textContent = !enSitio ? '▶ ESTE ESPEJO NO DEJA CARGAR YOUTUBE — EL VIDEO DE FONDO SE VE EN hk23universe.vercel.app'
-      : porque === 'error' ? '▶ YOUTUBE NO DEJA PONER ESE VIDEO DE FONDO (PRIVADO O SIN PERMISO DE EMBED) — PROBÁ OTRO LINK EN ▶ MEDIA'
+      : porque === 'error' ? '▶ YOUTUBE NO DEJA PONER ESE VIDEO DE FONDO (PRIVADO O SIN PERMISO DE EMBED) — PROBÁ OTRO LINK EN ' + dondeLink
       : '▶ YOUTUBE NO RESPONDIÓ — EL VIDEO DE FONDO QUEDA APAGADO HASTA QUE HAYA RED';
     t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 6000);
@@ -18824,14 +18743,14 @@ addEventListener('DOMContentLoaded', function(){
     vigilados.forEach(function(v){ if(v.vivo) comando(v, document.hidden ? 'pauseVideo' : 'playVideo'); });
   });
 
-  function barrer(){ Array.prototype.forEach.call(document.querySelectorAll('#media-stage iframe'), preparar); }
+  function barrer(){ Array.prototype.forEach.call(document.querySelectorAll('#media-stage iframe, #gal-bg iframe'), preparar); }
   function init(){
     barrer();
     var st = document.getElementById('media-stage');
     if(st) new MutationObserver(barrer).observe(st, { childList:true, subtree:true, attributes:true, attributeFilter:['src'] });
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
-  window.SinSabana = { estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className, porque:v.porque || null }; }); }, version:'2' };
+  window.SinSabana = { barrer:barrer, estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className, porque:v.porque || null }; }); }, version:'2' };
 })();
 </script>
 
