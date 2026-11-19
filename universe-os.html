@@ -1425,7 +1425,7 @@
     <div class="section-label">ACCESO AL UNIVERSO</div>
     <div class="mega-text">PAGA<br>O FUERA.</div>
     <p style="color:#555;font-size:13px;line-height:1.8;max-width:600px;margin-bottom:40px">
-      No todo es para todos. La puerta abierta te deja ver. La puerta de adentro te deja participar. La puerta final te hace parte de esto.
+      El universo se mira gratis. Los planetas no: cada proyecto tiene su propia puerta, de la idea al build. Afuera ves qué es; adentro están las ideas, las versiones, los prompts, el dashboard, los usuarios, las guías, la biblioteca y la tienda. La llave la da el planeta — o las tenés todas siendo socio.
     </p>
 
     <div style="display:flex;flex-direction:column;gap:16px">
@@ -1434,7 +1434,7 @@
           <div>
             <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#555;margin-bottom:8px">TIER 01</div>
             <div style="font-size:28px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">CURIOSO</div>
-            <div style="font-size:13px;color:#444;margin-bottom:16px">Puedes ver la superficie. Arte, identidad, Vice OS public.</div>
+            <div style="font-size:13px;color:#444;margin-bottom:16px">Mirás el universo moverse y usás las herramientas. Ves la fachada de cada planeta — no entrás a ninguno.</div>
           </div>
           <div style="text-align:right">
             <div style="font-size:36px;font-weight:700">FREE</div>
@@ -1442,10 +1442,10 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <span class="tag">Arte público</span>
-          <span class="tag">Vice OS landing</span>
-          <span class="tag">Lore básico</span>
-          <span class="tag">Agentes preview</span>
+          <span class="tag">Herramientas: agujero negro · láminas · formas · música</span>
+          <span class="tag">Agentes de prueba</span>
+          <span class="tag">ATLAS: lo que está pasando</span>
+          <span class="tag">La fachada de cada planeta</span>
         </div>
       </div>
 
@@ -1485,11 +1485,23 @@
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <span class="tag gold">Todo de OBSESIONADO</span>
+          <span class="tag gold">Llave de todos los planetas</span>
+          <span class="tag gold">De la idea al build</span>
           <span class="tag gold">Direct access</span>
           <span class="tag gold">Vice OS Elite</span>
           <span class="tag gold">Co-create</span>
           <span class="tag gold">Revenue share</span>
         </div>
+      </div>
+    </div>
+
+    <div class="pu-gate-llave">
+      <div style="font-family:'Space Mono',monospace;font-size:9px;letter-spacing:4px;color:#888;margin-bottom:8px">LLAVE DE PLANETA</div>
+      <div style="font-size:24px;font-weight:700;letter-spacing:-1px;margin-bottom:6px">¿Te interesa un solo proyecto?</div>
+      <div style="font-size:13px;color:#555;margin-bottom:14px">Cada planeta da su propia llave. Abre ESE planeta y solo lo que el dueño elija: la tienda, las guías, las versiones, los prompts… Va firmada por el dueño: no se puede falsificar.</div>
+      <div class="pu-fila">
+        <input class="cu-in" id="pu-gate-llave" placeholder="pegá tu llave (HK23.…) o el link" autocomplete="off" spellcheck="false">
+        <button class="cu-b pu-cta" id="pu-gate-abrir" style="--puc:#F0EDE8">⚿ USAR LLAVE</button>
       </div>
     </div>
 
@@ -17314,6 +17326,7 @@ addEventListener('DOMContentLoaded', function(){
       <button class="cu-tab" data-t="archivos">ARCHIVOS</button>
       <button class="cu-tab" data-t="claves">CLAVES</button>
       <button class="cu-tab" data-t="links">LINKS</button>
+      <button class="cu-tab" data-t="llaves">LLAVES</button>
     </div>
     <div class="cu-cuerpo" id="cu-cuerpo"></div>
     <div class="cu-pie" id="cu-pie">—</div>
@@ -17459,6 +17472,14 @@ addEventListener('DOMContentLoaded', function(){
   function pintar(){
     var cuerpo = $('cu-cuerpo'); cuerpo.textContent = '';
     Array.prototype.forEach.call($('cu-tabs').querySelectorAll('.cu-tab'), function(b){ b.classList.toggle('on', b.dataset.t === tab); });
+    /* LAS PUERTAS: el cuartel completo es del dueño; socio y llave ven lo de adentro que les toca */
+    var P = window.Puertas, ac = P ? P.acceso(proyecto) : { nivel:'dueño', secciones:[] };
+    var adentro = !!P && ac.nivel !== 'dueño';
+    $('cu-tabs').style.display = adentro ? 'none' : '';
+    ['cu-app','cu-exportar','cu-importar'].forEach(function(id){ var e = $(id); if(e) e.style.display = adentro ? 'none' : ''; });
+    var bdash = $('cu-dash'); if(bdash) bdash.style.display = (adentro && ac.secciones.indexOf('dashboard') < 0) ? 'none' : '';
+    if(adentro){ pintarAdentro(cuerpo, ac); return; }
+    if(tab === 'llaves'){ pintarLlaves(cuerpo); return; }
     if(dbError){
       cuerpo.appendChild(el('div','cu-aviso', '⚠ ' + dbError + ' — ACÁ NO PUEDO GUARDAR NADA. PROBÁ EN OTRO NAVEGADOR O FUERA DEL MODO PRIVADO.'));
       $('cu-pie').textContent = 'SIN ALMACENAMIENTO'; return;
@@ -17483,6 +17504,83 @@ addEventListener('DOMContentLoaded', function(){
   }
 
   function vacio(cuerpo, txt){ cuerpo.appendChild(el('div','cu-vacio',txt)); }
+
+  function copiar(txt, msg){
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(function(){ aviso(msg || '⧉ COPIADO'); }, function(){ aviso('⚠ EL NAVEGADOR NO DEJÓ COPIAR'); });
+    else aviso('⚠ EL NAVEGADOR NO DEJÓ COPIAR');
+  }
+  /* ADENTRO: lo que ve un socio o quien entra con la llave de este planeta */
+  function pintarAdentro(c, ac){
+    var P = window.Puertas;
+    c.appendChild(el('div','cu-totales', ac.nivel === 'socio' ? 'ADENTRO COMO SOCIO · TODAS LAS SECCIONES'
+      : 'ADENTRO CON LLAVE' + (ac.para ? ' · ' + ac.para.toUpperCase() : '') + (ac.vence ? ' · VENCE ' + ac.vence : ' · SIN VENCIMIENTO')));
+    var g = el('div','pu-secs'); g.style.setProperty('--puc', 'var(--cuc)');
+    P.secciones.forEach(function(s){
+      var abierta = ac.secciones.indexOf(s[0]) >= 0;
+      var d = el('div','pu-sec' + (abierta ? ' abierta clic' : ''));
+      d.appendChild(el('span','pu-ic', abierta ? s[2] : '🔒')); d.appendChild(el('span', null, s[1]));
+      if(abierta) d.addEventListener('click', function(){
+        if(s[0] === 'dashboard' && window.DASH && typeof DASH.toggle === 'function'){ cerrar(); DASH.toggle(); return; }
+        aviso('✦ ' + s[1] + ': TODAVÍA NO HAY NADA PUBLICADO ACÁ');
+      });
+      g.appendChild(d);
+    });
+    c.appendChild(g);
+    c.appendChild(el('div','cu-aviso','LO QUE EL DUEÑO PUBLIQUE EN TUS SECCIONES APARECE ACÁ. HOY ESE CONTENIDO VIVE EN EL APARATO DEL DUEÑO: COMPARTIRLO ENTRE APARATOS LLEGA CON SUPABASE.'));
+    if(ac.nivel === 'socio' && P.estado() === 'no'){
+      c.appendChild(el('div','cu-meta','¿SOS EL DUEÑO DEL UNIVERSO? CREÁ TU FIRMA: CON ELLA HACÉS LAS LLAVES DE CADA PLANETA. LA PARTE PRIVADA QUEDA SOLO EN ESTE APARATO.'));
+      var bf = boton('⚿ SOY EL DUEÑO — CREAR MI FIRMA', function(){
+        bf.disabled = true;
+        P.crearFirma().then(function(){ aviso('⚿ FIRMA CREADA — ESTE APARATO ES EL DEL DUEÑO'); tab = 'llaves'; pintar(); },
+          function(e){ bf.disabled = false; aviso('⚠ ' + String(e && e.message || e).toUpperCase()); });
+      });
+      c.appendChild(bf);
+    }
+    if(P.estado() === 'otro') c.appendChild(el('div','cu-aviso','⚠ ESTE APARATO TIENE UNA FIRMA, PERO NO ES LA PUBLICADA DEL DUEÑO.'));
+    $('cu-pie').textContent = ac.nivel === 'socio' ? 'SOCIO · LLAVE DE TODOS LOS PLANETAS' : 'LLAVE DE ' + P.proyecto(proyecto).label + ' · ' + ac.secciones.length + ' SECCIONES';
+  }
+  /* LLAVES: el dueño fabrica las llaves de este planeta */
+  function pintarLlaves(c){
+    var P = window.Puertas;
+    if(!P){ c.appendChild(el('div','cu-aviso','⚠ LAS PUERTAS NO ESTÁN CARGADAS')); return; }
+    if(!P.firmaPublicada()){
+      c.appendChild(el('div','cu-aviso','TU FIRMA EXISTE EN ESTE APARATO PERO TODAVÍA NO ESTÁ PUBLICADA EN EL UNIVERSO. LAS LLAVES QUE HAGAS SE ACTIVAN PARA LOS DEMÁS CUANDO ESTÉ PUBLICADA: MANDALE ESTA LÍNEA A CLAUDE. ES LA PARTE PÚBLICA, NO ES SECRETA.'));
+      c.appendChild(el('div','pu-firma', P.lineaFirma()));
+      c.appendChild(boton('⧉ COPIAR MI FIRMA PÚBLICA', function(){ copiar(P.lineaFirma(), '⧉ FIRMA PÚBLICA COPIADA'); }));
+    } else c.appendChild(el('div','cu-totales','✓ FIRMA PUBLICADA · SOS EL DUEÑO'));
+    c.appendChild(el('div','cu-meta','NUEVA LLAVE PARA ' + P.proyecto(proyecto).label + ' — QUÉ ABRE'));
+    var chks = el('div','cu-form');
+    P.secciones.forEach(function(s){
+      var lab = el('label','pu-chk'); var i = document.createElement('input'); i.type = 'checkbox'; i.value = s[0];
+      lab.appendChild(i); lab.appendChild(document.createTextNode(s[1])); chks.appendChild(lab);
+    });
+    c.appendChild(chks);
+    var form = el('div','cu-form');
+    var para = document.createElement('input'); para.className = 'cu-in'; para.placeholder = 'para quién (opcional)'; para.autocomplete = 'off';
+    var dur = document.createElement('select'); dur.className = 'cu-in chica'; dur.setAttribute('aria-label','vencimiento');
+    [['30','VENCE EN 30 DÍAS'],['90','VENCE EN 90 DÍAS'],['365','VENCE EN 1 AÑO'],['0','SIN VENCIMIENTO']].forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; dur.appendChild(op); });
+    form.appendChild(para); form.appendChild(dur);
+    form.appendChild(boton('⚿ HACER LLAVE', function(){
+      var secs = Array.prototype.map.call(chks.querySelectorAll('input:checked'), function(i){ return i.value; });
+      if(!secs.length) return aviso('⚠ ELEGÍ AL MENOS UNA SECCIÓN');
+      P.emitir(proyecto, secs, +dur.value || 0, para.value.trim()).then(function(){ aviso('⚿ LLAVE HECHA — COPIALA Y MANDÁSELA'); pintar(); },
+        function(e){ aviso('⚠ ' + String(e && e.message || e).toUpperCase()); });
+    }));
+    c.appendChild(form);
+    var em = P.emitidas().filter(function(x){ return x.p === proyecto; });
+    if(!em.length) c.appendChild(el('div','cu-vacio','TODAVÍA NO HICISTE LLAVES PARA ESTE PLANETA'));
+    em.forEach(function(x){
+      var f = el('div','cu-fila'), cc = el('div'); cc.style.flex = '1'; cc.style.minWidth = '0';
+      cc.appendChild(el('div','cu-tx', (x.para || 'sin nombre') + ' — ' + x.s.join(' · ')));
+      cc.appendChild(el('div','cu-meta', 'HECHA ' + x.t + ' · ' + (x.e ? 'VENCE ' + x.e : 'SIN VENCIMIENTO')));
+      f.appendChild(cc);
+      var ops = el('div','cu-ops');
+      ops.appendChild(boton('⧉ LLAVE', function(){ copiar(x.token, '⧉ LLAVE COPIADA'); }));
+      ops.appendChild(boton('⧉ LINK', function(){ copiar('https://hk23universe.vercel.app/universe-os?llave=' + x.token, '⧉ LINK COPIADO — AL ABRIRLO SE APLICA SOLA'); }));
+      f.appendChild(ops); c.appendChild(f);
+    });
+    $('cu-pie').textContent = 'LLAVES · ' + em.length + ' HECHAS PARA ESTE PLANETA · FIRMADAS CON ECDSA P-256 · SIN LA FIRMA PRIVADA NADIE PUEDE FABRICAR UNA';
+  }
 
   /* BITÁCORA = sesiones de trabajo: qué hice, cuánto tiempo, cuántos tokens, qué salió */
   function minutosTxt(m){ m = +m || 0; if(!m) return ''; var h = Math.floor(m/60), r = m % 60; return (h ? h + 'h' : '') + (r ? (h ? ' ' : '') + r + 'min' : ''); }
@@ -18734,6 +18832,355 @@ addEventListener('DOMContentLoaded', function(){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
   window.SinSabana = { estado:function(){ return vigilados.map(function(v){ return { src:v.f.src.slice(0, 60), vivo:v.vivo, clase:v.f.className, porque:v.porque || null }; }); }, version:'2' };
+})();
+</script>
+
+
+<!-- ═══════════ LAS PUERTAS v2 — cada planeta tiene su propia puerta ═══════════
+     El universo se mira gratis; los planetas no. Un planeta = un proyecto entero, de la idea al
+     build. Afuera todos ven la FACHADA (qué es, su página pública, lo que hay adentro con candado).
+     Adentro se entra siendo el dueño, siendo SOCIO (llave de todos), o con la LLAVE DE ESE PLANETA.
+     Las llaves van firmadas con la firma del dueño (ECDSA P-256): la página las verifica con la
+     firma pública y nadie puede fabricar una sin la firma privada, que vive solo en el aparato
+     del dueño. Ojo: esto decide lo que la página MUESTRA. Lo privado de verdad no se escribe en
+     este archivo: vive en el cuartel del dueño y, para compartirlo entre aparatos, en Supabase. -->
+<style id="pu-style">
+  #pu-fachada{ position:fixed; inset:0; z-index:780; display:none; align-items:flex-end; justify-content:center;
+    background:rgba(4,4,6,.92); backdrop-filter:blur(6px); }
+  #pu-fachada.open{ display:flex; }
+  .pu-box{ width:min(640px,100%); max-height:calc(100% - env(safe-area-inset-top,0px) - 12px); overflow-y:auto;
+    -webkit-overflow-scrolling:touch; background:#0B0B0D; border:1px solid #1E1E22; border-top:3px solid var(--puc,#F0EDE8);
+    border-radius:6px 6px 0 0; padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px)); box-shadow:0 -30px 80px rgba(0,0,0,.7); }
+  @media(min-width:900px){ #pu-fachada{ align-items:center; } .pu-box{ border-radius:6px; } }
+  .pu-eye{ font-family:var(--mono); font-size:8px; letter-spacing:4px; color:#555; text-transform:uppercase; }
+  .pu-nom{ font-family:var(--disp); font-size:30px; font-weight:700; letter-spacing:-1px; color:var(--puc,#F0EDE8); margin:6px 0 2px; }
+  .pu-sub{ font-family:var(--mono); font-size:9px; letter-spacing:3px; color:#777; text-transform:uppercase; margin-bottom:14px; }
+  .pu-txt{ font-family:var(--disp); font-size:14px; line-height:1.55; color:#AAA; margin:0 0 14px; }
+  .pu-secs{ display:grid; grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:6px; margin:8px 0 16px; }
+  .pu-sec{ font-family:var(--mono); font-size:9px; letter-spacing:2px; text-transform:uppercase; color:#555;
+    border:1px solid #1E1E22; border-radius:2px; padding:0 10px; min-height:44px; display:flex; align-items:center; gap:8px; }
+  .pu-sec.abierta{ color:var(--puc,#F0EDE8); border-color:var(--puc,#F0EDE8); }
+  .pu-sec .pu-ic{ font-size:12px; }
+  .pu-fila{ display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; }
+  .pu-fila .cu-in{ flex:1 1 220px; }
+  .pu-nota{ font-family:var(--mono); font-size:8px; letter-spacing:2px; color:#4A4A4A; text-transform:uppercase; line-height:1.9; margin-top:12px; }
+  .pu-cta{ color:#000 !important; background:var(--puc,#F0EDE8) !important; border-color:var(--puc,#F0EDE8) !important; font-weight:700; }
+  /* la vista de adentro para quien no es el dueño */
+  .pu-adentro .pu-secs{ margin-top:4px; }
+  .pu-sec.clic{ cursor:pointer; }
+  .pu-sec.clic:hover{ background:var(--puc,#F0EDE8); color:#000; }
+  .pu-firma{ font-family:var(--mono); font-size:11px; color:#AAFF00; background:#060607; border:1px solid #222; padding:8px 10px;
+    border-radius:2px; word-break:break-all; user-select:all; margin:8px 0; }
+  .pu-chk{ display:inline-flex; align-items:center; gap:6px; min-height:44px; padding:0 10px; border:1px solid #222; border-radius:2px;
+    font-family:var(--mono); font-size:9px; letter-spacing:2px; color:#888; text-transform:uppercase; cursor:pointer; }
+  .pu-chk input{ width:18px; height:18px; accent-color:var(--cuc,#F0EDE8); }
+  /* LAS PUERTAS: tarjeta de llave de planeta */
+  .pu-gate-llave{ border:1px dashed #333; padding:24px; margin-top:16px; }
+</style>
+
+<div id="pu-fachada" role="dialog" aria-modal="true" aria-label="Fachada del planeta">
+  <div class="pu-box">
+    <div style="display:flex;align-items:flex-start;gap:10px">
+      <div style="flex:1;min-width:0">
+        <div class="pu-eye">PLANETA · FACHADA PÚBLICA</div>
+        <div class="pu-nom" id="pu-nom">—</div>
+        <div class="pu-sub" id="pu-sub">—</div>
+      </div>
+      <button class="cu-b" id="pu-cerrar" aria-label="cerrar">✕</button>
+    </div>
+    <p class="pu-txt" id="pu-txt">Este planeta tiene puerta propia.</p>
+    <div class="pu-fila" id="pu-publica"></div>
+    <div class="pu-eye" style="margin-top:16px">ADENTRO</div>
+    <div class="pu-secs" id="pu-secs"></div>
+    <div class="pu-eye">TENGO UNA LLAVE DE ESTE PLANETA</div>
+    <div class="pu-fila">
+      <input class="cu-in" id="pu-llave" placeholder="pegá la llave (HK23.…) o el link" autocomplete="off" spellcheck="false">
+      <button class="cu-b pu-cta" id="pu-abrir">⚿ ABRIR</button>
+    </div>
+    <div class="pu-fila"><button class="cu-b" id="pu-ver-puertas">VER LAS PUERTAS →</button></div>
+    <div class="pu-nota" id="pu-nota">SE ENTRA CON LA LLAVE DE ESTE PLANETA O SIENDO SOCIO. LA LLAVE LA DA EL DUEÑO.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  function $(id){ return document.getElementById(id); }
+  var avisoT;
+  function aviso(msg){ var t = $('collect-toast'); if(!t) return; t.textContent = msg; t.classList.add('show'); clearTimeout(avisoT); avisoT = setTimeout(function(){ t.classList.remove('show'); }, 3200); }
+  function el(tag, cls, txt){ var e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; }
+  function boton(txt, fn, cls){ var b = el('button','cu-b' + (cls ? ' ' + cls : ''), txt); b.type = 'button'; b.addEventListener('click', fn); return b; }
+
+  /* ── la firma pública del dueño: se publica UNA vez (el dueño la genera en su cuartel) ──
+     null = todavía no publicada: el aparato que creó la firma queda como dueño provisorio. */
+  var FIRMA_PUBLICA = null;
+  function firmaPublica(){ return window.HK23_FIRMA_PUBLICA || FIRMA_PUBLICA; }
+
+  var PLANETAS = {
+    vicegolfer: { mundo:function(){ return window.ViceGolfer; },  publica:'https://vicegolfer.com', prefijo:'VG' },
+    rugbyvice:  { mundo:function(){ return window.RugbyVice; },   publica:'', prefijo:'RV' },
+    arteworld:  { mundo:function(){ return window.HK23Art; },     publica:'', prefijo:'AR' },
+    cryptovice: { mundo:function(){ return window.CryptoWorld; }, publica:'', prefijo:'CV' }
+  };
+  var SECCIONES = [['ideas','IDEAS','✦'],['versiones','VERSIONES','◷'],['prompts','PROMPTS','⌘'],['dashboard','DASHBOARD','▦'],
+                   ['usuarios','USUARIOS','◉'],['guias','GUÍAS','§'],['biblioteca','BIBLIOTECA','▤'],['tienda','TIENDA','◆']];
+  var TODAS = SECCIONES.map(function(s){ return s[0]; });
+
+  function proyecto(pid){ var l = []; try{ l = PROJECTS; }catch(e){} return (l || []).find(function(p){ return p.id === pid; }) || { label:pid.toUpperCase(), sub:'', color:'#F0EDE8' }; }
+  function tier(){ try{ return JSON.parse(localStorage.getItem('hk23_tier')) || 'visita'; }catch(e){ return 'visita'; } }
+
+  /* ── base64url ───────────────────────────────────────────────────── */
+  function b64u(buf){ var s = '', u = new Uint8Array(buf); for(var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+  function deb64u(s){ s = s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length % 4) s += '='; var b = atob(s), u = new Uint8Array(b.length); for(var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+  var te = new TextEncoder(), td = new TextDecoder();
+  function hayCrypto(){ return !!(window.crypto && crypto.subtle && window.TextEncoder && window.indexedDB); }
+
+  /* ── la firma privada del dueño: IndexedDB, nunca sale del aparato ── */
+  var DB = null;
+  function db(){
+    return new Promise(function(res, rej){
+      if(DB) return res(DB);
+      var rq = indexedDB.open('hk23_firma', 1);
+      rq.onupgradeneeded = function(){ if(!rq.result.objectStoreNames.contains('par')) rq.result.createObjectStore('par'); };
+      rq.onsuccess = function(){ DB = rq.result; res(DB); };
+      rq.onerror = function(){ rej(rq.error); };
+    });
+  }
+  function leerPar(){ return db().then(function(d){ return new Promise(function(res, rej){ var r = d.transaction('par').objectStore('par').get('dueno'); r.onsuccess = function(){ res(r.result || null); }; r.onerror = function(){ rej(r.error); }; }); }); }
+  function guardarPar(v){ return db().then(function(d){ return new Promise(function(res, rej){ var t = d.transaction('par','readwrite'); t.objectStore('par').put(v, 'dueno'); t.oncomplete = function(){ res(v); }; t.onerror = function(){ rej(t.error); }; }); }); }
+
+  var par = null, estado = 'no';           /* no | provisorio | dueno | otro */
+  function calcularEstado(){
+    var fp = firmaPublica();
+    if(!par) estado = 'no';
+    else if(!fp) estado = 'provisorio';
+    else estado = (par.publica.x === fp.x && par.publica.y === fp.y) ? 'dueno' : 'otro';
+  }
+  function crearFirma(){
+    if(!hayCrypto()) return Promise.reject(new Error('este navegador no tiene criptografía'));
+    return crypto.subtle.generateKey({ name:'ECDSA', namedCurve:'P-256' }, false, ['sign', 'verify']).then(function(kp){
+      return crypto.subtle.exportKey('jwk', kp.publicKey).then(function(jwk){
+        return guardarPar({ privada:kp.privateKey, publica:{ x:jwk.x, y:jwk.y }, creada:new Date().toISOString() });
+      });
+    }).then(function(v){ par = v; calcularEstado(); return v; });
+  }
+  function lineaFirma(){ return par ? 'HK23-FIRMA ' + par.publica.x + '.' + par.publica.y : ''; }
+
+  /* ── llaves de planeta: HK23.<payload>.<firma> ───────────────────── */
+  function emitirLlave(pid, secs, dias, para){
+    if(!par) return Promise.reject(new Error('no hay firma de dueño en este aparato'));
+    var pl = { v:1, p:pid, s:secs, n:b64u(crypto.getRandomValues(new Uint8Array(6))), t:new Date().toISOString().slice(0,10) };
+    if(dias) pl.e = new Date(Date.now() + dias * 86400000).toISOString().slice(0,10);
+    if(para) pl.para = String(para).slice(0, 40);
+    var cuerpo = b64u(te.encode(JSON.stringify(pl)));
+    return crypto.subtle.sign({ name:'ECDSA', hash:'SHA-256' }, par.privada, te.encode(cuerpo)).then(function(sig){
+      var token = 'HK23.' + cuerpo + '.' + b64u(sig);
+      var emitidas = leerEmitidas(); emitidas.unshift({ token:token, p:pid, s:secs, e:pl.e || null, para:pl.para || '', t:pl.t });
+      try{ localStorage.setItem('hk23_llaves_emitidas', JSON.stringify(emitidas.slice(0, 200))); }catch(e){}
+      return { token:token, payload:pl };
+    });
+  }
+  function leerEmitidas(){ try{ var a = JSON.parse(localStorage.getItem('hk23_llaves_emitidas')); return Array.isArray(a) ? a : []; }catch(e){ return []; } }
+
+  var clavePub = null, clavePubDe = '';
+  function importarPublica(){
+    var fp = firmaPublica(); if(!fp) return Promise.resolve(null);
+    var id = fp.x + '.' + fp.y;
+    if(clavePub && clavePubDe === id) return Promise.resolve(clavePub);
+    return crypto.subtle.importKey('jwk', { kty:'EC', crv:'P-256', x:fp.x, y:fp.y, ext:true }, { name:'ECDSA', namedCurve:'P-256' }, false, ['verify'])
+      .then(function(k){ clavePub = k; clavePubDe = id; return k; });
+  }
+  /* verifica firma, planeta y vencimiento. Resuelve el payload o rechaza con el motivo. */
+  function verificar(token){
+    token = String(token || '').trim();
+    var m = token.match(/HK23\.([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)/);
+    if(!m) return Promise.reject(new Error('eso no es una llave HK23'));
+    if(!hayCrypto()) return Promise.reject(new Error('este navegador no puede verificar llaves'));
+    if(!firmaPublica()) return Promise.reject(new Error('la firma del dueño todavía no está publicada'));
+    var pl; try{ pl = JSON.parse(td.decode(deb64u(m[1]))); }catch(e){ return Promise.reject(new Error('llave dañada')); }
+    return importarPublica().then(function(k){
+      return crypto.subtle.verify({ name:'ECDSA', hash:'SHA-256' }, k, deb64u(m[2]), te.encode(m[1]));
+    }).then(function(ok){
+      if(!ok) throw new Error('la firma no coincide: esa llave no la hizo el dueño');
+      if(!pl || !PLANETAS[pl.p] || !Array.isArray(pl.s)) throw new Error('llave sin planeta válido');
+      if(pl.e && pl.e < new Date().toISOString().slice(0,10)) throw new Error('la llave venció el ' + pl.e);
+      pl.token = 'HK23.' + m[1] + '.' + m[2];
+      return pl;
+    });
+  }
+
+  var validas = {};                        /* pid → payload verificado */
+  function guardadas(){ try{ var o = JSON.parse(localStorage.getItem('hk23_llaves')); return o && typeof o === 'object' ? o : {}; }catch(e){ return {}; } }
+  function guardarLlave(pl){ var o = guardadas(); o[pl.p] = pl.token; try{ localStorage.setItem('hk23_llaves', JSON.stringify(o)); }catch(e){} validas[pl.p] = pl; }
+  function reverificarTodas(){
+    var o = guardadas(); validas = {};
+    return Promise.all(Object.keys(o).map(function(pid){ return verificar(o[pid]).then(function(pl){ if(pl.p === pid) validas[pid] = pl; }, function(){}); }));
+  }
+  function usarLlave(texto){
+    return verificar(texto).then(function(pl){
+      guardarLlave(pl);
+      aviso('⚿ LLAVE ACEPTADA — ' + proyecto(pl.p).label + ' · ' + pl.s.length + (pl.s.length === 1 ? ' SECCIÓN' : ' SECCIONES') + (pl.e ? ' · VENCE ' + pl.e : ''));
+      return pl;
+    });
+  }
+
+  /* ── quién entra a qué ───────────────────────────────────────────── */
+  function acceso(pid){
+    if(estado === 'dueno' || estado === 'provisorio') return { nivel:'dueño', secciones:TODAS.concat(['claves', 'llaves']) };
+    if(tier() === 'socio') return { nivel:'socio', secciones:TODAS.slice() };
+    var k = validas[pid];
+    if(k) return { nivel:'llave', secciones:k.s.filter(function(s){ return TODAS.indexOf(s) >= 0; }), vence:k.e || null, para:k.para || '' };
+    return { nivel:'ninguno', secciones:[] };
+  }
+  function esDueno(){ return estado === 'dueno' || estado === 'provisorio'; }
+
+  /* ── la fachada ──────────────────────────────────────────────────── */
+  var fachadaDe = null;
+  function mostrarFachada(pid){
+    var p = proyecto(pid), cfg = PLANETAS[pid];
+    fachadaDe = pid;
+    $('pu-fachada').style.setProperty('--puc', p.color || '#F0EDE8');
+    $('pu-nom').textContent = p.label;
+    $('pu-sub').textContent = p.sub || '';
+    $('pu-txt').textContent = 'Un planeta es un proyecto entero, de la idea al build. Afuera se ve qué es; adentro está todo lo demás. Este planeta tiene puerta propia.';
+    var pub = $('pu-publica'); pub.textContent = '';
+    if(cfg && cfg.publica){
+      var a = el('a','cu-b pu-cta','VER LA PÁGINA DE ' + p.label + ' →'); a.href = cfg.publica; a.target = '_blank'; a.rel = 'noopener'; pub.appendChild(a);
+    } else pub.appendChild(el('div','pu-nota','TODAVÍA SIN PÁGINA PÚBLICA'));
+    var ac = acceso(pid), cont = $('pu-secs'); cont.textContent = '';
+    SECCIONES.forEach(function(s){
+      var abierta = ac.secciones.indexOf(s[0]) >= 0;
+      var d = el('div','pu-sec' + (abierta ? ' abierta' : '')); d.appendChild(el('span','pu-ic', abierta ? s[2] : '🔒')); d.appendChild(el('span', null, s[1]));
+      cont.appendChild(d);
+    });
+    $('pu-llave').value = '';
+    $('pu-nota').textContent = !firmaPublica()
+      ? 'SE ENTRA CON LA LLAVE DE ESTE PLANETA O SIENDO SOCIO. (LAS LLAVES SE ACTIVAN CUANDO EL DUEÑO PUBLIQUE SU FIRMA.)'
+      : 'SE ENTRA CON LA LLAVE DE ESTE PLANETA O SIENDO SOCIO. LA LLAVE LA DA EL DUEÑO.';
+    $('pu-fachada').classList.add('open');
+  }
+  function cerrarFachada(){ $('pu-fachada').classList.remove('open'); fachadaDe = null; }
+  function fachadaAbierta(){ return $('pu-fachada').classList.contains('open'); }
+
+  /* ── atajar las entradas: el .open de cada mundo y el cuartel ─────── */
+  function envolver(){
+    var n = 0;
+    Object.keys(PLANETAS).forEach(function(pid){
+      var o = PLANETAS[pid].mundo();
+      if(!o || typeof o.open !== 'function'){ return; }
+      if(o.open.__pu){ n++; return; }
+      var orig = o.open;
+      var w = function(){ if(acceso(pid).nivel === 'ninguno'){ mostrarFachada(pid); return; } return orig.apply(o, arguments); };
+      w.__pu = true; o.open = w; n++;
+    });
+    if(window.Cuartel && typeof Cuartel.abrir === 'function' && !Cuartel.abrir.__pu){
+      var oc = Cuartel.abrir;
+      var wc = function(pid){ if(PLANETAS[pid] && acceso(pid).nivel === 'ninguno'){ mostrarFachada(pid); return; } return oc.apply(Cuartel, arguments); };
+      wc.__pu = true; Cuartel.abrir = wc;
+    }
+    if(window.Buzon && typeof Buzon.abrir === 'function' && !Buzon.abrir.__pu){
+      var ob = Buzon.abrir;
+      var wb = function(){ if(!esDueno() && tier() !== 'socio'){ aviso('⤒ SUBIR ES DEL DUEÑO DEL UNIVERSO'); return; } return ob.apply(Buzon, arguments); };
+      wb.__pu = true; Buzon.abrir = wb;
+    }
+    return n;
+  }
+
+  /* ── LAS PUERTAS: la casilla "tengo una llave" ───────────────────── */
+  function engancharPuertas(){
+    var b = $('pu-gate-abrir'), i = $('pu-gate-llave');
+    if(!b || b.__pu) return;
+    b.__pu = true;
+    b.addEventListener('click', function(){
+      usarLlave(i.value).then(function(pl){ i.value = ''; }, function(e){ aviso('⚠ ' + String(e && e.message || e).toUpperCase()); });
+    });
+  }
+
+  /* ── arranque ────────────────────────────────────────────────────── */
+  function init(){
+    $('pu-cerrar').addEventListener('click', cerrarFachada);
+    $('pu-fachada').addEventListener('click', function(e){ if(e.target === $('pu-fachada')) cerrarFachada(); });
+    $('pu-ver-puertas').addEventListener('click', function(){ cerrarFachada(); try{ (DASH && DASH._origGoTo ? DASH._origGoTo : goTo)('gates'); }catch(e){ try{ goTo('gates'); }catch(x){} } });
+    $('pu-abrir').addEventListener('click', function(){
+      var pid = fachadaDe;
+      usarLlave($('pu-llave').value).then(function(pl){
+        if(pl.p !== pid){ aviso('⚿ ESA LLAVE ES DE ' + proyecto(pl.p).label + ', NO DE ' + proyecto(pid).label); mostrarFachada(pid); return; }
+        cerrarFachada(); var o = PLANETAS[pid].mundo(); if(o && o.open) o.open();
+      }, function(e){ aviso('⚠ ' + String(e && e.message || e).toUpperCase()); });
+    });
+    window.addEventListener('keydown', function(e){ if(e.key === 'Escape' && fachadaAbierta()){ e.stopImmediatePropagation(); e.stopPropagation(); e.preventDefault(); cerrarFachada(); } }, true);
+    if(window.HK_ENCIMA && HK_ENCIMA.registrar) HK_ENCIMA.registrar('#pu-fachada.open');
+    engancharPuertas();
+    var n = 0, t = setInterval(function(){ envolver(); engancharPuertas(); if(++n > 40) clearInterval(t); }, 250);
+    envolver();
+    /* ?llave=… en el link */
+    var desdeLink = null;
+    try{ desdeLink = new URLSearchParams(location.search).get('llave'); }catch(e){}
+    var listo = (hayCrypto() ? leerPar().catch(function(){ return null; }) : Promise.resolve(null)).then(function(p){ par = p; calcularEstado(); })
+      .then(reverificarTodas)
+      .then(function(){ if(desdeLink) return usarLlave(desdeLink).catch(function(e){ aviso('⚠ ' + String(e && e.message || e).toUpperCase()); }); });
+    window.Puertas.listo = listo;
+  }
+
+  window.Puertas = {
+    acceso:acceso, esDueno:esDueno, estado:function(){ return estado; }, secciones:SECCIONES, planetas:Object.keys(PLANETAS),
+    fachada:mostrarFachada, usarLlave:usarLlave, verificar:verificar, emitir:emitirLlave, emitidas:leerEmitidas,
+    crearFirma:crearFirma, lineaFirma:lineaFirma, firmaPublicada:function(){ return !!firmaPublica(); }, proyecto:proyecto,
+    listo:Promise.resolve(), version:'2'
+  };
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+
+<!-- ═══════════ PANELES ENCIMA — con un panel abierto, los flotantes se esconden ═══════════
+     A23 y ⊕ viven en z-index 970 y DASHBOARD en 9000: en el teléfono tapaban la esquina de los
+     paneles (cuartel, buzón, diseño, fachada, runner, biblioteca de láminas) y un toque ahí abría
+     ATLAS en vez del botón del panel. Mientras haya un panel abierto, se van; al cerrarlo vuelven. -->
+<style id="encima-style">
+  body:has(#cu.open, #bz.open, #ds.open, #pu-fachada.open, #agents-run.open, #lam-bib:not([hidden]))
+    :is(#atl-fab, #lz-fab, #dash-fab, #me-launch, #ag-launch, #gate-badge, #cu-fab){ display:none !important; }
+  body.hk-panel-abierto :is(#atl-fab, #lz-fab, #dash-fab, #me-launch, #ag-launch, #gate-badge, #cu-fab){ display:none !important; }
+</style>
+<script>
+(function(){
+  'use strict';
+  /* navegadores sin :has() (Safari < 15.4): lo mismo con una clase en el body */
+  var conHas = false;
+  try{ conHas = CSS.supports('selector(:has(*))'); }catch(e){}
+  if(conHas) return;
+  var SEL = '#cu.open, #bz.open, #ds.open, #pu-fachada.open, #agents-run.open, #lam-bib:not([hidden])';
+  function revisar(){ document.body.classList.toggle('hk-panel-abierto', !!document.querySelector(SEL)); }
+  new MutationObserver(revisar).observe(document.body, { attributes:true, subtree:true, attributeFilter:['class','hidden'] });
+  revisar();
+})();
+</script>
+
+
+<!-- ═══════════ EL CARTEL DEL MAPA NO SE SALE DE LA PANTALLA ═══════════
+     El cartelito que aparece al tocar un planeta ("▶ FRACTAL UNIVERSE") se ponía en el dedo + 16 px
+     sin mirar el borde. Tocando un planeta del lado derecho se salía de la pantalla, el documento
+     pasaba de 390 a 496 px y el teléfono se alejaba solo: todo el universo quedaba achicado y los
+     paneles de abajo fuera de la vista. Ahora el cartel se acomoda adentro del borde. -->
+<style id="tooltip-style">
+  #node-tooltip{ max-width:calc(100vw - 16px); overflow:hidden; text-overflow:ellipsis; }
+</style>
+<script>
+(function(){
+  'use strict';
+  var t = document.getElementById('node-tooltip');
+  if(!t) return;
+  var M = 8, acomodando = false;
+  function acomodar(){
+    if(acomodando || t.style.display === 'none') return;
+    acomodando = true;
+    var r = t.getBoundingClientRect(), W = document.documentElement.clientWidth || innerWidth, H = document.documentElement.clientHeight || innerHeight;
+    if(r.right > W - M) t.style.left = Math.max(M, W - r.width - M) + 'px';
+    if(r.bottom > H - M) t.style.top = Math.max(M, H - r.height - M) + 'px';
+    if(r.top < M) t.style.top = M + 'px';
+    acomodando = false;
+  }
+  new MutationObserver(acomodar).observe(t, { attributes:true, attributeFilter:['style'], childList:true, characterData:true, subtree:true });
 })();
 </script>
 
