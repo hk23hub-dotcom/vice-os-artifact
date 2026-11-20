@@ -9454,6 +9454,8 @@ addEventListener('DOMContentLoaded', function(){
   const SUPA={ url:'https://qhklngvzdmwsbopbkiff.supabase.co',
     key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFoa2xuZ3Z6ZG13c2JvcGJraWZmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3OTEwOTYsImV4cCI6MjA5NzM2NzA5Nn0.ttdBrxCF6Wl6I8yKOICfTq7WyPylMmSmdKGUb176BCs' };
   const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+  // lo que viene de Supabase lo escribe cualquiera con la llave pública: se pinta siempre escapado
+  const escV=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
   // identidad del visitante (persistente y anónima)
   let me=null;
@@ -9475,7 +9477,7 @@ addEventListener('DOMContentLoaded', function(){
   async function refreshWho(){
     const box=$('tl-who'); if(!box) return;
     if(presenceOK===false){
-      box.innerHTML='<div class="tl-who"><span class="tl-dot"></span><span class="n">'+me.name+' (tú) — modo local</span><span class="tr">'+tier().toUpperCase()+'</span></div>'+
+      box.innerHTML='<div class="tl-who"><span class="tl-dot"></span><span class="n">'+escV(me.name)+' (tú) — modo local</span><span class="tr">'+escV(String(tier()).toUpperCase())+'</span></div>'+
         '<div style="font-size:8px;color:#3a5a3a;line-height:1.8;margin-top:8px">Para presencia global: corre el SQL de <b>supabase-schema.sql</b> (tabla universe_presence) en tu Supabase. VIGÍA hace el resto.</div>';
       return;
     }
@@ -9485,8 +9487,8 @@ addEventListener('DOMContentLoaded', function(){
       if(!r.ok) throw 0;
       const rows=await r.json();
       box.innerHTML=rows.map(w=>'<div class="tl-who"><span class="tl-dot"></span>'+
-        '<span class="n">'+w.name+(w.name===me.name?' (tú)':'')+'</span>'+
-        '<span class="tr">'+(w.tier||'visita').toUpperCase()+'</span></div>').join('')||'<div style="font-size:9px;color:#3a5a3a">solo tú</div>';
+        '<span class="n">'+escV(String(w.name||'').slice(0,40))+(w.name===me.name?' (tú)':'')+'</span>'+
+        '<span class="tr">'+escV(String(w.tier||'visita').slice(0,20).toUpperCase())+'</span></div>').join('')||'<div style="font-size:9px;color:#3a5a3a">solo tú</div>';
       log('vigia', rows.length+' conectados ahora');
     }catch(e){ presenceOK=false; refreshWho(); }
   }
