@@ -9,7 +9,7 @@
 // Qué hace, en orden:
 //   1. CIRUGÍA: reemplaza bloques enteros por su versión vacía y honesta (proyectos del mapa,
 //      inquilinos, biblioteca, mundos del dashboard, códigos de acceso, links del cuartel, firma
-//      de LAS PUERTAS, links públicos de los planetas…). Se ancla en el código, no en los textos.
+//      de LAS PUERTAS, links públicos de los planetas, referido del cosmos cripto…). Se ancla en el código, no en los textos.
 //   2. RED: todo pedido a Supabase va a https://TU-PROYECTO.supabase.co y las keys quedan en
 //      TU-ANON-KEY; los JSON del universo pasan a uos-*.json (la plantilla no lee los del dueño).
 //   3. BARRIDO: nombres, proyectos, lugares, colecciones, links de tienda y la marca → placeholders.
@@ -57,7 +57,8 @@ const MARCADORES_B64 = [
   ['colección', 'XGJyZXdpcmVkXGI=', 'i'],
   ['inquilino', 'KD88IVsuXHddKWZyZXF1ZW5jeSg/IVx3KQ==', 'i'],
   ['proyecto', 'YXRsYXMteHxcYkFUTEFTIFhcYnxhbGJhdHJvc3xcYmd0YSA/NlxifHZpY2UtZ3RhNnxtdW5kaWFsIDIwMjZ8bXVuZGlhbFwuaHRtbHxtdWx0aXZlcnNlXC5odG1sfGNvc21vc1wuaHRtbA==', 'i'],
-  ['link', 'Y2xhdWRlXC5haVwvYXJ0aWZhY3RcLw==', '']
+  ['link', 'Y2xhdWRlXC5haVwvYXJ0aWZhY3RcLw==', ''],
+  ['referido', 'OTlmYzQzYzgtOTA4Mi00Njk0LTk2M2YtMTk3ZWVjODQ1MmEw', '']
 ];
 export const MARCADORES = MARCADORES_B64.map(([cat, src, fl], i) =>
   ({ n: i + 1, cat, re: new RegExp(d(src), fl.includes('g') ? fl : fl + 'g') }));
@@ -196,6 +197,10 @@ const CIRUGIA = [
   { n: 'planes: la tienda de la plantilla no consulta la del dueño', re: /(['"])\/api\/tier-unlock\1/g,
     poner: "$1/api/TU-TIENDA$1", min: 0, max: 10 },
   { n: 'MADRE: sin salto al universo del dueño', re: /location\.href\s*=\s*(["'])\/universe-os\1/g, poner: 'location.href=location.pathname', min: 0, max: 5 },
+  { n: 'CRYPTO COSMOS: referido vacío y sin el link de futuros del dueño', re: /const CC_CONFIG = \{[\s\S]*?\n  \};/,
+    poner: m => m.replace(/(referido:\s*\{\s*rollbit:\s*)(['"])[^'"]*\2/, "$1''")
+                 .replace(/(futures:\s*)(['"])[^'"]*\2/, "$1''")
+                 .replace(/(futuresTexto:\s*)(['"])[^'"]*\2/, "$1'FUTURES →'"), min: 1, max: 1 },
   { n: 'diseño: los tokens salen del :root de esta página', re: /universe-os\.html :root/g, poner: 'el :root de esta página', min: 0, max: 5 },
   { n: 'red: Supabase → placeholder', re: /https:\/\/[a-z0-9]{20}\.supabase\.co/g, poner: 'https://TU-PROYECTO.supabase.co', min: 1, max: 50 },
   { n: 'red: panel de Supabase sin proyecto', re: /https:\/\/supabase\.com\/dashboard\/project\/[^'"\s)]+/g, poner: 'https://supabase.com/dashboard', min: 0, max: 10 },

@@ -7619,7 +7619,7 @@ var qrcode = function() {
     const t=document.querySelector('.ag-tab[data-pane="'+pane+'"]'); if(t) t.click(); };
   const KEYS=[
     ['G','Galaxia nueva',      ()=>{ if(window.hkGalaxia) window.hkGalaxia(); }],
-    ['C','Señales (cripto)',   ()=>{ if(window.CryptoSignals) window.CryptoSignals.open(); }],
+    ['C','Cosmos cripto · flota 🛸', ()=>{ if(window.CryptoCosmos) window.CryptoCosmos.toggle(); }],
     ['E','MVB · la noche en vivo', ()=>{ if(window.MVB) window.MVB.open(); }],
     ['I','Ideas · blueprints', ()=>openPanelTab('ideas')],
     ['Y','◉ MEDIA · fondos',   ()=>{ const p=document.getElementById('me-panel'); if(p) p.classList.toggle('open'); }],
@@ -11917,6 +11917,7 @@ addEventListener('DOMContentLoaded', function(){
       ['◈','QR VIVO','QR escaneable editable','#00F0FF',()=>openPanel('ag-panel','qr')],
       ['🧪','LAB','juega con las entidades','#AAFF00',()=>call(window.EntityLab&&window.EntityLab.toggle)],
       ['📈','SEÑALES','cripto, con su porqué','#FFD200',()=>call(window.CryptoSignals&&window.CryptoSignals.open)],
+      ['🛸','COSMOS CRIPTO','monedas en vivo + flota','#00F0FF',()=>call(window.CryptoCosmos&&window.CryptoCosmos.open)],
       ['▚','FABLE','fondo de entidades','#B84DFF',()=>call(window.FableFX&&window.FableFX.toggle)],
       ['🔊','FUSIÓN','parlantes · onda · tornamesa','#FF3A1F',()=>call(()=>window.Fusion&&window.Fusion.next())],
     ]],
@@ -12068,6 +12069,7 @@ addEventListener('DOMContentLoaded', function(){
     ['QR VIVO',   'panel','#ag-panel (pestaña qr)',    ()=>document.getElementById('ag-panel')&&abrePanel('ag-panel','qr')],
     ['LAB',       'api',  'window.EntityLab.on',       ()=>window.EntityLab&&window.EntityLab.on],
     ['SEÑALES',   'api',  'window.CryptoSignals.open', ()=>window.CryptoSignals&&window.CryptoSignals.open],
+    ['COSMOS CRIPTO','api','window.CryptoCosmos.open', ()=>window.CryptoCosmos&&window.CryptoCosmos.open],
     ['FABLE',     'api',  'window.FableFX.toggle',     ()=>window.FableFX&&window.FableFX.toggle],
     ['FUSIÓN',    'api',  'window.Fusion.next',        ()=>window.Fusion&&window.Fusion.next],
     ['GALAXIA',   'api',  'window.hkGalaxia',          ()=>window.hkGalaxia],
@@ -18576,6 +18578,656 @@ addEventListener('DOMContentLoaded', function(){
   window.Planes = { abrir:abrir, cerrar:cerrar, cita:abrirCita, cerrarCita:cerrarCita, plan:planActual,
     tienda:function(){ return tienda; }, planes:PLANES.map(function(p){ return { k:p.k, nombre:p.nom, precio:p.precio + (p.per ? ' ' + p.per : '') }; }), version:'1' };
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+
+<!-- ═══════════ CRYPTO COSMOS — monedas en vivo + flota de OVNIs que escanea (módulo independiente) ═══════════
+     Qué hace: cubre el mapa con las monedas de Rollbit y su precio en vivo (CoinGecko; verde sube, rojo baja,
+     cambio % en 24 h). Una nave madre y su flota recorren las monedas escaneándolas con un haz; cada
+     CC_CONFIG.escaneoSeg segundos la nave madre fija una OPORTUNIDAD entre las 3 monedas que más se movieron
+     en 24 h, con un cartel honesto (no es señal de compra) y tres salidas. Tocar una moneda abre su par.
+     Sin precios en vivo no inventa nada: las monedas dicen "—", el HUD lo dice y no fija oportunidades
+     (tampoco con precios viejos, con pocas monedas en vivo ni con movimientos bajo minMovimiento).
+
+     CÓMO EMPAQUETARLO (llevarlo a otra página o venderlo suelto):
+       1. Copia este bloque entero: desde este comentario hasta el final de su script (el estilo
+          id="cc-style", el markup #cc-raiz y el script). No usa librerías ni build.
+       2. Pégalo antes de </body> de tu página.
+       3. Configura CC_CONFIG, al comienzo del script: monedas, referido, tiempos, flota, colores y links.
+          En otra página pon pantalla:'' y zona:'' (los toques cuentan sobre el fondo de la página) y
+          ajusta evitar (lo que el HUD, el cartel y las monedas no deben tapar) y avisos (tus avisos pasajeros:
+          el cartel evita su franja si hay lugar).
+       4. Ábrelo desde un botón tuyo: CryptoCosmos.open().
+     API: window.CryptoCosmos = { open(), close(), toggle(), on() → true/false, flota() → despliega la flota ya,
+          config → CC_CONFIG (vivo: se lee al usarlo), estado() → diagnóstico }. Alias window.CRYPTO_COSMOS.
+          Gancho opcional: CryptoCosmos.objetivo = (x, y) => distancia en px al objetivo tocable más cercano de
+          tu página (Infinity si no hay); si está más cerca que la moneda, el toque es de tu página.
+     Lo que toca del universo (goTo, currentScreen, el mundo ₿ CRYPTO, hkLog) va con typeof/guardas: en otra
+     página no está y no pasa nada. La plantilla vendible sale con el referido vacío (lo hace su generador).
+     En el universo: tecla C, ⊕ → 🛸 COSMOS CRIPTO, y 🛸 COSMOS dentro del mundo ₿ CRYPTO. -->
+<style id="cc-style">
+  #cc-raiz{ display:none; }
+  #cc-raiz.on{ display:block; }
+  #cc-raiz.pausa{ display:none; }
+  #cc-fondo, #cc-canvas{ position:fixed; left:0; top:0; width:100%; height:100%; z-index:40; pointer-events:none; }
+  #cc-canvas{ z-index:41; }
+  #cc-hud{ position:fixed; left:12px; top:80px; width:auto; z-index:514; display:flex; align-items:center; gap:10px;
+    box-sizing:border-box; padding:6px 6px 6px 14px; border-radius:12px; text-transform:uppercase;
+    font:400 9px/1.5 'Space Mono',ui-monospace,monospace; letter-spacing:1.5px; color:#9FE8FF;
+    background:rgba(6,8,16,.92); border:1px solid rgba(0,240,255,.38); box-shadow:0 8px 28px rgba(0,0,0,.45); }
+  #cc-hud .cc-txt{ flex:1; min-width:0; }
+  #cc-estado, #cc-ayuda{ display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; }
+  #cc-estado{ color:#EAF6FF; font-weight:700; }
+  #cc-ayuda{ color:#7fa7b8; font-size:8px; letter-spacing:1px; }
+  #cc-hud[data-estado="sin-precios"]{ border-color:rgba(255,91,107,.5); }
+  #cc-hud[data-estado="sin-precios"] #cc-estado{ color:#ff9aa4; }
+  #cc-salir{ flex:0 0 auto; min-height:44px; min-width:44px; padding:0 14px; border:none; border-radius:9px; cursor:pointer;
+    background:#00F0FF; color:#04121a; font:700 10px 'Space Mono',ui-monospace,monospace; letter-spacing:2px; }
+  #cc-salir:focus-visible, #cc-callout a:focus-visible, #cc-callout button:focus-visible{ outline:2px solid #FFD200; outline-offset:2px; }
+  #cc-callout{ position:fixed; left:12px; top:120px; width:auto; z-index:514; display:none; box-sizing:border-box;
+    text-align:center; padding:12px 16px 14px; border-radius:14px; font-family:'Space Mono',ui-monospace,monospace;
+    background:rgba(8,10,20,.96); border:1px solid #FFD200; box-shadow:0 0 34px rgba(255,210,0,.22); }
+  #cc-callout.on{ display:block; animation:ccpop .28s ease; }
+  @keyframes ccpop{ from{ transform:scale(.94); opacity:0; } to{ transform:none; opacity:1; } }
+  #cc-callout .cc-ttl{ font:700 15px 'Space Grotesk',system-ui,sans-serif; letter-spacing:1px; color:#FFD200; padding:10px 44px 0; }
+  #cc-callout .cc-mov{ font-size:11px; font-weight:700; margin:6px 0 2px; }
+  #cc-callout .cc-mide{ font-size:9px; color:#8f98a6; line-height:1.5; }
+  #cc-callout .cc-nota{ font-size:9px; color:#d6dbe3; line-height:1.5; margin:6px 0 10px; }
+  #cc-callout .cc-acc{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+  #cc-callout .cc-acc a, #cc-callout .cc-acc button{ flex:1 1 auto; min-height:44px; display:inline-flex; align-items:center;
+    justify-content:center; padding:0 14px; border-radius:9px; cursor:pointer; text-decoration:none; white-space:nowrap;
+    font:700 11px 'Space Grotesk',system-ui,sans-serif; letter-spacing:1px; box-sizing:border-box; }
+  #cc-rollbit{ background:#00F0FF; color:#04121a; border:none; }
+  #cc-futures{ background:#B84DFF; color:#0a0410; border:none; }
+  #cc-mundo{ background:transparent; color:#FFD200; border:1px solid rgba(255,210,0,.6); }
+  #cc-callout [hidden]{ display:none !important; }
+  @media (max-width:600px){
+    #cc-hud{ letter-spacing:1px; padding-left:12px; }
+    #cc-callout{ padding:10px 10px 12px; }
+    #cc-callout .cc-ttl{ font-size:14px; padding-top:8px; }
+    #cc-callout .cc-acc{ gap:6px; }
+    #cc-callout .cc-acc a, #cc-callout .cc-acc button{ padding:0 8px; font-size:10px; letter-spacing:.5px; }
+  }
+  /* pantalla corta (teléfono chico o acostado): HUD de una línea y cartel compacto (lo que mide ya lo dicen el HUD y la línea del %) */
+  #cc-raiz.justo #cc-hud{ padding-top:1px; padding-bottom:1px; }
+  #cc-raiz.justo #cc-callout{ padding:8px 10px 10px; }
+  #cc-raiz.justo #cc-callout .cc-mide{ display:none; }
+  #cc-raiz.justo #cc-callout .cc-nota{ margin:4px 0 6px; }
+  #cc-raiz.justo #cc-callout .cc-ttl{ padding-top:2px; font-size:14px; }
+  #cc-raiz.justo #cc-callout .cc-acc{ gap:6px; }
+  #cc-raiz.justo #cc-callout .cc-acc a, #cc-raiz.justo #cc-callout .cc-acc button{ padding:0 8px; font-size:10px; letter-spacing:.5px; }
+  #cc-callout .cc-x{ position:absolute; top:2px; right:2px; width:44px; height:44px; border:none; background:none;
+    color:#8a8f99; font-size:16px; cursor:pointer; }
+  #cc-callout .cc-x:hover{ color:#fff; }
+  /* en el universo: sus avisos (#collect-toast) quedan sobre el cartel; en otra página la regla no encuentra nada */
+  body:has(#cc-raiz.on:not(.pausa)) #collect-toast{ z-index:515; }
+  /* el botón dentro del mundo ₿ CRYPTO (solo en el universo) */
+  #cc-cw{ margin-left:auto; font-family:'Space Mono',ui-monospace,monospace; font-size:9px; letter-spacing:2px; color:#00F0FF;
+    background:#06121a; border:1px solid rgba(0,240,255,.6); border-radius:2px; padding:8px 12px; cursor:pointer; white-space:nowrap; }
+  #cc-cw:hover{ background:#00F0FF; color:#000; }
+  #cc-cw + #cw-x{ margin-left:8px; }
+  @media (pointer:coarse), (max-width:820px){ #cc-cw{ min-height:44px; } }
+</style>
+<div id="cc-raiz">
+  <canvas id="cc-fondo" aria-hidden="true"></canvas>
+  <canvas id="cc-canvas" aria-hidden="true"></canvas>
+  <div id="cc-hud" role="status" aria-live="polite" data-estado="buscando">
+    <span class="cc-txt"><span id="cc-estado">◈ CRYPTO COSMOS</span><span id="cc-ayuda"></span></span>
+    <button type="button" id="cc-salir" aria-label="Salir del cosmos cripto">✕ SALIR</button>
+  </div>
+  <div id="cc-callout" role="dialog" aria-label="Oportunidad del cosmos cripto">
+    <button type="button" class="cc-x" aria-label="Cerrar el cartel">✕</button>
+    <div class="cc-ttl"></div>
+    <div class="cc-mov"></div>
+    <div class="cc-mide"></div>
+    <div class="cc-nota">Movimiento notable en vivo — no es señal de compra. Decide tú.</div>
+    <div class="cc-acc">
+      <a id="cc-rollbit" href="#" target="_blank" rel="noopener">VER EN ROLLBIT ↗</a>
+      <a id="cc-futures" href="#"></a>
+      <button type="button" id="cc-mundo"></button>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+  /* ══ CONFIGURACIÓN — lo único que tocas para llevarlo a otra página ══ */
+  const CC_CONFIG = {
+    // [símbolo del par en Rollbit, id de CoinGecko, factor opcional: 1000PEPE vale 1000 × PEPE]
+    monedas: [
+      ['BTC','bitcoin'],['ETH','ethereum'],['SOL','solana'],['XRP','ripple'],['DOGE','dogecoin'],['TRX','tron'],
+      ['ADA','cardano'],['DOT','polkadot'],['XLM','stellar'],['LTC','litecoin'],['BNB','binancecoin'],['LINK','chainlink'],
+      ['AAVE','aave'],['BCH','bitcoin-cash'],['HBAR','hedera-hashgraph'],['SUI','sui'],['TAO','bittensor'],['RENDER','render-token'],
+      ['XMR','monero'],['APE','apecoin'],['ENA','ethena'],['JUP','jupiter-exchange-solana'],['KAS','kaspa'],['WIF','dogwifcoin'],
+      ['TRUMP','official-trump'],['PENGU','pudgy-penguins'],['POPCAT','popcat'],['ONDO','ondo-finance'],['TIA','celestia'],['DASH','dash'],
+      ['INJ','injective-protocol'],['SPX','spx6900'],['VIRTUAL','virtual-protocol'],['HYPE','hyperliquid'],['ZEC','zcash'],['WLD','worldcoin-wld'],
+      ['1000PEPE','pepe',1000],['1000SHIB','shiba-inu',1000],['XAUT','tether-gold'],['FARTCOIN','fartcoin'],['MOODENG','moo-deng'],['BERA','berachain-bera']
+    ],
+    referido: { rollbit: '' },   // tu id de referido ('' = links sin referido)
+    escaneoSeg: 13,       // cada cuántos segundos la nave madre fija una oportunidad
+    minMovimiento: 2,     // % mínimo en 24 h para llamarlo "movimiento notable" (menos que eso: no se fija nada)
+    preciosSeg: 45,       // cada cuántos segundos se piden los precios (CoinGecko gratis: no bajes de 30)
+    flota: 6,             // ovnis chicos; la nave madre va aparte
+    colores: ['#00F0FF','#B84DFF','#AAFF00','#FFD200','#FF2D78','#FF6600'],   // uno por ovni, se repiten
+    links: {
+      par: 'https://rollbit.com/trading/{par}?b={ref}',   // {par} = símbolo · {ref} = referido (sin referido se quita)
+      futures: '', futuresTexto: 'FUTURES →',   // futures '' = sin ese botón
+      mundoTexto: 'CRYPTO →'                                   // abre window.CryptoWorld si la página lo tiene
+    },
+    precios: 'https://api.coingecko.com/api/v3/simple/price',
+    fpsMax: 0,            // tope de cuadros por segundo del cosmos (0 = automático: 30 en el teléfono, 60 en el escritorio)
+    nitidez: 0,           // tope de densidad del lienzo (0 = automático); 1 = más liviano, letras menos finas
+    pantalla: 'map',            // la pantalla del universo donde vive (currentScreen); '' en otra página
+    zona: '#map-canvas',        // la superficie donde cuentan los toques a las monedas; '' = el fondo de la página
+    evitar: ['.map-ui', '#gate-badge', '#dash-fab', '#hk-dock', '#me-launch', '#ag-launch', '#lz-fab', '#atl-fab',
+             '#collectibles-counter', '#sc-corner', '#tpl-cinta'],   // lo que el cosmos no tapa
+    avisos: ['#collect-toast']  // avisos pasajeros de tu página: el cartel evita su franja cuando hay lugar
+  };
+
+  const $ = id => document.getElementById(id);
+  const raiz = $('cc-raiz'), cf = $('cc-fondo'), cv = $('cc-canvas'), hud = $('cc-hud'), est = $('cc-estado'), ayuda = $('cc-ayuda');
+  const co = $('cc-callout'), rb = $('cc-rollbit'), fut = $('cc-futures'), mun = $('cc-mundo');
+  if(!raiz || !cv || !cf || !cv.getContext) return;
+  const ctx = cv.getContext('2d'), fx = cf.getContext('2d');   // fx: monedas y líneas (quietas) · ctx: la flota (se mueve)
+  const log = (a, b) => { try{ if(typeof window.hkLog === 'function') window.hkLog(a, b); }catch(e){} };
+  const NITIDEZ_TEL = 1.5;   // la flota en el teléfono: algo menos densa, nadie lo nota y alivia
+  const COL = { sube:'#2bd66a', baja:'#ff5b6b', nada:'#5a5a6e', neutro:'#c9d2e8' };
+  const azar = k => { const s = Math.sin(k * 12.9898) * 43758.5453; return s - Math.floor(s); };
+
+  let on = false, pausado = '', sucio = false, raf = null, tPrev = 0, t = 0, tick = 0, firmaUlt = '';
+  let timerPrecios = null, vigia = null, flotaT = null, flashT = null, flash = null;
+  let geo = { hy:80, hb:138 };
+  let Z = { left:0, right:0, top:0, bottom:0 }, cvTop = 0, cvH = 0, celda = { w:80, h:60 }, radio = 22, pares = [], dpr = 1, dprF = 1, chico = false, ultFondo = 0;
+  let flotaOn = false, madre = null, ovnis = [], senal = null, ultima = null, chispas = [], proxEscaneo = 0;
+  let ultimoOk = 0, ultimoIntento = 0, pidiendo = false, fallas = 0;
+
+  let coins = [];
+  function armarMonedas(){
+    coins = (CC_CONFIG.monedas || []).map(([s, id, f], i) => ({ s:String(s), id:String(id), f:+f || 1, i, price:null, ch:null,
+      bx:0, by:0, x:0, y:0, ph:azar(i + 3) * 6.283, spr:null, sprKey:'' }));
+  }
+  armarMonedas();
+
+  /* ── precios: CoinGecko, sin inventar nada ── */
+  const vivos = () => !!ultimoOk && (Date.now() - ultimoOk) < ((+CC_CONFIG.preciosSeg || 45) * 3 + 15) * 1000;
+  const conPrecio = () => vivos() ? coins.filter(c => c.price != null).length : 0;
+  async function pedirPrecios(forzar){
+    const seg = +CC_CONFIG.preciosSeg || 45;
+    if(pidiendo || (!forzar && ultimoOk && Date.now() - ultimoIntento < Math.min(15, seg / 3) * 1000)) return;   // abrir y cerrar seguido no gasta la cuota
+    pidiendo = true; ultimoIntento = Date.now(); let ok = false, tm = null;
+    try{
+      const ids = [...new Set(coins.map(c => c.id))].join(',');
+      const ac = typeof AbortController === 'function' ? new AbortController() : null;
+      if(ac) tm = setTimeout(() => ac.abort(), 10000);
+      const r = await fetch(CC_CONFIG.precios + '?ids=' + ids + '&vs_currencies=usd&include_24hr_change=true',
+        { signal: ac ? ac.signal : undefined, cache:'no-store' });
+      if(r.ok){
+        const j = await r.json(); let n = 0;
+        coins.forEach(c => { const d = j && j[c.id], p = d ? Number(d.usd) : NaN, ch = d ? Number(d.usd_24h_change) : NaN;
+          if(isFinite(p) && p > 0){ c.price = p * c.f; c.ch = isFinite(ch) ? ch : null; n++; } else { c.price = null; c.ch = null; } });
+        if(n){ ok = true; ultimoOk = Date.now(); }
+      }
+    }catch(e){}
+    if(tm) clearTimeout(tm);
+    pidiendo = false; fallas = ok ? 0 : fallas + 1; ultFondo = 0;
+    pintarHud();
+  }
+  function fmt(p){ if(p == null) return '—';
+    return '$' + p.toLocaleString('en-US', { maximumFractionDigits: p >= 1000 ? 0 : p >= 1 ? 2 : p >= 0.01 ? 4 : 6 }); }
+  const pct = ch => (ch == null || !isFinite(ch)) ? '—' : (ch >= 0 ? '+' : '') + ch.toFixed(1) + '%';
+  const num = ch => (ch == null || !isFinite(ch)) ? null : +ch.toFixed(2);
+  const hex = (c, def) => /^#[0-9a-f]{6}$/i.test(String(c || '')) ? c : def;
+
+  /* ── el link al par, con el referido si hay ── */
+  function urlPar(c){
+    const ref = String((CC_CONFIG.referido && CC_CONFIG.referido.rollbit) || '').trim();
+    let u = String((CC_CONFIG.links && CC_CONFIG.links.par) || '').split('{par}').join(encodeURIComponent(c.s));
+    if(ref) u = u.split('{ref}').join(encodeURIComponent(ref));
+    else { u = u.replace(/[?&][^?&=#]+=\{ref\}/, ''); if(u.indexOf('?') < 0) u = u.replace('&', '?'); }
+    return u;
+  }
+  function abrirPar(c){
+    const u = urlPar(c); if(!/^https?:\/\//i.test(u)) return;
+    window.open(u, '_blank', 'noopener');
+    avisar('↗ ' + c.s + ' — abriendo su par en Rollbit'); log('cosmos', 'par ' + c.s);
+  }
+
+  /* ── HUD: qué pasa, siempre dicho ── */
+  function avisar(txt){ flash = { txt, hasta: Date.now() + 2600 }; pintarHud(); clearTimeout(flashT);
+    flashT = setTimeout(() => { flashT = null; flash = null; pintarHud(); }, 2700); }
+  function pintarHud(){
+    const v = conPrecio(), n = coins.length;
+    const estado = v ? 'vivo' : (!fallas && !ultimoOk ? 'buscando' : 'sin-precios');
+    hud.dataset.estado = estado;
+    let a, b;
+    if(estado === 'vivo'){
+      a = '◈ CRYPTO COSMOS · ' + v + '/' + n + (fallas ? ' · PRECIOS DE HACE ' + Math.floor((Date.now() - ultimoOk) / 10000) * 10 + ' S' : ' EN VIVO') + ' · CAMBIO % 24 H';
+      b = fallas ? '🛸 la flota espera precios frescos para fijar · toca una moneda → su par en Rollbit'
+        : !flotaOn ? '🛸 la flota sale en un segundo · toca una moneda → su par en Rollbit'
+        : (ultima ? '🛸 flota escaneando · última oportunidad: ' + ultima.s + ' ' + pct(ultima.ch) + ' · toca una moneda → Rollbit'
+                  : '🛸 flota escaneando · toca una moneda → su par en Rollbit');
+    } else if(estado === 'buscando'){
+      a = '◈ CRYPTO COSMOS · BUSCANDO PRECIOS…'; b = 'precios en vivo de CoinGecko · cambio % en 24 h';
+    } else {
+      a = '◈ SIN PRECIOS EN VIVO · LA FLOTA ESPERA';
+      b = 'CoinGecko no responde o no hay red: nada inventado · reintento cada ' + (+CC_CONFIG.preciosSeg || 45) + ' s';
+    }
+    const ta = flash && Date.now() < flash.hasta ? flash.txt : a;
+    if(est.textContent !== ta) est.textContent = ta;   // solo si cambia: el HUD es aria-live
+    if(ayuda.textContent !== b) ayuda.textContent = b;
+  }
+
+  /* ── dónde va cada cosa: nada tapa el dock, los lanzadores, el ⊕, A23 ni la nav ── */
+  function cajas(){   // lo de CC_CONFIG.evitar que está visible en pantalla
+    const W = innerWidth, vh = innerHeight, out = [];
+    (CC_CONFIG.evitar || []).forEach(sel => { let els = []; try{ els = document.querySelectorAll(sel); }catch(e){}
+      els.forEach(el => { if(raiz.contains(el)) return;
+        const cs = getComputedStyle(el); if(cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity === 0) return;
+        const r = el.getBoundingClientRect();
+        if(r.width < 1 || r.height < 1 || r.right <= 0 || r.left >= W || r.bottom <= 0 || r.top >= vh || r.height > vh * 0.6) return;
+        out.push({ l:r.left, r:r.right, t:r.top, b:r.bottom }); }); });
+    return out;
+  }
+  function zonaLibre(x0, x1, cs){   // en la columna [x0, x1]: bajo lo de arriba y sobre lo de abajo
+    const vh = innerHeight; let top = 8, bottom = vh - 8;
+    for(const c of cs || cajas()){ if(c.r <= x0 || c.l >= x1) continue;
+      if((c.t + c.b) / 2 < vh / 2) top = Math.max(top, c.b); else bottom = Math.min(bottom, c.t); }
+    return { top, bottom };
+  }
+  function tramo(cs, y0, y1, x0, x1){   // el tramo horizontal libre más ancho de la franja [y0, y1]
+    let iv = [[x0, x1]];
+    for(const c of cs){ if(c.b <= y0 || c.t >= y1) continue; const nv = [];
+      for(const [a, b] of iv){ if(c.r <= a || c.l >= b){ nv.push([a, b]); continue; } if(c.l > a) nv.push([a, c.l]); if(c.r < b) nv.push([c.r, b]); }
+      iv = nv; }
+    let m = null; for(const v of iv) if(!m || v[1] - v[0] > m[1] - m[0]) m = v;
+    return m || [x0, x0];
+  }
+  function celdaDe(w, h){   // el lado de la celda de cada moneda en un rectángulo w × h (la misma grilla de repartir)
+    const n = Math.max(1, coins.length); if(w <= 0 || h <= 0) return 0;
+    const cols = Math.max(3, Math.min(n, Math.round(Math.sqrt(n * w / h)))), rows = Math.ceil(n / cols);
+    return Math.min(w / cols, h / rows);
+  }
+  function rectLibre(cs, x0, y0, x1, y1){   // el rectángulo libre dentro de [x0, x1] × [y0, y1] que da más espacio por moneda
+    let m = null;
+    const tops = [y0].concat(cs.map(c => c.b).filter(v => v > y0 && v < y1)), fondos = [y1].concat(cs.map(c => c.t).filter(v => v > y0 && v < y1));
+    for(const t of tops) for(const b of fondos){ if(b - t < 60) continue; const [a, z] = tramo(cs, t, b, x0, x1); if(z - a < 160) continue;
+      const k = celdaDe(z - a, b - t), area = (z - a) * (b - t);
+      if(!m || k > m.k + 0.5 || (Math.abs(k - m.k) <= 0.5 && area > m.area)) m = { left:a, right:z, top:t, bottom:b, k, area }; }
+    return m;
+  }
+  function firma(){ const a = zonaLibre(0, innerWidth); return innerWidth + 'x' + innerHeight + ':' + Math.round(a.top) + ',' + Math.round(a.bottom); }
+  function ubicar(){
+    const W = innerWidth, H = innerHeight; chico = Math.min(W, H) <= 600;   // teléfono, también acostado
+    const bajo = H < 520, justo = bajo || (chico && H < 700);   // bajo: acostado · justo: HUD de una línea y cartel compacto
+    ayuda.style.display = justo ? 'none' : ''; raiz.classList.toggle('justo', justo);
+    const cs = cajas(), hh = justo ? 48 : (chico ? 68 : 58);   // alto fijo: estado + ayuda (en pantalla corta, solo el estado)
+    let hw = Math.min(W - 24, 640), hx = Math.round((W - hw) / 2), hy = zonaLibre(hx, hx + hw, cs).top + 8;
+    if(bajo){   // pantalla baja: la primera franja libre desde arriba donde quepa, esquivando lo de los costados
+      const m = cs.map(c => ({ l:c.l - 6, r:c.r + 6, t:c.t - 6, b:c.b + 6 }));
+      for(const y of [8].concat(m.map(c => c.b + 2).filter(v => v < H / 2)).sort((a, b) => a - b)){
+        const [a, z] = tramo(m, y, y + hh, 12, W - 12);
+        if(z - a >= Math.min(W - 24, 300)){ hw = Math.round(Math.min(640, z - a)); hx = Math.round(a + (z - a - hw) / 2); hy = y; break; }
+      }
+    }
+    hud.style.left = hx + 'px'; hud.style.width = hw + 'px'; hud.style.top = Math.round(hy) + 'px'; hud.style.height = hh + 'px';
+    const hb = hy + hh, lz = zonaLibre(0, W, cs);
+    geo = { hy:Math.round(hy), hb:Math.round(hb) };
+    Z = { left:16, right:W - 16, top:Math.max(hb + 10, lz.top + 10), bottom:lz.bottom - 10 };
+    if(bajo || Z.bottom - Z.top < 160){   // no cabe a lo ancho: el rectángulo libre bajo el HUD con más espacio por moneda (nada bajo el dock ni los lanzadores)
+      const m = cs.concat([{ l:hx, r:hx + hw, t:hy, b:hb }]).map(c => ({ l:c.l - 10, r:c.r + 10, t:c.t - 10, b:c.b + 10 }));
+      const r = rectLibre(m, 8, hb + 10, W - 8, H - 8);
+      if(r) Z = { left:r.left, right:r.right, top:r.top, bottom:r.bottom };
+      else Z.bottom = Math.min(H - 8, Z.top + 160);
+    }
+    colocarCallout();
+    const dev = window.devicePixelRatio || 1;
+    dprF = Math.min(2, dev);   // las monedas, finas: se repintan poco
+    const nd = Math.min(+CC_CONFIG.nitidez || (chico ? NITIDEZ_TEL : 2), dev); if(nd !== dpr){ dpr = nd; ufoCache.clear(); }
+    cvTop = Math.max(0, Math.round(Z.top - 34)); cvH = Math.min(H, Math.round(Z.bottom + 34)) - cvTop;
+    for(const [k, d] of [[cf, dprF], [cv, dpr]]){ k.style.top = cvTop + 'px'; k.style.height = cvH + 'px'; k.width = Math.round(W * d); k.height = Math.round(cvH * d); }
+    repartir(); ultFondo = 0; firmaUlt = firma(); sucio = false;
+  }
+  function repartir(){
+    const n = coins.length; if(!n) return;
+    const w = Z.right - Z.left, h = Z.bottom - Z.top;
+    const cols = Math.max(3, Math.min(n, Math.round(Math.sqrt(n * w / h)))), rows = Math.ceil(n / cols);
+    celda = { w:w / cols, h:h / rows };
+    const jit = chico ? 0.1 : 0.18, enUltima = n - (rows - 1) * cols;
+    // centros parejos; con celdas chicas se meten hacia adentro: el nombre (arriba) y el precio (abajo) no salen de la zona
+    const dos = Math.round(Math.max(60, Math.min(130, celda.w))) < 100;
+    const x0 = Z.left + Math.max(26, celda.w / 2), x1 = Z.right - Math.max(26, celda.w / 2);
+    const y0 = Z.top + Math.max(18, celda.h / 2), y1 = Z.bottom - Math.max(dos ? 29 : 20, celda.h / 2);
+    const px = cols > 1 ? Math.max(0, x1 - x0) / (cols - 1) : 0, py = rows > 1 ? Math.max(0, y1 - y0) / (rows - 1) : 0;
+    const lim = (v, a, b) => Math.max(a, Math.min(b, v));
+    coins.forEach((c, i) => { const col = i % cols, row = Math.floor(i / cols);
+      const corre = row === rows - 1 ? (cols - enUltima) / 2 : 0;
+      c.bx = lim((cols > 1 ? x0 + (col + corre) * px : (Z.left + Z.right) / 2) + (azar(i * 7 + 1) - 0.5) * celda.w * jit * 2, Z.left + 26, Z.right - 26);
+      c.by = lim((rows > 1 ? y0 + row * py : (Z.top + Z.bottom) / 2) + (azar(i * 13 + 5) - 0.5) * celda.h * jit * 2, Z.top + 18, Z.bottom - (dos ? 29 : 20));
+      c.x = c.bx; c.y = c.by; c.sprKey = ''; });
+    radio = Math.max(22, Math.min(34, Math.min(celda.w, celda.h) * 0.42));
+    // líneas: vecinos de la grilla (derecha y abajo); en pantallas grandes, también una diagonal
+    pares = [];
+    coins.forEach((c, i) => { const col = i % cols;
+      if(col < cols - 1 && i + 1 < n) pares.push([i, i + 1]);
+      if(i + cols < n) pares.push([i, i + cols]);
+      if(!chico && col < cols - 1 && i + cols + 1 < n && azar(i * 31) > 0.45) pares.push([i, i + cols + 1]); });
+  }
+
+  /* ── cada moneda se pinta una vez en su lámina y se rehace solo si cambia su precio ── */
+  function sprite(c){
+    const vivo = vivos() && c.price != null;
+    const key = (vivo ? c.price + '|' + c.ch : '-') + '|' + Math.round(celda.w) + '|' + dprF;
+    if(c.spr && c.sprKey === key) return c.spr;
+    const w = Math.round(Math.max(60, Math.min(130, celda.w))), dos = w < 100, h = dos ? 52 : 42;
+    const k = c.spr || document.createElement('canvas'); k.width = Math.ceil(w * dprF); k.height = Math.ceil(h * dprF); k._w = w; k._h = h;
+    const g = k.getContext('2d'); g.setTransform(dprF, 0, 0, dprF, 0, 0); g.clearRect(0, 0, w, h);
+    const col = !vivo ? COL.nada : (c.ch == null ? COL.neutro : (c.ch >= 0 ? COL.sube : COL.baja)), cx = w / 2, cy = 20;
+    const gr = g.createRadialGradient(cx, cy, 0, cx, cy, 15); gr.addColorStop(0, col + '55'); gr.addColorStop(1, col + '00');
+    g.fillStyle = gr; g.beginPath(); g.arc(cx, cy, 15, 0, 6.283); g.fill();
+    g.beginPath(); g.arc(cx, cy, 4.5, 0, 6.283); g.fillStyle = vivo ? col : col + '99'; g.fill();
+    g.textAlign = 'center';
+    g.font = '700 9px "Space Mono",ui-monospace,monospace'; g.fillStyle = 'rgba(240,237,232,.88)'; g.fillText(c.s, cx, 10);
+    g.font = '400 8px "Space Mono",ui-monospace,monospace'; g.fillStyle = vivo ? col : '#9a9aae';
+    const pr = vivo ? fmt(c.price) : '—', ch = vivo && c.ch != null ? pct(c.ch) : (vivo ? '— 24h' : '');
+    if(dos){ g.fillText(pr, cx, 37); if(ch) g.fillText(ch, cx, 47); }
+    else g.fillText(pr + (ch ? '  ' + ch : ''), cx, 37);
+    c.spr = k; c.sprKey = key; return k;
+  }
+  const ufoCache = new Map();
+  function ufoSprite(s, col){
+    const key = s + col + dpr; let k = ufoCache.get(key); if(k) return k;
+    const R = s * 1.5, w = Math.ceil(R * 2 + 2); k = document.createElement('canvas');
+    k.width = Math.ceil(w * dpr); k.height = Math.ceil(w * dpr); k._w = w;
+    const g = k.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.translate(w / 2, w / 2);
+    const gr = g.createRadialGradient(0, -s * 0.2, 0, 0, 0, R); gr.addColorStop(0, col + '77'); gr.addColorStop(1, col + '00');
+    g.fillStyle = gr; g.beginPath(); g.arc(0, 0, R, 0, 6.283); g.fill();
+    g.beginPath(); g.ellipse(0, 0, s, s * 0.42, 0, 0, 6.283); g.fillStyle = '#0c0c16'; g.fill(); g.strokeStyle = col; g.lineWidth = 1.2; g.stroke();
+    g.beginPath(); g.arc(0, -s * 0.28, s * 0.5, Math.PI, 0); g.fillStyle = col + 'cc'; g.fill();
+    ufoCache.set(key, k); return k;
+  }
+  function ovni(x, y, s, col, ph){
+    const k = ufoSprite(s, col); ctx.drawImage(k, x - k._w / 2, y - k._w / 2, k._w, k._w);
+    ctx.fillStyle = '#fff'; for(let i = 0; i < 3; i++){ const a = ph + i * 2.094; ctx.fillRect(x + Math.cos(a) * s * 0.8 - 1, y + s * 0.1 - 1, 2, 2); }
+  }
+  function haz(x, y, c, col){
+    ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x - 2, y + 3); ctx.lineTo(c.x - 9, c.y); ctx.lineTo(c.x + 9, c.y); ctx.closePath(); ctx.fill();
+  }
+
+  /* ── la flota ── */
+  function rumbo(o){ o.tx = Z.left + (Z.right - Z.left) * (0.15 + Math.random() * 0.7); o.ty = Z.top + (Z.bottom - Z.top) * (0.1 + Math.random() * 0.8); }
+  function desplegar(){
+    flotaT = null; if(!on || flotaOn) return; flotaOn = true;
+    madre = { x:(Z.left + Z.right) / 2, y:Z.top + (Z.bottom - Z.top) * 0.3, tx:0, ty:0, ph:0 }; rumbo(madre);
+    const cols = ((CC_CONFIG.colores && CC_CONFIG.colores.length) ? CC_CONFIG.colores : ['#00F0FF']).map(c => hex(c, '#00F0FF'));
+    const n = Math.max(0, Math.min(24, CC_CONFIG.flota | 0));
+    ovnis = Array.from({ length:n }, (_, i) => ({ x:madre.x, y:madre.y, tgt:null, ph:i * 6.283 / Math.max(1, n), col:cols[i % cols.length], escanea:0 }));
+    proxEscaneo = t + Math.min(6, (+CC_CONFIG.escaneoSeg || 13) / 2);
+    avisar(vivos() ? '🛸 FLOTA DESPLEGADA — escaneando el cosmos' : '🛸 FLOTA DESPLEGADA — espera precios en vivo');
+  }
+  const umbral = () => Math.max(0.1, +CC_CONFIG.minMovimiento || 0);   // nunca un 0,0 % como "movimiento notable"
+  function fijar(){
+    if(!vivos() || fallas) return false;   // el último pedido falló: el precio ya no es "en vivo", no se fija nada
+    const vivas = coins.filter(c => c.price != null && c.ch != null);
+    if(vivas.length < Math.max(3, Math.ceil(coins.length / 2))) return false;   // con pocas en vivo no hay "las 3 que más se movieron"
+    const top = vivas.filter(c => Math.abs(c.ch) >= umbral()).sort((a, b) => Math.abs(b.ch) - Math.abs(a.ch)).slice(0, 3);
+    if(!top.length) return false;
+    let pool = top.filter(c => c !== ultima); if(!pool.length) pool = top;
+    const c = pool[Math.floor(Math.random() * pool.length)];
+    ultima = c; senal = { c, desde:t };
+    const colS = c.ch >= 0 ? '#AAFF00' : '#FF3A1F';
+    chispas = [];
+    for(let i = 0; i < 40; i++){ const a = Math.random() * 6.283, d = 90 + Math.random() * 200;
+      chispas.push({ x:c.x + Math.cos(a) * d, y:c.y + Math.sin(a) * d, vx:0, vy:0, col:colS, l:1 }); }
+    mostrarCallout(c);
+    pintarHud(); log('cosmos', 'oportunidad ' + c.s + ' ' + pct(c.ch));
+    return true;
+  }
+  // el cartel: nunca sobre lo de CC_CONFIG.evitar; entre los lugares posibles, el que no tapa la moneda marcada,
+  // esquiva la franja de los avisos de la página y tapa menos monedas (con su alto real, medido al mostrarse)
+  function avisos(){ const out = [];
+    (CC_CONFIG.avisos || []).forEach(sel => { let els = []; try{ els = document.querySelectorAll(sel); }catch(e){}
+      els.forEach(el => { if(getComputedStyle(el).display === 'none') return; const r = el.getBoundingClientRect(); if(r.height) out.push({ t:r.top - 24, b:r.bottom + 4 }); }); });
+    return out; }
+  function colocarCallout(){
+    if(!co.classList.contains('on')) return;
+    const W = innerWidth, H = innerHeight, cs = cajas(), m = cs.map(c => ({ l:c.l - 8, r:c.r + 8, t:c.t - 8, b:c.b + 8 }));
+    const av = avisos(), mc = ultima, hudR = hud.getBoundingClientRect();
+    let mejor = null, orden = 0;
+    co.style.maxHeight = 'none'; co.style.overflowY = 'visible'; co.style.bottom = 'auto';
+    for(const [cw, cx] of [[Math.min(540, W - 24), null], [Math.round(Math.min(540, Z.right - Z.left)), Z]]){
+      const x = Math.round(cx ? (cx.left + cx.right - cw) / 2 : (W - cw) / 2);
+      co.style.width = cw + 'px'; const h = co.offsetHeight, fondo = zonaLibre(x, x + cw, cs).bottom - 10;
+      for(const t0 of [geo.hb + 8, fondo - h, Z.top, Z.bottom - h, geo.hy, (Z.top + Z.bottom - h) / 2]){
+        const t = Math.round(t0), b = { l:x, r:x + cw, t, b:t + h }; orden++;
+        if(t < 8 || b.b > H - 8 || m.some(c => c.l < b.r && b.l < c.r && c.t < b.b && b.t < c.b)) continue;
+        let p = orden * 0.01;
+        if(mc && mc.bx + 14 > b.l && mc.bx - 14 < b.r && mc.by + 30 > b.t && mc.by - 18 < b.b) p += 1000;   // la moneda marcada a la vista
+        if(av.some(a => a.t < b.b && b.t < a.b)) p += 100;                                                    // los avisos de la página, legibles
+        if(hudR.width && hudR.left < b.r && b.l < hudR.right && hudR.top < b.b && b.t < hudR.bottom) p += 10;
+        for(const c of coins) if(c.bx > b.l && c.bx < b.r && c.by > b.t && c.by < b.b) p += 1;
+        if(!mejor || p < mejor.p) mejor = { p, x, cw, t };
+      }
+    }
+    if(mejor){ co.style.left = mejor.x + 'px'; co.style.width = mejor.cw + 'px'; co.style.top = mejor.t + 'px'; co.style.maxHeight = ''; co.style.overflowY = ''; }
+    else {   // no cabe entero en ningún lado: bajo el HUD, con su propio scroll
+      const cw = Math.min(540, W - 24), t = Math.max(8, geo.hb + 8);
+      co.style.left = Math.round((W - cw) / 2) + 'px'; co.style.width = cw + 'px'; co.style.top = t + 'px';
+      co.style.maxHeight = Math.max(120, H - 8 - t) + 'px'; co.style.overflowY = 'auto';
+    }
+  }
+  function mostrarCallout(c){
+    const up = c.ch >= 0;
+    co.querySelector('.cc-ttl').textContent = '⚡ OPORTUNIDAD · ' + c.s;
+    const mv = co.querySelector('.cc-mov');
+    mv.textContent = c.s + ' ' + (up ? '▲ ' : '▼ ') + pct(c.ch) + ' en 24 h · ' + fmt(c.price) + ' · momentum ' + (up ? 'alcista' : 'bajista');
+    mv.style.color = up ? COL.sube : COL.baja;
+    co.querySelector('.cc-mide').textContent = 'Mide: cambio % en 24 h (CoinGecko) · una de las 3 que más se movieron (≥ ' + umbral() + ' %) entre ' + conPrecio() + ' en vivo';
+    rb.href = urlPar(c);
+    const L = CC_CONFIG.links || {};
+    fut.hidden = !L.futures; if(L.futures){ fut.href = L.futures; fut.textContent = L.futuresTexto || 'FUTURES →'; }
+    mun.hidden = !(window.CryptoWorld && typeof window.CryptoWorld.open === 'function'); mun.textContent = L.mundoTexto || 'MUNDO CRYPTO →';
+    co.classList.add('on');
+    colocarCallout();
+  }
+
+  /* ── el cuadro ── */
+  // las monedas viven en su propio lienzo y se repintan ~8 veces por segundo (flotan despacio);
+  // la flota, el haz y las chispas van en el de arriba, a ritmo completo
+  function dibujarFondo(){
+    const W = innerWidth, amp = chico ? 2.5 : 4;
+    for(const c of coins){ c.x = c.bx + Math.sin(t * 0.7 + c.ph) * amp; c.y = c.by + Math.cos(t * 0.6 + c.ph) * amp; }
+    fx.setTransform(dprF, 0, 0, dprF, 0, -cvTop * dprF);
+    fx.clearRect(0, cvTop, W, cvH);
+    fx.lineWidth = 0.6; fx.strokeStyle = 'rgba(130,140,200,.16)'; fx.beginPath();
+    for(const [a, b] of pares){ fx.moveTo(coins[a].x, coins[a].y); fx.lineTo(coins[b].x, coins[b].y); }
+    fx.stroke();
+    for(const c of coins){ const s = sprite(c); fx.drawImage(s, c.x - s._w / 2, c.y - 20, s._w, s._h); }
+  }
+  function dibujar(dt, now){
+    const W = innerWidth, k = dt * 60;
+    if(!ultFondo || now - ultFondo >= 120){ ultFondo = now; dibujarFondo(); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, -cvTop * dpr);
+    ctx.clearRect(0, cvTop, W, cvH);
+    if(ultima && co.classList.contains('on')){   // la moneda del cartel queda marcada
+      ctx.strokeStyle = 'rgba(255,210,0,.85)'; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(ultima.x, ultima.y, 11 + 2 * Math.sin(t * 6), 0, 6.283); ctx.stroke();
+    }
+    if(senal){
+      for(const sp of chispas){ const dx = senal.c.x - sp.x, dy = senal.c.y - sp.y, d = Math.hypot(dx, dy) || 1;
+        sp.vx = (sp.vx + dx / d * 0.6 * k) * Math.pow(0.92, k); sp.vy = (sp.vy + dy / d * 0.6 * k) * Math.pow(0.92, k);
+        sp.x += sp.vx * k; sp.y += sp.vy * k; sp.l -= 0.004 * k;
+        if(sp.l > 0){ ctx.globalAlpha = sp.l; ctx.fillStyle = sp.col; ctx.fillRect(sp.x, sp.y, 2, 2); } }
+      ctx.globalAlpha = 1; chispas = chispas.filter(sp => sp.l > 0);
+      if(t - senal.desde > 7){ senal = null; chispas = []; }
+    }
+    if(!flotaOn || !madre) return;
+    const hay = vivos();
+    if(senal){ madre.tx = senal.c.x; madre.ty = senal.c.y - 46; }
+    else if(Math.hypot(madre.tx - madre.x, madre.ty - madre.y) < 30) rumbo(madre);
+    const em = 1 - Math.pow(0.988, k); madre.x += (madre.tx - madre.x) * em; madre.y += (madre.ty - madre.y) * em; madre.ph += 0.05 * k;
+    if(senal) haz(madre.x, madre.y, senal.c, 'rgba(255,210,0,.16)');
+    ovni(madre.x, madre.y, chico ? 16 : 20, '#00F0FF', madre.ph);
+    if(hay && t >= proxEscaneo){ proxEscaneo = t + (+CC_CONFIG.escaneoSeg || 13); fijar(); }
+    for(const u of ovnis){
+      let tx, ty, vel = 0.03;
+      if(!hay){ tx = madre.x + Math.cos(t * 0.8 + u.ph) * 52; ty = madre.y + Math.sin(t * 0.8 + u.ph) * 30; vel = 0.05; }   // la flota espera
+      else if(senal){ tx = senal.c.x + Math.cos(t * 2 + u.ph) * 46; ty = senal.c.y + Math.sin(t * 2 + u.ph) * 46; vel = 0.06; }
+      else {
+        if(!u.tgt || (u.escanea > 0 && t > u.escanea)){ u.tgt = coins[Math.floor(Math.random() * coins.length)]; u.escanea = 0; }
+        tx = u.tgt.x; ty = u.tgt.y - 26;
+        const d = Math.hypot(tx - u.x, ty - u.y);
+        if(d < 14){ if(!u.escanea) u.escanea = t + 0.9; haz(u.x, u.y, u.tgt, u.col + '30'); }
+      }
+      const e = 1 - Math.pow(1 - vel, k); u.x += (tx - u.x) * e; u.y += (ty - u.y) * e; u.ph += 0.1 * k;
+      ovni(u.x, u.y, chico ? 7 : 9, u.col, u.ph);
+    }
+  }
+  // en el teléfono pinta a 30 cuadros por segundo como máximo (fpsMax): el mapa de abajo conserva su ritmo
+  let costo = 0;
+  function frame(now){
+    raf = null;
+    if(!on || pausado) return;
+    if(CC_CONFIG.pantalla && typeof currentScreen !== 'undefined' && currentScreen !== CC_CONFIG.pantalla){ revisar(); return; }
+    const tope = +CC_CONFIG.fpsMax || (chico ? 30 : 60);
+    if(tPrev && now - tPrev < 1000 / tope - 4){ raf = requestAnimationFrame(frame); return; }
+    const dt = tPrev ? Math.min(0.1, Math.max(0, (now - tPrev) / 1000)) : 0.016; tPrev = now; t += dt;
+    const t0 = performance.now();
+    try{ dibujar(dt, now); }catch(e){}
+    costo = costo * 0.9 + (performance.now() - t0) * 0.1;
+    raf = requestAnimationFrame(frame);
+  }
+
+  /* ── pausa: otra pantalla, pestaña oculta o algo grande encima del mapa ── */
+  const zonaEl = () => { if(!CC_CONFIG.zona) return null; try{ return document.querySelector(CC_CONFIG.zona); }catch(e){ return null; } };
+  function tapado(){
+    const z = zonaEl(); if(!z || Z.bottom <= Z.top) return false;
+    let n = 0;
+    for(const [fx, fy] of [[0.5, 0.5], [0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]]){
+      const el = document.elementFromPoint(Z.left + (Z.right - Z.left) * fx, Z.top + (Z.bottom - Z.top) * fy);
+      if(el && el !== z && !z.contains(el) && !raiz.contains(el)) n++;
+    }
+    return n >= 3;
+  }
+  function motivoPausa(){
+    if(document.hidden) return 'oculta';
+    if(CC_CONFIG.pantalla && typeof currentScreen !== 'undefined' && currentScreen !== CC_CONFIG.pantalla) return 'pantalla';
+    if(tapado()) return 'tapado';
+    return '';
+  }
+  function revisar(){
+    if(!on) return;
+    const m = motivoPausa();
+    if(m){
+      pausado = m; raiz.classList.add('pausa');
+      if(raf){ cancelAnimationFrame(raf); raf = null; }
+      return;
+    }
+    if(pausado){
+      pausado = ''; raiz.classList.remove('pausa'); tPrev = 0; ubicar();
+      if(Date.now() - ultimoIntento > (+CC_CONFIG.preciosSeg || 45) * 1000) pedirPrecios(true);
+    } else if(sucio || (++tick % 4 === 0 && firma() !== firmaUlt)) ubicar();
+    if(fallas || (ultimoOk && !vivos())) pintarHud();   // la edad del precio avanza y el paso a "sin precios" se ve a tiempo
+    if(!raf) raf = requestAnimationFrame(frame);
+  }
+
+  /* ── abrir / cerrar: nada se acumula (los oyentes se ponen una sola vez, abajo) ── */
+  function open(){
+    if(on){ avisar('◈ El cosmos ya está abierto'); return api; }
+    on = true; pausado = ''; t = 0; tPrev = 0; senal = null; ultima = null; chispas = []; flotaOn = false; ovnis = []; madre = null;
+    if(CC_CONFIG.pantalla && typeof currentScreen !== 'undefined' && currentScreen !== CC_CONFIG.pantalla && typeof goTo === 'function'){
+      try{ goTo(CC_CONFIG.pantalla); }catch(e){}
+    }
+    if(coins.length !== (CC_CONFIG.monedas || []).length) armarMonedas();
+    raiz.classList.add('on'); raiz.classList.remove('pausa'); co.classList.remove('on');
+    ubicar(); pintarHud();
+    pedirPrecios();
+    timerPrecios = setInterval(() => { if(on && !pausado) pedirPrecios(true); }, Math.max(10, +CC_CONFIG.preciosSeg || 45) * 1000);
+    vigia = setInterval(revisar, 500);
+    flotaT = setTimeout(desplegar, 1500);   // la flota sale sola
+    revisar(); log('cosmos', 'abrió el cosmos cripto');
+    return api;
+  }
+  function close(){
+    if(!on) return api;
+    on = false; pausado = ''; flotaOn = false; senal = null; chispas = []; ovnis = []; madre = null;
+    clearInterval(timerPrecios); clearInterval(vigia); clearTimeout(flotaT); clearTimeout(flashT);
+    timerPrecios = vigia = flotaT = flashT = null; flash = null;
+    if(raf){ cancelAnimationFrame(raf); raf = null; }
+    raiz.classList.remove('on', 'pausa'); co.classList.remove('on');
+    return api;
+  }
+  function flota(){
+    if(!on) return false;
+    if(flotaOn){ avisar('🛸 La flota ya está escaneando'); return true; }
+    clearTimeout(flotaT); desplegar(); return true;
+  }
+  function estado(){
+    return { on, pausa:pausado, vivos:conPrecio(), total:coins.length, flota:flotaOn ? ovnis.length : 0,
+      senal:senal ? { par:senal.c.s, cambio24h:num(senal.c.ch) } : null,
+      ultima:ultima ? { par:ultima.s, cambio24h:num(ultima.ch) } : null,
+      callout:co.classList.contains('on'), raf:!!raf, msPorCuadro:+costo.toFixed(2), hud:est.textContent, hudEstado:hud.dataset.estado,
+      temporizadores:{ precios:!!timerPrecios, vigia:!!vigia, flota:!!flotaT }, zona:Object.assign({}, Z), radio,
+      monedas:coins.map(c => ({ par:c.s, x:Math.round(c.x), y:Math.round(c.y), precio:vivos() ? c.price : null, cambio:vivos() ? c.ch : null, url:urlPar(c) })) };
+  }
+  const api = { open, close, toggle:() => on ? close() : open(), on:() => on, flota, config:CC_CONFIG, estado };
+  api.launchFleet = flota;   // nombre viejo
+  window.CryptoCosmos = api;
+  window.CRYPTO_COSMOS = api;   // compatibilidad con el universo viejo
+
+  /* ── oyentes: una sola vez ── */
+  $('cc-salir').addEventListener('click', close);
+  co.querySelector('.cc-x').addEventListener('click', () => co.classList.remove('on'));
+  mun.addEventListener('click', () => { co.classList.remove('on');
+    try{ if(window.CryptoWorld && typeof window.CryptoWorld.open === 'function') window.CryptoWorld.open(); }catch(e){} });
+  // tocar una moneda → su par. Solo cuenta si el toque cae sobre la zona (el mapa), nunca sobre paneles,
+  // dock, nav, botones, HUD o cartel. Fuera de las monedas el toque sigue de largo: el mapa funciona debajo.
+  function monedaEn(x, y){ let hit = null, best = 1e9;
+    for(const c of coins){ const d = Math.hypot(x - c.x, y - (c.y + 6)); if(d < radio && d < best){ best = d; hit = c; } }
+    // si el toque está más cerca de un objetivo de la página (un planeta del mapa), gana la página
+    if(hit && typeof api.objetivo === 'function'){ let dp = Infinity; try{ dp = +api.objetivo(x, y); }catch(e){} if(dp < best) return null; }
+    return hit; }
+  function enZona(tg){ const z = zonaEl(); return z ? (tg === z || z.contains(tg)) : (tg === document.body || tg === document.documentElement); }
+  // el mapa agarra entidades en touchstart/mousedown (y con preventDefault mata el click): sobre una moneda, el toque es del cosmos
+  const tomar = e => { if(!on || pausado || !coins.length || !enZona(e.target)) return;
+    const p = e.touches ? e.touches[0] : e; if(p && monedaEn(p.clientX, p.clientY)) e.stopImmediatePropagation(); };
+  window.addEventListener('touchstart', tomar, { capture:true, passive:true });
+  window.addEventListener('mousedown', tomar, true);
+  window.addEventListener('click', e => {
+    if(!on || pausado || !coins.length || !enZona(e.target)) return;
+    const hit = monedaEn(e.clientX, e.clientY);
+    if(!hit) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    abrirPar(hit);
+  }, true);
+  window.addEventListener('keydown', e => {
+    if(!on || pausado || e.key !== 'Escape') return;
+    if(/INPUT|TEXTAREA|SELECT/.test((document.activeElement || {}).tagName || '')) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(co.classList.contains('on')) co.classList.remove('on'); else close();
+  }, true);
+  window.addEventListener('resize', () => { if(!on) return; if(pausado) sucio = true; else ubicar(); });
+  document.addEventListener('visibilitychange', () => { if(on) revisar(); });
+  try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(() => coins.forEach(c => { c.sprKey = ''; })); }catch(e){}
+
+  /* ══ INTEGRACIÓN CON EL UNIVERSO (en otra página no encuentra nada y no hace nada; bórrala si vendes el bloque suelto) ══
+     Dentro del mundo ₿ CRYPTO: 🛸 COSMOS cierra el mundo, vuelve al mapa y abre el cosmos. */
+  (function(){
+    const x = $('cw-x'); if(!x || !x.parentNode || $('cc-cw')) return;
+    const b = document.createElement('button'); b.type = 'button'; b.id = 'cc-cw'; b.textContent = '🛸 COSMOS';
+    b.title = 'Volver al mapa con el cosmos cripto y su flota';
+    b.addEventListener('click', () => { try{ if(window.CryptoWorld && typeof window.CryptoWorld.close === 'function') window.CryptoWorld.close(); }catch(e){} open(); });
+    x.parentNode.insertBefore(b, x);
+  })();
+  // lo tocable del mapa sigue tocable con el cosmos abierto (planetas, nodos, hoyos negros, llaves y el centro, con los
+  // mismos radios que usa el mapa): distancia al más cercano, Infinity si no hay. Gana lo que esté más cerca del dedo.
+  api.objetivo = (x, y) => { const m = $('map-canvas'); if(!m || typeof PROJECTS === 'undefined') return Infinity;
+    const W = m.width, H = m.height; let best = Infinity;
+    const ver = (px, py, r) => { const d = Math.hypot(x - px, y - py); if(d < r && d < best) best = d; };
+    PROJECTS.forEach(p => ver(p.x * W, p.y * H, p.size + 14));
+    if(typeof NODES !== 'undefined') NODES.forEach(n => ver(n.x * W, n.y * H, n.size + 12));
+    if(typeof BLACK_HOLES !== 'undefined') BLACK_HOLES.forEach(b => ver(b.x * W, b.y * H, 32));
+    if(typeof KEYS !== 'undefined' && Array.isArray(KEYS)) KEYS.forEach(k => { if(k && !k.collected && isFinite(k.cx)) ver(k.cx, k.cy, (k.size || 0) + 14); });
+    ver(W * 0.5, H * 0.47, 30);
+    return best; };
 })();
 </script>
 
