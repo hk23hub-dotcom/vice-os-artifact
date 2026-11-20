@@ -57,6 +57,16 @@
       "source": "/try",
       "destination": "/agent-designer",
       "permanent": false
+    },
+    {
+      "source": "/frequency",
+      "destination": "/g/frequency",
+      "permanent": false
+    },
+    {
+      "source": "/jc",
+      "destination": "/g/frequency",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -67,14 +77,6 @@
     {
       "source": "/g/:slug",
       "destination": "/universe-os.html?g=:slug"
-    },
-    {
-      "source": "/frequency",
-      "destination": "/universe-os.html?g=frequency"
-    },
-    {
-      "source": "/jc",
-      "destination": "/universe-os.html?g=frequency"
     }
   ]
 }

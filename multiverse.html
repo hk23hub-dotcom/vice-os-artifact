@@ -84,6 +84,10 @@
 const SUPABASE_URL='https://iiqhhglgjsbnuihythko.supabase.co';
 const SUPABASE_KEY='sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{db:{schema:'hk23'}});
+// hk23.entities lo puede escribir cualquiera con la llave anon (0008): nada de ahí entra crudo a innerHTML
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const colorOk=c=>/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c||'')?c:'#888';
+const urlOk=u=>/^https?:\/\//i.test(u||'')?u:'';
 
 const CYCLE=['ideas','creation','products','community','revenue','resources'];
 function flowIndex(e){ const fo=e.meta&&e.meta.flow_order; if(fo!=null)return fo;
@@ -113,13 +117,13 @@ function buildView(){
   const focus=byId[focusId]; const kids=(childrenOf[focusId]||[]).slice();
   if(isTorus()) kids.sort((a,b)=>flowIndex(a)-flowIndex(b));
   const path=[]; let p=focus; while(p){path.unshift(p);p=p.parent_id?byId[p.parent_id]:null;}
-  document.getElementById('crumb').innerHTML=path.map((e,i)=>i===path.length-1?'<b>'+e.name+'</b>':'<a onclick="focusOn(\''+e.id+'\')">'+e.name+'</a> ▸ ').join('');
+  document.getElementById('crumb').innerHTML=path.map((e,i)=>i===path.length-1?'<b>'+esc(e.name)+'</b>':'<a onclick="focusOn('+esc(JSON.stringify(e.id))+')">'+esc(e.name)+'</a> ▸ ').join('');
   document.getElementById('lvltag').textContent=(focus?focus.level:'multiverse').toUpperCase()+(kids.length?' · '+kids.length:'');
   // colored flow labels
   if(isTorus()){
     document.getElementById('flowttl').style.display='block';
     document.getElementById('flow').innerHTML=kids.map((e,i)=>
-      '<span class="lab" style="color:'+(e.color||'#888')+'" onclick="focusOn(\''+e.id+'\')">'+e.name+'</span>'
+      '<span class="lab" style="color:'+colorOk(e.color)+'" onclick="focusOn('+esc(JSON.stringify(e.id))+')">'+esc(e.name)+'</span>'
       +(i<kids.length-1?'<span class="ar">→</span>':'')).join('');
   } else { document.getElementById('flowttl').style.display='none';
     document.getElementById('flow').innerHTML='<span class="ar" style="letter-spacing:2px">click orb to travel in · esc to go up</span>'; }
@@ -140,7 +144,7 @@ function geo(){ const cx=W/2,cy=H*0.46; const oRx=Math.min(W*0.27,H*0.46),oRy=oR
 function orbAngle(i,n){ return (-30 + i*(360/n))*Math.PI/180; }
 
 function radiusFor(e){ const m=e.metrics||{}; const base={multiverse:30,galaxy:24,system:18,node:11}[e.level]??12;
-  return base+Math.log((m.activity||0)+1)*3+Math.sqrt(Math.max(0,m.revenue||0))*1.2; }
+  return base+Math.log(Math.max(0,+m.activity||0)+1)*3+Math.sqrt(Math.max(0,+m.revenue||0))*1.2; }
 function opacityFor(e){ return e.state==='dead'?0.25:e.state==='fading'?0.6:1; }
 function hasKids(e){ return (childrenOf[e.id]||[]).length>0; }
 function hexA(hex,a){ if(!hex||hex[0]!=='#')hex='#8888aa';
@@ -285,10 +289,10 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape'){const f=byId[focus
 function openPanel(e){ document.getElementById('p-kind').textContent=e.kind+' · '+e.level; document.getElementById('p-kind').style.color=e.color||'#FFD200';
   document.getElementById('p-name').textContent=e.name; document.getElementById('p-sub').textContent=e.summary||'';
   const m=e.metrics||{},listing=listings[e.id]; let rows=''; if(m.revenue)rows+=row('Revenue','$'+m.revenue); if(m.activity)rows+=row('Activity',m.activity); rows+=row('State',e.state); if(listing)rows+=row('Price','$'+listing.price+' '+listing.currency);
-  document.getElementById('p-rows').innerHTML=rows; const cta=document.getElementById('p-cta'),url=(listing&&listing.external_url)||e.link;
+  document.getElementById('p-rows').innerHTML=rows; const cta=document.getElementById('p-cta'),url=urlOk((listing&&listing.external_url)||e.link);
   if(url){cta.href=url;cta.style.display='inline-block';cta.textContent=listing?('BUY ON '+(listing.source||'store').toUpperCase()+' →'):'OPEN →';}else cta.style.display='none';
   document.getElementById('panel').classList.add('open'); }
-function row(l,v){return '<div class="row"><span class="l">'+l+'</span><span>'+v+'</span></div>';}
+function row(l,v){return '<div class="row"><span class="l">'+esc(l)+'</span><span>'+esc(v)+'</span></div>';}
 function closePanel(){document.getElementById('panel').classList.remove('open');}
 function subscribeRealtime(){ sb.channel('hk23').on('postgres_changes',{event:'*',schema:'hk23',table:'entities'},load).on('postgres_changes',{event:'*',schema:'hk23',table:'relationships'},load).subscribe(); }
 function resize(){ W=innerWidth;H=innerHeight;cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0); if(nodes.length)buildView(); }

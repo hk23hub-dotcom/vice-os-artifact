@@ -1,5 +1,6 @@
 // quote-utils.js — DOM-free helpers for the Mindset Engine.
-// Consumed by hk23-universe.html, quote-studio.html, daily.html, and node tests.
+// Consumed by quote-studio.html, daily.html, and node tests; its deep links open
+// the quote inside universe-os.html (?quote=<id>).
 (function (root) {
   'use strict';
 
@@ -11,7 +12,7 @@
 
   function quoteDeepLink(baseUrl, quoteId) {
     var base = String(baseUrl).replace(/\/+$/, '');
-    return base + '/hk23-universe.html?quote=' + encodeURIComponent(quoteId);
+    return base + '/universe-os?quote=' + encodeURIComponent(quoteId);
   }
 
   function resolveTargetKind(targetId, planetIds) {

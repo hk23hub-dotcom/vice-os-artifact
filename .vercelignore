@@ -17,3 +17,65 @@ prompts/
 
 # El Centro: scripts, pruebas y notas de Shopify (no se sirven)
 centro/
+
+# ═══ Lo de abajo NO se publica, pero sigue en el repo (no se borra nada) ═══
+# Rutas con "/" al inicio = desde la raíz del repo; con "/" al final = carpeta entera.
+# Si cambias una línea, corre: node --test tests/*.mjs  (tests/deploy.test.mjs falla si una
+# página servida nombra o arma la ruta de algo ignorado).
+
+# ── Backend y herramientas que corres en tu compu, no en la web ──
+# vice-seller: CLI de Node para Etsy/Printify/Pinterest (run.js, lib/). Lee
+# ../etsy-agent/config.json igual que etsy-agent. Sus 926 miniaturas y 62 hojas
+# (data/thumbs, data/sheets, 88,8 MB) no las pide ninguna página.
+/vice-seller/
+# Índice de esas miniaturas. Solo lo leía la página vieja hk23-universe.html, que ya no está.
+/nft-collection.json
+# Exportaciones para la tienda de Etsy. biblioteca.json las nombra solo como texto de un libro.
+/etsy-exports/
+# Migraciones y esquema de Supabase: se corren en Supabase, no se sirven.
+# (universe-os.html nombra supabase-schema.sql solo como texto: "está en el repositorio").
+/supabase/
+/supabase-schema.sql
+# Scripts que corres a mano: node scripts/tokens.mjs · node hk23-brain/aria.mjs
+/scripts/
+/hk23-brain/
+# Notas internas. El texto de la constitución ya va copiado dentro de biblioteca.json.
+/hk23-constitution/
+/VICE-OS-vs-ATLAS-X.md
+/README.md
+
+# ── Material de otros proyectos (Albatros, ClubScore) ──
+# Nadie los enlaza. El QR impreso apunta a albatros.vercel.app, no a estos archivos.
+/albatros-broll-prompts.txt
+/albatros-video-scripts.txt
+/albatros-qr-sign.svg
+/albatros-qr.png
+/clubscore-qr.svg
+
+# ── Decisión 9: imágenes sin uso (~120 MB) y pump-up-the-bid ──
+# Ninguna página servida las nombra ni arma su ruta por código.
+/assets/art/
+/assets/puttview/
+/assets/putting-lab-blueprint.png
+/assets/website/
+/assets/golfteiner/golfteiner-render-7.png
+/assets/golfteiner/golfteiner-render-8.png
+# assets/house: estas 16 no las usa nadie; las otras 46 sí (performance-lab-brief y vicegolfer-house-complete).
+/assets/house/IMG_9985.png
+/assets/house/IMG_9987.png
+/assets/house/IMG_9988.png
+/assets/house/IMG_9989.png
+/assets/house/IMG_9990.png
+/assets/house/IMG_9991.png
+/assets/house/living-02.jpg
+/assets/house/living-03.jpg
+/assets/house/living-04.jpg
+/assets/house/minigolf-01.jpg
+/assets/house/minigolf-02.jpg
+/assets/house/minigolf-03.jpg
+/assets/house/minigolf-04.jpg
+/assets/house/minigolf-05.jpg
+/assets/house/putting-green-02.jpg
+/assets/house/putting-green-04.jpg
+# Página suelta sin links desde el sitio (subasta Technotronic 1989).
+/pump-up-the-bid/

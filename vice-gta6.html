@@ -790,7 +790,7 @@ render();
       + '<span style="font-size:10px;color:var(--muted)">'+esc(m.day||'')+(m.source?' · '+esc(m.source):'')+'</span></div>'
       + '<h3 style="font-size:15px;margin:2px 0 6px">'+esc(it.name)+'</h3>'
       + '<p style="font-size:12px;line-height:1.7;color:#cfc7e2">'+esc(it.summary||'')+'</p>'
-      + (m.url && !blurred ? '<a href="'+esc(m.url)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--cyan);letter-spacing:1px">FUENTE →</a>' : '')
+      + (/^https?:\/\//i.test(m.url||'') && !blurred ? '<a href="'+esc(m.url)+'" target="_blank" rel="noopener" style="font-size:10px;color:var(--cyan);letter-spacing:1px">FUENTE →</a>' : '')
       + '</div>';
   }
   async function renderIntel(){

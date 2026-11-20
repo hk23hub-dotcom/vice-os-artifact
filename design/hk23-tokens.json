@@ -1,0 +1,21 @@
+{
+  "nombre": "HK23 UNIVERSE",
+  "fuente": "universe-os.html :root",
+  "fecha": "2026-10-20",
+  "tokens": {
+    "black": "#080808",
+    "surface": "#0F0F0F",
+    "card": "#161616",
+    "border": "#252525",
+    "red": "#FF3A1F",
+    "gold": "#FFD200",
+    "green": "#AAFF00",
+    "electric": "#00F0FF",
+    "purple": "#B84DFF",
+    "white": "#F0EDE8",
+    "muted": "#444",
+    "dim": "#2A2A2A",
+    "mono": "'Space Mono', monospace",
+    "disp": "'Space Grotesk', system-ui, sans-serif"
+  }
+}

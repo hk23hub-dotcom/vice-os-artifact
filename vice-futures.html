@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>VICE FUTURES — Futures Desk · CRYPTO VICE</title>
+<title>VICE FUTURES — Escritorio de futuros · CRYPTO VICE</title>
 <meta name="description" content="Escritorio de trading de futuros de CRYPTO VICE: asistente de IA especializado en futuros + herramientas de riesgo (tamaño de posición, liquidación, R:R) y precios en vivo."/>
 <meta name="theme-color" content="#080808"/>
-<meta property="og:title" content="VICE FUTURES — Futures Desk"/>
+<meta property="og:title" content="VICE FUTURES — Escritorio de futuros"/>
 <meta property="og:description" content="Asistente de IA de futuros + calculadoras de riesgo + precios en vivo. Parte de CRYPTO VICE en el universo HK23."/>
 <meta property="og:image" content="https://hk23universe.vercel.app/assets/brand/og-cover.png"/>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23080808'/%3E%3Ctext x='32' y='44' font-family='Arial,sans-serif' font-weight='900' font-size='34' text-anchor='middle' fill='%23B84DFF'%3E%E2%82%BF%3C/text%3E%3C/svg%3E"/>
@@ -82,17 +82,17 @@
   <header>
     <div class="brand">
       <div class="mark"><b>VICE</b> FUTURES</div>
-      <div class="tag">Futures Desk · CRYPTO VICE</div>
+      <div class="tag">Escritorio de futuros · CRYPTO VICE</div>
     </div>
     <div style="display:flex;gap:8px;align-items:center">
       <a class="back" href="https://rollbit.com/trading/BTC?b=99fc43c8-9082-4694-963f-197eec8452a0" target="_blank" rel="noopener" style="border-color:rgba(0,240,255,.4);color:var(--electric)">Operar en Rollbit ↗</a>
-      <a class="back" href="hk23-universe.html">← universo</a>
+      <a class="back" href="/universe-os">← universo</a>
     </div>
   </header>
 
   <a href="https://rollbit.com/trading/BTC?b=99fc43c8-9082-4694-963f-197eec8452a0" target="_blank" rel="noopener"
      style="display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(90deg,rgba(0,240,255,.12),rgba(184,77,255,.12));border:1px solid rgba(0,240,255,.35);border-radius:12px;padding:11px 14px;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:11px;color:var(--electric);letter-spacing:.5px;">
-    ⚡ ¿Operás futuros? Hacelo en <b style="color:var(--white)">Rollbit</b> con mi link — misma plataforma, me apoyás sin costo extra ↗
+    ⚡ ¿Operas futuros? Hazlo en <b style="color:var(--white)">Rollbit</b> con mi link — misma plataforma, me apoyas sin costo extra ↗
   </a>
 
   <div class="ticker" id="ticker">
@@ -108,16 +108,16 @@
       <h2><span class="dot"></span> VICE FUTURES · AGENTE</h2>
       <div class="sub">especialista en futuros · riesgo primero</div>
       <div id="log">
-        <div class="msg ai"><span class="who">VICE FUTURES</span>Soy tu asistente de <b>futuros</b>. Antes que nada: en futuros con apalancamiento podés ser liquidado — por eso siempre arrancamos por el riesgo. Contame tu idea (par, sesgo, entrada) o pedime un plan de trade, gestión de posición, funding, o qué observar hoy.</div>
+        <div class="msg ai"><span class="who">VICE FUTURES</span>Soy tu asistente de <b>futuros</b>. Antes que nada: en futuros con apalancamiento puedes ser liquidado — por eso siempre arrancamos por el riesgo. Cuéntame tu idea (par, sesgo, entrada) o pídeme un plan de trade, gestión de posición, funding, o qué observar hoy.</div>
       </div>
       <div class="chips" id="chips">
         <span class="chip" onclick="ask(this.textContent)">Plan de trade para BTC long</span>
         <span class="chip" onclick="ask(this.textContent)">¿Cómo dimensiono mi posición?</span>
-        <span class="chip" onclick="ask(this.textContent)">Explicame el funding rate</span>
+        <span class="chip" onclick="ask(this.textContent)">Explícame el funding rate</span>
         <span class="chip" onclick="ask(this.textContent)">Errores típicos con apalancamiento</span>
       </div>
       <div class="composer">
-        <textarea id="input" placeholder="Preguntá algo sobre futuros… (Enter para enviar)"></textarea>
+        <textarea id="input" placeholder="Pregunta algo sobre futuros… (Enter para enviar)"></textarea>
         <button id="send" onclick="send()">⚡</button>
       </div>
     </div>
@@ -164,8 +164,8 @@
 
   <div class="disc">
     ⚠️ VICE FUTURES es una herramienta educativa, NO consejo financiero. El trading de futuros con apalancamiento
-    puede liquidar tu capital por completo. Operá solo con lo que puedas permitirte perder. Las respuestas de IA
-    pueden contener errores — verificá siempre.
+    puede liquidar tu capital por completo. Opera solo con lo que puedas permitirte perder. Las respuestas de IA
+    pueden contener errores — verifica siempre.
   </div>
 </div>
 
@@ -206,9 +206,9 @@
       const j=await r.json();
       thinking.remove();
       if(j.ok){ bubble(j.text,'ai'); }
-      else if(r.status===429){ bubble('⏳ Demasiadas consultas seguidas — esperá un minuto y volvé a intentar.','ai'); }
-      else{ bubble('⚠️ '+(j.error||'No pude responder ahora — probá de nuevo.'),'ai'); }
-    }catch(_){ thinking.remove(); bubble('⚠️ Error de red — revisá tu conexión.','ai'); }
+      else if(r.status===429){ bubble('⏳ Demasiadas consultas seguidas — espera un minuto y vuelve a intentar.','ai'); }
+      else{ bubble('⚠️ '+(j.error||'No pude responder ahora — prueba de nuevo.'),'ai'); }
+    }catch(_){ thinking.remove(); bubble('⚠️ Error de red — revisa tu conexión.','ai'); }
     sendBtn.disabled=false; input.focus();
   }
   input.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
@@ -218,17 +218,17 @@
   function calcPS(){
     const acc=num('ps-acc'), risk=num('ps-risk'), entry=num('ps-entry'), stop=num('ps-stop');
     const out=document.getElementById('ps-out');
-    if(!acc||!entry||!stop||entry===stop){ out.innerHTML='Completá cuenta, entrada y stop (distintos).'; return; }
+    if(!acc||!entry||!stop||entry===stop){ out.innerHTML='Completa cuenta, entrada y stop (distintos).'; return; }
     const riskUsd=acc*risk/100; const dist=Math.abs(entry-stop); const distPct=dist/entry*100;
     const qty=riskUsd/dist; const notional=qty*entry;
-    out.innerHTML='Arriesgás <b>$'+fmt(riskUsd)+'</b> ('+risk+'% de la cuenta) · stop a <b>'+distPct.toFixed(2)+'%</b><br>'
+    out.innerHTML='Arriesgas <b>$'+fmt(riskUsd)+'</b> ('+risk+'% de la cuenta) · stop a <b>'+distPct.toFixed(2)+'%</b><br>'
       +'Tamaño: <b>'+fmt(qty)+'</b> unidades · notional <b>$'+fmt(notional)+'</b><br>'
       +'<span style="color:var(--muted)">Apalancamiento para ese notional: '+(notional/acc).toFixed(1)+'x sobre toda la cuenta.</span>';
   }
   function calcLQ(){
     const entry=num('lq-entry'), lev=num('lq-lev'), dir=document.getElementById('lq-dir').value;
     const out=document.getElementById('lq-out');
-    if(!entry||!lev){ out.innerHTML='Completá entrada y apalancamiento.'; return; }
+    if(!entry||!lev){ out.innerHTML='Completa entrada y apalancamiento.'; return; }
     const liq = dir==='long' ? entry*(1-1/lev) : entry*(1+1/lev);
     const move = Math.abs(liq-entry)/entry*100;
     out.innerHTML='Liquidación aprox: <span class="liq"><b>$'+fmt(liq)+'</b></span> ('+dir.toUpperCase()+' '+lev+'x)<br>'
@@ -238,12 +238,12 @@
   function calcRR(){
     const entry=num('rr-entry'), stop=num('rr-stop'), tgt=num('rr-tgt');
     const out=document.getElementById('rr-out');
-    if(!entry||!stop||!tgt){ out.innerHTML='Completá entrada, stop y objetivo.'; return; }
+    if(!entry||!stop||!tgt){ out.innerHTML='Completa entrada, stop y objetivo.'; return; }
     const riskD=Math.abs(entry-stop), rewD=Math.abs(tgt-entry); const rr=rewD/riskD;
     const good = rr>=2;
     out.innerHTML='R:R = <b>1 : '+rr.toFixed(2)+'</b> '+(good?'✅':'⚠️')+'<br>'
       +'Riesgo <b>'+(riskD/entry*100).toFixed(2)+'%</b> · beneficio <b>'+(rewD/entry*100).toFixed(2)+'%</b><br>'
-      +'<span style="color:var(--muted)">'+(good?'Ratio sólido (≥ 1:2).':'Por debajo de 1:2 — necesitás muy alta tasa de acierto para que rinda.')+'</span>';
+      +'<span style="color:var(--muted)">'+(good?'Ratio sólido (≥ 1:2).':'Por debajo de 1:2 — necesitas muy alta tasa de acierto para que rinda.')+'</span>';
   }
   calcPS(); calcLQ(); calcRR();
 </script>

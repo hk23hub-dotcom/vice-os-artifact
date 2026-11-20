@@ -7,14 +7,14 @@ const QU = require('../quote-utils.js');
 test('quoteDeepLink builds universe URL with quote param', () => {
   assert.equal(
     QU.quoteDeepLink('https://hk23neo.github.io/vice-os', 'q01'),
-    'https://hk23neo.github.io/vice-os/hk23-universe.html?quote=q01'
+    'https://hk23neo.github.io/vice-os/universe-os?quote=q01'
   );
 });
 
 test('quoteDeepLink trims trailing slashes on base', () => {
   assert.equal(
     QU.quoteDeepLink('https://x.dev/', 'q02'),
-    'https://x.dev/hk23-universe.html?quote=q02'
+    'https://x.dev/universe-os?quote=q02'
   );
 });
 
