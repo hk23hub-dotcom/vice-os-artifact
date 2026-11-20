@@ -207,6 +207,10 @@
 const SUPABASE_URL='https://iiqhhglgjsbnuihythko.supabase.co';
 const SUPABASE_KEY='sb_publishable_IAeknohtaw-n9fAgh7Zxlg_K9VN-kcM';
 const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{db:{schema:'hk23'}});
+// hk23.entities lo puede escribir cualquiera con la llave anon (0008): nada de ahí entra crudo a innerHTML
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const colorOk=c=>/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c||'')?c:'#888';
+const urlOk=u=>/^https?:\/\//i.test(u||'')?u:'';
 
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 let W,H,DPR=Math.min(2,devicePixelRatio||1),t=0;
@@ -412,7 +416,7 @@ function openPanel(p){
   rows+=row('State',p.state||'alive');
   document.getElementById('p-rows').innerHTML=rows;
   const cta=document.getElementById('p-cta');
-  if(p.link){ cta.href=p.link; cta.style.display='block'; cta.style.background=p.color;
+  if(urlOk(p.link)){ cta.href=urlOk(p.link); cta.style.display='block'; cta.style.background=p.color;
     cta.textContent = p.listing ? ('Buy on '+((p.listing.source||'store').toUpperCase())+' →') : 'Open →'; }
   else cta.style.display='none';
   document.getElementById('panel').classList.add('open');
@@ -455,7 +459,7 @@ function buildHeatmap(){
     if(p.image){ el.style.backgroundImage="url('"+p.image+"')"; }
     else { el.style.backgroundImage='linear-gradient(135deg,'+hexA(p.color,.92)+','+hexA(p.color,.32)+')'; }
     const big=t.w>72&&t.h>42;
-    el.innerHTML='<div class="tl"><div class="tn">'+(big?p.name:'')+'</div>'+((big&&p.priceLabel)?'<div class="tp">'+p.priceLabel+'</div>':'')+'</div>';
+    el.innerHTML='<div class="tl"><div class="tn">'+(big?esc(p.name):'')+'</div>'+((big&&p.priceLabel)?'<div class="tp">'+esc(p.priceLabel)+'</div>':'')+'</div>';
     el.addEventListener('click',()=>{ closeHeatmap(); openPanel(p); });
     grid.appendChild(el);
   }
@@ -477,7 +481,7 @@ function buildCmds(){ const box=document.getElementById('cmds-box');
   h+=cmdRow('#FF3A1F','✦ Cosmos / Orbit','the orbital marketplace view','closeBrain()');
   h+='<h3>Galaxies</h3>';
   h+=cmdRow('#fff','All Systems','show everything','setGalaxy(null)');
-  GALAXIES.forEach(g=>{ h+=cmdRow(g.color,g.name,'isolate this galaxy',"setGalaxy('"+g.slug+"')"); });
+  GALAXIES.forEach(g=>{ h+=cmdRow(colorOk(g.color),esc(g.name),'isolate this galaxy','setGalaxy('+esc(JSON.stringify(g.slug))+')'); });
   h+='<h3>Powers</h3>';
   h+=cmdRow('#FFD200','▦ Portfolio Heatmap','treemap of everything by importance','openHeatmap()');
   h+=cmdRow('#B84DFF','⬡ Swarm Art','particles morph into your art','startSwarm()');

@@ -2879,10 +2879,13 @@ const FONDO_POR_DEFECTO = 'https://www.youtube.com/shorts/k0cVxCm5B8k';   // pla
     } else { // iframe
       const f = document.createElement('iframe');
       if(m.vertical) inner.classList.add('ml-vertical');
+      // fondo de TERCEROS (inquilino): caja de arena — sin formularios, sin navegar la página, sin modales
+      if(layer.ajeno) f.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-presentation allow-popups allow-popups-to-escape-sandbox');
       f.src = embedSrc(m, layer.muted);
       f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen; clipboard-write; gyroscope; accelerometer';
       f.setAttribute('allowfullscreen',''); f.setAttribute('scrolling','no');
-      f.referrerPolicy = 'no-referrer-when-downgrade'; f.loading = 'eager';
+      // solo el ORIGEN como referrer (YouTube lo pide): nunca la URL entera, que puede traer ?llave= o ?code=
+      f.referrerPolicy = 'strict-origin-when-cross-origin'; f.loading = 'eager';
       layer.el = f; inner.appendChild(f);
       // red de seguridad: si el embed nunca carga, tapamos la página de error blanca
       let ok = false; f.addEventListener('load', () => { ok = true; const fb = inner.querySelector('.ml-fail'); if (fb) fb.remove(); });
@@ -3041,10 +3044,20 @@ const FONDO_POR_DEFECTO = 'https://www.youtube.com/shorts/k0cVxCm5B8k';   // pla
 
   // expose for other UI hooks if needed
   // construye un elemento de fondo (iframe/video/img) para CUALQUIER contenedor — ej. una galaxia
-  function bgElement(url){
+  // Fondos de TERCEROS (el bg de un inquilino de universe_galaxies, que cualquiera con la llave anon escribe):
+  // solo embeds conocidos (parseMedia arma su src con host fijo) o archivos de media http(s) o del propio sitio.
+  // Nada de páginas web sueltas ni rutas de la app: cargarían el universo dentro del iframe (?code=… sin un clic).
+  const EMBED_OK = /^https:\/\/(www\.youtube\.com|player\.vimeo\.com|www\.tiktok\.com|www\.instagram\.com|clips\.twitch\.tv|player\.twitch\.tv|open\.spotify\.com|w\.soundcloud\.com)\//i;
+  const MEDIA_LOCAL = /^(\.?\/)?[\w-]+(\/[\w.-]+)*\.(mp4|webm|ogg|mov|mp3|wav|m4a|flac|gif|png|jpe?g|webp|avif)$/i;
+  function fondoAjenoOk(m){
+    if(m.kind === 'iframe') return m.label !== 'WEB' && EMBED_OK.test(embedSrc(m, true));
+    return /^https?:\/\//i.test(m.src || '') || MEDIA_LOCAL.test(m.src || '');   // video/img/audio: no corren código
+  }
+  function bgElement(url, propio){
     const media = parseMedia(url);
     if(!media) return null;
-    const layer = { media, muted:true };
+    if(!propio && !fondoAjenoOk(media)) return null;   // link de afuera que no es un embed ni un archivo de media
+    const layer = { media, muted:true, ajeno:!propio };
     // mismo envoltorio que una capa del motor: hereda la regla de cobertura (.media-layer .ml-inner iframe)
     const wrap = document.createElement('div'); wrap.className = 'media-layer m-full';
     wrap.appendChild(buildInner(layer));    // reusa parseo, embeds y el aviso si no carga
@@ -6628,7 +6641,7 @@ var qrcode = function() {
     if(galOpen && galOpen.bg){
       if(inp) inp.value=galOpen.bg;
       const el = window.MediaEngine && window.MediaEngine.bgElement
-        ? window.MediaEngine.bgElement(galOpen.bg) : null;
+        ? window.MediaEngine.bgElement(galOpen.bg, true) : null;   // tu galaxia, tu link: sin filtro de terceros
       if(el){ holder.appendChild(el); if(window.SinSabana && window.SinSabana.barrer) window.SinSabana.barrer(); }
       if(stage) stage.style.background='#000';
       // el canvas de biomas flota semitransparente sobre el video
@@ -8607,7 +8620,7 @@ addEventListener('DOMContentLoaded', function(){
     h+='</div><div class="mkt-sub" style="display:block;margin-top:16px">'+
       (VIVO.ok
         ? 'PRECIOS REALES · CoinGecko · actualizado '+VIVO.cuando+' · se refresca solo cada minuto'
-        : 'PRECIOS DEMO — no pude traer el feed'+(VIVO.error?(/failed to fetch|load failed|networkerror/i.test(VIVO.error)?' (sin conexión)':': '+VIVO.error):'')+'. Lo que ves son números de ejemplo, no el mercado.')+
+        : 'PRECIOS DEMO — no pude traer el feed'+(VIVO.error?(/failed to fetch|load failed|networkerror/i.test(VIVO.error)?' (sin conexión)':': '+String(VIVO.error).replace(/[&<>"']/g,ch=>'&#'+ch.charCodeAt(0)+';')):'')+'. Lo que ves son números de ejemplo, no el mercado.')+
       '</div>';
     m.innerHTML=h;
     m.querySelectorAll('.mkt-card').forEach(card=>card.onclick=()=>{ coin=card.dataset.coin; syncMkt(); });
@@ -9151,6 +9164,8 @@ addEventListener('DOMContentLoaded', function(){
   const SUPA={ url:'https://TU-PROYECTO.supabase.co',
     key:'TU-ANON-KEY' };
   const HEAD={ apikey:SUPA.key, Authorization:'Bearer '+SUPA.key, 'Content-Type':'application/json' };
+  // lo que viene de Supabase lo escribe cualquiera con la llave pública: se pinta siempre escapado
+  const escV=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
   // identidad del visitante (persistente y anónima)
   let me=null;
@@ -9172,7 +9187,7 @@ addEventListener('DOMContentLoaded', function(){
   async function refreshWho(){
     const box=$('tl-who'); if(!box) return;
     if(presenceOK===false){
-      box.innerHTML='<div class="tl-who"><span class="tl-dot"></span><span class="n">'+me.name+' (tú) — modo local</span><span class="tr">'+tier().toUpperCase()+'</span></div>'+
+      box.innerHTML='<div class="tl-who"><span class="tl-dot"></span><span class="n">'+escV(me.name)+' (tú) — modo local</span><span class="tr">'+escV(String(tier()).toUpperCase())+'</span></div>'+
         '<div style="font-size:8px;color:#3a5a3a;line-height:1.8;margin-top:8px">Para presencia global: corre el SQL de <b>supabase-schema.sql</b> (tabla universe_presence) en tu Supabase. VIGÍA hace el resto.</div>';
       return;
     }
@@ -9182,8 +9197,8 @@ addEventListener('DOMContentLoaded', function(){
       if(!r.ok) throw 0;
       const rows=await r.json();
       box.innerHTML=rows.map(w=>'<div class="tl-who"><span class="tl-dot"></span>'+
-        '<span class="n">'+w.name+(w.name===me.name?' (tú)':'')+'</span>'+
-        '<span class="tr">'+(w.tier||'visita').toUpperCase()+'</span></div>').join('')||'<div style="font-size:9px;color:#3a5a3a">solo tú</div>';
+        '<span class="n">'+escV(String(w.name||'').slice(0,40))+(w.name===me.name?' (tú)':'')+'</span>'+
+        '<span class="tr">'+escV(String(w.tier||'visita').slice(0,20).toUpperCase())+'</span></div>').join('')||'<div style="font-size:9px;color:#3a5a3a">solo tú</div>';
       log('vigia', rows.length+' conectados ahora');
     }catch(e){ presenceOK=false; refreshWho(); }
   }
@@ -9199,7 +9214,7 @@ addEventListener('DOMContentLoaded', function(){
   function streamTick(){
     let ev=[]; try{ ev=JSON.parse(localStorage.getItem('uos_eventos'))||[]; }catch(e){}
     if(ev.length>lastLen){
-      ev.slice(lastLen).forEach(e=>pushLine('<span class="t">'+e.t.slice(11,19)+'</span> <span class="k">['+e.kind+']</span> '+e.detail));
+      ev.slice(lastLen).forEach(e=>pushLine('<span class="t">'+escV(String((e&&e.t)||'').slice(11,19))+'</span> <span class="k">['+escV(e&&e.kind)+']</span> '+escV(e&&e.detail)));
       lastLen=ev.length;
     }
   }
@@ -9209,7 +9224,7 @@ addEventListener('DOMContentLoaded', function(){
       try{
         const r=await fetch('https://api.github.com/repos/'+repo+'/commits?per_page=6');
         if(!r.ok) continue;
-        (await r.json()).forEach(c=>pushLine('<span class="t">'+(c.commit.author.date||'').slice(0,10)+'</span> ⎇ '+repo.split('/')[1]+' — '+(c.commit.message||'').split('\n')[0].slice(0,90),'commit'));
+        (await r.json()).forEach(c=>pushLine('<span class="t">'+escV(String((c.commit&&c.commit.author&&c.commit.author.date)||'').slice(0,10))+'</span> ⎇ '+escV(repo.split('/')[1])+' — '+escV(String((c.commit&&c.commit.message)||'').split('\n')[0].slice(0,90)),'commit'));
       }catch(e){}
     }
   }
@@ -9219,7 +9234,7 @@ addEventListener('DOMContentLoaded', function(){
       $('taller').classList.add('open');
       log('vigia', me.name+' entró al taller ('+tier()+')');
       lastLen=0; $('tl-stream').innerHTML='';
-      pushLine('<span class="k">[vigia]</span> sesión abierta — '+me.name+' · tier '+tier().toUpperCase());
+      pushLine('<span class="k">[vigia]</span> sesión abierta — '+escV(me.name)+' · tier '+escV(String(tier()).toUpperCase()));
       streamTick(); fetchCommits();
       heartbeat().then(refreshWho);
       clearInterval(hbTimer); hbTimer=setInterval(heartbeat, 20000);
@@ -9947,6 +9962,7 @@ addEventListener('DOMContentLoaded', function(){
   const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const hexCol=(c,d)=>/^#[0-9a-f]{3,8}$/i.test(String(c||'').trim())?String(c).trim():d;   // universe_galaxies.color lo escribe cualquiera: solo #hex
   const tier=()=>{ try{ return JSON.parse(localStorage.getItem('uos_tier'))||'visita'; }catch(e){ return 'visita'; } };
   const SUPA={ url:'https://TU-PROYECTO.supabase.co',
     key:'TU-ANON-KEY' };
@@ -10014,7 +10030,7 @@ addEventListener('DOMContentLoaded', function(){
     const t=bySlug(slug); if(!t) return false;
     cur=t;
     const L=$('inq-land');
-    L.style.setProperty('--iq',t.color||'#B84DFF');
+    L.style.setProperty('--iq',hexCol(t.color,'#B84DFF'));
     $('il-eyebrow').textContent='GALAXIA INQUILINA · UOS UNIVERSE';
     $('il-title').textContent=t.name;
     $('il-sub').textContent=t.sub||'';
@@ -10064,7 +10080,7 @@ addEventListener('DOMContentLoaded', function(){
     const list=$('ia-list');
     list.innerHTML=TEN.map(t=>{
       const ps=prodsOf(t.slug).length;
-      return '<div class="ia-card"><div class="n" style="color:'+esc(t.color||'#fff')+'">'+esc(t.name)+
+      return '<div class="ia-card"><div class="n" style="color:'+esc(hexCol(t.color,'#fff'))+'">'+esc(t.name)+
         (t.local?' <span class="mvb-demo" style="background:#00F0FF">LOCAL</span>':'')+
         (t.seed?' <span class="mvb-demo">SEMILLA</span>':'')+'</div>'+
         '<div class="m">código <b>'+esc(t.code||'—')+'</b> · link <b>'+esc(cortoG(t.slug))+'</b> · '+
@@ -10553,6 +10569,7 @@ addEventListener('DOMContentLoaded', function(){
   const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const safeUrl=u=>/^https?:\/\//i.test(u||'')?encodeURI(u):'';
+  const hexCol=(c,d)=>/^#[0-9a-f]{3,8}$/i.test(String(c||'').trim())?String(c).trim():d;   // universe_galaxies.color lo escribe cualquiera: solo #hex
   const tier=()=>{ try{ return JSON.parse(localStorage.getItem('uos_tier'))||'visita'; }catch(e){ return 'visita'; } };
   const SUPA={ url:'https://TU-PROYECTO.supabase.co',
     key:'TU-ANON-KEY' };
@@ -11294,7 +11311,7 @@ addEventListener('DOMContentLoaded', function(){
   $('iu-info').onclick=()=>$('iu-panel').classList.toggle('on');
 
   function paintSide(){
-    const col=(T&&T.color)||'#B84DFF';
+    const col=hexCol(T&&T.color,'#B84DFF');
     $('iu').style.setProperty('--iuc',col);
     $('iu-bio').textContent=(T&&T.bio)||(canEdit()?'Todavía no escribiste tu historia. Toca ✎ EDITAR → ✎ SU BIO.':'Su historia está en camino.');
     const ags=AG();
@@ -11406,7 +11423,7 @@ addEventListener('DOMContentLoaded', function(){
     T=t; nodes=parseNodes(t.nodes);
     $('iu').classList.add('open');
     $('iu').classList.toggle('espectro', ((t.skin||'')==='espectro'));
-    $('iu').style.setProperty('--iuc',t.color||'#B84DFF');
+    $('iu').style.setProperty('--iuc',hexCol(t.color,'#B84DFF'));
     $('iu-pname').textContent=t.name||'—';
     $('iu-psub').textContent=skin()? ((t.sub||'')+' · SINTONIZA').toUpperCase()
                                    : (t.sub||'GALAXIA INQUILINA')+' · UOS UNIVERSE';
@@ -11443,6 +11460,11 @@ addEventListener('DOMContentLoaded', function(){
     sacarBg();
     if(!want || ahorroBg() || !(window.MediaEngine&&window.MediaEngine.bgElement)) return;
     try{ const el=window.MediaEngine.bgElement(want); if(!el) return;
+      const fr=el.querySelector('iframe');
+      if(fr){ let h=''; try{ const u=new URL(fr.getAttribute('src')||'', location.href);
+          if(u.protocol!=='https:'||u.origin===location.origin) return; h=u.hostname; }catch(e){ return; }
+        if(!/(^|\.)(youtube\.com|youtube-nocookie\.com|vimeo\.com|tiktok\.com|instagram\.com|twitch\.tv|spotify\.com|soundcloud\.com)$/i.test(h))
+          fr.setAttribute('sandbox','allow-scripts allow-same-origin'); }
       box.appendChild(el); bgRaw=want;
       if(window.SinSabana&&window.SinSabana.barrer) window.SinSabana.barrer(); }catch(e){}
   }
@@ -12983,12 +13005,12 @@ addEventListener('DOMContentLoaded', function(){
         Object.keys(byPid).forEach(pid=>{ if(!rows[pid]){ const t=byPid[pid]; rows[pid]={pid,label:t.label,status:t.status,progress:t.progress,id:t.id}; } });
         state.projRows=rows;
         document.getElementById('d-projlist').innerHTML=Object.keys(rows).map(pid=>{ const r=rows[pid], s=PROJ_STATUS[r.status]||PROJ_STATUS.idea; return `<div class="d-card">
-          <div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(r.label)}</b><span class="d-pill" style="color:${s.c};background:${s.c}22" onclick="DASH.projCycle('${pid}')">${s.label} ↻</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center"><b>${esc(r.label)}</b><span class="d-pill" style="color:${s.c};background:${s.c}22" onclick="DASH.projCycle(${esc(JSON.stringify(pid))})">${s.label} ↻</span></div>
           <div style="display:flex;align-items:center;gap:8px;margin-top:9px">
             <div style="flex:1;height:7px;background:#0c1218;border-radius:6px;overflow:hidden"><i style="display:block;height:100%;width:${r.progress}%;background:${s.c};border-radius:6px"></i></div>
             <span style="font-size:11px;color:${s.c};width:34px;text-align:right">${r.progress}%</span>
-            <button onclick="DASH.projProg('${pid}',-10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">−</button>
-            <button onclick="DASH.projProg('${pid}',10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">＋</button>
+            <button onclick="DASH.projProg(${esc(JSON.stringify(pid))},-10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">−</button>
+            <button onclick="DASH.projProg(${esc(JSON.stringify(pid))},10)" style="background:#161c22;border:1px solid #20202c;color:#aab;border-radius:6px;width:26px;height:26px;cursor:pointer">＋</button>
           </div></div>`; }).join('');
         return; }
     },
@@ -16523,10 +16545,16 @@ addEventListener('DOMContentLoaded', function(){
   }
   function ver(a){
     try{
-      var url = URL.createObjectURL(a.blob);
-      var w = window.open(url, '_blank', 'noopener');
+      var url = URL.createObjectURL(a.blob), abrir = url;
+      // solo una foto se abre tal cual: un SVG (o un tipo raro) abierto como blob: corre su <script> con el
+      // origen del universo. Lo demás va en un <img> (ahí un SVG no ejecuta nada) dentro de una página sin
+      // scripts (CSP); pointer-events:none para que no se pueda «abrir la imagen» suelta con el menú.
+      if(!/^image\/(png|jpe?g|gif|webp|avif|bmp)$/i.test((a.blob && a.blob.type) || '')){
+        abrir = URL.createObjectURL(new Blob(['<!doctype html><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src blob:; style-src \'unsafe-inline\'"><body style="margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0e0e0e"><img src="' + url + '" alt="" style="max-width:100%;max-height:100vh;pointer-events:none"><\/body>'], { type:'text/html' }));
+      }
+      var w = window.open(abrir, '_blank', 'noopener');
       if(!w) aviso('⚠ EL NAVEGADOR BLOQUEÓ LA PESTAÑA — USA BAJAR');
-      setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+      setTimeout(function(){ URL.revokeObjectURL(url); if(abrir !== url) URL.revokeObjectURL(abrir); }, 60000);
     }catch(e){ aviso('⚠ NO PUDE ABRIRLO ACÁ — USA BAJAR'); }
   }
 
